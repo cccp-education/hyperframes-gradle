@@ -1,0 +1,53 @@
+= SESSION_CHECKLIST — hyperframes-gradle
+
+== Hook d'Ouverture — Avant de commencer une session
+
+. [ ] PROMPT_REPRISE injecté par opencode — ne pas lire localement
+. [ ] Lire `AGENT.adoc` — règles absolues (8 règles)
+. [ ] Lire `.agents/INDEX.adoc` — roadmap, état des EPICs, portefeuille
+. [ ] Vérifier l'état git (`git status` depuis `hyperframes-gradle/`)
+. [ ] Vérifier que le build compile (`./gradlew compileKotlin` depuis `hyperframes-plugin/`)
+. [ ] Vérifier que `./gradlew tasks` fonctionne (depuis `hyperframes-plugin/`)
+
+== Pendant la session
+
+. [ ] Respecter Règle 1 — AUCUN commit sans permission
+. [ ] Respecter Règle 2 — AUCUN publish sans permission
+. [ ] Respecter Règle 7 — HYPERFRAMES CONSOMME ASCIIDOC sans modifier la source
+. [ ] Respecter Règle 8 — Bridge Node.js par CLI, pas de couplage code
+. [ ] Respecter Règle 6 — ZERO secret en dur
+. [ ] Vérifier que chaque modification compile
+
+== Hook de Fermeture — Procédure 6 étapes
+
+. [ ] 1. Rapport de session → `.agents/sessions/NNN-sujet.adoc`
+. [ ] 2. Mise à jour `PROMPT_REPRISE.adoc`
+. [ ] 3. Mise à jour `INDEX.adoc`
+. [ ] 4. Mise à jour `SESSIONS_HISTORY.adoc`
+. [ ] 5. Archivage `archives/COMPLETED_TASKS_ARCHIVE.adoc`
+. [ ] 6. Vérification — `git status`, absence de secrets, build compile
+
+== Commandes de Vérification
+
+[source,shell]
+----
+# Vérifier l'état git
+git status
+
+# Vérifier l'absence de secrets
+grep -r "TOKEN\|SECRET\|PASSWORD\|API_KEY\|gho_\|ghp_" --include="*.kts" --include="*.properties" --include="*.yml"
+
+# Vérifier que le build compile
+./gradlew :hyperframes:compileKotlin
+
+# Vérifier que les tests passent (NE PAS LANCER sans permission)
+# ./gradlew check
+----
+
+== Rappels
+
+* HyperFrames dépend du CLI Node.js — vérifier que Node.js 22+ est installé
+* AsciidoctorJ est partagé avec codex-gradle en compileOnly
+* Le contrat AsciiDoc → HyperFrames : blocs customs + docinfo attributes
+* Bridge JVM→Node.js : ProcessBuilder, pas de couplage npm dans Gradle
+* Aucun commit sans permission explicite

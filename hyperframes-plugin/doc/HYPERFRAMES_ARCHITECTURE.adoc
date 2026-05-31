@@ -1,0 +1,370 @@
+= HYPERFRAMES_ARCHITECTURE — Pipeline AsciiDoc → Vidéo MP4
+:author: cheroliv
+:revdate: 2026-05-31
+:revnumber: 1.0
+:toc: macro
+:toclevels: 3
+
+toc::[]
+
+'''
+== Vision
+
+Transformer automatiquement un document AsciiDoc annoté en vidéo MP4
+via le moteur HyperFrames (HeyGen, Apache 2.0, 22.7k ⭐), sans passer
+par reveal.js. Le DSL de configuration est porté par AsciidoctorJ.
+Le bridge Node.js est isolé derrière ProcessBuilder.
+
+=== Stack
+
+[cols="3,5"]
+|===
+| Brique | Rôle
+| AsciidoctorJ | Parse l'AsciiDoc source, extrait les blocs customs et les docinfo attributes
+| codex-gradle | Dépendance compileOnly — partage AsciidoctorJ
+| HyperFrames CLI | Moteur de rendu HTML → MP4 (Puppeteer + FFmpeg, Node.js 22+)
+| ProcessBuilder | Bridge JVM → CLI Node.js (pas de couplage code)
+|===
+
+'''
+== Positionnement dans le DAG
+
+Le plugin hyperframes-gradle est N2 — Plugin Gradle de transformation documentaire.
+Il s'intègre dans la chaîne documentaire existante :
+
+.Niveaux DAG
+[cols="1,2,5", options="header"]
+|===
+| Niveau | Projets | Rôle
+| N0 | graphify-gradle | Scanner de dépendances → graphe
+| N1 | codebase-gradle | RAG socle pgvector, anonymisation
+| N2 | slider-gradle | AsciiDoc → reveal.js HTML (slides interactives)
+| N2 | codex-gradle | AsciiDoc → PDF (documentation imprimable)
+| N2 | capsule-gradle | reveal.js HTML → WebM (capsule vidéo de révision)
+| *N2* | ***hyperframes-gradle*** | *AsciiDoc → MP4 (vidéo explicative standalone)* 🆕
+| N3 | runner-gradle | Orchestration → assembleCompositeContext → deploy
+|===
+
+.Chaîne de valeur vidéo complète
+----
+AsciiDoc ──→ slider-gradle ──→ deck reveal.js ──→ capsule-gradle ──→ WebM
+                                                      (capsule révision)
+
+AsciiDoc ──→ hyperframes-gradle ──→ MP4
+                                        (vidéo standalone)
+----
+
+'''
+== Pipeline Global
+
+[plantuml,target="pipeline-global",format="svg"]
+----
+@startuml
+skinparam backgroundColor #FEFEFE
+skinparam defaultFontSize 12
+
+title Pipeline HyperFrames — Vue Globale
+
+rectangle "AsciiDoc\nsource" as adoc #LightYellow
+rectangle "hyperframes-gradle\n(HyperframesPlugin)" as plugin #LightCoral
+rectangle "AsciidoctorJ\nparse + extract" as asciidoctorj #LightBlue
+rectangle "HTML HyperFrames\n(data-* attrs)" as html #LightGreen
+rectangle "HyperFrames CLI\n(Node.js 22+)" as cli #Lavender
+rectangle "Puppeteer\nheadless Chrome" as puppeteer #LightSalmon
+rectangle "FFmpeg\nencode" as ffmpeg #Gray
+rectangle "video.mp4\nlivrable" as livrable #Gold
+
+adoc --> plugin : source
+plugin --> asciidoctorj : parse
+asciidoctorj --> html : génère
+html --> cli : input
+cli --> puppeteer : pilote
+cli --> ffmpeg : encode
+puppeteer --> ffmpeg : frames
+ffmpeg --> livrable : output
+@enduml
+----
+
+Le pipeline global transforme l'AsciiDoc source en un livrable MP4 unique,
+sans étape de post-production humaine.
+
+'''
+== Architecture des Composants
+
+[plantuml,target="composants",format="svg"]
+----
+@startuml
+skinparam backgroundColor #FEFEFE
+skinparam defaultFontSize 12
+
+title Architecture — Composants et Responsabilités
+
+package "codex-gradle (existant)" #LightBlue {
+  component "AsciidoctorJ" as asciidoctorj
+  component "codexEngine" as codexengine
+}
+
+package "hyperframes-gradle (nouveau)" #LightCoral {
+  component "HyperframesPlugin" as plugin
+  component "HyperframesExtension\n(DSL config)" as extension
+  component "GenerateHyperframesHtmlTask" as genHtmlTask
+  component "RenderHyperframesTask\n(ProcessBuilder)" as renderTask
+  component "TransformHyperframesContentTask" as transformTask
+  component "DeployHyperframesTask" as deployTask
+}
+
+package "Externes" #LightGrey {
+  component "HyperFrames CLI\n(Node.js 22+)" as hfCli
+  component "Puppeteer\n(headless Chrome)" as puppeteer
+  component "FFmpeg" as ffmpeg
+}
+
+cloud "Livrable" {
+  component "video.mp4\n(MP4 h264 + AAC)" as output
+}
+
+asciidoctorj --> genHtmlTask : compileOnly\ncontrat par API JVM
+genHtmlTask --> renderTask : fichier HTML\nintermédiaire
+renderTask --> hfCli : ProcessBuilder\nnpx hyperframes render
+hfCli --> puppeteer : pilote
+hfCli --> ffmpeg : encode
+puppeteer --> ffmpeg : frames brutes
+renderTask --> output : copie vers output/
+
+extension --> plugin : DSL
+plugin --> genHtmlTask
+plugin --> renderTask
+plugin --> transformTask
+plugin --> deployTask
+@enduml
+----
+
+'''
+== Flux de Données — AsciiDoc → HTML HyperFrames → MP4
+
+[plantuml,target="data-flow",format="svg"]
+----
+@startuml
+skinparam backgroundColor #FEFEFE
+skinparam defaultFontSize 12
+
+title Flux de Données — AsciiDoc → HTML HyperFrames → MP4
+
+actor "Rédacteur" as author
+database "ma-formation.adoc" as source
+collections "HyperframesExtension\n(DSL Gradle)" as dsl
+collections "GenerateHyperframesHtmlTask" as genHtml
+database "index.html\n(HyperFrames)" as html
+collections "RenderHyperframesTask" as render
+database "video.mp4" as mp4
+collections "collectHyperframesRetrieve" as collect
+database "metadata.json\n(contexte N3)" as metadata
+
+author --> source : écrit
+source --> genHtml : parse AsciidoctorJ
+dsl --> genHtml : configuration\n(width, height, fps, ...)
+genHtml --> html : génère HTML\navec data-* attrs
+html --> render : ProcessBuilder\n→ npx hyperframes render
+render --> mp4 : MP4 h264 + AAC
+mp4 --> collect : parse metadata
+collect --> metadata : export JSON
+@enduml
+----
+
+'''
+== DSL AsciiDoc — Exemple Complet
+
+Voici un document AsciiDoc annoté avec le DSL HyperFrames :
+
+[source,asciidoc]
+----
+= Formation Docker & Kubernetes
+:hyperframes-width: 1920
+:hyperframes-height: 1080
+:hyperframes-fps: 30
+:hyperframes-output: docker-kubernetes.mp4
+:hyperframes-duration: 60
+
+[hyperframes-composition, id="intro"]
+== Introduction
+
+Le titre apparaît avec un fondu GSAP sur fond vidéo.
+
+[hyperframes-track, index=0, start=0, duration=6]
+video::assets/background.mp4[muted, playsinline]
+
+[hyperframes-track, index=1, start=1, duration=4]
+Formation Docker & Kubernetes
+
+[hyperframes-track, index=2, start=0, duration=6]
+audio::assets/music.wav[volume=0.3]
+
+[hyperframes-animation, type=gsap]
+----
+const tl = gsap.timeline({ paused: true });
+tl.from("#title", { opacity: 0, y: 40, duration: 0.8 }, 1);
+window.__timelines = window.__timelines || {};
+window.__timelines.intro = tl;
+----
+
+[hyperframes-composition, id="comparison"]
+== Docker vs Kubernetes : Comparaison
+
+Un tableau comparatif qui s'anime ligne par ligne.
+
+[hyperframes-track, index=0, start=0, duration=8]
+|===
+| | Docker | Kubernetes
+| Rôle | Container runtime | Orchestrateur
+| Scaling | Manuel | Automatique
+|===
+
+[hyperframes-track, index=1, start=0, duration=8]
+audio::assets/narration-comparison.mp3[]
+----
+
+=== Mapping AsciiDoc → HTML HyperFrames
+
+[cols="2,3,3", options="header"]
+|===
+| AsciiDoc | HTML généré | Rôle
+| `:hyperframes-width: 1920` | `data-width="1920"` sur `#stage` | Dimensions vidéo
+| `:hyperframes-height: 1080` | `data-height="1080"` sur `#stage` | Dimensions vidéo
+| `:hyperframes-fps: 30` | `--fps 30` argument CLI | Framerate
+| `[hyperframes-composition, id="intro"]` | `data-composition-id="intro"` | Identifiant de composition
+| `[hyperframes-track, index=0, start=0, duration=6]` | `data-track-index="0" data-start="0" data-duration="6"` | Track média/timing
+| `[hyperframes-animation, type=gsap]` | `<script>` GSAP avec `__timelines` | Animation seekable
+|===
+
+'''
+== Bridge Node.js — ProcessBuilder
+
+Le seul point de friction technique est le bridge entre la JVM (Gradle/Kotlin)
+et le CLI HyperFrames (Node.js/TypeScript).
+
+=== Stratégie
+
+Le plugin n'importe JAMAIS de code Node.js. Le contrat est par ligne de commande
+et fichiers sur disque :
+
+[source,kotlin]
+----
+class RenderHyperframesTask : DefaultTask() {
+
+    @TaskAction
+    fun render() {
+        val inputFile = extension.inputDir.resolve("index.html")
+        val outputFile = extension.outputDir.resolve("${extension.outputName}.mp4")
+
+        val process = ProcessBuilder(
+            "npx", "hyperframes", "render",
+            "--input", inputFile.absolutePath,
+            "--output", outputFile.absolutePath
+        )
+            .directory(extension.inputDir)
+            .inheritIO()
+            .start()
+
+        val exitCode = process.waitFor()
+        require(exitCode == 0) {
+            "HyperFrames render failed with exit code $exitCode"
+        }
+
+        require(outputFile.exists() && outputFile.length() > 0) {
+            "HyperFrames output file is empty or missing: ${outputFile.absolutePath}"
+        }
+    }
+}
+----
+
+=== Gestion d'erreurs
+
+- Node.js absent → message clair : "HyperFrames requires Node.js 22+. Install it from https://nodejs.org"
+- HyperFrames CLI absent → message : "Run `npm install -g hyperframes` or use npx"
+- Timeout → configurable via extension (`renderTimeoutMs`, défaut 300 secondes)
+- Crash → exception Gradle avec le stderr capturé
+
+'''
+== Contrat N3 — runner-gradle
+
+Le plugin exporte un `metadata.json` pour le runner-gradle N3 :
+
+[source,json]
+----
+{
+  "plugin": "hyperframes-gradle",
+  "version": "0.1.0",
+  "output": {
+    "video": "docker-kubernetes.mp4",
+    "path": "/output/docker-kubernetes.mp4",
+    "sizeBytes": 25165824,
+    "durationSeconds": 60.0,
+    "width": 1920,
+    "height": 1080,
+    "fps": 30,
+    "codec": "h264"
+  },
+  "source": {
+    "asciidoc": "ma-formation.adoc",
+    "compositions": ["intro", "comparison"],
+    "tracks": 5
+  },
+  "renderedAt": "2026-05-31T14:30:00Z",
+  "renderDurationMs": 45230
+}
+----
+
+Ce JSON est consommé par `runner-gradle assembleCompositeContext`
+dans `collectHyperframesRetrieve`.
+
+'''
+== Différences avec les Plugins Existants
+
+[cols="2,2,2,2,2", options="header"]
+|===
+| Aspect | slider-gradle | codex-gradle | capsule-gradle | hyperframes-gradle
+| Source | AsciiDoc | AsciiDoc | reveal.js HTML | AsciiDoc
+| Sortie | reveal.js HTML | PDF | WebM | MP4
+| Use case | Slides | Doc imprimable | Capsule révision | Vidéo standalone
+| Animation | Transitions reveal.js | Aucune | Capture reveal.js | GSAP/CSS data-attrs
+| Rendu | AsciidoctorJ | AsciidoctorJ PDF | Playwright Java | HyperFrames CLI
+| Stack | 100% JVM | 100% JVM | JVM + Playwright | JVM + Node.js CLI
+|===
+
+'''
+== Décisions Techniques
+
+[cols="2,5,3", options="header"]
+|===
+| Décision | Raison | Alternative rejetée
+| AsciidoctorJ en compileOnly | Partagé avec codex-gradle, pas de duplication | Réimplémentation du parsing
+| ProcessBuilder pour le bridge | Zéro couplage code JVM ↔ Node.js | J2V8, GraalJS (trop lourd)
+| HyperFrames CLI externe | Isolation, upgrade indépendant | Bundler HyperFrames dans le plugin (trop complexe)
+| MP4 h264 + AAC | Standard universel, compatible tous lecteurs | WebM (Playwright natif, moins compatible)
+| DSL en AsciiDoc customs | Naturel pour l'écosystème existant | DSL YAML/JSON (moins intégré)
+|===
+
+'''
+== Use Cases MVP0
+
+|===
+| Use case | Plugin | Exemple
+| Slides d'animation formateur | slider-gradle | `./gradlew generateSlides`
+| PDF cours stagiaire | codex-gradle | `./gradlew generatePdf`
+| Capsule révision stagiaire | capsule-gradle | `./gradlew generateCapsuleVideo`
+| *Vidéo teasing formation* | *hyperframes-gradle* | `./gradlew renderHyperframes`
+| *Démo technique animée* | *hyperframes-gradle* | Code diff animé, data viz
+| *Tuto doc-to-video* | *hyperframes-gradle* | Manuel AFNOR → vidéo explicative
+|===
+
+'''
+== Risques et Mitigations
+
+[cols="1,3,3", options="header"]
+|===
+| Risque | Impact | Mitigation
+| HyperFrames CLI API instable (v0.6.x) | Cassure du pipeline | Pin de version, tests golden file MP4
+| Node.js 22+ non dispo sur CI | Bloquant | Docker image avec Node.js préinstallé, skip conditionnel
+| Headless Chrome lent sur CI | Timeout | Timeout configurable, cache des frames
+| AsciidoctorJ version mismatch | Compilation | compileOnly = version du consommateur, pas du producteur
+|===

@@ -1,0 +1,51 @@
+= Session 000 — Bootstrap Gouvernance Agent + Cadrage Architecture HyperFrames (Watts)
+:tags: [HF-0, bootstrap, gouvernance]
+:date: 2026-05-31
+
+'''
+== Résumé
+
+Bootstrap complet de `hyperframes-gradle` (12ème borough **Watts** 🟠) :
+gouvernance agent (.agents/) + cadrage architecture
+(doc/HYPERFRAMES_ARCHITECTURE.adoc avec 4 diagrammes PlantUML)
++ article blog #0125.
+Mise à jour AGENTS.adoc et PLAN_GLOBAL.adoc du workspace.
+
+== EPIC couvert
+
+|===
+| EPIC | Tâche | Statut
+| HF-0a | Structure projet hyperframes-gradle/ (root + hyperframes-plugin/) | ✅ TERMINÉ
+| HF-0b | Gouvernance agent (AGENT.adoc, INDEX.adoc, BACKLOG.adoc, SESSION_CHECKLIST.adoc, SESSION_PROCEDURE.adoc, SESSIONS_HISTORY.adoc, PROMPT_REPRISE.adoc) | ✅ TERMINÉ
+| HF-0c | Doc architecture HYPERFRAMES_ARCHITECTURE.adoc (4 diagrammes PlantUML + DSL + décisions) | ✅ TERMINÉ
+| HF-0d | Article blog cheroliv.com #0125 — HyperFrames-Gradle : AsciiDoc→MP4 | ✅ TERMINÉ
+| HF-0e | Mise à jour AGENTS.adoc (Watts 12ème borough, chaîne de valeur, historique) | ✅ TERMINÉ
+| HF-0f | Mise à jour PLAN_GLOBAL.adoc (EPICs HF-0→HF-6 dans P2, DAG N2) | ✅ TERMINÉ
+|===
+
+== Fichiers créés
+
+|===
+| Fichier | Lignes | Contenu
+| `AGENT.adoc` | 62 | 8 règles absolues, stack, tâches principales, comparaison capsule
+| `.agents/INDEX.adoc` | 85 | Dashboard, roadmap 6 EPICs HF-0→HF-6, sessions
+| `.agents/SESSION_CHECKLIST.adoc` | 52 | Hook ouverture/fermeture + commandes vérification
+| `.agents/SESSION_PROCEDURE.adoc` | 35 | Procédure 6 étapes fin de session
+| `.agents/SESSIONS_HISTORY.adoc` | 9 | Journal session 000
+| `BACKLOG.adoc` | 100 | 5 US, dette, risques
+| `PROMPT_REPRISE.adoc` | 55 | Contexte session 001 (HF-1)
+| `doc/HYPERFRAMES_ARCHITECTURE.adoc` | 230 | 4 diagrammes PlantUML + DSL mapping + bridge Node.js + décisions techniques
+|===
+
+== Décisions d'architecture
+
+. *Plugin séparé* — Pas d'intégration dans reveal.js/slider-gradle. Pipeline autonome AsciiDoc→HyperFrames→MP4, complémentaire à capsule-gradle.
+. *AsciidoctorJ en compileOnly* — Partagé avec codex-gradle, pa, s de réimplémentation du parsing.
+. *ProcessBuilder bridge* — Zéro couplage code JVM↔Node.js. Contrat par CLI et fichiers, pattern déjà éprouvé (PlantUML, Graphviz, Piper).
+. *DSL en AsciiDoc customs* — Blocs `[hyperframes-composition]`, `[hyperframes-track]`, `[hyperframes-animation]` + attributs docinfo.
+. *MP4 h264+AAC* — Standard universel, compatible tous lecteurs (vs WebM Playwright natif).
+. *Nom Watts* — Quartier de Los Angeles, berceau du jazz West Coast, clin d'œil à la production vidéo.
+
+== Roadmap définie
+
+6 EPICs : HF-0 (bootstrap ✅) → HF-1 (plugin Gradle + AsciidoctorJ) → HF-2 (bridge CLI) → HF-3 (DSL AsciiDoc) → HF-4 (intégration N3) → HF-5 (templates) → HF-6 (CI/CD)

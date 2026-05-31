@@ -1,0 +1,151 @@
+= INDEX — HyperFrames Gradle
+:toc:
+
+_Règles absolues_ : voir `AGENT.adoc`
+_DAG_ : N2 — Plugin Gradle de transformation documentaire AsciiDoc → vidéo MP4
+_Dépendance N2_ : codex-gradle (compileOnly, AsciidoctorJ partagé)
+_Bridge externe_ : HyperFrames CLI (Node.js 22+, ProcessBuilder)
+
+_Dernière mise à jour_ : 2026-05-31 (HF-0 Bootstrap gouvernance + cadrage)
+_Session terminée_ : 000 — Bootstrap gouvernance (AGENT, INDEX, BACKLOG, ARCHITECTURE)
+_Prochaine session_ : 001 — HF-1 Plugin Gradle stub + AsciidoctorJ intégration
+
+'''
+== RÈGLES ABSOLUES (résumé)
+
+=== 1. COMMITS/GIT — INTERDICTION FORMELLE sans permission
+=== 2. PUBLISH — INTERDICTION FORMELLE sans permission
+=== 3. DAG N2 — importable par N3 runner-gradle, jamais importe N3
+=== 4. PROCÉDURE DE FIN DE SESSION — 6 ÉTAPES OBLIGATOIRES
+=== 5. HOOK OUVERTURE — Checklist SESSION_CHECKLIST.adoc obligatoire
+=== 6. ZERO secret/token/api key en dur dans le code source
+=== 7. HYPERFRAMES CONSOMME ASCIIDOC — lecture seule
+=== 8. BRIDGE NODE.JS — ProcessBuilder, pas de couplage code
+
+'''
+== EPIC HF-0 — Bootstrap Gouvernance + Cadrage Architecture
+
+[cols="1,3,2", options="header"]
+|===
+| Phase | Livrable | Statut
+| HF-0a | Structure projet hyperframes-gradle/ (root + hyperframes-plugin/) | ✅ 2026-05-31
+| HF-0b | Gouvernance agent (.agents/, AGENT.adoc, INDEX.adoc, BACKLOG.adoc) | ✅ 2026-05-31
+| HF-0c | Doc architecture HYPERFRAMES_ARCHITECTURE.adoc (4 diagrammes PlantUML) | ✅ 2026-05-31
+| HF-0d | Article blog cheroliv.com #0125 | ✅ 2026-05-31
+| HF-0e | Mise à jour AGENTS.adoc (Watts 12ème borough) | ✅ 2026-05-31
+| HF-0f | Mise à jour PLAN_GLOBAL.adoc (EPICs HF-0→HF-6) | ✅ 2026-05-31
+|===
+
+'''
+== Roadmap — État Actuel
+
+[cols="1,3,2,2", options="header"]
+|===
+| EPIC | Description | Statut | Priorité
+| HF-0 | Bootstrap gouvernance + cadrage architecture | ✅ TERMINÉ (session 000) | P0
+| HF-1 | Plugin Gradle stub + AsciidoctorJ intégration (parse AsciiDoc → HTML HyperFrames) | À faire | P0
+| HF-2 | Bridge CLI HyperFrames (ProcessBuilder → npx → MP4) | À faire | P1
+| HF-3 | DSL AsciiDoc customs (blocs, docinfo attributes, templates) | À faire | P1
+| HF-4 | Intégration N3 runner-gradle (collectHyperframesRetrieve, metadata.json) | À faire | P2
+| HF-5 | Templates HyperFrames prêts à l'emploi (transitions, overlays, captions) | À faire | P3
+| HF-6 | CI + publication Maven Central / Gradle Portal | À faire | P3
+|===
+
+'''
+== EPIC HF-1 — Plugin Gradle + AsciidoctorJ
+
+_Vision_ : Un plugin Gradle autonome qui parse un document AsciiDoc
+annoté et génère le HTML HyperFrames correspondant.
+
+[cols="1,3,2", options="header"]
+|===
+| Phase | Livrable | Statut
+| HF-1a | Structure build Gradle (root + hyperframes-plugin, wrapper 9.5.0) | À faire
+| HF-1b | HyperframesPlugin.kt stub (class Plugin<Project>, extension, tasks) | À faire
+| HF-1c | AsciidoctorJ configuration (compileOnly codex-gradle, converter custom) | À faire
+| HF-1d | GenerateHyperframesHtmlTask — AsciiDoc → HTML HyperFrames | À faire
+| HF-1e | Tests unitaires (GradleTestKit, document minimal) | À faire
+|===
+
+== EPIC HF-2 — Bridge CLI HyperFrames
+
+_Vision_ : Appeler la CLI HyperFrames depuis le plugin Gradle via
+ProcessBuilder, en passant le HTML généré → MP4.
+
+[cols="1,3,2", options="header"]
+|===
+| Phase | Livrable | Statut
+| HF-2a | RenderHyperframesTask — ProcessBuilder → npx → MP4 | À faire
+| HF-2b | Gestion erreurs CLI (Node.js absent, timeout, crash) | À faire
+| HF-2c | Tests fonctionnels (mock CLI, golden file MP4) | À faire
+|===
+
+== EPIC HF-3 — DSL AsciiDoc
+
+_Vision_ : Un DSL AsciiDoc naturel pour définir les compositions HyperFrames
+via blocs customs et attributs docinfo.
+
+[cols="1,3,2", options="header"]
+|===
+| Phase | Livrable | Statut
+| HF-3a | Blocs customs [hyperframes-composition], [hyperframes-track] | À faire
+| HF-3b | Attributs docinfo (:hyperframes-width:, :hyperframes-fps:, etc.) | À faire
+| HF-3c | Templates HTML HyperFrames par défaut (GSAP minimal, transitions) | À faire
+| HF-3d | Documentation DSL AsciiDoc (exemples, référence) | À faire
+|===
+
+== EPIC HF-4 — Intégration N3
+
+_Vision_ : Le plugin exporte un metadata.json pour le runner-gradle
+N3, qui l'ingère dans assembleCompositeContext.
+
+[cols="1,3,2", options="header"]
+|===
+| Phase | Livrable | Statut
+| HF-4a | collectHyperframesRetrieve task → metadata.json | À faire
+| HF-4b | Contrat runner-gradle (HyperframesParseContext, JSON schema) | À faire
+| HF-4c | Tests intégration N3 (runner-gradle consume le JSON) | À faire
+|===
+
+== EPIC HF-5 — Templates
+
+_Vision_ : Une bibliothèque de templates HyperFrames prêts à l'emploi
+(transitions, overlays, captions, charts, maps).
+
+[cols="1,3,2", options="header"]
+|===
+| Phase | Livrable | Statut
+| HF-5a | Template "title-card" (fade-in, logo, titre) | À faire
+| HF-5b | Template "code-diff" (animation diff de code) | À faire
+| HF-5c | Template "data-chart" (graphique animé) | À faire
+| HF-5d | Template "kinetic-captions" (sous-titres animés) | À faire
+|===
+
+== EPIC HF-6 — CI/CD
+
+_Vision_ : Pipeline CI GitHub Actions + publication sur Maven Central
+et Gradle Plugin Portal sous le handle cccp-education.
+
+[cols="1,3,2", options="header"]
+|===
+| Phase | Livrable | Statut
+| HF-6a | GitHub Actions workflow test-hyperframes.yml | À faire
+| HF-6b | Publication Maven Central (group education.cccp, artifact hyperframes-gradle) | À faire
+| HF-6c | Publication Gradle Plugin Portal (handle cccp-education) | À faire
+|===
+
+'''
+== Sessions
+
+|===
+| # | Date | Type | Sujet | Score
+| 000 | 2026-05-31 | bootstrap | HF-0 — Bootstrap gouvernance + cadrage architecture (AGENT, INDEX, BACKLOG, ARCHITECTURE, SESSION_CHECKLIST, SESSION_PROCEDURE, SESSIONS_HISTORY) | ✅ TERMINÉ
+|===
+
+'''
+== Liens
+
+* HyperFrames : https://github.com/heygen-com/hyperframes (Apache 2.0, 22.7k ⭐)
+* HyperFrames Docs : https://hyperframes.heygen.com/introduction
+* Architecture détaillée : `doc/HYPERFRAMES_ARCHITECTURE.adoc`
+* Article blog : `office/sites/cheroliv.com/jbake/content/blog/2026/0125_hyperframes_asciidoc_video_post.adoc`

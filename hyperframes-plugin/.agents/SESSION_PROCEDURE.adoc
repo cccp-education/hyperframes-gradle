@@ -1,0 +1,35 @@
+= SESSION_PROCEDURE — hyperframes-gradle
+
+== Procédure de Fin de Session — 6 Étapes Obligatoires
+
+. *Rapport de session* — Créer `.agents/sessions/NNN-sujet.adoc`
+. *Mise à jour PROMPT_REPRISE.adoc* — Contexte de reprise session N+1 (max 70 lignes)
+. *Mise à jour INDEX.adoc* — Numéro de session, roadmap, statut EPICs
+. *Mise à jour SESSIONS_HISTORY.adoc* — Ajouter l'entrée dans l'historique
+. *Archivage COMPLETED_TASKS_ARCHIVE.adoc* — Archiver les tâches terminées
+. *Vérification* — `git status`, absence de secrets, build compile
+
+== Commandes de Vérification
+
+[source,shell]
+----
+# Vérifier l'état git
+git status
+
+# Vérifier l'absence de secrets
+grep -r "TOKEN\|SECRET\|PASSWORD\|API_KEY\|gho_\|ghp_" --include="*.kts" --include="*.properties" --include="*.yml"
+
+# Vérifier que le build compile
+./gradlew :hyperframes:compileKotlin
+
+# Vérifier que les tests passent (NE PAS LANCER sans permission)
+# ./gradlew check
+----
+
+== Rappels
+
+* HyperFrames CLI = Node.js 22+ requis, vérifier avant de render
+* AsciidoctorJ en compileOnly — partagé avec codex-gradle, ne pas réimplémenter
+* Contrat par fichiers : AsciiDoc → HTML HyperFrames → MP4
+* Bridge Node.js : `npx hyperframes render`, pas d'installation npm dans le build
+* Aucun commit sans permission explicite

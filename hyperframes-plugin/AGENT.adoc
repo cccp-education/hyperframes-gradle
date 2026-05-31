@@ -1,0 +1,77 @@
+= AGENT.adoc — HyperFrames Gradle
+
+_Produit_ : Pipeline AsciiDoc → vidéo MP4 via HyperFrames
+_Licence_ : Apache 2.0 (OSS)
+_DAG_ : N2 — Plugin Gradle de transformation documentaire
+_Dépendance_ : compileOnly codex-gradle (AsciidoctorJ partagé), HyperFrames CLI (Node.js externe)
+
+== Principe
+
+Le plugin `hyperframes` transforme un document AsciiDoc annoté
+en vidéo MP4 via le moteur HyperFrames (HeyGen, Apache 2.0).
+Le DSL de configuration est porté par AsciidoctorJ — les blocs
+customs et attributs docinfo définissent les compositions,
+les tracks, les animations et les médias.
+
+Le bridge Node.js est géré via ProcessBuilder → `npx hyperframes render`.
+Le contrat est par fichiers : AsciiDoc source + metadata.json → HTML HyperFrames → MP4.
+
+Pipeline :
+  AsciiDoc ──→ AsciidoctorJ (parse + extract) ──→ HTML HyperFrames ──→ CLI Node.js ──→ MP4
+
+HyperFrames est un framework open-source pour transformer HTML, CSS,
+médias et animations seekable en vidéos MP4 déterministes.
+https://github.com/heygen-com/hyperframes (Apache 2.0, 22.7k ⭐)
+
+== Règles Absolues
+
+=== 1. COMMITS/GIT — INTERDICTION FORMELLE sans permission
+=== 2. PUBLISH — INTERDICTION FORMELLE sans permission
+=== 3. DAG N2 — importable par N3 runner-gradle, jamais importe N3
+=== 4. PROCEDURE DE FIN DE SESSION — 6 ETAPES OBLIGATOIRES (voir `.agents/SESSION_PROCEDURE.adoc`)
+=== 5. HOOK OUVERTURE — Checklist `.agents/SESSION_CHECKLIST.adoc` obligatoire
+=== 6. ZERO secret/token/api key en dur dans le code source
+=== 7. HYPERFRAMES CONSOMME ASCIIDOC — ne modifie jamais la source, lit + transforme
+=== 8. BRIDGE NODE.JS — pas de couplage code, contrat par CLI + fichiers
+
+== Tâches Principales
+
+  ./gradlew generateHyperframesHtml     → AsciiDoc → HTML HyperFrames (AsciidoctorJ)
+  ./gradlew renderHyperframes           → HTML → MP4 (CLI HyperFrames Node.js)
+  ./gradlew transformHyperframesContent → parse metadata + enrichir contexte
+  ./gradlew deployHyperframes           → copier MP4 vers output/
+  ./gradlew check                       → tous les tests (unitaire + fonctionnel + Cucumber)
+
+== Tests
+
+Le projet utilise JUnit5, GradleTestKit et Cucumber BDD.
+Toute modification de code source DOIT passer `./gradlew check`
+(sauf permission contraire).
+
+== Stack
+
+- Kotlin — DSL Gradle
+- AsciidoctorJ — parse AsciiDoc, extraction blocs customs + docinfo
+- HyperFrames CLI (Node.js) — rendu HTML → MP4 via Puppeteer + FFmpeg
+- ProcessBuilder — bridge JVM → CLI Node.js
+- codex-gradle — dépendance compileOnly, partage AsciidoctorJ
+
+== Différence avec capsule-gradle
+
+[cols="2,3,3"]
+|===
+| | capsule-gradle | hyperframes-gradle
+| Source | Deck reveal.js (HTML existant) | AsciiDoc → HTML HyperFrames
+| Use case | Capsule de révision formation | Vidéo standalone explicative
+| Nature | Slides → vidéo | Document → vidéo
+| Rendu | Playwright Java → WebM | HyperFrames CLI → MP4
+| Stack | 100% JVM (Kotlin) | JVM + Node.js externe
+|===
+
+Les deux plugins sont complémentaires, pas concurrents.
+
+== Ne remplace PAS opencode
+
+Le plugin est invoqué PAR opencode (via tool use).
+Il automatise le rendu vidéo, mais la validation humaine
+du contenu reste obligatoire.

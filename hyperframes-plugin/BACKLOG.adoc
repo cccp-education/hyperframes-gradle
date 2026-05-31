@@ -1,0 +1,115 @@
+= BACKLOG — HyperFrames Gradle
+:toc:
+
+_Date création_ : 2026-05-31
+_Version_ : 0.1.0-SNAPSHOT
+
+'''
+== Vision Produit
+
+Un plugin Gradle N2 qui transforme un document AsciiDoc annoté en vidéo MP4
+via le moteur HyperFrames (HeyGen, Apache 2.0), sans post-production humaine.
+
+'''
+== User Stories
+
+=== US-HF-01 — En tant que formateur, je veux transformer mon manuel AsciiDoc en vidéo de présentation
+
+*Priorité* : P0
+*EPIC* : HF-1
+
+.Valeur
+Une vidéo de teasing de 60 secondes générée automatiquement depuis le manuel
+de formation AFNOR/REAC, avec animations GSAP et narration TTS.
+
+.Critères d'acceptation
+- Un document AsciiDoc avec attributs `:hyperframes-*` produit un HTML HyperFrames valide
+- Le HTML contient les `data-*` attributes attendus par le moteur HyperFrames
+- Les blocs customs `[hyperframes-composition]` et `[hyperframes-track]` sont parsés correctement
+
+=== US-HF-02 — En tant que développeur, je veux appeler la CLI HyperFrames depuis Gradle
+
+*Priorité* : P1
+*EPIC* : HF-2
+
+.Valeur
+Rendu vidéo automatisé sans quitter le terminal Gradle. `./gradlew renderHyperframes`
+produit un MP4 à partir du HTML généré.
+
+.Critères d'acceptation
+- `ProcessBuilder` exécute `npx hyperframes render` avec les bons arguments
+- Le code d'erreur est vérifié (≠ 0 → exception)
+- Un fichier MP4 valide est produit en sortie
+- Si Node.js 22+ n'est pas installé, un message d'erreur clair est affiché
+
+=== US-HF-03 — En tant que rédacteur AsciiDoc, je veux un DSL naturel pour définir mes animations
+
+*Priorité* : P1
+*EPIC* : HF-3
+
+.Valeur
+Pas besoin d'apprendre le HTML ou les data-attributes HyperFrames. Le DSL
+AsciiDoc est suffisant pour définir compositions, tracks, médias et animations.
+
+.Critères d'acceptation
+- `:hyperframes-width: 1920` et `:hyperframes-height: 1080` configurent les dimensions
+- `[hyperframes-composition, id="intro"]` crée un bloc de composition avec `data-composition-id`
+- `[hyperframes-track, index=0, start=0, duration=6]` crée un élément track avec les data-attrs
+- Le HTML généré est valide et passe le linter HyperFrames
+
+=== US-HF-04 — En tant qu'intégrateur, je veux que le MP4 soit consommable par runner-gradle N3
+
+*Priorité* : P2
+*EPIC* : HF-4
+
+.Valeur
+Le MP4 produit est indexé dans le composite-context du runner-gradle,
+permettant le déploiement automatique sur le site statique.
+
+.Critères d'acceptation
+- `collectHyperframesRetrieve` produit un `metadata.json` conforme au contrat N3
+- Le JSON contient : chemin MP4, durée, dimensions, métadonnées AsciiDoc source
+- `runner-gradle assembleCompositeContext` ingère le JSON sans erreur
+
+=== US-HF-05 — En tant que formateur, je veux des templates prêts à l'emploi
+
+*Priorité* : P3
+*EPIC* : HF-5
+
+.Valeur
+Zéro code à écrire pour les cas d'usage standards. Un template AsciiDoc
++ un template HTML HyperFrames préfabriqué couvrent 80% des besoins.
+
+.Critères d'acceptation
+- Template "title-card" : fondu d'entrée, logo, titre, sous-titre
+- Template "code-diff" : animation de diff de code avec coloration syntaxique
+- Template "kinetic-captions" : sous-titres animés synchronisés
+- Chaque template a un fichier `.adoc` exemple et un `.mp4` golden de référence
+
+'''
+== Dette Technique
+
+[cols="1,5,2", options="header"]
+|===
+| ID | Description | Priorité
+| DT-01 | Aucune — projet neuf, zéro dette | -
+|===
+
+'''
+== Risques
+
+[cols="1,3,2,2", options="header"]
+|===
+| ID | Risque | Impact | Probabilité
+| R-01 | HyperFrames CLI évolue et casse la compatibilité | Élevé | Moyenne
+| R-02 | Node.js 22+ non disponible sur la CI | Bloquant | Faible
+| R-03 | Performance rendu MP4 sur CI (headless Chrome lent) | Moyen | Moyenne
+| R-04 | AsciidoctorJ version mismatch avec codex-gradle | Moyen | Faible
+|===
+
+== Notes
+
+* HyperFrames est un projet jeune (v0.6.x) mais avec une traction massive (22.7k ⭐)
+* La licence Apache 2.0 est compatible avec notre écosystème
+* Le bridge Node.js est le point de friction principal — à isoler proprement
+* Le DSL AsciiDoc est la valeur ajoutée unique de ce plugin vs HyperFrames seul

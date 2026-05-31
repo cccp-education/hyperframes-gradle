@@ -1,0 +1,14 @@
+= COMPLETED_TASKS_ARCHIVE — Mai 2026
+:date: 2026-05-31
+
+== Tâches terminées (session 000 — 2026-05-31)
+
+|===
+| EPIC | Tâche | Statut
+| HF-0a | Structure projet hyperframes-gradle/ (root + hyperframes-plugin/) | ✅
+| HF-0b | Gouvernance agent (7 fichiers .agents/ + AGENT.adoc + BACKLOG.adoc + PROMPT_REPRISE.adoc) | ✅
+| HF-0c | Doc architecture HYPERFRAMES_ARCHITECTURE.adoc (4 diagrammes PlantUML) | ✅
+| HF-0d | Article blog cheroliv.com #0125 | ✅
+| HF-0e | Mise à jour AGENTS.adoc (Watts 12ème borough) | ✅
+| HF-0f | Mise à jour PLAN_GLOBAL.adoc (EPICs HF-0→HF-6) | ✅
+|===

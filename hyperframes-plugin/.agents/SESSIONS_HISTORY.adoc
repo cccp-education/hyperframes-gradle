@@ -1,0 +1,10 @@
+= SESSIONS_HISTORY — hyperframes-gradle
+
+_Date création_ : 2026-05-31
+
+== Sessions
+
+|===
+| # | Date | Type | Sujet | Score
+| 000 | 2026-05-31 | bootstrap | HF-0 — Bootstrap gouvernance + cadrage architecture (AGENT, INDEX, BACKLOG, ARCHITECTURE, SESSION_CHECKLIST, SESSION_PROCEDURE) | ✅ TERMINE
+|===
