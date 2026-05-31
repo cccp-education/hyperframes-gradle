@@ -46,7 +46,7 @@ grep -r "TOKEN\|SECRET\|PASSWORD\|API_KEY\|gho_\|ghp_" --include="*.kts" --inclu
 
 == Rappels
 
-* HyperFrames dépend du CLI Node.js — vérifier que Node.js 22+ est installé
+* HyperFrames dépend du plugin Gradle Node (`com.github.node-gradle:gradle-node-plugin`) — Node.js est pinné et downloadé automatiquement
 * AsciidoctorJ est partagé avec codex-gradle en compileOnly
 * Le contrat AsciiDoc → HyperFrames : blocs customs + docinfo attributes
 * Bridge JVM→Node.js : ProcessBuilder, pas de couplage npm dans Gradle

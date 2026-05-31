@@ -1,75 +1,54 @@
-= PROMPT_REPRISE — HyperFrames Gradle (Session 000 → 001)
+= PROMPT_REPRISE — HyperFrames Gradle (Session 001 → 002)
 
-_Session_ : 000
+_Session_ : 001
 _Date_ : 2026-05-31
-_Status_ : ✅ TERMINÉ — Bootstrap gouvernance + cadrage architecture
+_Status_ : ✅ TERMINÉ — HF-1 Plugin Gradle stub + AsciidoctorJ intégration
 
 '''
 == État des lieux
 
-Projet créé. Gouvernance agent en place (.agents/, AGENT.adoc, INDEX.adoc,
-BACKLOG.adoc, SESSION_CHECKLIST.adoc, SESSION_PROCEDURE.adoc, SESSIONS_HISTORY.adoc).
+Plugin Gradle fonctionnel. Structure build complète (wrapper 9.5.0,
+version catalog, java-gradle-plugin, signing, publishing).
+3 tâches Gradle enregistrées : generateHyperframesHtml, renderHyperframes.
+3 tests GradleTestKit PASS. Build compile.
 
-Architecture documentée dans `doc/HYPERFRAMES_ARCHITECTURE.adoc` (4 diagrammes PlantUML).
-Article blog #0125 écrit.
+== Fait en session 001
 
-12ème borough "Watts" ajouté dans AGENTS.adoc et PLAN_GLOBAL.adoc.
+- Structure build root + hyperframes-plugin/ (settings/build + wrapper)
+- Version catalog hyperframes-plugin/gradle/libs.versions.toml
+- HyperframesPlugin.kt, HyperframesExtension.kt
+- GenerateHyperframesHtmlTask (AsciiDoc → HTML via AsciidoctorJ 3.0.0)
+- RenderHyperframesTask (stub HF-1)
+- 3 tests PASS (tasks listing, generation HTML, render fail sans generation)
 
-== Fait en session 000
+== Reste à faire (session 002)
 
-- Structure hyperframes-gradle/ avec hyperframes-plugin/
-- AGENT.adoc (8 règles absolues)
-- INDEX.adoc (roadmap HF-0→HF-6)
-- BACKLOG.adoc (5 user stories, risques, dette)
-- doc/HYPERFRAMES_ARCHITECTURE.adoc (4 diagrammes PlantUML)
-- Article blog office/sites/cheroliv.com/jbake/content/blog/2026/0125_hyperframes_asciidoc_video_post.adoc
-- MAJ AGENTS.adoc (Watts 12ème borough)
-- MAJ PLAN_GLOBAL.adoc (EPICs HF-0→HF-6)
+=== HF-2 — Bridge CLI HyperFrames (via plugin Gradle Node)
 
-== Reste à faire (session 001)
+1. Ajouter `com.github.node-gradle:gradle-node-plugin` dans le version catalog
+   (même pattern que slider-gradle : `libs.node.gradle`)
+2. Configurer le plugin dans `RenderHyperframesTask` :
+   - Node.js version managée par le plugin (pinnée)
+   - Package npm `hyperframes` installé comme dépendance Gradle
+   - ProcessBuilder vers le `node`/`npm` du plugin Gradle Node, pas le système
+3. Implémentation de `RenderHyperframesTask` :
+   - Résoudre le chemin `node` depuis `NodeExtension`
+   - ProcessBuilder → `node /path/to/hyperframes/cli render ...`
+   - Vérification exit code
+   - Capture stderr
+   - Timeout configurable (`extension.renderTimeoutMs`)
+4. Gestion des erreurs :
+   - Node.js pas encore download → message clair
+   - Package hyperframes pas installé → message clair
+5. Tests fonctionnels :
+   - Mock CLI (script shell qui simule hyperframes)
+   - Golden file MP4
+6. Ajouter `extension.renderTimeoutMs` et `extension.nodeVersion` dans HyperframesExtension
 
-=== HF-1 — Plugin Gradle stub + AsciidoctorJ intégration
+== Commandes utiles
 
-1. Créer la structure build Gradle
-   - root hyperframes-gradle/ : settings.gradle.kts, build.gradle.kts minimal (dogfood)
-   - hyperframes-plugin/ : settings.gradle.kts, build.gradle.kts (java-gradle-plugin)
-   - Wrapper Gradle 9.5.0 dans hyperframes-plugin/
-
-2. HyperframesPlugin.kt
-   - class Plugin<Project>
-   - HyperframesExtension (DSL : inputPath, outputDir, width, height, fps)
-   - Tâches enregistrées : generateHyperframesHtml, renderHyperframes
-
-3. AsciidoctorJ configuration
-   - compileOnly codex-gradle (partage AsciidoctorJ)
-   - AsciidoctorJ converter custom pour extraire blocs HyperFrames
-
-4. GenerateHyperframesHtmlTask
-   - Lit l'AsciiDoc source
-   - Parse les blocs customs [hyperframes-composition] et [hyperframes-track]
-   - Génère le HTML HyperFrames avec les data-* attributes
-
-5. Tests unitaires
-   - GradleTestKit avec un projet test minimal
-   - Vérifie que les tâches sont enregistrées
-   - Vérifie que le HTML généré est valide
-
-== Commandes utiles session 001
-
-[source,shell]
-----
-# Depuis hyperframes-plugin/
+```
 ./gradlew :hyperframes:compileKotlin
 ./gradlew :hyperframes:test
-
-# Depuis la racine hyperframes-gradle/
 ./gradlew generateHyperframesHtml
-----
-
-== À lire avant la session 001
-
-- `AGENT.adoc` — règles absolues
-- `.agents/INDEX.adoc` — roadmap HF-0→HF-6
-- `doc/HYPERFRAMES_ARCHITECTURE.adoc` — architecture détaillée
-- https://hyperframes.heygen.com/introduction — docs HyperFrames
-- https://github.com/heygen-com/hyperframes — repo GitHub
+```

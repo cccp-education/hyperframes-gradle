@@ -4,11 +4,11 @@
 _Règles absolues_ : voir `AGENT.adoc`
 _DAG_ : N2 — Plugin Gradle de transformation documentaire AsciiDoc → vidéo MP4
 _Dépendance N2_ : codex-gradle (compileOnly, AsciidoctorJ partagé)
-_Bridge externe_ : HyperFrames CLI (Node.js 22+, ProcessBuilder)
+_Bridge externe_ : HyperFrames CLI (Node.js via gradle-node-plugin, ProcessBuilder)
 
 _Dernière mise à jour_ : 2026-05-31 (HF-0 Bootstrap gouvernance + cadrage)
 _Session terminée_ : 000 — Bootstrap gouvernance (AGENT, INDEX, BACKLOG, ARCHITECTURE)
-_Prochaine session_ : 001 — HF-1 Plugin Gradle stub + AsciidoctorJ intégration
+_Prochaine session_ : 002 — HF-2 Bridge CLI HyperFrames (gradle-node-plugin + ProcessBuilder → node → MP4)
 
 '''
 == RÈGLES ABSOLUES (résumé)
@@ -43,8 +43,8 @@ _Prochaine session_ : 001 — HF-1 Plugin Gradle stub + AsciidoctorJ intégratio
 |===
 | EPIC | Description | Statut | Priorité
 | HF-0 | Bootstrap gouvernance + cadrage architecture | ✅ TERMINÉ (session 000) | P0
-| HF-1 | Plugin Gradle stub + AsciidoctorJ intégration (parse AsciiDoc → HTML HyperFrames) | À faire | P0
-| HF-2 | Bridge CLI HyperFrames (ProcessBuilder → npx → MP4) | À faire | P1
+| HF-1 | Plugin Gradle stub + AsciidoctorJ intégration (parse AsciiDoc → HTML HyperFrames) | ✅ TERMINÉ (session 001) | P0
+| HF-2 | Bridge CLI HyperFrames (gradle-node-plugin + ProcessBuilder → node → MP4) | À faire | P1
 | HF-3 | DSL AsciiDoc customs (blocs, docinfo attributes, templates) | À faire | P1
 | HF-4 | Intégration N3 runner-gradle (collectHyperframesRetrieve, metadata.json) | À faire | P2
 | HF-5 | Templates HyperFrames prêts à l'emploi (transitions, overlays, captions) | À faire | P3
@@ -60,11 +60,11 @@ annoté et génère le HTML HyperFrames correspondant.
 [cols="1,3,2", options="header"]
 |===
 | Phase | Livrable | Statut
-| HF-1a | Structure build Gradle (root + hyperframes-plugin, wrapper 9.5.0) | À faire
-| HF-1b | HyperframesPlugin.kt stub (class Plugin<Project>, extension, tasks) | À faire
-| HF-1c | AsciidoctorJ configuration (compileOnly codex-gradle, converter custom) | À faire
-| HF-1d | GenerateHyperframesHtmlTask — AsciiDoc → HTML HyperFrames | À faire
-| HF-1e | Tests unitaires (GradleTestKit, document minimal) | À faire
+| HF-1a | Structure build Gradle (root + hyperframes-plugin, wrapper 9.5.0, version catalog) | ✅ 2026-05-31
+| HF-1b | HyperframesPlugin.kt stub (Plugin<Project>, extension, tasks) | ✅ 2026-05-31
+| HF-1c | AsciidoctorJ configuration (implementation, Attributes API, SafeMode) | ✅ 2026-05-31
+| HF-1d | GenerateHyperframesHtmlTask — AsciiDoc → HTML via AsciidoctorJ | ✅ 2026-05-31
+| HF-1e | Tests unitaires (GradleTestKit, 3 tests PASS) | ✅ 2026-05-31
 |===
 
 == EPIC HF-2 — Bridge CLI HyperFrames
@@ -75,8 +75,8 @@ ProcessBuilder, en passant le HTML généré → MP4.
 [cols="1,3,2", options="header"]
 |===
 | Phase | Livrable | Statut
-| HF-2a | RenderHyperframesTask — ProcessBuilder → npx → MP4 | À faire
-| HF-2b | Gestion erreurs CLI (Node.js absent, timeout, crash) | À faire
+| HF-2a | RenderHyperframesTask — gradle-node-plugin + ProcessBuilder → node → MP4 | À faire
+| HF-2b | Gestion erreurs CLI (download Node.js échoué, package npm absent, timeout, crash) | À faire
 | HF-2c | Tests fonctionnels (mock CLI, golden file MP4) | À faire
 |===
 
@@ -139,7 +139,8 @@ et Gradle Plugin Portal sous le handle cccp-education.
 
 |===
 | # | Date | Type | Sujet | Score
-| 000 | 2026-05-31 | bootstrap | HF-0 — Bootstrap gouvernance + cadrage architecture (AGENT, INDEX, BACKLOG, ARCHITECTURE, SESSION_CHECKLIST, SESSION_PROCEDURE, SESSIONS_HISTORY) | ✅ TERMINÉ
+| 000 | 2026-05-31 | bootstrap | HF-0 — Bootstrap gouvernance + cadrage architecture | ✅ TERMINÉ
+| 001 | 2026-05-31 | impl | HF-1 — Plugin Gradle stub + AsciidoctorJ intégration (build, plugin, extension, tasks, 3 tests) | ✅ TERMINÉ
 |===
 
 '''
@@ -148,4 +149,5 @@ et Gradle Plugin Portal sous le handle cccp-education.
 * HyperFrames : https://github.com/heygen-com/hyperframes (Apache 2.0, 22.7k ⭐)
 * HyperFrames Docs : https://hyperframes.heygen.com/introduction
 * Architecture détaillée : `doc/HYPERFRAMES_ARCHITECTURE.adoc`
+* Document de pilotage (7 ateliers agiles) : `doc/PILOTAGE_HYPERFRAMES.adoc`
 * Article blog : `office/sites/cheroliv.com/jbake/content/blog/2026/0125_hyperframes_asciidoc_video_post.adoc`

@@ -28,8 +28,8 @@ grep -r "TOKEN\|SECRET\|PASSWORD\|API_KEY\|gho_\|ghp_" --include="*.kts" --inclu
 
 == Rappels
 
-* HyperFrames CLI = Node.js 22+ requis, vérifier avant de render
-* AsciidoctorJ en compileOnly — partagé avec codex-gradle, ne pas réimplémenter
+* HyperFrames CLI = plugin Gradle Node (`com.github.node-gradle`) gère Node.js + package npm hyperframes (pinné, download auto)
+* AsciidoctorJ en implementation (HF-1) → passera en compileOnly en HF-4 (partagé avec codex-gradle)
 * Contrat par fichiers : AsciiDoc → HTML HyperFrames → MP4
-* Bridge Node.js : `npx hyperframes render`, pas d'installation npm dans le build
+* Bridge Node.js : `node hyperframes-cli render` via ProcessBuilder + plugin Gradle Node, pas de npx système
 * Aucun commit sans permission explicite

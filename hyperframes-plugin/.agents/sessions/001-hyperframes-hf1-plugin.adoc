@@ -1,0 +1,80 @@
+= Session 001 — HF-1 Plugin Gradle Stub + AsciidoctorJ Intégration
+:tags: [HF-1, plugin, asciidoctorj, build]
+:date: 2026-05-31
+
+'''
+== Résumé
+
+Implémentation complète de HF-1 pour le plugin hyperframes-gradle (Watts) :
+structure build Gradle (root + plugin), plugin stub Kotlin, extension DSL,
+tâches GenerateHyperframesHtmlTask et RenderHyperframesTask,
+intégration AsciidoctorJ 3.0.0, tests GradleTestKit.
+
+== EPIC couvert
+
+|===
+| Phase | Livrable | Statut
+| HF-1a | Structure build Gradle (root + hyperframes-plugin, wrapper 9.5.0, version catalog) | ✅ TERMINÉ
+| HF-1b | HyperframesPlugin.kt stub (Plugin<Project>, HyperframesExtension, tâches) | ✅ TERMINÉ
+| HF-1c | AsciidoctorJ configuration (implementation, Attributes API, SafeMode.UNSAFE) | ✅ TERMINÉ
+| HF-1d | GenerateHyperframesHtmlTask — AsciiDoc → HTML via AsciidoctorJ | ✅ TERMINÉ
+| HF-1e | Tests unitaires (GradleTestKit, 3 tests — tasks listing, generation, render fail) | ✅ TERMINÉ
+|===
+
+== Fichiers créés
+
+|===
+| Fichier | Lignes | Contenu
+| `settings.gradle.kts` (root) | 6 | pluginManagement, rootProject.name
+| `build.gradle.kts` (root) | 3 | Dogfood minimal (placeholder)
+| `hyperframes-plugin/settings.gradle.kts` | 16 | pluginManagement, dependencyResolutionManagement, foojay-resolver
+| `hyperframes-plugin/build.gradle.kts` | 110 | java-gradle-plugin, kotlin, signing, publishing, AsciidoctorJ implementation
+| `hyperframes-plugin/gradle/libs.versions.toml` | 22 | Version catalog (hyperframes, kotlin, asciidoctorj, junit, etc.)
+| `hyperframes-plugin/src/main/kotlin/hyperframes/HyperframesPlugin.kt` | 45 | Classe plugin + enregistrement tâches
+| `hyperframes-plugin/src/main/kotlin/hyperframes/HyperframesExtension.kt` | 43 | DSL extension (inputDir, outputDir, width, height, fps, outputName)
+| `hyperframes-plugin/src/main/kotlin/hyperframes/GenerateHyperframesHtmlTask.kt` | 70 | AsciiDoc → HTML via AsciidoctorJ + Attributes custom
+| `hyperframes-plugin/src/main/kotlin/hyperframes/RenderHyperframesTask.kt` | 40 | Stub HF-1 (vérification existence HTML)
+| `hyperframes-plugin/src/test/kotlin/hyperframes/HyperframesPluginTest.kt` | 101 | 3 tests GradleTestKit
+|===
+
+== Problèmes rencontrés et solutions
+
+. *`kotlinOptions` deprecated* — Remplacé par `compilerOptions { jvmTarget.set(JVM_21) }`
+. *AsciidoctorJ Attributes API* — `Attributes()` constructeur package-private → `Attributes.builder().attribute().build()`
+. *AsciidoctorJ SafeMode* — `SafeMode.UNSAFE` nécessaire pour écrire hors du répertoire source (TestKit)
+. *Circular dependency* — `@InputDirectory` + `@OutputDirectory` sur même `outputDir` → retiré `@InputDirectory` sur RenderHyperframesTask
+. *AsciidoctorJ classpath TestKit* — `compileOnly` pas inclus → changement en `implementation` pour HF-1
+. *Wrapper deux niveaux* — Standard workspace : wrapper dans hyperframes-plugin/ (standalone) + root (dogfood)
+
+== Commandes vérifiées
+
+```
+./gradlew compileKotlin  → BUILD SUCCESSFUL
+./gradlew test           → 3/3 PASS
+./gradlew tasks          → generateHyperframesHtml, renderHyperframes disponibles
+```
+
+== Document de pilotage créé
+
+En complément de HF-1, le document de pilotage HyperFrames a été créé
+(7 ateliers agiles — vision, personas, storyboard, wireframe, story mapping,
+backlog, architecture) : `doc/PILOTAGE_HYPERFRAMES.adoc`
+
+Contient :
+- QQOQCP (Qui, Quoi, Où, Quand, Comment, Pourquoi)
+- Product Vision Board (Target Group, Needs, Product, Business Goal, Vision)
+- 3 personas (Alex le formateur, Sam l'ingénieur pédagogique, Casey la DevOps)
+- Parcours utilisateur détaillé pour chaque persona
+- Storyboard pipeline de bout en bout (8 étapes)
+- Wireframe DSL Gradle et DSL AsciiDoc
+- Story map avec 6 US priorisées (HF-1 à HF-6)
+- Backlog sur 6 sprints
+- Architecture technique détaillée (diagramme PlantUML)
+- Décisions techniques, risques, contrat N3
+- Glossaire et références
+
+== Prochaine session (HF-2 — Bridge CLI HyperFrames)
+1. Ajout du plugin Gradle Node (`com.github.node-gradle:gradle-node-plugin`) dans la version catalog
+2. Implémentation de RenderHyperframesTask : ProcessBuilder → node hyperframes-cli render (chemin node via NodeExtension)
+3. Gestion des erreurs (download Node.js échoué, package npm absent, timeout, crash)
+3. Tests fonctionnels (mock CLI, golden file MP4)

@@ -1,0 +1,703 @@
+= PILOTAGE — HyperFrames : Expert AsciiDoc → Vidéo MP4
+:author: CCCP Education
+:revdate: 2026-05-31
+:toc: macro
+:toclevels: 4
+
+toc::[]
+
+'''
+== Préambule
+
+Ce document est le **cadrage de pilotage** d'**HyperFrames**, expert
+fraîchement recruté dans l'écosystème des 12 boroughs. Sa mission :
+transformer des documents AsciiDoc annotés en vidéos MP4, en s'intégrant
+aux pipelines existants (slider-gradle/reveal.js, codex-gradle/PDF,
+capsule-gradle/WebM).
+
+Méthode : 7 ateliers agiles inspirés du mémo `0054_memo_cadrage_post.adoc`.
+
+'''
+== Atelier 1 — Vision (QQOQCP + Product Vision Board)
+
+=== 1.1 QQOQCP
+
+[cols="2,5", options="header"]
+|===
+| Facette | Réponse
+| *Qui* (acteurs)
+a| **Directs :**
+- Formateurs FPA (rédacteurs AsciiDoc)
+- Ingénieurs pédagogiques (création contenu formation)
+- Stagiaires (consommateurs vidéo)
+
+**Indirects :**
+- Équipe DevOps (CI/CD pipeline)
+- Apprentis agenceurs du workspace (intégration N3)
+- LLM (deepseek-v4-pro) — prompte les SPG/SPD
+
+| *Quoi* (produit)
+a| Un plugin Gradle N2 (`education.cccp.hyperframes`) qui transforme
+un document AsciiDoc annoté en vidéo MP4 via le moteur HyperFrames
+(HeyGen, Apache 2.0). Aucune post-production humaine.
+
+Pipeline :
+`AsciiDoc ──→ AsciidoctorJ ──→ HTML HyperFrames ──→ CLI Node.js ──→ MP4`
+
+| *Où* (périmètre)
+a| **In-scope :**
+- Documents AsciiDoc produits par planner-gradle (SPG/SPD)
+- Intégration dans runner-gradle N3 (assembleCompositeContext)
+- Déploiement sur site statique gh-pages
+
+**Out-of-scope (MVP0) :**
+- Streaming live
+- Édition vidéo interactive
+- Sous-titrage multilingue automatique
+
+| *Quand* (timing)
+a| **MVP0 :** 32 sessions formation FPA → 12 jours
+- HF-1 (Plugin stub + AsciidoctorJ) : ✅ session 001 (ce jour)
+- HF-2 (Bridge CLI) : session 002
+- HF-3 (DSL AsciiDoc customs) : session 003
+- HF-4 (Intégration N3 runner-gradle) : session 004
+- HF-5 (Templates prêts à l'emploi) : session 005
+- HF-6 (CI + Publication) : session 006
+
+| *Comment* (méthode)
+a| - Kotlin DSL pour le plugin Gradle
+- AsciidoctorJ 3.0.0 pour le parsing
+- ProcessBuilder pour le bridge JVM → Node.js
+- HyperFrames CLI pour le rendu HTML → MP4
+- Tests : JUnit5 + GradleTestKit
+
+| *Pourquoi* (justification)
+a| - Complète la chaîne vidéo : capsule-gradle (reveal.js → WebM) vs
+  HyperFrames (AsciiDoc → MP4)
+- Zéro abonnement SaaS (HyperFrames = Apache 2.0)
+- Pipeline entièrement CLI : `./gradlew renderHyperframes` → MP4
+- Repose sur l'existant AsciiDoc sans modification de la source
+|===
+
+=== 1.2 Product Vision Board
+
+==== Target Group
+
+|===
+| Profil | Besoin | Fréquence
+| Formateur FPA | Transformer manuel AFNOR/REAC en vidéo teasing | 1/session
+| Ingénieur pédagogique | Produire des vidéos démo animées | 1/module
+| Stagiaire | Consulter des vidéos explicatives | 4/semaine
+| Développeur pipeline | Automatiser le rendu vidéo en CI | 1/build
+|===
+
+==== Needs (Top 5)
+
+. Générer une vidéo MP4 depuis un AsciiDoc existant sans modification
+. Contrôler les dimensions, le framerate et la durée
+. Définir des compositions, tracks et animations dans le langage AsciiDoc
+. Intégrer le rendu dans le pipeline CI/CD (runner-gradle N3)
+. Disposer de templates prêts à l'emploi (title-card, code-diff, data-chart)
+
+==== Product (Top 5 features)
+
+. `./gradlew generateHyperframesHtml` — AsciiDoc → HTML HyperFrames
+. `./gradlew renderHyperframes` — HTML → MP4 via CLI
+. DSL AsciiDoc : `[hyperframes-composition]`, `[hyperframes-track]`,
+  `[hyperframes-animation]`, attributs docinfo `:hyperframes-*:`
+. Intégration N3 : `collectHyperframesRetrieve` → metadata.json →
+  `assembleCompositeContext`
+. 4 templates prêts à l'emploi (title-card, code-diff, data-chart,
+  kinetic-captions)
+
+==== Business Goal (Critères de succès)
+
+|===
+| Métrique | Cible | Mesure
+| Vidéos générées | 32 vidéos pour 32 sessions FPA | `find . -name "*.mp4" | wc -l`
+| Taux d'échec rendu | < 5% | Logs CI
+| Temps de rendu | < 5 min / vidéo | Métriques `renderDurationMs`
+| Tests PASS | 100% | `./gradlew check`
+|===
+
+==== Vision (phrase unique)
+
+_L'outil CLI qui transforme n'importe quel document AsciiDoc annoté en
+vidéo MP4 professionnelle, sans quitter le terminal, sans SaaS,
+sans post-production._
+
+'''
+== Atelier 2 — Personas / Parcours Utilisateurs
+
+=== Persona 1 : Alex — Formateur FPA
+
+[cols="2,5"]
+|===
+| Attribut | Valeur
+| Profil | Formateur en développement web, 15 ans d'expérience
+| Outils quotidiens | VS Code, Git, terminal, AsciiDoc
+| Objectif | Produire une vidéo de teasing pour chaque session de formation
+| Contrainte | Ne veut PAS toucher à du HTML/JS/CSS
+| Fierté | Ses supports AsciiDoc sont impeccables — il veut les réutiliser
+|===
+
+.Parcours utilisateur — Alex
+
+. Il rédige son SPG/SPD en AsciiDoc dans `training/`
+. Il ajoute des blocs `[hyperframes-composition]` et `[hyperframes-track]`
+. Il exécute `./gradlew renderHyperframes`
+. Le plugin parse l'AsciiDoc, génère le HTML, appelle la CLI HyperFrames
+. Une vidéo `teasing-session-01.mp4` apparaît dans `build/hyperframes/`
+. Il l'intègre dans le site statique de formation
+
+=== Persona 2 : Sam — Ingénieur Pédagogique
+
+[cols="2,5"]
+|===
+| Attribut | Valeur
+| Profil | Conçoit les parcours pédagogiques, spécifie les supports
+| Outils quotidiens | Google Docs, diagrams.net, AsciiDoc
+| Objectif | Produire des démonstrations animées (code-diff, data-viz)
+| Contrainte | Doit collaborer avec le formateur (même repo Git)
+| Fierté | Ses templates sont réutilisés par toute l'équipe
+|===
+
+.Parcours utilisateur — Sam
+
+. Il conçoit un template de vidéo "title-card" pour l'équipe
+. Il le documente dans `templates/title-card/README.adoc`
+. Il crée un exemple dans `templates/title-card/example.adoc`
+. Il valide le rendu avec `./gradlew renderHyperframes`
+. Le template est mergé dans la branche `main` et déployé
+
+=== Persona 3 : Casey — DevOps Pipeline
+
+[cols="2,5"]
+|===
+| Attribut | Valeur
+| Profil | Maintient le CI/CD, les runners Gradle, les artefacts
+| Outils quotidiens | GitHub Actions, Gradle, Docker
+| Objectif | Intégrer le rendu vidéo dans le pipeline automatisé
+| Contrainte | Node.js est pinné et downloadé par le plugin Gradle Node
+| Fierté | Pipeline vert de bout en bout : AsciiDoc → MP4 → déploié
+|===
+
+.Parcours utilisateur — Casey
+
+. Elle configure le runner-gradle N3 dans `runner-config.yml`
+. La tâche `collectHyperframesRetrieve` ramasse les métadonnées
+. La tâche `assembleCompositeContext` intègre les MP4 dans le contexte
+. Le site statique est déployé avec les vidéos intégrées
+. Elle surveille le temps de rendu et les artefacts dans le cockpit
+
+'''
+== Atelier 3 — Zoning / Storyboard / Sitemap
+
+=== 3.1 Zoning des composants
+
+[plantuml,target="zoning",format="svg"]
+----
+@startuml
+skinparam backgroundColor #FEFEFE
+title Zoning — HyperFrames dans l'écosystème
+
+package "Espace Auteur (AsciiDoc)" #LightYellow {
+  rectangle "SPG/SPD\n.adoc" as source
+  rectangle "templates\n.adoc" as templates
+}
+
+package "Plugins N2" #LightCoral {
+  rectangle "slider-gradle\n(reveal.js)" as slider
+  rectangle "codex-gradle\n(PDF)" as codex
+  rectangle "capsule-gradle\n(WebM)" as capsule
+  rectangle "**hyperframes-gradle**\n(MP4)" as hf
+}
+
+package "Bridge Externe" #LightGrey {
+  rectangle "HyperFrames CLI\n(Node.js)" as cli
+  rectangle "Puppeteer" as puppeteer
+  rectangle "FFmpeg" as ffmpeg
+}
+
+package "Orchestration N3" #LightBlue {
+  rectangle "runner-gradle\nassembleCompositeContext" as runner
+}
+
+package "Livrables" {
+  rectangle "Site statique\ngh-pages" as site
+  database "Vidéos .mp4" as mp4
+}
+
+source --> slider
+source --> codex
+source --> hf
+templates --> hf
+slider --> capsule
+hf --> cli
+cli --> puppeteer
+cli --> ffmpeg
+puppeteer --> ffmpeg
+capsule --> runner : metadata.json
+hf --> runner : metadata.json
+ffmpeg --> mp4
+runner --> site
+@enduml
+----
+
+=== 3.2 Storyboard — Pipeline de bout en bout
+
+. **Rédaction** : Le formateur écrit son SPG en AsciiDoc (planner-gradle)
+. **Annotation** : Il ajoute des blocs `[hyperframes-composition]` et
+  des attributs docinfo `:hyperframes-width: 1920`
+. **Génération HTML** : `./gradlew generateHyperframesHtml` parse
+  l'AsciiDoc, extrait les blocs, génère le HTML avec data-* attributes
+. **Rendu MP4** : `./gradlew renderHyperframes` appelle
+  `node hyperframes-cli render` via ProcessBuilder + plugin Gradle Node
+. **Production** : Puppeteer capture les frames, FFmpeg encode en
+  h264+AAC, le MP4 est écrit sur disque
+. **Indexation** : `collectHyperframesRetrieve` produit `metadata.json`
+  (durée, dimensions, codec, date)
+. **Assemblage** : runner-gradle ingère le JSON dans
+  `assembleCompositeContext`
+. **Déploiement** : Le MP4 + metadata sont déployés sur le site statique
+
+=== 3.3 Sitemap — Architecture des livrables
+
+[cols="2,5"]
+|===
+| Niveau | Artefact
+| Source | `src/docs/index.adoc` (AsciiDoc annoté)
+| Intermédiaire | `build/hyperframes/index.html` (HTML HyperFrames)
+| Final | `build/hyperframes/output.mp4` (vidéo)
+| Métadonnées | `build/hyperframes/metadata.json` (contexte N3)
+| Template | `templates/title-card/example.adoc`
+|===
+
+'''
+== Atelier 4 — Wireframe / Moodboard
+
+=== 4.1 Wireframe — Interface utilisateur (DSL Gradle)
+
+[source,kotlin]
+----
+// build.gradle.kts — Configuration plugin
+plugins {
+    id("education.cccp.hyperframes")
+}
+
+hyperframes {
+    inputDir.set(layout.projectDirectory.dir("src/docs"))
+    outputDir.set(layout.buildDirectory.dir("hyperframes"))
+    width.set(1920)
+    height.set(1080)
+    fps.set(30)
+    outputName.set("teasing-session-01")
+}
+----
+
+=== 4.2 Wireframe — DSL AsciiDoc (blocs customs)
+
+[source,asciidoc]
+----
+= Formation Docker & Kubernetes
+:hyperframes-width: 1920
+:hyperframes-height: 1080
+:hyperframes-fps: 30
+:hyperframes-output: docker-kubernetes.mp4
+
+[hyperframes-composition, id="intro"]
+== Introduction
+
+[hyperframes-track, index=0, start=0, duration=6]
+video::assets/background.mp4[muted, playsinline]
+
+[hyperframes-track, index=1, start=1, duration=4]
+Formation Docker & Kubernetes
+
+[hyperframes-animation, type=gsap]
+----
+const tl = gsap.timeline({ paused: true });
+tl.from("#title", { opacity: 0, y: 40, duration: 0.8 }, 1);
+window.__timelines = window.__timelines || {};
+window.__timelines.intro = tl;
+----
+----
+
+=== 4.3 Moodboard — Look & feel des vidéos produites
+
+|===
+| Aspect | Cible | Exemple
+| Résolution | 1920×1080 (Full HD) | Standards formation
+| Framerate | 30 fps | Fluide sans surcharge
+| Codec | h264 + AAC | Compatible tous navigateurs
+| Durée | 30-90 secondes | Teasing / démo
+| Animation | GSAP (fade, slide, scale) | HyperFrames natif
+| Typographie | System fonts + fallbacks | Pas de chargement externe
+| Palette | Couleurs CCCP Education | #1a1a2e, #e94560, #0f3460
+|===
+
+'''
+== Atelier 5 — Story Mapping / User Stories
+
+=== 5.1 Story Map (priorisation)
+
+[cols="2,2,2,5", options="header"]
+|===
+| Épic | Story | Priorité | Description
+| HF-1 | US-HF-01 | P0 | Plugin Gradle stub + parsing AsciiDoc
+| HF-2 | US-HF-02 | P1 | Bridge CLI HyperFrames (ProcessBuilder)
+| HF-3 | US-HF-03 | P1 | DSL AsciiDoc customs pour compositions/tracks
+| HF-4 | US-HF-04 | P2 | Intégration N3 runner-gradle (metadata.json)
+| HF-5 | US-HF-05 | P3 | Templates prêts à l'emploi
+| HF-6 | US-HF-06 | P3 | CI/CD + publication Maven Central / Gradle Portal
+|===
+
+=== 5.2 User Stories détaillées
+
+==== US-HF-01 — Plugin stub + AsciidoctorJ ✅ (session 001)
+
+.En tant que *formateur*,
+Je veux *un plugin Gradle qui parse mes fichiers AsciiDoc*
+Afin de *générer le HTML HyperFrames sans sortir du terminal*
+
+Critères d'acceptation :
+- Le plugin expose les tâches `generateHyperframesHtml` et `renderHyperframes`
+- `HyperframesExtension` permet de configurer inputDir, outputDir, width, height, fps, outputName
+- AsciidoctorJ convertit un fichier `index.adoc` valide en HTML
+- Le HTML est écrit dans le répertoire de sortie configuré
+- Les attributs docinfo `:hyperframes-*:` sont passés à AsciidoctorJ
+- 3 tests GradleTestKit PASS
+
+==== US-HF-02 — Bridge CLI HyperFrames (session 002)
+
+.En tant que *formateur*,
+Je veux *appeler la CLI HyperFrames depuis Gradle*
+Afin de *produire un fichier MP4 sans quitter mon terminal*
+
+Critères d'acceptation :
+- Le plugin Gradle Node (`com.github.node-gradle:gradle-node-plugin`) gère Node.js (version pinnée, download auto)
+- Le package npm `hyperframes` est installé comme dépendance Gradle via le plugin
+- `ProcessBuilder` exécute `node hyperframes-cli render` (chemin `node` résolu depuis `NodeExtension`)
+- Le code d'erreur est vérifié (≠ 0 → exception Gradle claire)
+- Si le download Node.js échoue → message : "gradle-node-plugin: Node.js download failed"
+- Si le package npm hyperframes est absent → message : "npm package hyperframes installation failed"
+- Timeout configurable via extension (`renderTimeoutMs`, défaut 300s)
+- Le MP4 produit est valide et non vide
+
+==== US-HF-03 — DSL AsciiDoc customs (session 003)
+
+.En tant que *rédacteur AsciiDoc*,
+Je veux *un DSL naturel pour définir mes animations*
+Afin de *ne pas avoir à écrire de HTML/JS manuellement*
+
+Critères d'acceptation :
+- `:hyperframes-width: 1920` et `:hyperframes-height: 1080` configurent les dimensions
+- `[hyperframes-composition, id="intro"]` crée un bloc composition
+- `[hyperframes-track, index=0, start=0, duration=6]` crée un élément track
+- Les data-* attributes correspondants sont générés dans le HTML
+- Le HTML passe le linter HyperFrames
+
+==== US-HF-04 — Intégration N3 (session 004)
+
+.En tant qu'*intégrateur pipeline*,
+Je veux *que le MP4 soit consommable par runner-gradle*
+Afin de *déployer automatiquement la vidéo sur le site statique*
+
+Critères d'acceptation :
+- `collectHyperframesRetrieve` produit un `metadata.json` conforme au contrat N3
+- Le JSON contient : chemin MP4, durée, dimensions, codec, date de rendu
+- `runner-gradle assembleCompositeContext` ingère le JSON sans erreur
+
+==== US-HF-05 — Templates (session 005)
+
+.En tant que *formateur pressé*,
+Je veux *des templates prêts à l'emploi*
+Afin de *produire une vidéo sans rien configurer*
+
+Critères d'acceptation :
+- Template "title-card" : fondu d'entrée, logo, titre, sous-titre
+- Template "code-diff" : animation de diff de code avec coloration
+- Template "data-chart" : graphique animé (barres qui montent)
+- Template "kinetic-captions" : sous-titres animés synchronisés
+- Chaque template a un fichier `.adoc` exemple et une doc associée
+
+==== US-HF-06 — CI/CD + Publication (session 006)
+
+.En tant que *DevOps*,
+Je veux *le plugin publié sur Maven Central et Gradle Portal*
+Afin de *le distribuer aux consommateurs N2 et N3*
+
+Critères d'acceptation :
+- GitHub Actions workflow `test-hyperframes.yml`
+- Publication Maven Central (group `education.cccp`, artifact `hyperframes-gradle`)
+- Publication Gradle Plugin Portal (handle `cccp-education`)
+
+'''
+== Atelier 6 — Backlog priorisé
+
+=== Sprint 1 — HF-1 Plugin stub (✅ SESSION 001)
+
+|===
+| Tâche | Effort | Statut
+| Structure build Gradle (root + plugin + wrapper) | 1h | ✅
+| HyperframesPlugin.kt + HyperframesExtension.kt | 2h | ✅
+| GenerateHyperframesHtmlTask (AsciidoctorJ) | 3h | ✅
+| RenderHyperframesTask (stub) | 1h | ✅
+| Tests GradleTestKit (3 tests) | 2h | ✅
+|===
+
+=== Sprint 2 — HF-2 Bridge CLI (SESSION 002)
+
+|===
+| Tâche | Effort | Statut
+| Plugin Gradle Node (version catalog + config) | 2h | À faire
+| ProcessBuilder → node hyperframes-cli render | 2h | À faire
+| Gestion erreurs (download Node.js échoué, package npm absent, timeout, crash) | 2h | À faire
+| Extension.renderTimeoutMs | 1h | À faire
+| Tests fonctionnels (mock CLI + golden file) | 3h | À faire
+|===
+
+=== Sprint 3 — HF-3 DSL AsciiDoc (SESSION 003)
+
+|===
+| Tâche | Effort | Statut
+| Parser blocs customs [hyperframes-composition] | 4h | À faire
+| Parser blocs [hyperframes-track] + attributs | 3h | À faire
+| Parser [hyperframes-animation] (GSAP) | 2h | À faire
+| Génération data-* attributes dans HTML | 3h | À faire
+| Tests unitaires + doc DSL | 2h | À faire
+|===
+
+=== Sprint 4 — HF-4 Intégration N3 (SESSION 004)
+
+|===
+| Tâche | Effort | Statut
+| collectHyperframesRetrieve task → metadata.json | 3h | À faire
+| Contrat runner-gradle (HyperframesParseContext) | 2h | À faire
+| Tests intégration N3 | 2h | À faire
+|===
+
+=== Sprint 5 — HF-5 Templates (SESSION 005)
+
+|===
+| Tâche | Effort | Statut
+| Template title-card | 2h | À faire
+| Template code-diff | 2h | À faire
+| Template data-chart | 2h | À faire
+| Template kinetic-captions | 2h | À faire
+|===
+
+=== Sprint 6 — HF-6 CI/CD (SESSION 006)
+
+|===
+| Tâche | Effort | Statut
+| GitHub Actions workflow | 2h | À faire
+| Publication Maven Central | 2h | À faire
+| Publication Gradle Portal | 1h | À faire
+|===
+
+'''
+== Atelier 7 — Technique et Architecture
+
+=== 7.1 Architecture des composants
+
+[plantuml,target="architecture-composants",format="svg"]
+----
+@startuml
+skinparam backgroundColor #FEFEFE
+title Architecture Détailée — HyperFrames
+
+package "hyperframes-gradle" #LightCoral {
+  [HyperframesPlugin] as plugin
+  [HyperframesExtension] as ext
+  [GenerateHyperframesHtmlTask] as genHtml
+  [RenderHyperframesTask] as render
+  [TransformHyperframesContentTask] as transform
+  [DeployHyperframesTask] as deploy
+  [HyperframesAsciidoctorConverter] as converter
+  [HyperframesMetadataWriter] as metadata
+}
+
+package "codex-gradle (dépendance)" #LightBlue {
+  [AsciidoctorJ] as asciidoctorj
+}
+
+package "Externe" #LightGrey {
+  [HyperFrames CLI\nhyperframes render] as hfCli
+  [Node.js (via\ngradle-node-plugin)] as node
+  [Puppeteer] as puppeteer
+  [FFmpeg] as ffmpeg
+}
+
+package "N3 runner-gradle" #LightYellow {
+  [collectHyperframesRetrieve] as collect
+  [assembleCompositeContext] as assemble
+}
+
+plugin --> ext : crée
+plugin --> genHtml : enregistre
+plugin --> render : enregistre
+plugin --> transform : enregistre (HF-3+)
+plugin --> deploy : enregistre (HF-4+)
+
+genHtml --> asciidoctorj : compileOnly
+genHtml --> converter : utilise
+converter --> genHtml : HTML data-*
+genHtml --> render : fichier HTML
+
+render --> hfCli : ProcessBuilder
+hfCli --> node : exécute
+node --> puppeteer : headless Chrome
+node --> ffmpeg : encode MP4
+ffmpeg --> render : MP4
+
+render --> metadata : écrit
+metadata --> collect : metadata.json
+collect --> assemble : composite-context.json
+
+@enduml
+----
+
+=== 7.2 Décisions techniques
+
+[cols="2,5,3", options="header"]
+|===
+| Décision | Justification | Alternative écartée
+| AsciidoctorJ en implementation (HF-1)
+| Nécessaire pour GradleTestKit ; passera en compileOnly en HF-4
+| compileOnly (cassait les tests)
+| ProcessBuilder pour bridge JVM ↔ Node.js
+| Zéro couplage, isolation, upgrade indépendant
+| J2V8, GraalJS (trop lourds)
+| SafeMode.UNSAFE pour AsciidoctorJ
+| Permet d'écrire dans /tmp avec TestKit
+| SafeMode.SAFE (bloquait TestKit)
+| Attributes.builder() pour passer les options
+| API AsciidoctorJ 3.0.0 — constructeur package-private
+| Attributes() (impossible), Map (non accepté)
+| MP4 h264 + AAC
+| Standard universel, compatible tous navigateurs
+| WebM (Playwright natif, moins compatible)
+|===
+
+=== 7.3 Intégration reveal.js (slider-gradle)
+
+HyperFrames est **complémentaire** à slider-gradle, pas concurrent :
+
+[cols="2,3,3,3", options="header"]
+|===
+| Aspect | slider-gradle | capsule-gradle | **hyperframes-gradle**
+| Entrée | AsciiDoc | reveal.js HTML | *AsciiDoc*
+| Sortie | reveal.js HTML | WebM | *MP4*
+| Use case | Slides formateur | Capsule révision | *Vidéo standalone*
+| Pipeline | Asciidoctor Gradle | Playwright Java | *AsciidoctorJ + CLI Node.js*
+| Temps réel | Non (build) | Oui (capture) | *Non (build)*
+| Animation | reveal.js transitions | Capture écran | *GSAP data-attrs*
+|===
+
+La synergie :
+- Un même AsciiDoc peut produire **slides** (slider), **PDF** (codex),
+  **capsule vidéo** (capsule) et **vidéo standalone** (hyperframes)
+- Les templates de slider et hyperframes partagent les conventions
+  AsciiDoc (attributs docinfo, blocs customs)
+- Le pipeline N3 orchestre les 4 flux en parallèle
+
+=== 7.4 Risques et atténuations
+
+[cols="1,3,3", options="header"]
+|===
+| Risque | Impact | Atténuation
+| HyperFrames CLI API instable (v0.6.x)
+| Cassure du pipeline rendu
+| Pin de version, tests golden file MP4, alertes GitHub sur release
+| Download Node.js échoue sur CI (proxy/réseau)
+| Blocage du rendu
+| Docker image avec Node.js préinstallé, skip conditionnel
+| Headless Chrome lent (> 5 min)
+| Timeout CI
+| Timeout configurable (defaut 300s), cache des frames
+| Conflit de version AsciidoctorJ avec codex-gradle
+| Erreur de compilation runtime
+| compileOnly en HF-4+ (version = celle du consommateur)
+|===
+
+=== 7.5 Contrat N3 — metadata.json
+
+[source,json]
+----
+{
+  "plugin": "hyperframes-gradle",
+  "version": "0.1.0",
+  "output": {
+    "video": "docker-kubernetes.mp4",
+    "path": "/output/docker-kubernetes.mp4",
+    "sizeBytes": 25165824,
+    "durationSeconds": 60.0,
+    "width": 1920,
+    "height": 1080,
+    "fps": 30,
+    "codec": "h264"
+  },
+  "source": {
+    "asciidoc": "formation.adoc",
+    "compositions": ["intro", "comparison"],
+    "tracks": 5
+  },
+  "renderedAt": "2026-05-31T14:30:00Z",
+  "renderDurationMs": 45230
+}
+----
+
+'''
+== Annexes
+
+=== A. Diagramme de la chaîne de valeur vidéo
+
+[plantuml,target="chaine-valeur",format="svg"]
+----
+@startuml
+skinparam backgroundColor #FEFEFE
+title Chaîne de Valeur — Production Vidéo dans le Workspace
+
+actor "Formateur" as formateur
+actor "Stagiaire" as stagiaire
+
+rectangle "planner-gradle\n(LLM SPG/SPD)" as planner
+rectangle "AsciiDoc\nannoté" as adoc
+rectangle "slider-gradle\n(reveal.js)" as slider
+rectangle "capsule-gradle\n(WebM)" as capsule
+rectangle "**hyperframes-gradle**\n(MP4)" as hf
+rectangle "Site statique\ngh-pages" as site
+
+formateur --> planner : rédige
+planner --> adoc : SPG/SPD
+adoc --> slider : source
+adoc --> hf : source
+slider --> capsule : HTML
+capsule --> site : capsule vidéo
+hf --> site : vidéo standalone
+site --> stagiaire : consomme
+@enduml
+----
+
+=== B. Glossaire
+
+|===
+| Terme | Définition
+| AsciidoctorJ | API Java pour parser et convertir des documents AsciiDoc
+| Composition | Unité narrative d'une vidéo (intro, contenu, conclusion)
+| Track | Calque média/timing dans une composition (vidéo, audio, texte)
+| GSAP | GreenSock Animation Platform — animations JS seekable
+| HyperFrames | Moteur open-source HTML → MP4 (HeyGen, Apache 2.0)
+| ProcessBuilder | API Java pour lancer des processus externes (CLI)
+| metadata.json | Contrat N3 entre hyperframes-gradle et runner-gradle
+|===
+
+=== C. Références
+
+* HyperFrames : https://github.com/heygen-com/hyperframes
+* HyperFrames Docs : https://hyperframes.heygen.com/introduction
+* AsciidoctorJ : https://github.com/asciidoctor/asciidoctorj
+* GSAP : https://gsap.com
+* Mémo cadrage : `office/sites/cheroliv.com/jbake/content/blog/2022/0054_memo_cadrage_post.adoc`
+* Architecture détaillée : `doc/HYPERFRAMES_ARCHITECTURE.adoc`

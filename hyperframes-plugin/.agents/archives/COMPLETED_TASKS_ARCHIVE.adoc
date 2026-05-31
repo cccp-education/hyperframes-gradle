@@ -12,3 +12,14 @@
 | HF-0e | Mise à jour AGENTS.adoc (Watts 12ème borough) | ✅
 | HF-0f | Mise à jour PLAN_GLOBAL.adoc (EPICs HF-0→HF-6) | ✅
 |===
+
+== Tâches terminées (session 001 — 2026-05-31)
+
+|===
+| EPIC | Tâche | Statut
+| HF-1a | Structure build Gradle (root + hyperframes-plugin, wrapper 9.5.0, version catalog) | ✅
+| HF-1b | HyperframesPlugin.kt stub (Plugin<Project>, extension, tasks) | ✅
+| HF-1c | AsciidoctorJ configuration (implementation, Attributes API, SafeMode.UNSAFE) | ✅
+| HF-1d | GenerateHyperframesHtmlTask — AsciiDoc → HTML via AsciidoctorJ | ✅
+| HF-1e | Tests unitaires (GradleTestKit, 3 tests PASS) | ✅
+|===

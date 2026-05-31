@@ -37,10 +37,13 @@ Rendu vidéo automatisé sans quitter le terminal Gradle. `./gradlew renderHyper
 produit un MP4 à partir du HTML généré.
 
 .Critères d'acceptation
-- `ProcessBuilder` exécute `npx hyperframes render` avec les bons arguments
+- Le plugin Gradle Node (`com.github.node-gradle:gradle-node-plugin`) gère l'installation de Node.js (version pinnée)
+- Le package npm `hyperframes` est installé comme dépendance Gradle via le plugin
+- `ProcessBuilder` exécute `node hyperframes-cli render` avec les bons arguments
+- Le chemin `node` est résolu depuis `NodeExtension` du plugin Gradle Node
 - Le code d'erreur est vérifié (≠ 0 → exception)
 - Un fichier MP4 valide est produit en sortie
-- Si Node.js 22+ n'est pas installé, un message d'erreur clair est affiché
+- Si le download Node.js échoue, un message d'erreur clair est affiché
 
 === US-HF-03 — En tant que rédacteur AsciiDoc, je veux un DSL naturel pour définir mes animations
 
@@ -102,7 +105,7 @@ Zéro code à écrire pour les cas d'usage standards. Un template AsciiDoc
 |===
 | ID | Risque | Impact | Probabilité
 | R-01 | HyperFrames CLI évolue et casse la compatibilité | Élevé | Moyenne
-| R-02 | Node.js 22+ non disponible sur la CI | Bloquant | Faible
+| R-02 | Download Node.js échoue sur CI (proxy/réseau) | Bloquant | Plugin Gradle Node gère le download ; fallback image Docker
 | R-03 | Performance rendu MP4 sur CI (headless Chrome lent) | Moyen | Moyenne
 | R-04 | AsciidoctorJ version mismatch avec codex-gradle | Moyen | Faible
 |===
