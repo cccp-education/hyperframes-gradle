@@ -1,0 +1,63 @@
+= Session 002 — HF-2 Bridge CLI HyperFrames (ProcessBuilder + Node.js)
+:tags: [HF-2, bridge, node, processbuilder, cli, tests]
+:date: 2026-05-31
+
+'''
+== Résumé
+
+Implémentation complète de HF-2 pour le plugin hyperframes-gradle (Watts) :
+bridge CLI Node.js via ProcessBuilder, intégration gradle-node-plugin 7.1.0,
+gestion des erreurs (timeout, exit code, script manquant), tests GradleTestKit
+avec mock CLI shell.
+
+== EPIC couvert
+
+|===
+| Phase | Livrable | Statut
+| HF-2a | RenderHyperframesTask — ProcessBuilder + résolution Node.js (override, gradle-node-plugin, PATH fallback) | ✅ TERMINÉ
+| HF-2b | Gestion erreurs (timeout, exit code ≠ 0, script manquant, HTML manquant, MP4 vide) | ✅ TERMINÉ
+| HF-2c | Tests fonctionnels (mock CLI exit 0, mock CLI exit 1, script inexistant, timeout, 4 tests) | ✅ TERMINÉ
+|===
+
+== Fichiers modifiés
+
+|===
+| Fichier | Lignes | Changement
+| `gradle/libs.versions.toml` | +2 | Ajout `node-gradle = "7.1.0"` + lib associée
+| `build.gradle.kts` | +1 | Ajout `implementation(libs.node.gradle)`
+| `HyperframesExtension.kt` | +13 | Ajout `renderTimeoutMs`, `cliScript`, `nodeExecutable` properties
+| `RenderHyperframesTask.kt` | 37→230 | Réécriture complète : ProcessBuilder, résolution Node.js, gestion erreurs, timeout
+| `HyperframesPlugin.kt` | +6 | Wiring des nouvelles props extension → tâche
+| `HyperframesPluginTest.kt` | 115→297 | Ajout 4 tests HF-2 + helpers (mock CLI shell, slow CLI, fake HTML)
+|===
+
+== Détail des tests
+
+|===
+| Test | Type | Description
+| `renderHyperframes invokes mock CLI and produces MP4` | HF-2c | Mock script exit 0 → MP4 créé, message "HyperFrames CLI completed" 
+| `renderHyperframes fails when CLI returns non-zero exit code` | HF-2c | Mock script exit 1 → "HyperFrames CLI failed", "exit code 1"
+| `renderHyperframes fails when CLI script does not exist` | HF-2c | Chemin invalide → "HyperFrames CLI script not found"
+| `renderHyperframes respects timeout and fails on timeout` | HF-2c | Script lent (5s) + timeout 500ms → "timed out"
+|===
+
+== Problèmes rencontrés et solutions
+
+. *Interpolation Kotlin dans scripts shell* — `$var` dans les raw strings Kotlin était interprété. Solution : `${'$'}` pour les `$` bash littéraux.
+. *Résolution Node.js complexe* — Pas d'accès direct à `NodeExtension` sans couplage fort. Solution : résolution par override + chemins connus + fallback PATH.
+. *Extension → Task wiring* — Les `Property` de l'extension ne se propagent pas automatiquement. Solution : `finalizeValueOnRead()` + `set()` explicite dans le plugin.
+. *Test timeout réel* — Le test timeout attend 5s réel (sleep bash). Solution : timeout court (500ms) pour exécution rapide.
+
+== Commandes vérifiées
+
+```
+./gradlew compileKotlin  → BUILD SUCCESSFUL
+./gradlew test           → 7/7 PASS
+```
+
+== Prochaine session (HF-3 — DSL AsciiDoc)
+
+1. Blocs customs `[hyperframes-composition]`, `[hyperframes-track]`
+2. Attributs docinfo `:hyperframes-width:`, `:hyperframes-fps:`, etc.
+3. Templates HTML HyperFrames par défaut (GSAP minimal, transitions)
+4. Documentation DSL AsciiDoc (exemples, référence)

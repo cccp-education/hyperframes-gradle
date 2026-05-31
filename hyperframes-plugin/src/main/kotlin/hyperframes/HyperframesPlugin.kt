@@ -38,11 +38,17 @@ class HyperframesPlugin : Plugin<Project> {
             task.outputName.set(extension.outputName)
         }
 
-        // Tâche : rendu MP4 via HyperFrames CLI (stub HF-1, impl complète dans HF-2)
+        // Tâche : rendu MP4 via HyperFrames CLI (ProcessBuilder → node hyperframes render)
         target.tasks.register("renderHyperframes", RenderHyperframesTask::class.java) { task ->
             task.description = "Render HyperFrames HTML to MP4 via CLI (npx hyperframes render)"
             task.group = "hyperframes"
             task.outputDir.set(extension.outputDir)
+            task.outputName.set(extension.outputName)
+            task.renderTimeoutMs.set(extension.renderTimeoutMs)
+            extension.cliScript.finalizeValueOnRead()
+            task.cliScript.set(extension.cliScript)
+            extension.nodeExecutable.finalizeValueOnRead()
+            task.nodeExecutable.set(extension.nodeExecutable)
         }
     }
 }

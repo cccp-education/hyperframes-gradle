@@ -1,0 +1,110 @@
+= Session 003 — HF-3 DSL AsciiDoc (blocs customs, data-* attributes, GSAP)
+:tags: [HF-3, dsl, asciidoc, asciidoctorj, data-attributes, gsap, tests]
+:date: 2026-05-31
+
+'''
+== Résumé
+
+Implémentation complète de HF-3 pour le plugin hyperframes-gradle (Watts) :
+DSL AsciiDoc pour définir compositions, tracks et animations HyperFrames.
+Le HTML généré par AsciidoctorJ est post-processé par `HyperframesHtmlProcessor`
+pour ajouter les data-* attributes nécessaires au rendu HyperFrames.
+
+== EPIC couvert
+
+|===
+| Phase | Livrable | Statut
+| HF-3a | Parser blocs customs [hyperframes-composition], [hyperframes-track] | ✅ TERMINÉ
+| HF-3a | Parser [hyperframes-animation] (GSAP) | ✅ TERMINÉ
+| HF-3b | Attributs docinfo → stage div data-* attributes | ✅ TERMINÉ
+| HF-3c | Template HTML minimal (GSAP CDN, __timelines) | ✅ TERMINÉ
+| HF-3d | Tests unitaires (10) + intégration (5) | ✅ TERMINÉ
+|===
+
+== Fichiers créés
+
+|===
+| Fichier | Lignes | Contenu
+| `HyperframesHtmlProcessor.kt` | 230 | Post-processeur HTML : stage div, composition, track, animation, GSAP
+| `HyperframesHtmlProcessorTest.kt` | 198 | 10 tests unitaires (stage, composition, track, animation, edge cases)
+|===
+
+== Fichiers modifiés
+
+|===
+| Fichier | Changement
+| `GenerateHyperframesHtmlTask.kt` | Intégration du post-processing HyperFrames après conversion AsciidoctorJ
+| `HyperframesPluginTest.kt` | +5 tests intégration DSL (stage, composition, track, GSAP, full pipeline)
+|===
+
+== Détail des tests
+
+=== Unitaires (HyperframesHtmlProcessorTest) — 10 tests
+
+|===
+| Test | Description
+| `wrap body content in stage div with data attributes` | Stage div injecté avec width/height/fps/output
+| `add data-composition-id to hyperframes-composition blocks` | data-composition-id extrait du heading enfant
+| `handle multiple compositions` | Plusieurs compositions avec leurs IDs
+| `composition without heading id gets no data-composition-id` | Pas de data-* si pas d'id dans le heading
+| `add data-track-attributes to hyperframes-track blocks` | data-track-index, data-start, data-duration ajoutés
+| `track blocks get sequential indexes` | Index track auto-incrémenté (0, 1, 2)
+| `wrap hyperframes-animation listingblock in script tag with GSAP` | Listingblock AsciiDoc → <script> GSAP
+| `preserve non-hyperframes blocks unchanged` | Contenu normal non modifié
+| `enhance produces valid HTML structure` | Structure HTML valide (1 body, 1 /body)
+| `inject GSAP CDN script in head` | GSAP 3.12.5 CDN injecté dans <head>
+|===
+
+=== Intégration (HyperframesPluginTest) — 5 tests
+
+|===
+| Test | Description
+| `generateHyperframesHtml adds stage div with data attributes` | Pipeline AsciiDoc → HTML avec stage div
+| `generateHyperframesHtml adds data-composition-id from heading id` | Composition avec id extrait
+| `generateHyperframesHtml adds data-track-attributes to track blocks` | Track avec data-* attributes
+| `generateHyperframesHtml injects GSAP CDN in head` | GSAP CDN présent
+| `generateHyperframesHtml with full DSL produces valid HyperFrames HTML` | DSL complet : stage + composition + tracks + animation
+|===
+
+== Syntaxe DSL supportée
+
+```asciidoc
+= Titre
+:hyperframes-width: 1920
+:hyperframes-height: 1080
+:hyperframes-fps: 30
+
+[.hyperframes-composition#intro]
+== Introduction
+
+[.hyperframes-track]
+Texte du track
+
+[.hyperframes-animation]
+----
+const tl = gsap.timeline({ paused: true });
+tl.from("#title", { opacity: 0, y: 40, duration: 0.8 }, 1);
+----
+```
+
+→ Génère HTML avec stage div, data-composition-id, data-track-index/start/duration, scripts GSAP.
+
+== Problèmes rencontrés et solutions
+
+. *Syntaxe AsciiDoc pour role+id* — `[hyperframes-composition, id="intro"]` ne fonctionne pas avec AsciidoctorJ car le premier positional attribute est ignoré pour les sections. Solution : `[.hyperframes-composition#intro]` (shorthand AsciiDoc standard).
+. *Indentation trimIndent()* — `trimIndent()` ne fonctionne pas quand des variables interpolées ont des indentations différentes. Solution : `buildString { appendLine() }` sans trimIndent.
+. *Animation listingblock* — Le `[hyperframes-animation]` suivi de `----` produit `<div class="listingblock"><pre>code</pre></div>`, pas un `<p>`. Solution : regex adaptée pour capture `<pre>...</pre>`.
+. *ID sur heading enfant* — AsciidoctorJ met l'id sur le `<h2>`, pas sur le `<div class="sect1">`. Solution : scan du premier heading enfant pour extraire l'id.
+
+== Commandes vérifiées
+
+```
+./gradlew compileKotlin  → BUILD SUCCESSFUL
+./gradlew test           → 22/22 PASS
+```
+
+== Prochaine session (HF-4 — Intégration N3 runner-gradle)
+
+1. `collectHyperframesRetrieve` task → metadata.json
+2. Contrat runner-gradle (HyperframesParseContext, JSON schema)
+3. Tests intégration N3 (runner-gradle consume le JSON)

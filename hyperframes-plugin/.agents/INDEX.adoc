@@ -6,9 +6,9 @@ _DAG_ : N2 — Plugin Gradle de transformation documentaire AsciiDoc → vidéo 
 _Dépendance N2_ : codex-gradle (compileOnly, AsciidoctorJ partagé)
 _Bridge externe_ : HyperFrames CLI (Node.js via gradle-node-plugin, ProcessBuilder)
 
-_Dernière mise à jour_ : 2026-05-31 (HF-0 Bootstrap gouvernance + cadrage)
-_Session terminée_ : 000 — Bootstrap gouvernance (AGENT, INDEX, BACKLOG, ARCHITECTURE)
-_Prochaine session_ : 002 — HF-2 Bridge CLI HyperFrames (gradle-node-plugin + ProcessBuilder → node → MP4)
+_Dernière mise à jour_ : 2026-05-31 (HF-3 DSL AsciiDoc)
+_Session terminée_ : 003 — HF-3 DSL AsciiDoc (HyperframesHtmlProcessor, data-* attributes, animations GSAP)
+_Prochaine session_ : 004 — HF-4 Intégration N3 runner-gradle (collectHyperframesRetrieve, metadata.json)
 
 '''
 == RÈGLES ABSOLUES (résumé)
@@ -44,8 +44,8 @@ _Prochaine session_ : 002 — HF-2 Bridge CLI HyperFrames (gradle-node-plugin + 
 | EPIC | Description | Statut | Priorité
 | HF-0 | Bootstrap gouvernance + cadrage architecture | ✅ TERMINÉ (session 000) | P0
 | HF-1 | Plugin Gradle stub + AsciidoctorJ intégration (parse AsciiDoc → HTML HyperFrames) | ✅ TERMINÉ (session 001) | P0
-| HF-2 | Bridge CLI HyperFrames (gradle-node-plugin + ProcessBuilder → node → MP4) | À faire | P1
-| HF-3 | DSL AsciiDoc customs (blocs, docinfo attributes, templates) | À faire | P1
+| HF-2 | Bridge CLI HyperFrames (gradle-node-plugin + ProcessBuilder → node → MP4) | ✅ TERMINÉ (session 002) | P1
+| HF-3 | DSL AsciiDoc customs (blocs, docinfo attributes, templates) | ✅ TERMINÉ (session 003) | P1
 | HF-4 | Intégration N3 runner-gradle (collectHyperframesRetrieve, metadata.json) | À faire | P2
 | HF-5 | Templates HyperFrames prêts à l'emploi (transitions, overlays, captions) | À faire | P3
 | HF-6 | CI + publication Maven Central / Gradle Portal | À faire | P3
@@ -75,9 +75,9 @@ ProcessBuilder, en passant le HTML généré → MP4.
 [cols="1,3,2", options="header"]
 |===
 | Phase | Livrable | Statut
-| HF-2a | RenderHyperframesTask — gradle-node-plugin + ProcessBuilder → node → MP4 | À faire
-| HF-2b | Gestion erreurs CLI (download Node.js échoué, package npm absent, timeout, crash) | À faire
-| HF-2c | Tests fonctionnels (mock CLI, golden file MP4) | À faire
+| HF-2a | RenderHyperframesTask — ProcessBuilder + résolution Node.js + gestion erreurs | ✅ TERMINÉ (session 002)
+| HF-2b | Gestion erreurs CLI (timeout, exit code ≠ 0, script manquant, MP4 vide) | ✅ TERMINÉ (session 002)
+| HF-2c | Tests fonctionnels (mock CLI exit 0/1, script inexistant, timeout) | ✅ TERMINÉ (session 002)
 |===
 
 == EPIC HF-3 — DSL AsciiDoc
@@ -88,10 +88,10 @@ via blocs customs et attributs docinfo.
 [cols="1,3,2", options="header"]
 |===
 | Phase | Livrable | Statut
-| HF-3a | Blocs customs [hyperframes-composition], [hyperframes-track] | À faire
-| HF-3b | Attributs docinfo (:hyperframes-width:, :hyperframes-fps:, etc.) | À faire
-| HF-3c | Templates HTML HyperFrames par défaut (GSAP minimal, transitions) | À faire
-| HF-3d | Documentation DSL AsciiDoc (exemples, référence) | À faire
+| HF-3a | HyperframesHtmlProcessor — blocs composition, track, animation (stage div, data-* attrs, GSAP) | ✅ TERMINÉ (session 003)
+| HF-3b | Stage wrapper + docinfo :hyperframes-* → data-width/height/fps/output | ✅ TERMINÉ (session 003)
+| HF-3c | Template GSAP CDN + __timelines dans <script> | ✅ TERMINÉ (session 003)
+| HF-3d | Tests unitaires (10) + intégration (5) — syntaxe [.role#id] supportée | ✅ TERMINÉ (session 003)
 |===
 
 == EPIC HF-4 — Intégration N3
@@ -141,6 +141,8 @@ et Gradle Plugin Portal sous le handle cccp-education.
 | # | Date | Type | Sujet | Score
 | 000 | 2026-05-31 | bootstrap | HF-0 — Bootstrap gouvernance + cadrage architecture | ✅ TERMINÉ
 | 001 | 2026-05-31 | impl | HF-1 — Plugin Gradle stub + AsciidoctorJ intégration (build, plugin, extension, tasks, 3 tests) | ✅ TERMINÉ
+| 002 | 2026-05-31 | impl | HF-2 — Bridge CLI HyperFrames (ProcessBuilder + gradle-node-plugin + mock CLI tests) | ✅ TERMINÉ
+| 003 | 2026-05-31 | impl | HF-3 — DSL AsciiDoc (HyperframesHtmlProcessor, data-* attributes, GSAP, 22/22 tests) | ✅ TERMINÉ
 |===
 
 '''

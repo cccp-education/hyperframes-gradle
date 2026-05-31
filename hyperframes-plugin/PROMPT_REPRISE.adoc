@@ -1,49 +1,51 @@
-= PROMPT_REPRISE — HyperFrames Gradle (Session 001 → 002)
+= PROMPT_REPRISE — HyperFrames Gradle (Session 003 → 004)
 
-_Session_ : 001
+_Session_ : 003
 _Date_ : 2026-05-31
-_Status_ : ✅ TERMINÉ — HF-1 Plugin Gradle stub + AsciidoctorJ intégration
+_Status_ : ✅ TERMINÉ — HF-3 DSL AsciiDoc (blocs customs, data-* attributes, GSAP)
 
 '''
 == État des lieux
 
-Plugin Gradle fonctionnel. Structure build complète (wrapper 9.5.0,
-version catalog, java-gradle-plugin, signing, publishing).
-3 tâches Gradle enregistrées : generateHyperframesHtml, renderHyperframes.
-3 tests GradleTestKit PASS. Build compile.
+Plugin Gradle fonctionnel avec pipeline complet :
+AsciiDoc → AsciidoctorJ → HTML enrichi (stage, data-*, GSAP) → CLI Node.js → MP4.
+HyperframesHtmlProcessor post-processe le HTML pour les data-* attributes.
+22 tests PASS. Build compile.
 
-== Fait en session 001
+== Fait en session 003
 
-- Structure build root + hyperframes-plugin/ (settings/build + wrapper)
-- Version catalog hyperframes-plugin/gradle/libs.versions.toml
-- HyperframesPlugin.kt, HyperframesExtension.kt
-- GenerateHyperframesHtmlTask (AsciiDoc → HTML via AsciidoctorJ 3.0.0)
-- RenderHyperframesTask (stub HF-1)
-- 3 tests PASS (tasks listing, generation HTML, render fail sans generation)
+- HyperframesHtmlProcessor : stage div, data-composition-id, data-track-*, animations GSAP
+- Intégration dans GenerateHyperframesHtmlTask (post-processing après AsciidoctorJ)
+- 10 tests unitaires processor + 5 tests intégration DSL
+- Syntaxe AsciiDoc : `[.hyperframes-composition#intro]`, `[.hyperframes-track]`, `[.hyperframes-animation]`
 
-== Reste à faire (session 002)
+== Reste à faire (session 004)
 
-=== HF-2 — Bridge CLI HyperFrames (via plugin Gradle Node)
+=== HF-4 — Intégration N3 runner-gradle
 
-1. Ajouter `com.github.node-gradle:gradle-node-plugin` dans le version catalog
-   (même pattern que slider-gradle : `libs.node.gradle`)
-2. Configurer le plugin dans `RenderHyperframesTask` :
-   - Node.js version managée par le plugin (pinnée)
-   - Package npm `hyperframes` installé comme dépendance Gradle
-   - ProcessBuilder vers le `node`/`npm` du plugin Gradle Node, pas le système
-3. Implémentation de `RenderHyperframesTask` :
-   - Résoudre le chemin `node` depuis `NodeExtension`
-   - ProcessBuilder → `node /path/to/hyperframes/cli render ...`
-   - Vérification exit code
-   - Capture stderr
-   - Timeout configurable (`extension.renderTimeoutMs`)
-4. Gestion des erreurs :
-   - Node.js pas encore download → message clair
-   - Package hyperframes pas installé → message clair
-5. Tests fonctionnels :
-   - Mock CLI (script shell qui simule hyperframes)
-   - Golden file MP4
-6. Ajouter `extension.renderTimeoutMs` et `extension.nodeVersion` dans HyperframesExtension
+1. `collectHyperframesRetrieve` task → metadata.json
+2. Contrat runner-gradle (HyperframesParseContext, JSON schema)
+3. Tests intégration N3 (runner-gradle consume le JSON)
+
+== Routes documents clés (lecture rapide)
+
+|===
+| Document | Chemin | Utilité
+| Architecture détaillée | `doc/HYPERFRAMES_ARCHITECTURE.adoc` | Pipeline global, décisions tech, contrat N3
+| Pilotage agile | `doc/PILOTAGE_HYPERFRAMES.adoc` | Product vision, personas, US, story map, backlog
+| Backlog | `BACKLOG.adoc` | User stories HF-1→HF-6, critères acceptation, risques
+| Règles absolues | `AGENT.adoc` | 8 règles (commits, publish, DAG, secrets, bridge)
+| Roadmap | `.agents/INDEX.adoc` | Statut EPICs HF-0→HF-6, sessions
+| Session courante | `.agents/sessions/NNN-sujet.adoc` | Détail de chaque session
+|===
+
+== Rappels techniques
+
+- **Syntaxe AsciiDoc role+id** : utiliser `[.role#id]` PAS `[role, id="x"]` (heading id sur h2 enfant)
+- **Bridge Node.js** : ProcessBuilder, pas de couplage npm dans le plugin
+- **HyperframesHtmlProcessor** : pipeline 5 étapes (GSAP→stage→composition→track→animation)
+- **Contrat N3** : voir `doc/HYPERFRAMES_ARCHITECTURE.adoc` section "Contrat N3"
+- **ZERO commit/push** sans permission explicite
 
 == Commandes utiles
 
@@ -51,4 +53,5 @@ version catalog, java-gradle-plugin, signing, publishing).
 ./gradlew :hyperframes:compileKotlin
 ./gradlew :hyperframes:test
 ./gradlew generateHyperframesHtml
+./gradlew renderHyperframes
 ```

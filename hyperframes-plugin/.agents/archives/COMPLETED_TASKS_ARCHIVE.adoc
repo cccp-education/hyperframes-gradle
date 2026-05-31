@@ -23,3 +23,25 @@
 | HF-1d | GenerateHyperframesHtmlTask — AsciiDoc → HTML via AsciidoctorJ | ✅
 | HF-1e | Tests unitaires (GradleTestKit, 3 tests PASS) | ✅
 |===
+
+== Tâches terminées (session 002 — 2026-05-31)
+
+|===
+| EPIC | Tâche | Statut
+| HF-2a | Version catalog : ajout node-gradle 7.1.0 + implementation build.gradle.kts | ✅
+| HF-2a | Extension : ajout renderTimeoutMs, cliScript, nodeExecutable | ✅
+| HF-2a | RenderHyperframesTask : ProcessBuilder → node hyperframes render + résolution Node.js | ✅
+| HF-2b | Gestion erreurs : timeout, exit code ≠ 0, script manquant, HTML manquant, MP4 vide | ✅
+| HF-2c | Tests fonctionnels : mock CLI exit 0/1, script inexistant, timeout (4 tests) | ✅
+|===
+
+== Tâches terminées (session 003 — 2026-05-31)
+
+|===
+| EPIC | Tâche | Statut
+| HF-3a | HyperframesHtmlProcessor — stage div, data-composition-id, data-track-*, animations GSAP | ✅
+| HF-3b | Stage wrapper + docinfo → data-* HTML attributes | ✅
+| HF-3c | Template GSAP CDN + __timelines | ✅
+| HF-3d | Tests unitaires HyperframesHtmlProcessor (10 tests) | ✅
+| HF-3d | Tests intégration GradleTestKit DSL (5 tests) | ✅
+|===

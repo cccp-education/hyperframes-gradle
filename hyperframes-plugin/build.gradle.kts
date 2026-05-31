@@ -21,6 +21,7 @@ repositories {
 dependencies {
     implementation(kotlin("stdlib-jdk8"))
     implementation(libs.asciidoctorj)
+    implementation(libs.node.gradle)
 
     testImplementation(kotlin("test-junit5"))
     testRuntimeOnly(libs.junit.platform.launcher)

@@ -4,6 +4,7 @@ import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputDirectory
+import org.gradle.api.tasks.Optional
 
 /**
  * DSL d'extension [hyperframes] pour configure le pipeline HyperFrames.
@@ -36,10 +37,29 @@ abstract class HyperframesExtension {
     @get:Input
     abstract val outputName: Property<String>
 
+    /** Timeout du rendu vidéo en millisecondes (défaut : 300000 = 5 min) */
+    @get:Input
+    abstract val renderTimeoutMs: Property<Long>
+
+    /** Chemin vers le script CLI HyperFrames (ex: node_modules/.bin/hyperframes) */
+    @get:Input
+    @get:Optional
+    abstract val cliScript: Property<String>
+
+    /**
+     * Chemin vers l'exécutable Node.js (utilisé en test pour bypasser
+     * le download du plugin Gradle Node). Si non défini, résolu
+     * automatiquement depuis `NodeExtension`.
+     */
+    @get:Input
+    @get:Optional
+    abstract val nodeExecutable: Property<String>
+
     init {
         width.convention(1920)
         height.convention(1080)
         fps.convention(30)
         outputName.convention("output")
+        renderTimeoutMs.convention(300_000L)
     }
 }

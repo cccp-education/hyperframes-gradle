@@ -15,11 +15,11 @@ import java.io.File
 
 /**
  * Tâche Gradle qui convertit un fichier AsciiDoc (index.adoc) en HTML
- * via AsciidoctorJ. Le HTML généré servira de base au rendu HyperFrames.
+ * via AsciidoctorJ, puis post-processe le HTML avec [HyperframesHtmlProcessor]
+ * pour ajouter les data-* attributes nécessaires au rendu HyperFrames.
  *
  * HF-1 : Conversion AsciiDoc → HTML standard.
- * HF-3 : Ajoutera les blocs customs [hyperframes-composition], [hyperframes-track]
- *        et les data-* attributes HyperFrames dans le HTML généré.
+ * HF-3 : Post-processing → stage div, data-composition-id, data-track-*, animations.
  */
 abstract class GenerateHyperframesHtmlTask : DefaultTask() {
 
@@ -49,10 +49,10 @@ abstract class GenerateHyperframesHtmlTask : DefaultTask() {
 
         val sourceFile = File(inputFile, "index.adoc")
         require(sourceFile.exists()) {
-            """
-            |AsciiDoc source not found at: ${sourceFile.absolutePath}
-            |Create an index.adoc file in ${inputFile.absolutePath} or set inputDir to the correct path.
-            """.trimMargin()
+            buildString {
+                appendLine("AsciiDoc source not found at: ${sourceFile.absolutePath}")
+                append("Create an index.adoc file in ${inputFile.absolutePath} or set inputDir to the correct path.")
+            }
         }
 
         val asciidoctor = Asciidoctor.Factory.create()
@@ -71,6 +71,7 @@ abstract class GenerateHyperframesHtmlTask : DefaultTask() {
                 .attributes(attrs)
                 .build()
 
+            // Étape 1 : Conversion AsciiDoc → HTML (AsciidoctorJ)
             asciidoctor.convertFile(sourceFile, options)
 
             val generatedHtml = outputFile.resolve("index.html")
@@ -78,7 +79,19 @@ abstract class GenerateHyperframesHtmlTask : DefaultTask() {
                 "Generated HTML not found: ${generatedHtml.absolutePath}"
             }
 
+            // Étape 2 : Post-processing HyperFrames (stage, data-*, GSAP)
+            val rawHtml = generatedHtml.readText()
+            val processor = HyperframesHtmlProcessor(
+                width = width.get(),
+                height = height.get(),
+                fps = fps.get(),
+                outputName = outputName.get()
+            )
+            val enhancedHtml = processor.enhance(rawHtml)
+            generatedHtml.writeText(enhancedHtml)
+
             logger.lifecycle("HyperFrames HTML generated: ${generatedHtml.absolutePath}")
+            logger.info("   Enhanced with HyperFrames data-* attributes (HF-3)")
         } finally {
             asciidoctor.shutdown()
         }

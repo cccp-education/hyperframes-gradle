@@ -8,4 +8,6 @@ _Date création_ : 2026-05-31
 | # | Date | Type | Sujet | Score
 | 000 | 2026-05-31 | bootstrap | HF-0 — Bootstrap gouvernance + cadrage architecture | ✅ TERMINE
 | 001 | 2026-05-31 | impl | HF-1 — Plugin Gradle stub + AsciidoctorJ intégration (build, plugin, extension, tasks, 3 tests) | ✅ TERMINE
+| 002 | 2026-05-31 | impl | HF-2 — Bridge CLI HyperFrames (gradle-node-plugin + ProcessBuilder + error handling + mock CLI tests, 7/7 PASS) | ✅ TERMINE
+| 003 | 2026-05-31 | impl | HF-3 — DSL AsciiDoc (HyperframesHtmlProcessor, data-* attributes, GSAP, stage div, 22/22 PASS) | ✅ TERMINE
 |===
