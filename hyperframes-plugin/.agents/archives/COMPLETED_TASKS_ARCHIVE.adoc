@@ -45,3 +45,11 @@
 | HF-3d | Tests unitaires HyperframesHtmlProcessor (10 tests) | ✅
 | HF-3d | Tests intégration GradleTestKit DSL (5 tests) | ✅
 |===
+
+== Tâches terminées (session 004 — 2026-05-31)
+
+|===
+| EPIC | Tâche | Statut
+| HF-4a | collectHyperframesRetrieve task → metadata.json | ✅
+| HF-4b | Contrat runner-gradle (HyperframesParseContext, JSON schema) | ✅
+|===

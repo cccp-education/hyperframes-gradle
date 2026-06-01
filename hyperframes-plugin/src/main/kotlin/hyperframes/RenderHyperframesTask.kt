@@ -7,6 +7,7 @@ import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.OutputDirectory
 import org.gradle.api.tasks.TaskAction
+import org.gradle.work.DisableCachingByDefault
 import java.io.File
 import java.util.concurrent.TimeUnit
 
@@ -25,6 +26,7 @@ private class HyperframesException(message: String) : RuntimeException(message)
  * Le chemin Node.js est résolu depuis le plugin Gradle Node (`NodeExtension`)
  * ou depuis [nodeExecutable] si fourni (utile pour les tests avec mock CLI).
  */
+@DisableCachingByDefault(because = "External process-bound: calls Node.js HyperFrames CLI")
 abstract class RenderHyperframesTask : DefaultTask() {
 
     @get:OutputDirectory

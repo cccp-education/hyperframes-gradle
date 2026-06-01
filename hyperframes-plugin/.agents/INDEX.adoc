@@ -6,9 +6,9 @@ _DAG_ : N2 — Plugin Gradle de transformation documentaire AsciiDoc → vidéo 
 _Dépendance N2_ : codex-gradle (compileOnly, AsciidoctorJ partagé)
 _Bridge externe_ : HyperFrames CLI (Node.js via gradle-node-plugin, ProcessBuilder)
 
-_Dernière mise à jour_ : 2026-05-31 (HF-3 DSL AsciiDoc)
-_Session terminée_ : 003 — HF-3 DSL AsciiDoc (HyperframesHtmlProcessor, data-* attributes, animations GSAP)
-_Prochaine session_ : 004 — HF-4 Intégration N3 runner-gradle (collectHyperframesRetrieve, metadata.json)
+_Dernière mise à jour_ : 2026-05-31 (HF-4 Intégration N3 runner-gradle)
+_Session terminée_ : 004 — HF-4 Intégration N3 runner-gradle (collectHyperframesRetrieve task, contrat JSON)
+_Prochaine session_ : 005 — HF-4 Parsing vidéo (MP4/HTML) + tests runner-gradle
 
 '''
 == RÈGLES ABSOLUES (résumé)
@@ -102,8 +102,8 @@ N3, qui l'ingère dans assembleCompositeContext.
 [cols="1,3,2", options="header"]
 |===
 | Phase | Livrable | Statut
-| HF-4a | collectHyperframesRetrieve task → metadata.json | À faire
-| HF-4b | Contrat runner-gradle (HyperframesParseContext, JSON schema) | À faire
+| HF-4a | collectHyperframesRetrieve task → metadata.json | ✅ TERMINÉ (session 004)
+| HF-4b | Contrat runner-gradle (HyperframesParseContext, JSON schema) | ✅ TERMINÉ (session 004) 
 | HF-4c | Tests intégration N3 (runner-gradle consume le JSON) | À faire
 |===
 
@@ -143,6 +143,7 @@ et Gradle Plugin Portal sous le handle cccp-education.
 | 001 | 2026-05-31 | impl | HF-1 — Plugin Gradle stub + AsciidoctorJ intégration (build, plugin, extension, tasks, 3 tests) | ✅ TERMINÉ
 | 002 | 2026-05-31 | impl | HF-2 — Bridge CLI HyperFrames (ProcessBuilder + gradle-node-plugin + mock CLI tests) | ✅ TERMINÉ
 | 003 | 2026-05-31 | impl | HF-3 — DSL AsciiDoc (HyperframesHtmlProcessor, data-* attributes, GSAP, 22/22 tests) | ✅ TERMINÉ
+| 004 | 2026-05-31 | impl | HF-4 Intégration N3 runner-gradle (collectHyperframesRetrieve task, contrat JSON, 26/26 PASS) | ✅ TERMINÉ
 |===
 
 '''

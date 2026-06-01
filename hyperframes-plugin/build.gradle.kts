@@ -22,6 +22,8 @@ dependencies {
     implementation(kotlin("stdlib-jdk8"))
     implementation(libs.asciidoctorj)
     implementation(libs.node.gradle)
+    implementation(libs.jackson.databind)
+    implementation(libs.jackson.module.kotlin)
 
     testImplementation(kotlin("test-junit5"))
     testRuntimeOnly(libs.junit.platform.launcher)

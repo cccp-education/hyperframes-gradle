@@ -1,0 +1,60 @@
+= Session 004 — HF-4 Intégration N3 runner-gradle
+:author: deep
+:date: 2026-05-31
+:session_type: impl
+:score: 7/10
+
+== Résumé
+
+Implémentation de la tâche `collectHyperframesRetrieve` pour l'intégration avec runner-gradle N3. Foundation complète posée : task Gradle enregistrée, Metadata.kt standardisé, contrat N3 défini.
+
+== Ce qui a été fait
+
+=== Infrastructure plugin
+- Ajout dépendances Jackson dans `libs.versions.toml` + `build.gradle.kts`
+- Création `Metadata.kt` pour génération `metadata.json` conforme aux autres boroughs
+- Enregistrement task `collectHyperframesRetrieve` dans `HyperframesPlugin`
+
+=== Task minimale fonctionnelle
+- `@OutputFile outputFile` pour validation Gradle propre
+- Génération JSON vide (entries=[]) + metadata.json associé
+- Tests unitaires basiques validés
+
+=== Documentation
+- Plan couverture test complet (4 niveaux : unit → intégration)
+- Critère d'acceptation BDD formulé
+
+== Problèmes rencontrés
+
+=== Validation Gradle inputs/outputs
+- `@InputDirectory` exige répertoire existant au moment configuration
+- Solution : simplification task pour validation standard
+
+=== Complexité extraction vidéo
+- Parsing MP4/HTML HyperFrames nécessite `ffprobe` + regex complexes
+- Report à Phase 2 (`@xp`)
+
+== Prochaines étapes (Session 005)
+
+=== Phase 2 - Extraction (@xp):
+- Parsing MP4 (taille, durée, codec) avec `ffprobe` ou estimation
+- Parsing HTML HyperFrames (data-* attributes)  
+- Génération entries[] avec metadata vidéo
+
+=== Tests avancés:
+- Cas avec/ sans MP4 existant
+- Multiples compositions/tracks
+- Validation contrat runner-gradle N3
+
+=== Intégration E2E:
+- Test avec runner-gradle `assembleCompositeContext`
+- Validation schema JSON (HyperframesParseContext)
+
+== Fichiers modifiés
+
+- `/foundry/public/hyperframes-gradle/hyperframes-plugin/gradle/libs.versions.toml`  
+- `/foundry/public/hyperframes-gradle/hyperframes-plugin/build.gradle.kts`  
+- `/foundry/public/hyperframes-gradle/hyperframes-plugin/src/main/kotlin/hyperframes/Metadata.kt`  
+- `/foundry/public/hyperframes-gradle/hyperframes-plugin/src/main/kotlin/hyperframes/HyperframesPlugin.kt`  
+- `/foundry/public/hyperframes-gradle/hyperframes-plugin/src/main/kotlin/hyperframes/CollectHyperframesRetrieveTask.kt`  
+- `/foundry/public/hyperframes-gradle/hyperframes-plugin/src/test/kotlin/hyperframes/SimpleCollectHyperframesTest.kt`

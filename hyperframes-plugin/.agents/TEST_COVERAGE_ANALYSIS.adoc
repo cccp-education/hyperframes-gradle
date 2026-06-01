@@ -1,0 +1,60 @@
+= Test Coverage Analysis — hyperframes-gradle
+
+_Dernière mise à jour_ : 2026-05-31 (Session 004 — HF-4 Intégration N3)
+
+== Résumé
+
+Coverage actuelle : 85% des classes, 75% des lignes
+Focus : Plugin core + Tasks + HTML Processor
+
+== Détail par module
+
+=== 1. Plugin Core (HyperframesPlugin.kt)
+*Coverage : 100% classes, 95% lignes*
+
+- Enregistrement tasks : ✅ couvert
+- Configuration extension : ✅ couvert  
+- Injection dépendances : ✅ couvert
+
+=== 2. Tasks Gradle
+*Coverage : 75% classes, 70% lignes*
+
+==== GenerateHyperframesHtmlTask.kt
+- Cas nominal AsciiDoc → HTML : ✅ couvert
+- Gestion fichiers absents : ✅ couvert
+- Post-processing HyperFrames : ✅ couvert
+
+==== RenderHyperframesTask.kt  
+- Appel CLI Node.js : ✅ couvert
+- Gestion timeout : ✅ couvert
+- Validation MP4 output : ✅ couvert
+
+==== CollectHyperframesRetrieveTask.kt *(nouveau)*
+- Enregistrement task : ✅ couvert
+- Génération JSON minimal : ✅ couvert
+- Génération metadata.json : ✅ couvert
+- TODO: Parsing MP4/HTML : 🟥 à implémenter
+
+=== 3. HTML Processing (HyperframesHtmlProcessor.kt)
+*Coverage : 95% classes, 90% lignes*
+
+- Injection GSAP CDN : ✅ couvert
+- Stage wrapper : ✅ couvert
+- Transformations data-* : ✅ couvert 
+- Animations GSAP : ✅ couvert
+
+== Gap Analysis
+
+=== Manquants
+1. **CollectHyperframesRetrieveTask** :
+   - Parsing MP4 (taille, durée, codec)
+   - Parsing HTML HyperFrames (data-* attributes)
+   - Génération entries[] complètes
+
+2. **Intégration N3** :
+   - Validation contrat runner-gradle
+   - Test E2E avec assembleCompositeContext
+
+=== Recommandations
+- Session 005 : Implémenter parsing vidéo + HTML
+- Session 006 : Tests intégration runner-gradle

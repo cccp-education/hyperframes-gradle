@@ -7,6 +7,9 @@ import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputDirectory
 import org.gradle.api.tasks.OutputDirectory
 import org.gradle.api.tasks.TaskAction
+import org.gradle.work.DisableCachingByDefault
+import org.gradle.api.tasks.PathSensitive
+import org.gradle.api.tasks.PathSensitivity
 import org.asciidoctor.Asciidoctor
 import org.asciidoctor.Attributes
 import org.asciidoctor.Options
@@ -21,9 +24,11 @@ import java.io.File
  * HF-1 : Conversion AsciiDoc → HTML standard.
  * HF-3 : Post-processing → stage div, data-composition-id, data-track-*, animations.
  */
+@DisableCachingByDefault(because = "Filesystem-bound: reads AsciiDoc and writes HTML")
 abstract class GenerateHyperframesHtmlTask : DefaultTask() {
 
     @get:InputDirectory
+    @get:PathSensitive(PathSensitivity.RELATIVE)
     abstract val inputDir: DirectoryProperty
 
     @get:OutputDirectory

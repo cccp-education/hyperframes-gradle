@@ -50,5 +50,12 @@ class HyperframesPlugin : Plugin<Project> {
             extension.nodeExecutable.finalizeValueOnRead()
             task.nodeExecutable.set(extension.nodeExecutable)
         }
+
+        // Tâche : collect retrieve context for N3 runner integration
+        target.tasks.register("collectHyperframesRetrieve", CollectHyperframesRetrieveTask::class.java) { task ->
+            task.description = "Collect HyperFrames rendered video metadata for N3 runner integration"
+            task.group = "collect"
+            task.outputFile.set(target.layout.buildDirectory.file("hyperframes/composite-context.json"))
+        }
     }
 }

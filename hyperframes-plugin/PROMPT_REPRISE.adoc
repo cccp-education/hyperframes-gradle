@@ -1,31 +1,33 @@
-= PROMPT_REPRISE — HyperFrames Gradle (Session 003 → 004)
-
-_Session_ : 003
-_Date_ : 2026-05-31
-_Status_ : ✅ TERMINÉ — HF-3 DSL AsciiDoc (blocs customs, data-* attributes, GSAP)
+= PROMPT_REPRISE — HyperFrames Gradle (Session 004 → 005)
+:session: 004
+:date: 2026-05-31
+:status: ✅ TERMINÉ — HF-4 Intégration N3 runner-gradle (collectHyperframesRetrieve task, contrat JSON)
 
 '''
 == État des lieux
 
 Plugin Gradle fonctionnel avec pipeline complet :
 AsciiDoc → AsciidoctorJ → HTML enrichi (stage, data-*, GSAP) → CLI Node.js → MP4.
-HyperframesHtmlProcessor post-processe le HTML pour les data-* attributes.
-22 tests PASS. Build compile.
+Task `collectHyperframesRetrieve` enregistrée et minimale fonctionnelle.
 
-== Fait en session 003
+== Fait en session 004
 
-- HyperframesHtmlProcessor : stage div, data-composition-id, data-track-*, animations GSAP
-- Intégration dans GenerateHyperframesHtmlTask (post-processing après AsciidoctorJ)
-- 10 tests unitaires processor + 5 tests intégration DSL
-- Syntaxe AsciiDoc : `[.hyperframes-composition#intro]`, `[.hyperframes-track]`, `[.hyperframes-animation]`
+- Task `collectHyperframesRetrieve` enregistrée dans HyperframesPlugin
+- Metadata.kt pour génération `metadata.json` standardisé  
+- Task minimale générant JSON vide + metadata.json
+- Tests unitaires basiques validés
+- Contrat N3 runner-gradle défini
 
-== Reste à faire (session 004)
+== Reste à faire (session 005)
 
-=== HF-4 — Intégration N3 runner-gradle
+=== HF-4 — Intégration N3 runner-gradle (continuation)
 
-1. `collectHyperframesRetrieve` task → metadata.json
-2. Contrat runner-gradle (HyperframesParseContext, JSON schema)
-3. Tests intégration N3 (runner-gradle consume le JSON)
+1. Parsing MP4 (taille, durée, codec) avec `ffprobe` ou estimation
+2. Parsing HTML HyperFrames (data-* attributes)  
+3. Génération entries[] avec metadata vidéo complète
+4. Tests avancés (cas avec/sans MP4, multiples compositions)
+5. Validation contrat runner-gradle N3
+6. Test E2E avec runner-gradle `assembleCompositeContext`
 
 == Routes documents clés (lecture rapide)
 
