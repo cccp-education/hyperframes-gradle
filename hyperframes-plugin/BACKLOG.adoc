@@ -116,3 +116,41 @@ Zéro code à écrire pour les cas d'usage standards. Un template AsciiDoc
 * La licence Apache 2.0 est compatible avec notre écosystème
 * Le bridge Node.js est le point de friction principal — à isoler proprement
 * Le DSL AsciiDoc est la valeur ajoutée unique de ce plugin vs HyperFrames seul
+
+'''
+
+== EPIC PUB — Publication Maven Central + Plugin Portal
+
+_Source : configuration/EPIC_PUB.adoc (Session 096)_
+
+=== PUB-2.2 — Mettre a jour le commentaire relocation
+
+Dans le `build.gradle.kts`, remplacer :
+```kotlin
+// RELOCATION : prepare la migration du groupId education.cccp →
+// <futur-domaine>. Activer avec -Prem relocationGroup="io.github.cccp-education"
+// Effet : injecte <distributionManagement><relocation><groupId>...</groupId></relocation>
+// dans le POM publie. Les consommateurs existants seront rediriges automatiquement
+// vers le nouveau groupId lors de la prochaine maj de dependance.
+```
+Par :
+```kotlin
+// RELOCATION : garde comme echappatoire future.
+// Activable avec -Prem relocationGroup="<futur-namespace>"
+```
+
+=== PUB-3.16 — hyperframes-plugin
+
+*Artefact* : `education.cccp.hyperframes` + `education.cccp:hyperframes-plugin`
+
+```bash
+cd foundry/public/hyperframes-gradle && ./gradlew publish closeAndRelease
+```
+
+=== PUB-5.16 — Verification
+
+.Verification Maven Central
+
+| Artefact | URL |
+|---|---|
+| hyperframes-plugin | https://central.sonatype.com/artifact/education.cccp/hyperframes-plugin |
