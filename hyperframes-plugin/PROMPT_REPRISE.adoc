@@ -1,7 +1,7 @@
-= PROMPT_REPRISE — HyperFrames Gradle (Session 004 → 005)
-:session: 004
-:date: 2026-05-31
-:status: ✅ TERMINÉ — HF-4 Intégration N3 runner-gradle (collectHyperframesRetrieve task, contrat JSON)
+= PROMPT_REPRISE — HyperFrames Gradle (Session 005 TERMINÉE → 006)
+:session: 005
+:date: 2026-06-11
+:status: ✅ TERMINÉ — Publication Maven Central 0.0.1
 
 '''
 == État des lieux
@@ -9,25 +9,23 @@
 Plugin Gradle fonctionnel avec pipeline complet :
 AsciiDoc → AsciidoctorJ → HTML enrichi (stage, data-*, GSAP) → CLI Node.js → MP4.
 Task `collectHyperframesRetrieve` enregistrée et minimale fonctionnelle.
+Version `0.0.1` publiée sur Maven Central via nmcp.
 
-== Fait en session 004
+== Fait en session 005
 
-- Task `collectHyperframesRetrieve` enregistrée dans HyperframesPlugin
-- Metadata.kt pour génération `metadata.json` standardisé  
-- Task minimale générant JSON vide + metadata.json
-- Tests unitaires basiques validés
-- Contrat N3 runner-gradle défini
+- Version `0.1.0-SNAPSHOT` → `0.0.1` hardcodée
+- POM sans guard (withType<MavenPublication>)
+- Migration Sonatype → nmcp
+- settings.gradle.kts : nmcp plugin 1.5.0 + nmcpSettings
+- signing { useGpgCmd() }
+- Publication Maven Central réussie
 
-== Reste à faire (session 005)
+== Prochaine session (006)
 
-=== HF-4 — Intégration N3 runner-gradle (continuation)
-
-1. Parsing MP4 (taille, durée, codec) avec `ffprobe` ou estimation
-2. Parsing HTML HyperFrames (data-* attributes)  
-3. Génération entries[] avec metadata vidéo complète
-4. Tests avancés (cas avec/sans MP4, multiples compositions)
-5. Validation contrat runner-gradle N3
-6. Test E2E avec runner-gradle `assembleCompositeContext`
+À définir :
+1. HF-4c — Tests intégration N3 runner-gradle
+2. HF-5 — Templates HyperFrames prêts à l'emploi
+3. HF-6 — CI/CD + publication Gradle Portal
 
 == Routes documents clés (lecture rapide)
 
@@ -38,22 +36,11 @@ Task `collectHyperframesRetrieve` enregistrée et minimale fonctionnelle.
 | Backlog | `BACKLOG.adoc` | User stories HF-1→HF-6, critères acceptation, risques
 | Règles absolues | `AGENT.adoc` | 8 règles (commits, publish, DAG, secrets, bridge)
 | Roadmap | `.agents/INDEX.adoc` | Statut EPICs HF-0→HF-6, sessions
-| Session courante | `.agents/sessions/NNN-sujet.adoc` | Détail de chaque session
 |===
 
 == Rappels techniques
 
-- **Syntaxe AsciiDoc role+id** : utiliser `[.role#id]` PAS `[role, id="x"]` (heading id sur h2 enfant)
+- **Version publiée** : 0.0.1 (Maven Central)
+- **Syntaxe AsciiDoc role+id** : utiliser `[.role#id]` PAS `[role, id="x"]`
 - **Bridge Node.js** : ProcessBuilder, pas de couplage npm dans le plugin
-- **HyperframesHtmlProcessor** : pipeline 5 étapes (GSAP→stage→composition→track→animation)
-- **Contrat N3** : voir `doc/HYPERFRAMES_ARCHITECTURE.adoc` section "Contrat N3"
 - **ZERO commit/push** sans permission explicite
-
-== Commandes utiles
-
-```
-./gradlew :hyperframes:compileKotlin
-./gradlew :hyperframes:test
-./gradlew generateHyperframesHtml
-./gradlew renderHyperframes
-```

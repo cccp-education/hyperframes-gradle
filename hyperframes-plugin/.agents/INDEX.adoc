@@ -6,9 +6,10 @@ _DAG_ : N2 — Plugin Gradle de transformation documentaire AsciiDoc → vidéo 
 _Dépendance N2_ : codex-gradle (compileOnly, AsciidoctorJ partagé)
 _Bridge externe_ : HyperFrames CLI (Node.js via gradle-node-plugin, ProcessBuilder)
 
-_Dernière mise à jour_ : 2026-05-31 (HF-4 Intégration N3 runner-gradle)
-_Session terminée_ : 004 — HF-4 Intégration N3 runner-gradle (collectHyperframesRetrieve task, contrat JSON)
-_Prochaine session_ : 005 — HF-4 Parsing vidéo (MP4/HTML) + tests runner-gradle
+_Dernière mise à jour_ : 2026-06-11 (Session 005 Publication Maven Central)
+_Session terminée_ : 005 — Publication Maven Central 0.0.1
+_Prochaine session_ : 006 — À définir (HF-4c ou HF-5)
+_Version publiée_ : 0.0.1 (Maven Central)
 
 '''
 == RÈGLES ABSOLUES (résumé)
@@ -46,9 +47,9 @@ _Prochaine session_ : 005 — HF-4 Parsing vidéo (MP4/HTML) + tests runner-grad
 | HF-1 | Plugin Gradle stub + AsciidoctorJ intégration (parse AsciiDoc → HTML HyperFrames) | ✅ TERMINÉ (session 001) | P0
 | HF-2 | Bridge CLI HyperFrames (gradle-node-plugin + ProcessBuilder → node → MP4) | ✅ TERMINÉ (session 002) | P1
 | HF-3 | DSL AsciiDoc customs (blocs, docinfo attributes, templates) | ✅ TERMINÉ (session 003) | P1
-| HF-4 | Intégration N3 runner-gradle (collectHyperframesRetrieve, metadata.json) | À faire | P2
+| HF-4 | Intégration N3 runner-gradle (collectHyperframesRetrieve, metadata.json) | 🟡 80% (HF-4c à faire) | P2
 | HF-5 | Templates HyperFrames prêts à l'emploi (transitions, overlays, captions) | À faire | P3
-| HF-6 | CI + publication Maven Central / Gradle Portal | À faire | P3
+| HF-6 | CI + publication Maven Central / Gradle Portal | ✅ Maven Central (session 005) / Gradle Portal à faire | P3
 |===
 
 '''
@@ -130,7 +131,7 @@ et Gradle Plugin Portal sous le handle cccp-education.
 |===
 | Phase | Livrable | Statut
 | HF-6a | GitHub Actions workflow test-hyperframes.yml | À faire
-| HF-6b | Publication Maven Central (group education.cccp, artifact hyperframes-gradle) | À faire
+| HF-6b | Publication Maven Central (group education.cccp, artifact hyperframes-gradle) | ✅ TERMINÉ (session 005)
 | HF-6c | Publication Gradle Plugin Portal (handle cccp-education) | À faire
 |===
 
@@ -139,11 +140,12 @@ et Gradle Plugin Portal sous le handle cccp-education.
 
 |===
 | # | Date | Type | Sujet | Score
-| 000 | 2026-05-31 | bootstrap | HF-0 — Bootstrap gouvernance + cadrage architecture | ✅ TERMINÉ
-| 001 | 2026-05-31 | impl | HF-1 — Plugin Gradle stub + AsciidoctorJ intégration (build, plugin, extension, tasks, 3 tests) | ✅ TERMINÉ
-| 002 | 2026-05-31 | impl | HF-2 — Bridge CLI HyperFrames (ProcessBuilder + gradle-node-plugin + mock CLI tests) | ✅ TERMINÉ
-| 003 | 2026-05-31 | impl | HF-3 — DSL AsciiDoc (HyperframesHtmlProcessor, data-* attributes, GSAP, 22/22 tests) | ✅ TERMINÉ
+| 005 | 2026-06-11 | publish | Publication Maven Central 0.0.1 (nmcp, POM sans guard, version 0.0.1) | 9/10
 | 004 | 2026-05-31 | impl | HF-4 Intégration N3 runner-gradle (collectHyperframesRetrieve task, contrat JSON, 26/26 PASS) | ✅ TERMINÉ
+| 003 | 2026-05-31 | impl | HF-3 — DSL AsciiDoc (HyperframesHtmlProcessor, data-* attributes, GSAP, 22/22 tests) | ✅ TERMINÉ
+| 002 | 2026-05-31 | impl | HF-2 — Bridge CLI HyperFrames (gradle-node-plugin + ProcessBuilder + mock CLI tests, 7/7 PASS) | ✅ TERMINÉ
+| 001 | 2026-05-31 | impl | HF-1 — Plugin Gradle stub + AsciidoctorJ intégration (build, plugin, extension, tasks, 3 tests) | ✅ TERMINÉ
+| 000 | 2026-05-31 | bootstrap | HF-0 — Bootstrap gouvernance + cadrage architecture | ✅ TERMINÉ
 |===
 
 '''

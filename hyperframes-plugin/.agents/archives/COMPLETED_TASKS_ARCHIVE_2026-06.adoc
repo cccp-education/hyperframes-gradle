@@ -1,0 +1,62 @@
+= COMPLETED_TASKS_ARCHIVE — Juin 2026
+:date: 2026-06-11
+
+== Tâches terminées (session 005 — 2026-06-11)
+
+|===
+| EPIC | Tâche | Statut
+| HF-6b | Publication Maven Central 0.0.1 (nmcp, POM sans guard, version 0.1.0-SNAPSHOT→0.0.1, signing GPG) | ✅
+|===
+
+== Tâches terminées (session 000 — 2026-05-31)
+
+|===
+| EPIC | Tâche | Statut
+| HF-0a | Structure projet hyperframes-gradle/ (root + hyperframes-plugin/) | ✅
+| HF-0b | Gouvernance agent (7 fichiers .agents/ + AGENT.adoc + BACKLOG.adoc + PROMPT_REPRISE.adoc) | ✅
+| HF-0c | Doc architecture HYPERFRAMES_ARCHITECTURE.adoc (4 diagrammes PlantUML) | ✅
+| HF-0d | Article blog cheroliv.com #0125 | ✅
+| HF-0e | Mise à jour AGENTS.adoc (Watts 12ème borough) | ✅
+| HF-0f | Mise à jour PLAN_GLOBAL.adoc (EPICs HF-0→HF-6) | ✅
+|===
+
+== Tâches terminées (session 001 — 2026-05-31)
+
+|===
+| EPIC | Tâche | Statut
+| HF-1a | Structure build Gradle (root + hyperframes-plugin, wrapper 9.5.0, version catalog) | ✅
+| HF-1b | HyperframesPlugin.kt stub (Plugin<Project>, extension, tasks) | ✅
+| HF-1c | AsciidoctorJ configuration (implementation, Attributes API, SafeMode.UNSAFE) | ✅
+| HF-1d | GenerateHyperframesHtmlTask — AsciiDoc → HTML via AsciidoctorJ | ✅
+| HF-1e | Tests unitaires (GradleTestKit, 3 tests PASS) | ✅
+|===
+
+== Tâches terminées (session 002 — 2026-05-31)
+
+|===
+| EPIC | Tâche | Statut
+| HF-2a | Version catalog : ajout node-gradle 7.1.0 + implementation build.gradle.kts | ✅
+| HF-2a | Extension : ajout renderTimeoutMs, cliScript, nodeExecutable | ✅
+| HF-2a | RenderHyperframesTask : ProcessBuilder → node hyperframes render + résolution Node.js | ✅
+| HF-2b | Gestion erreurs : timeout, exit code ≠ 0, script manquant, HTML manquant, MP4 vide | ✅
+| HF-2c | Tests fonctionnels : mock CLI exit 0/1, script inexistant, timeout (4 tests) | ✅
+|===
+
+== Tâches terminées (session 003 — 2026-05-31)
+
+|===
+| EPIC | Tâche | Statut
+| HF-3a | HyperframesHtmlProcessor — stage div, data-composition-id, data-track-*, animations GSAP | ✅
+| HF-3b | Stage wrapper + docinfo → data-* HTML attributes | ✅
+| HF-3c | Template GSAP CDN + __timelines | ✅
+| HF-3d | Tests unitaires HyperframesHtmlProcessor (10 tests) | ✅
+| HF-3d | Tests intégration GradleTestKit DSL (5 tests) | ✅
+|===
+
+== Tâches terminées (session 004 — 2026-05-31)
+
+|===
+| EPIC | Tâche | Statut
+| HF-4a | collectHyperframesRetrieve task → metadata.json | ✅
+| HF-4b | Contrat runner-gradle (HyperframesParseContext, JSON schema) | ✅
+|===

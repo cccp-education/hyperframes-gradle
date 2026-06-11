@@ -1,0 +1,37 @@
+= Session 005 — Publication Maven Central 0.0.1
+:date: 2026-06-11
+:status: ✅ TERMINÉE
+
+== Contexte
+
+Publication du plugin hyperframes-gradle sur Maven Central via nmcp.
+VAGUE 4.6 — Watts.
+
+== Changements réalisés
+
+* [x] Version `0.1.0-SNAPSHOT` → `0.0.1` hardcodée dans `build.gradle.kts`
+* [x] POM sans guard — `withType<MavenPublication>` (pas seulement `pluginMaven`)
+  - nom, description, licence Apache 2.0, developer cccp-education, SCM
+* [x] Migration Sonatype staging → nmcp : `repositories { mavenCentral() }`
+* [x] `settings.gradle.kts` : plugin `com.gradleup.nmcp.settings` 1.5.0 +
+  `nmcpSettings { centralPortal { username/password depuis ~/.gradle/gradle.properties, publishingType = "AUTOMATIC" } }`
+* [x] `signing { useGpgCmd() }`
+
+== Publication
+
+`./gradlew publishAggregationToCentralPortal --no-daemon` — ✅ succès
+
+Artifact : `education.cccp:hyperframes-gradle:0.0.1` sur Maven Central
+
+== Fichiers modifiés
+
+* `build.gradle.kts` — version 0.0.1, POM complet, nmcp, signing
+* `settings.gradle.kts` — nmcp plugin + nmcpSettings
+
+== Score
+
+9/10
+
+== Prochaine session (006)
+
+À définir — HF-4c Tests intégration N3 runner-gradle, ou HF-5 Templates.
