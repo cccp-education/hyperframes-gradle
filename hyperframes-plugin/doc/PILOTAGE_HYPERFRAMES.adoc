@@ -34,7 +34,7 @@ a| **Directs :**
 **Indirects :**
 - Équipe DevOps (CI/CD pipeline)
 - Apprentis agenceurs du workspace (intégration N3)
-- LLM (deepseek-v4-pro) — prompte les SPG/SPD
+- LLM (gpt-oss:120b-cloud) — prompte les SPG/SPD
 
 | *Quoi* (produit)
 a| Un plugin Gradle N2 (`education.cccp.hyperframes`) qui transforme
