@@ -1,7 +1,7 @@
-= PROMPT_REPRISE — HyperFrames Gradle (Session 005 TERMINÉE → 006)
-:session: 005
-:date: 2026-06-11
-:status: ✅ TERMINÉ — Publication Maven Central 0.0.1
+= PROMPT_REPRISE — HyperFrames Gradle (Session 006 TERMINÉE → 007)
+:session: 006
+:date: 2026-07-03
+:status: ✅ TERMINÉ — CNV-6 Migration conventions plugins
 
 '''
 == État des lieux
@@ -10,22 +10,22 @@ Plugin Gradle fonctionnel avec pipeline complet :
 AsciiDoc → AsciidoctorJ → HTML enrichi (stage, data-*, GSAP) → CLI Node.js → MP4.
 Task `collectHyperframesRetrieve` enregistrée et minimale fonctionnelle.
 Version `0.0.1` publiée sur Maven Central via nmcp.
+build.gradle.kts migré vers convention plugins `education.cccp.build.*` v0.0.1 (gradle-plugin + publishing), -54 lignes.
 
-== Fait en session 005
+== Fait en session 006
 
-- Version `0.1.0-SNAPSHOT` → `0.0.1` hardcodée
-- POM sans guard (withType<MavenPublication>)
-- Migration Sonatype → nmcp
-- settings.gradle.kts : nmcp plugin 1.5.0 + nmcpSettings
-- signing { useGpgCmd() }
-- Publication Maven Central réussie
+- Migration CNV-6 : convention plugins `education.cccp.build.gradle-plugin` (0.0.1) + `education.cccp.build.publishing` (0.0.1)
+- Pattern bakery appliqué (gradle-plugin + publishing)
+- build.gradle.kts 114→60 lignes (-54)
+- `compileKotlin` SUCCESS
+- Variantes : aucune (pattern standard)
 
-== Prochaine session (006)
+== Prochaine session (007)
 
 À définir :
 1. HF-4c — Tests intégration N3 runner-gradle
 2. HF-5 — Templates HyperFrames prêts à l'emploi
-3. HF-6 — CI/CD + publication Gradle Portal
+3. HF-6c — Publication Gradle Plugin Portal (handle cccp-education)
 
 == Routes documents clés (lecture rapide)
 

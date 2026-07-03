@@ -6,9 +6,9 @@ _DAG_ : N2 — Plugin Gradle de transformation documentaire AsciiDoc → vidéo 
 _Dépendance N2_ : codex-gradle (compileOnly, AsciidoctorJ partagé)
 _Bridge externe_ : HyperFrames CLI (Node.js via gradle-node-plugin, ProcessBuilder)
 
-_Dernière mise à jour_ : 2026-06-11 (Session 005 Publication Maven Central)
-_Session terminée_ : 005 — Publication Maven Central 0.0.1
-_Prochaine session_ : 006 — À définir (HF-4c ou HF-5)
+_Dernière mise à jour_ : 2026-07-03 (Session 006 CNV-6 Migration)
+_Session terminée_ : 006 — CNV-6 Migration conventions plugins education.cccp.build.*
+_Prochaine session_ : 007 — À définir (HF-4c, HF-5 ou HF-6c)
 _Version publiée_ : 0.0.1 (Maven Central)
 
 '''
@@ -140,6 +140,7 @@ et Gradle Plugin Portal sous le handle cccp-education.
 
 |===
 | # | Date | Type | Sujet | Score
+| 006 | 2026-07-03 | dev | CNV-6 Migration — convention plugins education.cccp.build.* v0.0.1 appliquées (gradle-plugin + publishing), -54 lignes, compileKotlin SUCCESS | ✅ TERMINÉ
 | 005 | 2026-06-11 | publish | Publication Maven Central 0.0.1 (nmcp, POM sans guard, version 0.0.1) | 9/10
 | 004 | 2026-05-31 | impl | HF-4 Intégration N3 runner-gradle (collectHyperframesRetrieve task, contrat JSON, 26/26 PASS) | ✅ TERMINÉ
 | 003 | 2026-05-31 | impl | HF-3 — DSL AsciiDoc (HyperframesHtmlProcessor, data-* attributes, GSAP, 22/22 tests) | ✅ TERMINÉ

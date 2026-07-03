@@ -1,7 +1,12 @@
 = SESSIONS_HISTORY — hyperframes-gradle
 
+== Session 006 (2026-07-03) — CNV-6 Migration
+
+Migration du `build.gradle.kts` vers les convention plugins `education.cccp.build.gradle-plugin` (0.0.1) + `education.cccp.build.publishing` (0.0.1), pattern bakery. build.gradle.kts 114→60 lignes (-54). compileKotlin SUCCESS. Variantes : aucune (pattern standard).
+
 |===
 | # | Date | Type | Sujet | Score
+| 006 | 2026-07-03 | dev | CNV-6 Migration — convention plugins education.cccp.build.* v0.0.1 (gradle-plugin + publishing), build.gradle.kts 114→60 (-54), compileKotlin SUCCESS | ✅ TERMINÉ
 | 005 | 2026-06-11 | publish | Publication Maven Central 0.0.1 — version 0.1.0-SNAPSHOT→0.0.1, POM sans guard, Sonatype→nmcp, settings nmcp. Publié ✅ | 9/10
 | 004 | 2026-05-31 | impl | HF-4 Intégration N3 runner-gradle (collectHyperframesRetrieve task, contrat JSON, 26/26 PASS) | ✅ TERMINÉ
 | 003 | 2026-05-31 | impl | HF-3 — DSL AsciiDoc (HyperframesHtmlProcessor, data-* attributes, GSAP, 22/22 PASS) | ✅ TERMINÉ
