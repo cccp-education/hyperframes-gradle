@@ -39,7 +39,7 @@ class CollectHyperframesRetrieveTaskTest {
     }
 
     @Test
-    fun `collectHyperframesRetrieve produces empty context when no MP4 exists`() {
+    fun `collectHyperframesRetrieve succeeds with no artifacts when nothing rendered yet`() {
         // Arrange
         writeBuildFiles(projectDir)
 
@@ -50,49 +50,36 @@ class CollectHyperframesRetrieveTaskTest {
             .withArguments("collectHyperframesRetrieve", "--info")
             .build()
 
-        // Assert
-        assertContains(result.output, "collectHyperframesRetrieve")
+        // Assert — task succeeds but writes no composite-context.json
+        // (nothing has been rendered yet; no MP4/HTML to extract from)
         assertTrue(result.task(":collectHyperframesRetrieve")?.outcome?.toString()?.contains("SUCCESS") == true,
-            "Task collectHyperframesRetrieve should succeed")
-
-        // Check that composite-context.json was created
-        val compositeContextFile = projectDir.resolve("build/hyperframes/composite-context.json")
-        assertTrue(compositeContextFile.exists(), "composite-context.json should exist")
-        
-        // Check that metadata.json was created
-        val metadataFile = projectDir.resolve("build/hyperframes/metadata.json")
-        assertTrue(metadataFile.exists(), "metadata.json should exist")
-        
-        val contextContent = compositeContextFile.readText()
-        assertContains(contextContent, "\"count\" : 0")
-        assertContains(contextContent, "\"source\" : \"watts\"")
+            "Task should succeed even with no artifacts")
+        assertContains(result.output, "no MP4/HTML artifacts")
     }
 
     @Test
-    fun `collectHyperframesRetrieve produces context with video metadata when MP4 exists`() {
+    fun `collectHyperframesRetrieve produces N3 contract JSON when MP4 and HTML exist`() {
         // Arrange
         writeBuildFiles(projectDir)
-        
-        // Create a fake MP4 file to simulate successful rendering
+
         val buildDir = projectDir.resolve("build/hyperframes")
         buildDir.mkdirs()
         val mp4File = buildDir.resolve("test-video.mp4")
-        mp4File.writeText("FAKE_MP4_CONTENT")
-        
-        // Create HTML with metadata to extract dimensions/compositions
+        mp4File.writeBytes(ByteArray(1024))
+
         val htmlFile = buildDir.resolve("index.html")
-        htmlFile.writeText("""
-            <html>
-            <body>
+        htmlFile.writeText(
+            """
+            <html><body>
             <div id="stage" data-width="1920" data-height="1080" data-fps="30" data-output="test-video.mp4">
                 <div class="sect1 hyperframes-composition" data-composition-id="intro">
                     <h2 id="intro">Introduction</h2>
                 </div>
                 <div class="paragraph hyperframes-track" data-track-index="0" data-start="0" data-duration="5"></div>
             </div>
-            </body>
-            </html>
-        """.trimIndent())
+            </body></html>
+            """.trimIndent()
+        )
 
         // Act
         val result = GradleRunner.create()
@@ -102,24 +89,33 @@ class CollectHyperframesRetrieveTaskTest {
             .build()
 
         // Assert
-        assertContains(result.output, "collectHyperframesRetrieve")
-        assertTrue(result.task(":collectHyperframesRetrieve")?.outcome?.toString()?.contains("SUCCESS") == true,
-            "Task collectHyperframesRetrieve should succeed")
+        assertTrue(
+            result.task(":collectHyperframesRetrieve")?.outcome?.toString()?.contains("SUCCESS") == true,
+            "Task should succeed"
+        )
 
-        // Check that composite-context.json was created with video metadata
         val contextFile = projectDir.resolve("build/hyperframes/composite-context.json")
         assertTrue(contextFile.exists(), "composite-context.json should exist")
-        
+
         val contextContent = contextFile.readText()
-        assertContains(contextContent, "\"count\" : 0") // Current implementation generates empty entries
-        assertContains(contextContent, "\"source\" : \"watts\"")
-        
-        // Check that metadata.json was created
-        val metadataFile = projectDir.resolve("build/hyperframes/metadata.json")
-        assertTrue(metadataFile.exists(), "metadata.json should exist")
-        val metadataContent = metadataFile.readText()
-        assertContains(metadataContent, "\"source\" : \"watts\"")
-        assertContains(metadataContent, "\"type\" : \"retrieve\"")
+        // N3 contract — top-level fields
+        assertContains(contextContent, "\"plugin\"")
+        assertContains(contextContent, "\"version\"")
+        assertContains(contextContent, "\"output\"")
+        assertContains(contextContent, "\"renderedAt\"")
+        assertContains(contextContent, "\"renderDurationMs\"")
+        // N3 contract — nested video descriptor
+        assertContains(contextContent, "\"video\"")
+        assertContains(contextContent, "test-video.mp4")
+        assertContains(contextContent, "\"width\" : 1920")
+        assertContains(contextContent, "\"height\" : 1080")
+        assertContains(contextContent, "\"fps\" : 30")
+        assertContains(contextContent, "\"codec\" : \"h264\"")
+        // N3 contract — nested source descriptor
+        assertContains(contextContent, "\"asciidoc\"")
+        assertContains(contextContent, "\"compositions\"")
+        assertContains(contextContent, "intro")
+        assertContains(contextContent, "\"tracks\" : 1")
     }
 
     private fun writeBuildFiles(projectDir: File) {

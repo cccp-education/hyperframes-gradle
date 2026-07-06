@@ -56,6 +56,7 @@ class HyperframesPlugin : Plugin<Project> {
             task.description = "Collect HyperFrames rendered video metadata for N3 runner integration"
             task.group = "collect"
             task.outputFile.set(target.layout.buildDirectory.file("hyperframes/composite-context.json"))
+            task.pluginVersion.set(target.version.toString())
         }
     }
 }
