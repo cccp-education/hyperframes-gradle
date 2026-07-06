@@ -1,5 +1,6 @@
 package hyperframes
 
+import hyperframes.template.CodeDiffTemplate
 import hyperframes.template.TitleCardTemplate
 
 /**
@@ -9,9 +10,10 @@ import hyperframes.template.TitleCardTemplate
  * 1. Injecte GSAP CDN dans `<head>`
  * 2. Ajoute `<div id="stage">` avec data-* attributes (width, height, fps, output)
  * 3. HF-5a : Étend les blocs `hyperframes-title-card` en compositions title-card animées
- * 4. Convertit les blocs `hyperframes-composition` → `data-composition-id` (extrait du heading enfant)
- * 5. Convertit les blocs `hyperframes-track` → `data-track-index`, `data-start`, `data-duration`
- * 6. Convertit les blocs `hyperframes-animation` (listingblock) → `<script>` GSAP avec `__timelines`
+ * 4. HF-5b : Étend les blocs `hyperframes-code-diff` en compositions code-diff animées
+ * 5. Convertit les blocs `hyperframes-composition` → `data-composition-id` (extrait du heading enfant)
+ * 6. Convertit les blocs `hyperframes-track` → `data-track-index`, `data-start`, `data-duration`
+ * 7. Convertit les blocs `hyperframes-animation` (listingblock) → `<script>` GSAP avec `__timelines`
  */
 class HyperframesHtmlProcessor(
     private val width: Int,
@@ -26,6 +28,7 @@ class HyperframesHtmlProcessor(
         return html
             .let { injectGaspCdn(it) }
             .let { expandTitleCardBlocks(it) }
+            .let { expandCodeDiffBlocks(it) }
             .let { wrapBodyContentInStage(it) }
             .let { enhanceCompositionBlocks(it) }
             .let { enhanceTrackBlocks(it) }
@@ -128,8 +131,74 @@ class HyperframesHtmlProcessor(
     }
 
     // ──────────────────────────────────────────────
-    // 4. Compositions
+    // 3b. Code-diff template (HF-5b)
     // ──────────────────────────────────────────────
+
+    /**
+     * HF-5b — Étend les blocs `[.hyperframes-code-diff#id]` AsciiDoc
+     * en compositions HyperFrames code-diff animées (before/after, fade).
+     *
+     * HTML AsciidoctorJ produit par :
+     * ```
+     * [.hyperframes-code-diff#refactor-demo, lang="kotlin"]
+     * == Refactoring demo
+     *
+     * [source,kotlin]
+     * ----
+     * val x = oldFunc()
+     * ----
+     *
+     * [source,kotlin]
+     * ----
+     * val x = newFunc()
+     * ----
+     * ```
+     * ```html
+     * <div class="sect1 hyperframes-code-diff">
+     *   <h2 id="refactor-demo">Refactoring demo</h2>
+     *   <div class="sectionbody">
+     *     <div class="listingblock"><div class="content">
+     *       <pre class="highlight"><code class="language-kotlin" data-lang="kotlin">val x = oldFunc()</code></pre>
+     *     </div></div>
+     *     <div class="listingblock"><div class="content">
+     *       <pre class="highlight"><code class="language-kotlin" data-lang="kotlin">val x = newFunc()</code></pre>
+     *     </div></div>
+     *   </div>
+     * </div>
+     * ```
+     *
+     * Le bloc entier est remplacé par [CodeDiffTemplate.render].
+     * Le langage est extrait du `data-lang` du premier bloc de code.
+     * Les deux premiers blocs `listingblock` deviennent before / after.
+     */
+    private fun expandCodeDiffBlocks(html: String): String {
+        val blockRegex = Regex(
+            """<div[^>]*class="[^"]*hyperframes-code-diff[^"]*"[^>]*>\s*<h2[^>]*id="([^"]*)"[^>]*>[^<]*</h2>\s*<div class="sectionbody">\s*(<div class="listingblock">.*?</div>\s*</div>\s*<div class="listingblock">.*?</div>\s*</div>)\s*</div>\s*</div>""",
+            RegexOption.DOT_MATCHES_ALL
+        )
+        val listingRegex = Regex(
+            """<div class="listingblock">\s*<div class="content">\s*<pre[^>]*><code[^>]*data-lang="([^"]*)"[^>]*>(.*?)</code></pre>\s*</div>\s*</div>""",
+            RegexOption.DOT_MATCHES_ALL
+        )
+
+        return html.replace(blockRegex) { match ->
+            val id = match.groupValues[1]
+            val listingsHtml = match.groupValues[2]
+            val listings = listingRegex.findAll(listingsHtml).toList()
+            if (listings.size < 2) return@replace match.value
+
+            val lang = listings[0].groupValues[1]
+            val beforeCode = listings[0].groupValues[2].trim()
+            val afterCode = listings[1].groupValues[2].trim()
+
+            CodeDiffTemplate(
+                id = id,
+                beforeCode = beforeCode,
+                afterCode = afterCode,
+                lang = lang
+            ).render()
+        }
+    }
 
     /**
      * Pour les blocs `hyperframes-composition`, ajoute `data-composition-id`

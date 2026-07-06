@@ -104,6 +104,41 @@ class HyperframesWorld {
         srcDir.resolve("index.adoc").writeText(doc)
     }
 
+    fun writeCodeDiffAdoc(
+        id: String,
+        beforeCode: String,
+        afterCode: String,
+        lang: String = "kotlin",
+        duration: Int? = null
+    ) {
+        // Reset build artifacts so the generate task is not UP-TO-DATE.
+        buildDir.deleteRecursively()
+        buildDir.mkdirs()
+        val srcDir = projectDir.resolve("src/docs")
+        srcDir.deleteRecursively()
+        srcDir.mkdirs()
+        val doc = buildString {
+            appendLine("= Code-diff demo")
+            appendLine(":hyperframes-width: 1920")
+            appendLine(":hyperframes-height: 1080")
+            appendLine(":hyperframes-fps: 30")
+            appendLine()
+            appendLine("[.hyperframes-code-diff#$id, lang=\"$lang\"${if (duration != null) ", duration=$duration" else ""}]")
+            appendLine("== Refactoring demo")
+            appendLine()
+            appendLine("[source,$lang]")
+            appendLine("----")
+            appendLine(beforeCode)
+            appendLine("----")
+            appendLine()
+            appendLine("[source,$lang]")
+            appendLine("----")
+            appendLine(afterCode)
+            appendLine("----")
+        }
+        srcDir.resolve("index.adoc").writeText(doc)
+    }
+
     fun runTask(taskName: String) {
         buildResult = GradleRunner.create()
             .withProjectDir(projectDir)

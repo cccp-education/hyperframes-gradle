@@ -1,0 +1,116 @@
+= Session 009 — HF-5b code-diff template
+:session: 009
+:date: 2026-07-07
+:status: ✅ TERMINÉ
+:epic: HF-5b
+
+== Objectif
+
+Livrer le second template HyperFrames : **HF-5b — code-diff**, animation de
+diff de code avec coloration syntaxique, suivant le même pattern DDD/TDD/BDD
+que HF-5a (title-card).
+
+== Méthode
+
+Baby-step DDD/TDD/BDD en agile software craftsmanship :
+
+1. **DDD red** — Value object `CodeDiffTemplate` (domain model pur, zéro effet de bord)
+   - propriétés : id, beforeCode, afterCode, lang (défaut "kotlin"), durationSeconds (défaut 3.0)
+   - méthode `render()` produit fragment HTML HyperFrames (composition + track + 2 `<pre>` + GSAP)
+   - timeline GSAP : fade-in before → fade-out before → display + fade-in after
+   - coloration syntaxique lexicale déterministe (zéro dépendance externe) — 5 langues supportées
+2. **TDD unit** — `CodeDiffTemplateTest` rouge (10 tests) → implémentation minimale → vert
+3. **BDD spec d'acceptation** — Cucumber feature `code_diff_template.feature` EN (4 scénarios)
+4. **BDD steps** — `CodeDiffTemplateSteps.kt` glue Cucumber (steps partagés hérités via glue package)
+5. **World helper** — `writeCodeDiffAdoc` dans `HyperframesWorld` (pattern title-card)
+6. **Processor integration** — `expandCodeDiffBlocks` dans `HyperframesHtmlProcessor`
+   - regex qui matche le HTML AsciidoctorJ avec 2 `listingblock` consécutifs
+   - extraction id (h2), lang (data-lang du premier code), beforeCode, afterCode
+   - regex robuste : capture explicite des 2 listingblocks (non-greedy sur chaque)
+7. **Processor unit test** — 1 test d'expansion du processor avec le HTML exact d'AsciidoctorJ
+8. **Vérification** — `./gradlew check` ✅ vert
+
+== Livrables
+
+=== HF-5b — Code-diff template (✅ TERMINÉ)
+
+Production (2 fichiers) :
+
+* `src/main/kotlin/hyperframes/template/CodeDiffTemplate.kt` — value object DDD
+  - 5 langues : kotlin, java, python, javascript/typescript
+  - escape HTML (`<`, `>`, `&`) avant coloration pour éviter injection
+  - `<span class="hf-kw">` pour les mots-clés, `<span class="hf-lang-{lang}">` sur les `<pre>`
+  - after block masqué par défaut (`display:none`), affiché par GSAP au switch
+* `src/main/kotlin/hyperframes/HyperframesHtmlProcessor.kt` — étape `expandCodeDiffBlocks`
+  - pipeline enrichi : étape 3b ajoutée entre `expandTitleCardBlocks` et `wrapBodyContentInStage`
+  - regex block : capture explicite des 2 `listingblock` consécutifs (non-greedy `.*?` par listing)
+  - regex listing : extraction `data-lang` et contenu `<code>` échappé
+  - fallback : si < 2 listings, le bloc est laissé inchangé
+
+Tests (5 fichiers) :
+
+* `src/test/kotlin/hyperframes/template/CodeDiffTemplateTest.kt` — 10 tests unitaires TDD
+  - composition + data-composition-id, track + data-start/data-duration
+  - durée par défaut 3s, before/after distincts, after masqué (display:none)
+  - timeline GSAP fade-out before + fade-in after, escape HTML (`&lt;Int&gt;`)
+  - coloration mots-clés kotlin (`<span class="hf-kw">val</span>`)
+  - lang inconnu (brainfuck) → pas de wrapping, classes lang sur les 2 `<pre>`
+* `src/test/resources/features/code_diff_template.feature` — 4 scénarios BDD EN
+  - Expand code-diff block into composition with data-composition-id
+  - Before and after code rendered in distinct pre blocks
+  - Code-diff track has default duration of three seconds
+  - Kotlin keywords highlighted in both before and after blocks
+* `src/test/kotlin/hyperframes/scenarios/CodeDiffTemplateSteps.kt` — glue Cucumber EN
+  - steps partagés (composition div, GSAP timeline, window.__timelines, track,
+    data-start, data-duration, data-composition-id) hérités de TitleCardTemplateSteps
+  - steps spécifiques : hf-code-diff-before/after, before/after code, keyword span, lang class
+* `src/test/kotlin/hyperframes/scenarios/HyperframesWorld.kt` — extension `writeCodeDiffAdoc`
+* `src/test/kotlin/hyperframes/HyperframesHtmlProcessorTest.kt` — 1 test expansion processor
+
+== Décisions techniques
+
+=== Coloration syntaxique lexicale maison
+
+Pas de Prism.js / highlight.js (évite une dépendance CDN supplémentaire).
+Fonction `highlight()` Kotlin pure qui wrap les mots-clés du langage dans des
+`<span class="hf-kw">`. Évolutif via une future option `highlight="prism"`.
+5 langues : kotlin, java, python, javascript/typescript.
+
+=== Regex processor — capture explicite des 2 listings
+
+Première tentative avec `(.*?)` non-greedy sur toute la sectionbody : le body
+était tronqué (s'arrêtait au 2ème listingblock, avant son `</div>` fermant).
+Deuxième tentative avec `(.*)` greedy : le body sur-consommait les `</div>` du
+footer. Solution retenue : **capture explicite des 2 `listingblock` consécutifs**
+dans la regex du bloc, avec `.*?` non-greedy sur chaque listing individuellement.
+Robuste face aux `</div>` imbriqués et aux éléments annexes (footer, content div).
+
+=== Lang extrait du data-lang, duration par défaut
+
+AsciidoctorJ ne rend pas les attributs custom (`lang="kotlin"`, `duration=4`)
+du bloc `[.hyperframes-code-diff#id]` comme attributs HTML du sect1. Seul `id`
+est rendu dans `<h2 id="...">`. Le `lang` est extrait du `data-lang` du premier
+`<code>`. `duration` reste à 3.0 par défaut — le parsing d'attribut custom
+AsciiDoc sera une évolution future.
+
+== Vérification
+
+`./gradlew check` ✅ vert (BUILD SUCCESSFUL in 1m 51s).
+
+Compte tests :
+- 10 unitaires CodeDiffTemplateTest (TDD)
+- 11 unitaires HyperframesHtmlProcessorTest (dont 1 nouveau code-diff)
+- 7 unitaires TitleCardTemplateTest (HF-5a, régression OK)
+- ~26 autres tests (plugin core, tasks, N3 contract)
+- 4 scénarios Cucumber code-diff (BDD)
+- 4 scénarios Cucumber title-card (régression OK)
+- 4 scénarios Cucumber N3 contract (régression OK)
+
+== Prochaines sessions
+
+1. **HF-5c** — Template "data-chart" (graphique animé, barres qui montent)
+2. **HF-5d** — Template "kinetic-captions" (sous-titres animés synchronisés)
+3. **HF-6c** — Publication Gradle Plugin Portal (handle cccp-education)
+
+Le pattern DDD/TDD/BDD value object + processor expansion est désormais éprouvé
+sur 2 templates (title-card + code-diff). HF-5c/5d suivront le même rail.

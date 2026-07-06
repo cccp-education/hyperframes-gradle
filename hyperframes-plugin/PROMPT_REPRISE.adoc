@@ -1,38 +1,39 @@
-= PROMPT_REPRISE — HyperFrames Gradle (Session 008 TERMINÉE → 009)
-:session: 008
+= PROMPT_REPRISE — HyperFrames Gradle (Session 009 TERMINÉE → 010)
+:session: 009
 :date: 2026-07-07
-:status: ✅ TERMINÉ — HF-5a title-card template + HF-6a CI + PUB-2.2/5.16
+:status: ✅ TERMINÉ — HF-5b code-diff template (value object + processor + BDD)
 
 '''
 == État des lieux
 
 Plugin Gradle fonctionnel avec pipeline complet :
 AsciiDoc → AsciidoctorJ → HTML enrichi (stage, data-*, GSAP) → CLI Node.js → MP4.
-EPIC HF-5a **entièrement terminé** : template "title-card" avec fade-in, logo optionnel,
-titre, sous-titre optionnel. Value object DDD `TitleCardTemplate` + expansion processor.
-HF-6a **terminé** : workflow CI `test-hyperframes.yml` sécurise compileKotlin → test → cucumberTest → check.
-PUB-2.2 et PUB-5.16 **terminés** : commentaire relocation + vérification Maven Central (0.0.1 OK).
+EPIC HF-5 **en cours** : 2/4 templates livrés (title-card ✅, code-diff ✅,
+data-chart à faire, kinetic-captions à faire).
+HF-6 **partiellement terminé** : CI ✅, Maven Central ✅, Gradle Portal à faire.
 Version `0.0.1` publiée sur Maven Central via nmcp.
 
-== Fait en session 008
+== Fait en session 009
 
-- HF-5a TERMINÉ : `TitleCardTemplate` value object + `expandTitleCardBlocks` processor
-- 7 tests unit + 4 scénarios Cucumber EN + 2 tests fonctionnels GradleTestKit
-- Timeline GSAP conditionnelle (logo/subtitle émis seulement si présents)
-- Regex paragraph tolérante aux newlines AsciidoctorJ
-- Isolation scénarios Cucumber (buildDir/nettoyage + `--rerun-tasks`)
-- HF-6a TERMINÉ : `.github/workflows/test-hyperframes.yml` (JDK 25, 4 steps)
-- PUB-2.2 TERMINÉ : commentaire relocation court ajouté
-- PUB-5.16 TERMINÉ : Maven Central vérifié (education.ccp:hyperframes-plugin:0.0.1)
+- HF-5b TERMINÉ : `CodeDiffTemplate` value object DDD + `expandCodeDiffBlocks` processor
+- 10 tests unit + 4 scénarios Cucumber EN + 1 test processor expansion
+- Coloration syntaxique lexicale maison (kotlin/java/python/js/ts, zéro dépendance externe)
+- Timeline GSAP : fade-in before → fade-out before → display + fade-in after
+- Regex processor robuste : capture explicite des 2 `listingblock` consécutifs
 - `./gradlew check` ✅ vert
 
-== Prochaine session (009)
+== Prochaine session (010)
 
 Priorités restantes :
-1. HF-5b — Template "code-diff" (animation diff de code avec coloration syntaxique)
-2. HF-5c — Template "data-chart" (graphique animé)
-3. HF-5d — Template "kinetic-captions" (sous-titres animés synchronisés)
-4. HF-6c — Publication Gradle Plugin Portal (handle cccp-education)
+1. HF-5c — Template "data-chart" (graphique animé, barres qui montent)
+2. HF-5d — Template "kinetic-captions" (sous-titres animés synchronisés)
+3. HF-6c — Publication Gradle Plugin Portal (handle cccp-education)
+
+Le pattern DDD/TDD/BDD value object + processor expansion est éprouvé sur
+2 templates (title-card + code-diff). HF-5c/5d suivront le même rail :
+- value object `DataChartTemplate` / `KineticCaptionsTemplate`
+- processor `expandDataChartBlocks` / `expandKineticCaptionsBlocks`
+- tests unit + Cucumber + processor expansion
 
 == Routes documents clés (lecture rapide)
 
@@ -48,9 +49,8 @@ Priorités restantes :
 == Rappels techniques
 
 - **Version publiée** : 0.0.1 (Maven Central, asciidoctorj 3.0.0 dans POM — local 3.0.1)
-- **Pattern template** : `[.hyperframes-title-card#id]` AsciiDoc → `expandTitleCardBlocks` processor → `TitleCardTemplate.render()`
-- **Template = value object pur** : `data class` + `render(): String`, zéro effet de bord
-- **Timeline GSAP conditionnelle** : `tl.from()` n'émet que pour les éléments présents
+- **Pattern template** : value object DDD pur + `expand{Template}Blocks` processor
+- **Template = data class** : `render(): String`, zéro effet de bord
 - **Cucumber** : `./gradlew cucumberTest` (tag filter `not @wip and not @integration`), Gherkin EN
 - **CI** : `.github/workflows/test-hyperframes.yml` (JDK 25, 4 steps)
 - **ZERO commit/push** sans permission explicite

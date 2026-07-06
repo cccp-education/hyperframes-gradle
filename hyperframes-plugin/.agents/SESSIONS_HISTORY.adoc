@@ -1,5 +1,17 @@
 = SESSIONS_HISTORY — hyperframes-gradle
 
+== Session 009 (2026-07-07) — HF-5b code-diff template
+
+Second template HyperFrames : `CodeDiffTemplate` value object DDD (id, beforeCode,
+afterCode, lang="kotlin", durationSeconds=3.0). Méthode `render()` produit un
+fragment HTML HyperFrames avec 2 blocs `<pre>` (before/after), coloration syntaxique
+lexicale déterministe (kotlin/java/python/js/ts, zéro dépendance externe, escape HTML),
+timeline GSAP fade-in before → fade-out before → display + fade-in after. Intégration
+processor : `expandCodeDiffBlocks` détecte `[.hyperframes-code-diff#id]` AsciiDoc →
+remplace par le rendu. Regex robuste : capture explicite des 2 `listingblock`
+consécutifs (non-greedy par listing). Baby-step DDD/TDD/BDD : 10 unit + 4 Cucumber
+EN + 1 test processor expansion. `./gradlew check` ✅ vert.
+
 == Session 008 (2026-07-07) — HF-5a title-card template + HF-6a CI + PUB housekeeping
 
 Premier template HyperFrames : `TitleCardTemplate` value object DDD (id, title,
@@ -23,6 +35,7 @@ Cucumber 7.34.3 intégré (task `cucumberTest`, JUnit Platform Suite, glue
 
 |===
 | # | Date | Type | Sujet | Score
+| 009 | 2026-07-07 | impl | HF-5b code-diff template (CodeDiffTemplate value object, expandCodeDiffBlocks, 10 unit + 4 Cucumber + 1 processor test, coloration lexicale 5 langues) | ✅ TERMINÉ
 | 008 | 2026-07-07 | impl | HF-5a title-card template (TitleCardTemplate value object, expandTitleCardBlocks, 7 unit + 4 Cucumber + 2 functional) + HF-6a CI workflow + PUB-2.2/5.16 | ✅ TERMINÉ
 | 007 | 2026-07-06 | impl | HF-4c N3 contract typed + Cucumber BDD (HyperframesParseContext, HyperframesContextExtractor, 14 unit + 3 func + 4 Cucumber, 43 verts) | ✅ TERMINÉ
 | 006 | 2026-07-03 | dev | CNV-6 Migration — convention plugins education.cccp.build.* v0.0.1 (gradle-plugin + publishing), build.gradle.kts 114→60 (-54), compileKotlin SUCCESS | ✅ TERMINÉ

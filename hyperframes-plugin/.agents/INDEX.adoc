@@ -6,9 +6,9 @@ _DAG_ : N2 — Plugin Gradle de transformation documentaire AsciiDoc → vidéo 
 _Dépendance N2_ : codex-gradle (compileOnly, AsciidoctorJ partagé)
 _Bridge externe_ : HyperFrames CLI (Node.js via gradle-node-plugin, ProcessBuilder)
 
-_Dernière mise à jour_ : 2026-07-07 (Session 008 HF-5a title-card + HF-6a CI + PUB-2.2/5.16)
-_Session terminée_ : 008 — HF-5a title-card template + HF-6a CI + PUB housekeeping
-_Prochaine session_ : 009 — HF-5b (code-diff) ou HF-6c (Gradle Portal)
+_Dernière mise à jour_ : 2026-07-07 (Session 009 HF-5b code-diff template)
+_Session terminée_ : 009 — HF-5b code-diff template (value object + processor + BDD)
+_Prochaine session_ : 010 — HF-5c (data-chart) ou HF-6c (Gradle Portal)
 _Version publiée_ : 0.0.1 (Maven Central)
 
 '''
@@ -48,7 +48,7 @@ _Version publiée_ : 0.0.1 (Maven Central)
 | HF-2 | Bridge CLI HyperFrames (gradle-node-plugin + ProcessBuilder → node → MP4) | ✅ TERMINÉ (session 002) | P1
 | HF-3 | DSL AsciiDoc customs (blocs, docinfo attributes, templates) | ✅ TERMINÉ (session 003) | P1
 | HF-4 | Intégration N3 runner-gradle (collectHyperframesRetrieve, metadata.json) | ✅ TERMINÉ (session 007) | P2
-| HF-5 | Templates HyperFrames prêts à l'emploi (transitions, overlays, captions) | En cours (HF-5a ✅, HF-5b/c/d à faire) | P3
+| HF-5 | Templates HyperFrames prêts à l'emploi (transitions, overlays, captions) | En cours (HF-5a ✅, HF-5b ✅, HF-5c/d à faire) | P3
 | HF-6 | CI + publication Maven Central / Gradle Portal | ✅ Maven Central (session 005) / CI (session 008) / Gradle Portal à faire | P3
 |===
 
@@ -117,7 +117,7 @@ _Vision_ : Une bibliothèque de templates HyperFrames prêts à l'emploi
 |===
 | Phase | Livrable | Statut
 | HF-5a | Template "title-card" (fade-in, logo, titre, sous-titre) | ✅ TERMINÉ (session 008)
-| HF-5b | Template "code-diff" (animation diff de code) | À faire
+| HF-5b | Template "code-diff" (animation diff de code) | ✅ TERMINÉ (session 009)
 | HF-5c | Template "data-chart" (graphique animé) | À faire
 | HF-5d | Template "kinetic-captions" (sous-titres animés) | À faire
 |===
@@ -140,6 +140,7 @@ et Gradle Plugin Portal sous le handle cccp-education.
 
 |===
 | # | Date | Type | Sujet | Score
+| 009 | 2026-07-07 | impl | HF-5b code-diff template (CodeDiffTemplate value object, expandCodeDiffBlocks, 10 unit + 4 Cucumber + 1 processor test) | ✅ TERMINÉ
 | 008 | 2026-07-07 | impl | HF-5a title-card template (TitleCardTemplate value object, expandTitleCardBlocks, 7 unit + 4 Cucumber + 2 functional) + HF-6a CI workflow + PUB-2.2/5.16 | ✅ TERMINÉ
 | 007 | 2026-07-06 | impl | HF-4c N3 contract typed + Cucumber BDD (HyperframesParseContext, HyperframesContextExtractor, 14 unit + 3 func + 4 Cucumber, 43 verts) | ✅ TERMINÉ
 | 006 | 2026-07-03 | dev | CNV-6 Migration — convention plugins education.cccp.build.* v0.0.1 appliquées (gradle-plugin + publishing), -54 lignes, compileKotlin SUCCESS | ✅ TERMINÉ

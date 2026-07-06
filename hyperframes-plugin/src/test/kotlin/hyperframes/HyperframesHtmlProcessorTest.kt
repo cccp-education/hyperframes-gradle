@@ -259,4 +259,44 @@ tl.from("#title", { opacity: 0, y: 40, duration: 0.8 }, 1);</pre>
         assertContains(result, """gsap.min.js""")
         assertContains(result, """cdnjs.cloudflare.com""")
     }
+
+    // ──────────────────────────────────────────────
+    // 6. Code-diff template (HF-5b)
+    // ──────────────────────────────────────────────
+
+    @Test
+    fun `expand code-diff block into composition with before and after pre blocks`() {
+        // Arrange — HTML exactly as produced by AsciidoctorJ
+        val html = """<!DOCTYPE html>
+<html>
+<head><title>Test</title></head>
+<body>
+<div class="sect1 hyperframes-code-diff">
+<h2 id="refactor-demo">Refactoring demo</h2>
+<div class="sectionbody">
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-kotlin" data-lang="kotlin">val x = oldFunc()</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-kotlin" data-lang="kotlin">val x = newFunc()</code></pre>
+</div>
+</div>
+</div>
+</div>
+</body>
+</html>"""
+
+        // Act
+        val result = processor.enhance(html)
+
+        // Assert
+        assertContains(result, "data-composition-id=\"refactor-demo\"")
+        assertContains(result, "hf-code-diff-before")
+        assertContains(result, "hf-code-diff-after")
+        assertContains(result, "oldFunc()")
+        assertContains(result, "newFunc()")
+    }
 }

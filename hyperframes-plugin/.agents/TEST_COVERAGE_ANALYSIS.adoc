@@ -1,12 +1,13 @@
 = Test Coverage Analysis — hyperframes-gradle
 
-_Dernière mise à jour_ : 2026-07-07 (Session 008 — HF-5a title-card template + HF-6a CI + PUB)
+_Dernière mise à jour_ : 2026-07-07 (Session 009 — HF-5b code-diff template)
 
 == Résumé
 
-Coverage actuelle : 100% des classes de contrat N3 + value object TitleCardTemplate.
-~26 tests JUnit + 8 scénarios Cucumber (4 N3 contract + 4 title-card template).
-Focus : Plugin core + Tasks + HTML Processor + N3 contract typed + BDD acceptance + Templates.
+Coverage actuelle : 100% des classes de contrat N3 + 2 value objects templates
+(TitleCardTemplate, CodeDiffTemplate). ~36 tests JUnit + 12 scénarios Cucumber
+(4 N3 contract + 4 title-card + 4 code-diff). Focus : Plugin core + Tasks +
+HTML Processor + N3 contract typed + BDD acceptance + Templates.
 
 == Détail par module
 
@@ -37,18 +38,19 @@ Focus : Plugin core + Tasks + HTML Processor + N3 contract typed + BDD acceptanc
 - Parsing HTML (compositions, tracks, stage) : ✅ couvert (HyperframesContextExtractor)
 
 === 3. HTML Processing (HyperframesHtmlProcessor.kt)
-*Coverage : 95% classes, 90% lignes*
+*Coverage : 95% classes, 92% lignes*
 
 - Injection GSAP CDN : ✅ couvert
 - Stage wrapper : ✅ couvert
 - Transformations data-* (composition, track, animation) : ✅ couvert 
 - Animations GSAP : ✅ couvert
 - Expansion title-card (HF-5a) : ✅ couvert (regex paragraph tolérante newlines)
+- Expansion code-diff (HF-5b) : ✅ couvert (regex 2 listingblocks consécutifs)
 
-=== 4. Templates (hyperframes.template) — NOUVEAU HF-5a
+=== 4. Templates (hyperframes.template) — HF-5a + HF-5b
 *Coverage : 100% classes, 95% lignes*
 
-==== TitleCardTemplate.kt
+==== TitleCardTemplate.kt (HF-5a)
 - Value object DDD pur : ✅ 7 tests unitaires TDD
 - render() composition + data-composition-id : ✅ couvert
 - render() title + subtitle text : ✅ couvert
@@ -58,6 +60,19 @@ Focus : Plugin core + Tasks + HTML Processor + N3 contract typed + BDD acceptanc
 - render() subtitle optionnel : ✅ couvert (span + timeline conditionnels)
 - render() duration défaut 2.0 : ✅ couvert
 
+==== CodeDiffTemplate.kt (HF-5b) — NOUVEAU
+- Value object DDD pur : ✅ 10 tests unitaires TDD
+- render() composition + data-composition-id : ✅ couvert
+- render() track + data-start/data-duration : ✅ couvert
+- render() duration défaut 3.0 : ✅ couvert
+- render() before/after distincts (hf-code-diff-before/after) : ✅ couvert
+- render() after masqué (display:none) : ✅ couvert
+- render() GSAP fade-out before + fade-in after : ✅ couvert
+- render() escape HTML (`&lt;Int&gt;`) : ✅ couvert
+- render() coloration mots-clés kotlin (`<span class="hf-kw">val</span>`) : ✅ couvert
+- render() lang inconnu → pas de wrapping : ✅ couvert
+- render() classes lang sur les 2 `<pre>` : ✅ couvert
+
 === 5. Contract (hyperframes.contract) — HF-4c
 *Coverage : 100% classes, 95% lignes*
 
@@ -66,17 +81,17 @@ Focus : Plugin core + Tasks + HTML Processor + N3 contract typed + BDD acceptanc
 - Extraction stage/compositions/tracks : ✅ couvert
 
 === 6. BDD Cucumber (hyperframes.scenarios)
-*Coverage : 8 scénarios (4 N3 + 4 title-card)*
+*Coverage : 12 scénarios (4 N3 + 4 title-card + 4 code-diff)*
 
 - N3ContractSteps : ✅ 4 scénarios (export JSON, video descriptor, source descriptor, no-artefacts)
 - TitleCardTemplateSteps : ✅ 4 scénarios (composition div, title+subtitle, duration, no-subtitle)
-- HyperframesWorld : ✅ writeTitleCardAdoc + generatedHtml + isolation (--rerun-tasks)
+- CodeDiffTemplateSteps : ✅ 4 scénarios (composition div, before/after pre blocks, duration, keyword highlight)
+- HyperframesWorld : ✅ writeTitleCardAdoc + writeCodeDiffAdoc + generatedHtml + isolation (--rerun-tasks)
 
 == Gap Analysis
 
 === Manquants
 1. **Templates restants** :
-   - HF-5b code-diff (animation diff de code)
    - HF-5c data-chart (graphique animé)
    - HF-5d kinetic-captions (sous-titres animés)
 
@@ -84,6 +99,6 @@ Focus : Plugin core + Tasks + HTML Processor + N3 contract typed + BDD acceptanc
    - HF-6c Gradle Plugin Portal (handle cccp-education)
 
 === Recommandations
-- Session 009 : HF-5b code-diff (même pattern value object + processor expansion)
-- Session 010 : HF-5c/5d templates restants
-- Session 011 : HF-6c Gradle Portal
+- Session 010 : HF-5c data-chart (même pattern value object + processor expansion)
+- Session 011 : HF-5d kinetic-captions
+- Session 012 : HF-6c Gradle Portal

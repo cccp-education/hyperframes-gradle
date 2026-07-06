@@ -78,7 +78,7 @@ permettant le déploiement automatique sur le site statique.
 
 *Priorité* : P3
 *EPIC* : HF-5
-*Statut* : HF-5a ✅ TERMINÉ (session 008), HF-5b/c/d à faire
+*Statut* : HF-5a ✅ TERMINÉ (session 008), HF-5b ✅ TERMINÉ (session 009), HF-5c/d à faire
 
 .Valeur
 Zéro code à écrire pour les cas d'usage standards. Un template AsciiDoc

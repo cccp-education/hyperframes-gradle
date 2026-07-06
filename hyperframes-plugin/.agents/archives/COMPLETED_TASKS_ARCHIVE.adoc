@@ -1,6 +1,6 @@
 = COMPLETED_TASKS_ARCHIVE — hyperframes-gradle
 :date: 2026-05-31
-:last-updated: 2026-07-07 (session 008)
+:last-updated: 2026-07-07 (session 009)
 
 == Tâches terminées (session 000 — 2026-05-31)
 
@@ -67,6 +67,13 @@
 |===
 | EPIC | Tâche | Statut
 | HF-4c | N3 contract typed (HyperframesParseContext, HyperframesContextExtractor) + Cucumber BDD | ✅
+|===
+
+== Tâches terminées (session 009 — 2026-07-07)
+
+|===
+| EPIC | Tâche | Statut
+| HF-5b | Template "code-diff" (CodeDiffTemplate value object, expandCodeDiffBlocks, 10 unit + 4 Cucumber + 1 processor test, coloration lexicale 5 langues) | ✅
 |===
 
 == Tâches terminées (session 008 — 2026-07-07)
