@@ -82,6 +82,9 @@ publishingConventions {
     publicationType = "PLUGIN"
 }
 
+// RELOCATION : garde comme echappatoire future.
+// Activable avec -Prem relocationGroup="<futur-namespace>"
+
 publishing {
     publications.withType<MavenPublication> {
         pom {

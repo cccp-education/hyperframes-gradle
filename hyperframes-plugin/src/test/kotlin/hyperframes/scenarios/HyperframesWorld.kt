@@ -75,12 +75,47 @@ class HyperframesWorld {
         buildDir.resolve(name).writeText("= Title\n")
     }
 
+    fun writeTitleCardAdoc(
+        id: String,
+        title: String,
+        subtitle: String? = null,
+        logoPath: String? = null,
+        duration: Int? = null
+    ) {
+        // Reset build artifacts so the generate task is not UP-TO-DATE.
+        buildDir.deleteRecursively()
+        buildDir.mkdirs()
+        val srcDir = projectDir.resolve("src/docs")
+        srcDir.deleteRecursively()
+        srcDir.mkdirs()
+        val doc = buildString {
+            appendLine("= Title-card demo")
+            appendLine(":hyperframes-width: 1920")
+            appendLine(":hyperframes-height: 1080")
+            appendLine(":hyperframes-fps: 30")
+            appendLine()
+            appendLine("[.hyperframes-title-card#$id${if (logoPath != null) ", logo=\"$logoPath\"" else ""}${if (duration != null) ", duration=$duration" else ""}]")
+            appendLine("== $title")
+            if (subtitle != null) {
+                appendLine()
+                appendLine(subtitle)
+            }
+        }
+        srcDir.resolve("index.adoc").writeText(doc)
+    }
+
     fun runTask(taskName: String) {
         buildResult = GradleRunner.create()
             .withProjectDir(projectDir)
             .withPluginClasspath()
-            .withArguments(taskName, "--info")
+            .withArguments(taskName, "--info", "--rerun-tasks")
             .build()
+    }
+
+    fun generatedHtml(): String {
+        val file = buildDir.resolve("index.html")
+        require(file.exists()) { "Generated HTML not found at ${file.absolutePath}" }
+        return file.readText()
     }
 
     fun compositeContextFile(): File = buildDir.resolve("composite-context.json")

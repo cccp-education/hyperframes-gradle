@@ -7,6 +7,7 @@ import org.junit.jupiter.api.io.TempDir
 import java.io.File
 import java.nio.file.Path
 import kotlin.test.assertContains
+import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
 class HyperframesPluginTest {
@@ -309,6 +310,72 @@ class HyperframesPluginTest {
 
         // Animation script
         assertContains(html, """__timelines""")
+    }
+
+    // ──────────────────────────────────────────────────
+    // HF-5a Tests : Title-card template expansion
+    // ──────────────────────────────────────────────────
+
+    @Test
+    fun `generateHyperframesHtml expands title-card template into composition with fade-in`() {
+        // Arrange
+        writeBuildFiles(projectDir)
+        val srcDir = projectDir.resolve("src/docs")
+        srcDir.mkdirs()
+        srcDir.resolve("index.adoc").writeText(buildString {
+            appendLine("= Title-card demo")
+            appendLine(":hyperframes-width: 1920")
+            appendLine(":hyperframes-height: 1080")
+            appendLine(":hyperframes-fps: 30")
+            appendLine()
+            appendLine("[.hyperframes-title-card#intro]")
+            appendLine("== My Formation")
+            appendLine()
+            append("Module 01")
+        })
+
+        // Act
+        val result = GradleRunner.create()
+            .withProjectDir(projectDir)
+            .withPluginClasspath()
+            .withArguments("generateHyperframesHtml", "--info")
+            .build()
+
+        // Assert
+        assertTrue(result.task(":generateHyperframesHtml")?.outcome?.toString()?.contains("SUCCESS") == true)
+        val html = projectDir.resolve("build/hyperframes/index.html").readText()
+        assertContains(html, "data-composition-id=\"intro\"")
+        assertContains(html, "hf-title-card-title\">My Formation</span>")
+        assertContains(html, "hf-title-card-subtitle\">Module 01</span>")
+        assertContains(html, "gsap.timeline")
+        assertContains(html, "window.__timelines")
+    }
+
+    @Test
+    fun `generateHyperframesHtml title-card without subtitle renders only title`() {
+        // Arrange
+        writeBuildFiles(projectDir)
+        val srcDir = projectDir.resolve("src/docs")
+        srcDir.mkdirs()
+        srcDir.resolve("index.adoc").writeText(buildString {
+            appendLine("= Title-card demo")
+            appendLine()
+            appendLine("[.hyperframes-title-card#solo]")
+            append("== Solo Title")
+        })
+
+        // Act
+        val result = GradleRunner.create()
+            .withProjectDir(projectDir)
+            .withPluginClasspath()
+            .withArguments("generateHyperframesHtml", "--info")
+            .build()
+
+        // Assert
+        assertTrue(result.task(":generateHyperframesHtml")?.outcome?.toString()?.contains("SUCCESS") == true)
+        val html = projectDir.resolve("build/hyperframes/index.html").readText()
+        assertContains(html, "hf-title-card-title\">Solo Title</span>")
+        assertFalse(html.contains("hf-title-card-subtitle"), "No subtitle span when subtitle is absent")
     }
 
     // ──────────────────────────────────────────────────

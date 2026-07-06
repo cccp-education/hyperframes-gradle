@@ -1,14 +1,17 @@
 package hyperframes
 
+import hyperframes.template.TitleCardTemplate
+
 /**
  * Transforme le HTML généré par AsciidoctorJ en HTML enrichi pour HyperFrames.
  *
  * Pipeline :
  * 1. Injecte GSAP CDN dans `<head>`
  * 2. Ajoute `<div id="stage">` avec data-* attributes (width, height, fps, output)
- * 3. Convertit les blocs `hyperframes-composition` → `data-composition-id` (extrait du heading enfant)
- * 4. Convertit les blocs `hyperframes-track` → `data-track-index`, `data-start`, `data-duration`
- * 5. Convertit les blocs `hyperframes-animation` (listingblock) → `<script>` GSAP avec `__timelines`
+ * 3. HF-5a : Étend les blocs `hyperframes-title-card` en compositions title-card animées
+ * 4. Convertit les blocs `hyperframes-composition` → `data-composition-id` (extrait du heading enfant)
+ * 5. Convertit les blocs `hyperframes-track` → `data-track-index`, `data-start`, `data-duration`
+ * 6. Convertit les blocs `hyperframes-animation` (listingblock) → `<script>` GSAP avec `__timelines`
  */
 class HyperframesHtmlProcessor(
     private val width: Int,
@@ -22,6 +25,7 @@ class HyperframesHtmlProcessor(
     fun enhance(html: String): String {
         return html
             .let { injectGaspCdn(it) }
+            .let { expandTitleCardBlocks(it) }
             .let { wrapBodyContentInStage(it) }
             .let { enhanceCompositionBlocks(it) }
             .let { enhanceTrackBlocks(it) }
@@ -76,7 +80,55 @@ class HyperframesHtmlProcessor(
     }
 
     // ──────────────────────────────────────────────
-    // 3. Compositions
+    // 3. Title-card template (HF-5a)
+    // ──────────────────────────────────────────────
+
+    /**
+     * HF-5a — Étend les blocs `[.hyperframes-title-card#id]` AsciiDoc
+     * en compositions HyperFrames title-card animées (fade-in, titre, sous-titre).
+     *
+     * HTML AsciidoctorJ produit par :
+     * ```
+     * [.hyperframes-title-card#intro, duration=3]
+     * == My Formation
+     *
+     * Module 01
+     * ```
+     * ```html
+     * <div class="sect1 hyperframes-title-card">
+     *   <h2 id="intro">My Formation</h2>
+     *   <div class="sectionbody">
+     *     <div class="paragraph"><p>Module 01</p></div>
+     *   </div>
+     * </div>
+     * ```
+     *
+     * Le bloc entier est remplacé par [TitleCardTemplate.render].
+     * Le sous-titre est le texte du premier paragraphe de la sectionbody.
+     */
+    private fun expandTitleCardBlocks(html: String): String {
+        val blockRegex = Regex(
+            """<div[^>]*class="[^"]*hyperframes-title-card[^"]*"[^>]*>\s*<h2[^>]*id="([^"]*)"[^>]*>([^<]*)</h2>\s*(<div class="sectionbody">.*?</div>)?\s*</div>""",
+            RegexOption.DOT_MATCHES_ALL
+        )
+        val paragraphRegex = Regex("""<div class="paragraph">\s*<p>(.*?)</p>\s*</div>""", RegexOption.DOT_MATCHES_ALL)
+
+        return html.replace(blockRegex) { match ->
+            val id = match.groupValues[1]
+            val title = match.groupValues[2].trim()
+            val sectionBody = match.groupValues[3]
+            val subtitle = paragraphRegex.find(sectionBody)?.groupValues?.get(1)?.trim()
+
+            TitleCardTemplate(
+                id = id,
+                title = title,
+                subtitle = subtitle
+            ).render()
+        }
+    }
+
+    // ──────────────────────────────────────────────
+    // 4. Compositions
     // ──────────────────────────────────────────────
 
     /**
