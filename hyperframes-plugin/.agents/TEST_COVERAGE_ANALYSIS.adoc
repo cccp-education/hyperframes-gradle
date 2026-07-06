@@ -1,11 +1,12 @@
 = Test Coverage Analysis — hyperframes-gradle
 
-_Dernière mise à jour_ : 2026-07-06 (Session 007 — HF-4c N3 contract typed)
+_Dernière mise à jour_ : 2026-07-07 (Session 008 — HF-5a title-card template + HF-6a CI + PUB)
 
 == Résumé
 
-Coverage actuelle : 100% des classes de contrat N3, 39 tests JUnit + 4 scénarios Cucumber
-Focus : Plugin core + Tasks + HTML Processor + N3 contract typed + BDD acceptance
+Coverage actuelle : 100% des classes de contrat N3 + value object TitleCardTemplate.
+~26 tests JUnit + 8 scénarios Cucumber (4 N3 contract + 4 title-card template).
+Focus : Plugin core + Tasks + HTML Processor + N3 contract typed + BDD acceptance + Templates.
 
 == Détail par module
 
@@ -23,38 +24,66 @@ Focus : Plugin core + Tasks + HTML Processor + N3 contract typed + BDD acceptanc
 - Cas nominal AsciiDoc → HTML : ✅ couvert
 - Gestion fichiers absents : ✅ couvert
 - Post-processing HyperFrames : ✅ couvert
+- Template title-card expansion : ✅ couvert (HF-5a, 2 tests fonctionnels)
 
 ==== RenderHyperframesTask.kt  
 - Appel CLI Node.js : ✅ couvert
 - Gestion timeout : ✅ couvert
 - Validation MP4 output : ✅ couvert
 
-==== CollectHyperframesRetrieveTask.kt *(nouveau)*
+==== CollectHyperframesRetrieveTask.kt
 - Enregistrement task : ✅ couvert
-- Génération JSON minimal : ✅ couvert
-- Génération metadata.json : ✅ couvert
-- TODO: Parsing MP4/HTML : 🟥 à implémenter
+- Génération JSON typé : ✅ couvert (HF-4c)
+- Parsing HTML (compositions, tracks, stage) : ✅ couvert (HyperframesContextExtractor)
 
 === 3. HTML Processing (HyperframesHtmlProcessor.kt)
 *Coverage : 95% classes, 90% lignes*
 
 - Injection GSAP CDN : ✅ couvert
 - Stage wrapper : ✅ couvert
-- Transformations data-* : ✅ couvert 
+- Transformations data-* (composition, track, animation) : ✅ couvert 
 - Animations GSAP : ✅ couvert
+- Expansion title-card (HF-5a) : ✅ couvert (regex paragraph tolérante newlines)
+
+=== 4. Templates (hyperframes.template) — NOUVEAU HF-5a
+*Coverage : 100% classes, 95% lignes*
+
+==== TitleCardTemplate.kt
+- Value object DDD pur : ✅ 7 tests unitaires TDD
+- render() composition + data-composition-id : ✅ couvert
+- render() title + subtitle text : ✅ couvert
+- render() GSAP fade-in timeline : ✅ couvert
+- render() track data-start/duration : ✅ couvert
+- render() logo optionnel : ✅ couvert (img tag présent/absent)
+- render() subtitle optionnel : ✅ couvert (span + timeline conditionnels)
+- render() duration défaut 2.0 : ✅ couvert
+
+=== 5. Contract (hyperframes.contract) — HF-4c
+*Coverage : 100% classes, 95% lignes*
+
+==== HyperframesParseContext.kt + HyperframesContextExtractor.kt
+- Contrat N3 typé : ✅ 14 tests unitaires
+- Extraction stage/compositions/tracks : ✅ couvert
+
+=== 6. BDD Cucumber (hyperframes.scenarios)
+*Coverage : 8 scénarios (4 N3 + 4 title-card)*
+
+- N3ContractSteps : ✅ 4 scénarios (export JSON, video descriptor, source descriptor, no-artefacts)
+- TitleCardTemplateSteps : ✅ 4 scénarios (composition div, title+subtitle, duration, no-subtitle)
+- HyperframesWorld : ✅ writeTitleCardAdoc + generatedHtml + isolation (--rerun-tasks)
 
 == Gap Analysis
 
 === Manquants
-1. **CollectHyperframesRetrieveTask** :
-   - Parsing MP4 (taille, durée, codec)
-   - Parsing HTML HyperFrames (data-* attributes)
-   - Génération entries[] complètes
+1. **Templates restants** :
+   - HF-5b code-diff (animation diff de code)
+   - HF-5c data-chart (graphique animé)
+   - HF-5d kinetic-captions (sous-titres animés)
 
-2. **Intégration N3** :
-   - Validation contrat runner-gradle
-   - Test E2E avec assembleCompositeContext
+2. **Publication** :
+   - HF-6c Gradle Plugin Portal (handle cccp-education)
 
 === Recommandations
-- Session 005 : Implémenter parsing vidéo + HTML
-- Session 006 : Tests intégration runner-gradle
+- Session 009 : HF-5b code-diff (même pattern value object + processor expansion)
+- Session 010 : HF-5c/5d templates restants
+- Session 011 : HF-6c Gradle Portal

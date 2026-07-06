@@ -6,9 +6,9 @@ _DAG_ : N2 — Plugin Gradle de transformation documentaire AsciiDoc → vidéo 
 _Dépendance N2_ : codex-gradle (compileOnly, AsciidoctorJ partagé)
 _Bridge externe_ : HyperFrames CLI (Node.js via gradle-node-plugin, ProcessBuilder)
 
-_Dernière mise à jour_ : 2026-07-06 (Session 007 HF-4c N3 contract typed)
-_Session terminée_ : 007 — HF-4c N3 contract typed + Cucumber BDD
-_Prochaine session_ : 008 — HF-6a (CI) ou HF-5 (templates)
+_Dernière mise à jour_ : 2026-07-07 (Session 008 HF-5a title-card + HF-6a CI + PUB-2.2/5.16)
+_Session terminée_ : 008 — HF-5a title-card template + HF-6a CI + PUB housekeeping
+_Prochaine session_ : 009 — HF-5b (code-diff) ou HF-6c (Gradle Portal)
 _Version publiée_ : 0.0.1 (Maven Central)
 
 '''
@@ -48,8 +48,8 @@ _Version publiée_ : 0.0.1 (Maven Central)
 | HF-2 | Bridge CLI HyperFrames (gradle-node-plugin + ProcessBuilder → node → MP4) | ✅ TERMINÉ (session 002) | P1
 | HF-3 | DSL AsciiDoc customs (blocs, docinfo attributes, templates) | ✅ TERMINÉ (session 003) | P1
 | HF-4 | Intégration N3 runner-gradle (collectHyperframesRetrieve, metadata.json) | ✅ TERMINÉ (session 007) | P2
-| HF-5 | Templates HyperFrames prêts à l'emploi (transitions, overlays, captions) | À faire | P3
-| HF-6 | CI + publication Maven Central / Gradle Portal | ✅ Maven Central (session 005) / Gradle Portal à faire | P3
+| HF-5 | Templates HyperFrames prêts à l'emploi (transitions, overlays, captions) | En cours (HF-5a ✅, HF-5b/c/d à faire) | P3
+| HF-6 | CI + publication Maven Central / Gradle Portal | ✅ Maven Central (session 005) / CI (session 008) / Gradle Portal à faire | P3
 |===
 
 '''
@@ -116,7 +116,7 @@ _Vision_ : Une bibliothèque de templates HyperFrames prêts à l'emploi
 [cols="1,3,2", options="header"]
 |===
 | Phase | Livrable | Statut
-| HF-5a | Template "title-card" (fade-in, logo, titre) | À faire
+| HF-5a | Template "title-card" (fade-in, logo, titre, sous-titre) | ✅ TERMINÉ (session 008)
 | HF-5b | Template "code-diff" (animation diff de code) | À faire
 | HF-5c | Template "data-chart" (graphique animé) | À faire
 | HF-5d | Template "kinetic-captions" (sous-titres animés) | À faire
@@ -130,7 +130,7 @@ et Gradle Plugin Portal sous le handle cccp-education.
 [cols="1,3,2", options="header"]
 |===
 | Phase | Livrable | Statut
-| HF-6a | GitHub Actions workflow test-hyperframes.yml | À faire
+| HF-6a | GitHub Actions workflow test-hyperframes.yml | ✅ TERMINÉ (session 008)
 | HF-6b | Publication Maven Central (group education.cccp, artifact hyperframes-gradle) | ✅ TERMINÉ (session 005)
 | HF-6c | Publication Gradle Plugin Portal (handle cccp-education) | À faire
 |===
@@ -140,6 +140,7 @@ et Gradle Plugin Portal sous le handle cccp-education.
 
 |===
 | # | Date | Type | Sujet | Score
+| 008 | 2026-07-07 | impl | HF-5a title-card template (TitleCardTemplate value object, expandTitleCardBlocks, 7 unit + 4 Cucumber + 2 functional) + HF-6a CI workflow + PUB-2.2/5.16 | ✅ TERMINÉ
 | 007 | 2026-07-06 | impl | HF-4c N3 contract typed + Cucumber BDD (HyperframesParseContext, HyperframesContextExtractor, 14 unit + 3 func + 4 Cucumber, 43 verts) | ✅ TERMINÉ
 | 006 | 2026-07-03 | dev | CNV-6 Migration — convention plugins education.cccp.build.* v0.0.1 appliquées (gradle-plugin + publishing), -54 lignes, compileKotlin SUCCESS | ✅ TERMINÉ
 | 005 | 2026-06-11 | publish | Publication Maven Central 0.0.1 (nmcp, POM sans guard, version 0.0.1) | 9/10

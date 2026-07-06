@@ -1,36 +1,38 @@
-= PROMPT_REPRISE — HyperFrames Gradle (Session 007 TERMINÉE → 008)
-:session: 007
-:date: 2026-07-06
-:status: ✅ TERMINÉ — HF-4c N3 contract typed + Cucumber BDD
+= PROMPT_REPRISE — HyperFrames Gradle (Session 008 TERMINÉE → 009)
+:session: 008
+:date: 2026-07-07
+:status: ✅ TERMINÉ — HF-5a title-card template + HF-6a CI + PUB-2.2/5.16
 
 '''
 == État des lieux
 
 Plugin Gradle fonctionnel avec pipeline complet :
 AsciiDoc → AsciidoctorJ → HTML enrichi (stage, data-*, GSAP) → CLI Node.js → MP4.
-EPIC HF-4 **entièrement terminé** : `collectHyperframesRetrieve` produit
-un `composite-context.json` **typé** conforme au contrat N3 documenté.
-Contrat DDD value object `HyperframesParseContext` + domain service
-`HyperframesContextExtractor`. 4 scénarios Cucumber couvrent l'acceptation N3.
+EPIC HF-5a **entièrement terminé** : template "title-card" avec fade-in, logo optionnel,
+titre, sous-titre optionnel. Value object DDD `TitleCardTemplate` + expansion processor.
+HF-6a **terminé** : workflow CI `test-hyperframes.yml` sécurise compileKotlin → test → cucumberTest → check.
+PUB-2.2 et PUB-5.16 **terminés** : commentaire relocation + vérification Maven Central (0.0.1 OK).
 Version `0.0.1` publiée sur Maven Central via nmcp.
-build.gradle.kts migré vers convention plugins `education.cccp.build.*` v0.0.2.
 
-== Fait en session 007
+== Fait en session 008
 
-- HF-4c TERMINÉ : contrat N3 typé (`HyperframesParseContext` + `HyperframesContextExtractor`)
-- `CollectHyperframesRetrieveTask` réécrite (JSON typé, idempotent si pas d'artefacts)
-- `HyperframesPlugin` câblage `pluginVersion`
-- 14 tests unit (contract + extractor) + 3 fonctionnels (GradleTestKit) + 4 Cucumber BDD
-- Cucumber 7.34.3 intégré (task `cucumberTest`, JUnit Platform Suite, glue `hyperframes.scenarios`)
-- `./gradlew check` ✅ 43 verts
+- HF-5a TERMINÉ : `TitleCardTemplate` value object + `expandTitleCardBlocks` processor
+- 7 tests unit + 4 scénarios Cucumber EN + 2 tests fonctionnels GradleTestKit
+- Timeline GSAP conditionnelle (logo/subtitle émis seulement si présents)
+- Regex paragraph tolérante aux newlines AsciidoctorJ
+- Isolation scénarios Cucumber (buildDir/nettoyage + `--rerun-tasks`)
+- HF-6a TERMINÉ : `.github/workflows/test-hyperframes.yml` (JDK 25, 4 steps)
+- PUB-2.2 TERMINÉ : commentaire relocation court ajouté
+- PUB-5.16 TERMINÉ : Maven Central vérifié (education.ccp:hyperframes-plugin:0.0.1)
+- `./gradlew check` ✅ vert
 
-== Prochaine session (008)
+== Prochaine session (009)
 
 Priorités restantes :
-1. HF-6a — Workflow CI GitHub Actions `test-hyperframes.yml` (sécuriser cucumberTest en CI)
-2. HF-5a-d — Templates HyperFrames (title-card, code-diff, data-chart, kinetic-captions)
-3. HF-6c — Publication Gradle Plugin Portal (handle cccp-education)
-4. EPIC PUB — PUB-2.2 (commentaire relocation) + PUB-5.16 (vérification Central)
+1. HF-5b — Template "code-diff" (animation diff de code avec coloration syntaxique)
+2. HF-5c — Template "data-chart" (graphique animé)
+3. HF-5d — Template "kinetic-captions" (sous-titres animés synchronisés)
+4. HF-6c — Publication Gradle Plugin Portal (handle cccp-education)
 
 == Routes documents clés (lecture rapide)
 
@@ -45,9 +47,10 @@ Priorités restantes :
 
 == Rappels techniques
 
-- **Version publiée** : 0.0.1 (Maven Central)
-- **Syntaxe AsciiDoc role+id** : utiliser `[.role#id]` PAS `[role, id="x"]`
-- **Bridge Node.js** : ProcessBuilder, pas de couplage npm dans le plugin
-- **Cucumber** : `./gradlew cucumberTest` (tag filter `not @wip and not @integration`)
-- **Contrat N3 typé** : `hyperframes.contract.HyperframesParseContext` (source unique de vérité)
+- **Version publiée** : 0.0.1 (Maven Central, asciidoctorj 3.0.0 dans POM — local 3.0.1)
+- **Pattern template** : `[.hyperframes-title-card#id]` AsciiDoc → `expandTitleCardBlocks` processor → `TitleCardTemplate.render()`
+- **Template = value object pur** : `data class` + `render(): String`, zéro effet de bord
+- **Timeline GSAP conditionnelle** : `tl.from()` n'émet que pour les éléments présents
+- **Cucumber** : `./gradlew cucumberTest` (tag filter `not @wip and not @integration`), Gherkin EN
+- **CI** : `.github/workflows/test-hyperframes.yml` (JDK 25, 4 steps)
 - **ZERO commit/push** sans permission explicite

@@ -1,5 +1,6 @@
-= COMPLETED_TASKS_ARCHIVE — Mai 2026
+= COMPLETED_TASKS_ARCHIVE — hyperframes-gradle
 :date: 2026-05-31
+:last-updated: 2026-07-07 (session 008)
 
 == Tâches terminées (session 000 — 2026-05-31)
 
@@ -52,4 +53,28 @@
 | EPIC | Tâche | Statut
 | HF-4a | collectHyperframesRetrieve task → metadata.json | ✅
 | HF-4b | Contrat runner-gradle (HyperframesParseContext, JSON schema) | ✅
+|===
+
+== Tâches terminées (session 005 — 2026-06-11)
+
+|===
+| EPIC | Tâche | Statut
+| HF-6b | Publication Maven Central 0.0.1 (nmcp, POM sans guard, version 0.0.1) | ✅
+|===
+
+== Tâches terminées (session 007 — 2026-07-06)
+
+|===
+| EPIC | Tâche | Statut
+| HF-4c | N3 contract typed (HyperframesParseContext, HyperframesContextExtractor) + Cucumber BDD | ✅
+|===
+
+== Tâches terminées (session 008 — 2026-07-07)
+
+|===
+| EPIC | Tâche | Statut
+| HF-5a | Template "title-card" (TitleCardTemplate value object, expandTitleCardBlocks, 7 unit + 4 Cucumber + 2 functional) | ✅
+| HF-6a | Workflow CI GitHub Actions test-hyperframes.yml (JDK 25, 4 steps) | ✅
+| PUB-2.2 | Commentaire relocation build.gradle.kts (forme courte) | ✅
+| PUB-5.16 | Vérification Maven Central (education.ccp:hyperframes-plugin:0.0.1 OK) | ✅
 |===

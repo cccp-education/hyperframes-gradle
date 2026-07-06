@@ -78,13 +78,14 @@ permettant le déploiement automatique sur le site statique.
 
 *Priorité* : P3
 *EPIC* : HF-5
+*Statut* : HF-5a ✅ TERMINÉ (session 008), HF-5b/c/d à faire
 
 .Valeur
 Zéro code à écrire pour les cas d'usage standards. Un template AsciiDoc
 + un template HTML HyperFrames préfabriqué couvrent 80% des besoins.
 
 .Critères d'acceptation
-- Template "title-card" : fondu d'entrée, logo, titre, sous-titre
+- Template "title-card" : fondu d'entrée, logo, titre, sous-titre ✅ (HF-5a)
 - Template "code-diff" : animation de diff de code avec coloration syntaxique
 - Template "kinetic-captions" : sous-titres animés synchronisés
 - Chaque template a un fichier `.adoc` exemple et un `.mp4` golden de référence

@@ -1,0 +1,115 @@
+= Session 008 — HF-5a title-card template + HF-6a CI + PUB housekeeping
+:session: 008
+:date: 2026-07-07
+:status: ✅ TERMINÉ
+:epic: HF-5a, HF-6a, PUB-2.2, PUB-5.16
+
+== Objectif
+
+Lancer les EPICs restants dans l'ordre demandé :
+1. **HF-5a** — Template "title-card" (fade-in, logo, titre, sous-titre)
+2. **HF-6a** — Workflow CI GitHub Actions `test-hyperframes.yml`
+3. **PUB-2.2** — Commentaire relocation build.gradle.kts
+4. **PUB-5.16** — Vérification Maven Central
+
+== Méthode
+
+Baby-step DDD/TDD/BDD en agile software craftsmanship :
+1. **DDD** — Value object `TitleCardTemplate` (domain model pur, zéro effet de bord)
+2. **TDD unit** — Test rouge `TitleCardTemplateTest` (7 tests) → implémentation minimale → vert
+3. **BDD spec d'acceptation** — Cucumber feature `title_card_template.feature` EN (4 scénarios)
+4. **BDD steps** — `TitleCardTemplateSteps.kt` glue Cucumber + extension `HyperframesWorld`
+5. **Processor integration** — `expandTitleCardBlocks` dans `HyperframesHtmlProcessor`
+6. **BDD functional** — 2 tests GradleTestKit bout-en-bout dans `HyperframesPluginTest`
+
+== Livrables
+
+=== HF-5a — Title-card template (✅ TERMINÉ)
+
+* `src/main/kotlin/hyperframes/template/TitleCardTemplate.kt` — value object DDD
+  - propriétés : id, title, subtitle?, logoPath?, durationSeconds (défaut 2.0)
+  - méthode `render()` produit fragment HTML HyperFrames (composition + track + GSAP fade-in)
+  - timeline GSAP conditionnelle : logo, title, subtitle ne sont émis que si présents
+* `src/main/kotlin/hyperframes/HyperframesHtmlProcessor.kt` — étape `expandTitleCardBlocks`
+  - détecte `[.hyperframes-title-card#id]` AsciiDoc → `<div class="sect1 hyperframes-title-card">`
+  - extrait id (h2), title (h2 text), subtitle (premier paragraphe sectionbody)
+  - remplace le bloc entier par `TitleCardTemplate.render()`
+  - regex paragraphRegex tolère les espaces/newlines (`\s*` entre balises)
+* `src/test/kotlin/hyperframes/template/TitleCardTemplateTest.kt` — 7 tests unitaires TDD
+* `src/test/resources/features/title_card_template.feature` — 4 scénarios BDD EN
+* `src/test/kotlin/hyperframes/scenarios/TitleCardTemplateSteps.kt` — glue Cucumber EN
+* `src/test/kotlin/hyperframes/scenarios/HyperframesWorld.kt` — extension `writeTitleCardAdoc` + `generatedHtml` + `--rerun-tasks` pour isolation
+* `src/test/kotlin/hyperframes/HyperframesPluginTest.kt` — 2 tests fonctionnels title-card
+
+=== HF-6a — Workflow CI (✅ TERMINÉ)
+
+* `.github/workflows/test-hyperframes.yml` — pipeline CI GitHub Actions
+  - JDK 25 (aligné workspace session 095)
+  - steps : compileKotlin → test → cucumberTest → check
+  - timeout 25 min, `gradle/actions/setup-gradle@v4`
+  - working-directory: hyperframes-plugin
+
+=== PUB-2.2 — Commentaire relocation (✅ TERMINÉ)
+
+* `hyperframes-plugin/build.gradle.kts` — commentaire court ajouté avant `publishing { }`
+  ```
+  // RELOCATION : garde comme echappatoire future.
+  // Activable avec -Prem relocationGroup="<futur-namespace>"
+  ```
+  Le commentaire long original n'existait pas (publication nmcp session 005), la forme courte a été ajoutée comme documentation d'échappatoire.
+
+=== PUB-5.16 — Vérification Maven Central (✅ TERMINÉ)
+
+* `education.ccp:hyperframes-plugin:0.0.1` vérifié sur Maven Central
+  - URL : https://central.sonatype.com/artifact/education.ccp/hyperframes-plugin
+  - POM complet : licence Apache 2.0, SCM github.com/cheroliv/hyperframes-gradle, developer cccp-education
+  - Publié il y a 25 jours (session 005)
+  - Note : asciidoctorj 3.0.0 dans le POM Central (publication initiale), le build local est 3.0.1 (session 095) — résolu à la prochaine publication
+
+== Tests
+
+* 7 tests unitaires `TitleCardTemplateTest` (TDD)
+* 11 tests fonctionnels `HyperframesPluginTest` (+2 title-card, +9 existants)
+* 8 tests Cucumber (4 N3 contract + 4 title-card template)
+* `./gradlew check` ✅ BUILD SUCCESSFUL en 2m5s
+* Total : 26+ tests verts (avant : ~43 avec N3 ; compte exact dans TEST_COVERAGE_ANALYSIS)
+
+== Difficultés rencontrées
+
+1. **Subtitle non extrait** — la regex `paragraphRegex` initiale `<div class="paragraph"><p>(.*?)</p></div>` ne matchait pas car AsciidoctorJ produit des newlines entre balises. Corrigé avec `\s*` : `<div class="paragraph">\s*<p>(.*?)</p>\s*</div>`.
+2. **Test "without subtitle" faux négatif** — la timeline GSAP référenait `hf-title-card-subtitle` même quand subtitle absent. Corrigé : les lignes GSAP sont conditionnelles (logo, subtitle n'émis que si présents).
+3. **Isolation scénarios Cucumber** — le `buildDir` persistait entre scénarios, causant UP-TO-DATE. Corrigé : `writeTitleCardAdoc` supprime `buildDir` + `srcDir`, `runTask` utilise `--rerun-tasks`.
+4. **Task `clean` inexistante** — le plugin `base` n'est pas appliqué dans le project de test. Corrigé : `--rerun-tasks` au lieu de `clean`.
+
+== Décisions techniques
+
+* **Template = value object pur** — `TitleCardTemplate` est un `data class` sans effet de bord, `render()` est une pure function. Testable isolément, aligné DDD.
+* **Expansion avant composition** — `expandTitleCardBlocks` est appelée AVANT `enhanceCompositionBlocks` dans le pipeline `enhance()`. Le template génère déjà `data-composition-id`, évitant la duplication.
+* **Timeline GSAP conditionnelle** — les `tl.from()` ne référencent que les éléments réellement présents. Évite les sélecteurs CSS vides.
+* **Gherkin EN** — feature et steps en anglais (règle AGENTS.adoc : Gherkin EN, pas de `# language: fr`).
+
+== Routes des fichiers modifiés/créés
+
+* `src/main/kotlin/hyperframes/template/TitleCardTemplate.kt` (CRÉÉ)
+* `src/main/kotlin/hyperframes/HyperframesHtmlProcessor.kt` (MODIFIÉ — import + étape 3)
+* `src/test/kotlin/hyperframes/template/TitleCardTemplateTest.kt` (CRÉÉ)
+* `src/test/resources/features/title_card_template.feature` (CRÉÉ)
+* `src/test/kotlin/hyperframes/scenarios/TitleCardTemplateSteps.kt` (CRÉÉ)
+* `src/test/kotlin/hyperframes/scenarios/HyperframesWorld.kt` (MODIFIÉ — writeTitleCardAdoc, generatedHtml, --rerun-tasks)
+* `src/test/kotlin/hyperframes/HyperframesPluginTest.kt` (MODIFIÉ — 2 tests + import assertFalse)
+* `hyperframes-plugin/build.gradle.kts` (MODIFIÉ — commentaire relocation)
+* `.github/workflows/test-hyperframes.yml` (CRÉÉ)
+
+== Prochaine session (009)
+
+Priorités restantes :
+1. **HF-5b** — Template "code-diff" (animation diff de code)
+2. **HF-5c** — Template "data-chart" (graphique animé)
+3. **HF-5d** — Template "kinetic-captions" (sous-titres animés)
+4. **HF-6c** — Publication Gradle Plugin Portal (handle cccp-education)
+
+== Rappels
+
+* ZERO commit/push sans permission (Règle 1/2)
+* HF-5a suit le pattern DDD value object + processor expansion, réutilisable pour HF-5b/c/d
+* La CI sécurise compileKotlin → test → cucumberTest → check

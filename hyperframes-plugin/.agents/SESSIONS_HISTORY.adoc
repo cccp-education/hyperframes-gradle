@@ -1,5 +1,17 @@
 = SESSIONS_HISTORY — hyperframes-gradle
 
+== Session 008 (2026-07-07) — HF-5a title-card template + HF-6a CI + PUB housekeeping
+
+Premier template HyperFrames : `TitleCardTemplate` value object DDD (id, title,
+subtitle?, logoPath?, durationSeconds=2.0). Méthode `render()` produit un fragment
+HTML HyperFrames (composition + track + timeline GSAP fade-in conditionnelle).
+Intégration processor : `expandTitleCardBlocks` détecte `[.hyperframes-title-card#id]`
+AsciiDoc → remplace par le rendu. Baby-step DDD/TDD/BDD : 7 unit + 4 Cucumber EN +
+2 fonctionnel GradleTestKit. CI : `.github/workflows/test-hyperframes.yml` (JDK 25,
+4 steps compileKotlin→test→cucumberTest→check). PUB-2.2 commentaire relocation,
+PUB-5.16 vérification Maven Central (0.0.1 OK, asciidoctorj 3.0.0 dans POM Central).
+`./gradlew check` ✅ vert.
+
 == Session 007 (2026-07-06) — HF-4c N3 contract typed + Cucumber BDD
 
 Clôture EPIC HF-4 : la task `collectHyperframesRetrieve` produit désormais un
@@ -11,6 +23,7 @@ Cucumber 7.34.3 intégré (task `cucumberTest`, JUnit Platform Suite, glue
 
 |===
 | # | Date | Type | Sujet | Score
+| 008 | 2026-07-07 | impl | HF-5a title-card template (TitleCardTemplate value object, expandTitleCardBlocks, 7 unit + 4 Cucumber + 2 functional) + HF-6a CI workflow + PUB-2.2/5.16 | ✅ TERMINÉ
 | 007 | 2026-07-06 | impl | HF-4c N3 contract typed + Cucumber BDD (HyperframesParseContext, HyperframesContextExtractor, 14 unit + 3 func + 4 Cucumber, 43 verts) | ✅ TERMINÉ
 | 006 | 2026-07-03 | dev | CNV-6 Migration — convention plugins education.cccp.build.* v0.0.1 (gradle-plugin + publishing), build.gradle.kts 114→60 (-54), compileKotlin SUCCESS | ✅ TERMINÉ
 | 005 | 2026-06-11 | publish | Publication Maven Central 0.0.1 — version 0.1.0-SNAPSHOT→0.0.1, POM sans guard, Sonatype→nmcp, settings nmcp. Publié ✅ | 9/10
