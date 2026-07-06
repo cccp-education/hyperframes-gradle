@@ -1,31 +1,36 @@
-= PROMPT_REPRISE — HyperFrames Gradle (Session 006 TERMINÉE → 007)
-:session: 006
-:date: 2026-07-03
-:status: ✅ TERMINÉ — CNV-6 Migration conventions plugins
+= PROMPT_REPRISE — HyperFrames Gradle (Session 007 TERMINÉE → 008)
+:session: 007
+:date: 2026-07-06
+:status: ✅ TERMINÉ — HF-4c N3 contract typed + Cucumber BDD
 
 '''
 == État des lieux
 
 Plugin Gradle fonctionnel avec pipeline complet :
 AsciiDoc → AsciidoctorJ → HTML enrichi (stage, data-*, GSAP) → CLI Node.js → MP4.
-Task `collectHyperframesRetrieve` enregistrée et minimale fonctionnelle.
+EPIC HF-4 **entièrement terminé** : `collectHyperframesRetrieve` produit
+un `composite-context.json` **typé** conforme au contrat N3 documenté.
+Contrat DDD value object `HyperframesParseContext` + domain service
+`HyperframesContextExtractor`. 4 scénarios Cucumber couvrent l'acceptation N3.
 Version `0.0.1` publiée sur Maven Central via nmcp.
-build.gradle.kts migré vers convention plugins `education.cccp.build.*` v0.0.1 (gradle-plugin + publishing), -54 lignes.
+build.gradle.kts migré vers convention plugins `education.cccp.build.*` v0.0.2.
 
-== Fait en session 006
+== Fait en session 007
 
-- Migration CNV-6 : convention plugins `education.cccp.build.gradle-plugin` (0.0.1) + `education.cccp.build.publishing` (0.0.1)
-- Pattern bakery appliqué (gradle-plugin + publishing)
-- build.gradle.kts 114→60 lignes (-54)
-- `compileKotlin` SUCCESS
-- Variantes : aucune (pattern standard)
+- HF-4c TERMINÉ : contrat N3 typé (`HyperframesParseContext` + `HyperframesContextExtractor`)
+- `CollectHyperframesRetrieveTask` réécrite (JSON typé, idempotent si pas d'artefacts)
+- `HyperframesPlugin` câblage `pluginVersion`
+- 14 tests unit (contract + extractor) + 3 fonctionnels (GradleTestKit) + 4 Cucumber BDD
+- Cucumber 7.34.3 intégré (task `cucumberTest`, JUnit Platform Suite, glue `hyperframes.scenarios`)
+- `./gradlew check` ✅ 43 verts
 
-== Prochaine session (007)
+== Prochaine session (008)
 
-À définir :
-1. HF-4c — Tests intégration N3 runner-gradle
-2. HF-5 — Templates HyperFrames prêts à l'emploi
+Priorités restantes :
+1. HF-6a — Workflow CI GitHub Actions `test-hyperframes.yml` (sécuriser cucumberTest en CI)
+2. HF-5a-d — Templates HyperFrames (title-card, code-diff, data-chart, kinetic-captions)
 3. HF-6c — Publication Gradle Plugin Portal (handle cccp-education)
+4. EPIC PUB — PUB-2.2 (commentaire relocation) + PUB-5.16 (vérification Central)
 
 == Routes documents clés (lecture rapide)
 
@@ -43,4 +48,6 @@ build.gradle.kts migré vers convention plugins `education.cccp.build.*` v0.0.1 
 - **Version publiée** : 0.0.1 (Maven Central)
 - **Syntaxe AsciiDoc role+id** : utiliser `[.role#id]` PAS `[role, id="x"]`
 - **Bridge Node.js** : ProcessBuilder, pas de couplage npm dans le plugin
+- **Cucumber** : `./gradlew cucumberTest` (tag filter `not @wip and not @integration`)
+- **Contrat N3 typé** : `hyperframes.contract.HyperframesParseContext` (source unique de vérité)
 - **ZERO commit/push** sans permission explicite

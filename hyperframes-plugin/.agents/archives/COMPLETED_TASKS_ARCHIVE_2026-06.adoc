@@ -1,5 +1,12 @@
 = COMPLETED_TASKS_ARCHIVE — Juin 2026
-:date: 2026-06-11
+:date: 2026-07-06
+
+== Tâches terminées (session 007 — 2026-07-06)
+
+|===
+| EPIC | Tâche | Statut
+| HF-4c | N3 contract typed — HyperframesParseContext + HyperframesContextExtractor + Cucumber BDD (43 verts) | ✅
+|===
 
 == Tâches terminées (session 005 — 2026-06-11)
 

@@ -6,9 +6,9 @@ _DAG_ : N2 — Plugin Gradle de transformation documentaire AsciiDoc → vidéo 
 _Dépendance N2_ : codex-gradle (compileOnly, AsciidoctorJ partagé)
 _Bridge externe_ : HyperFrames CLI (Node.js via gradle-node-plugin, ProcessBuilder)
 
-_Dernière mise à jour_ : 2026-07-03 (Session 006 CNV-6 Migration)
-_Session terminée_ : 006 — CNV-6 Migration conventions plugins education.cccp.build.*
-_Prochaine session_ : 007 — À définir (HF-4c, HF-5 ou HF-6c)
+_Dernière mise à jour_ : 2026-07-06 (Session 007 HF-4c N3 contract typed)
+_Session terminée_ : 007 — HF-4c N3 contract typed + Cucumber BDD
+_Prochaine session_ : 008 — HF-6a (CI) ou HF-5 (templates)
 _Version publiée_ : 0.0.1 (Maven Central)
 
 '''
@@ -47,7 +47,7 @@ _Version publiée_ : 0.0.1 (Maven Central)
 | HF-1 | Plugin Gradle stub + AsciidoctorJ intégration (parse AsciiDoc → HTML HyperFrames) | ✅ TERMINÉ (session 001) | P0
 | HF-2 | Bridge CLI HyperFrames (gradle-node-plugin + ProcessBuilder → node → MP4) | ✅ TERMINÉ (session 002) | P1
 | HF-3 | DSL AsciiDoc customs (blocs, docinfo attributes, templates) | ✅ TERMINÉ (session 003) | P1
-| HF-4 | Intégration N3 runner-gradle (collectHyperframesRetrieve, metadata.json) | 🟡 80% (HF-4c à faire) | P2
+| HF-4 | Intégration N3 runner-gradle (collectHyperframesRetrieve, metadata.json) | ✅ TERMINÉ (session 007) | P2
 | HF-5 | Templates HyperFrames prêts à l'emploi (transitions, overlays, captions) | À faire | P3
 | HF-6 | CI + publication Maven Central / Gradle Portal | ✅ Maven Central (session 005) / Gradle Portal à faire | P3
 |===
@@ -105,7 +105,7 @@ N3, qui l'ingère dans assembleCompositeContext.
 | Phase | Livrable | Statut
 | HF-4a | collectHyperframesRetrieve task → metadata.json | ✅ TERMINÉ (session 004)
 | HF-4b | Contrat runner-gradle (HyperframesParseContext, JSON schema) | ✅ TERMINÉ (session 004) 
-| HF-4c | Tests intégration N3 (runner-gradle consume le JSON) | À faire
+| HF-4c | Tests intégration N3 (runner-gradle consume le JSON) | ✅ TERMINÉ (session 007)
 |===
 
 == EPIC HF-5 — Templates
@@ -140,6 +140,7 @@ et Gradle Plugin Portal sous le handle cccp-education.
 
 |===
 | # | Date | Type | Sujet | Score
+| 007 | 2026-07-06 | impl | HF-4c N3 contract typed + Cucumber BDD (HyperframesParseContext, HyperframesContextExtractor, 14 unit + 3 func + 4 Cucumber, 43 verts) | ✅ TERMINÉ
 | 006 | 2026-07-03 | dev | CNV-6 Migration — convention plugins education.cccp.build.* v0.0.1 appliquées (gradle-plugin + publishing), -54 lignes, compileKotlin SUCCESS | ✅ TERMINÉ
 | 005 | 2026-06-11 | publish | Publication Maven Central 0.0.1 (nmcp, POM sans guard, version 0.0.1) | 9/10
 | 004 | 2026-05-31 | impl | HF-4 Intégration N3 runner-gradle (collectHyperframesRetrieve task, contrat JSON, 26/26 PASS) | ✅ TERMINÉ

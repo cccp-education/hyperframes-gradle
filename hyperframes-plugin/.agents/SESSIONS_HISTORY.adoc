@@ -1,11 +1,17 @@
 = SESSIONS_HISTORY — hyperframes-gradle
 
-== Session 006 (2026-07-03) — CNV-6 Migration
+== Session 007 (2026-07-06) — HF-4c N3 contract typed + Cucumber BDD
 
-Migration du `build.gradle.kts` vers les convention plugins `education.cccp.build.gradle-plugin` (0.0.1) + `education.cccp.build.publishing` (0.0.1), pattern bakery. build.gradle.kts 114→60 lignes (-54). compileKotlin SUCCESS. Variantes : aucune (pattern standard).
+Clôture EPIC HF-4 : la task `collectHyperframesRetrieve` produit désormais un
+`composite-context.json` typé conforme au contrat N3 documenté. Contrat DDD
+value object `HyperframesParseContext` + domain service `HyperframesContextExtractor`.
+Méthode baby-step DDD/TDD/BDD : 14 unit + 3 fonctionnel (GradleTestKit) + 4 Cucumber.
+Cucumber 7.34.3 intégré (task `cucumberTest`, JUnit Platform Suite, glue
+`hyperframes.scenarios`). `./gradlew check` ✅ 43 verts.
 
 |===
 | # | Date | Type | Sujet | Score
+| 007 | 2026-07-06 | impl | HF-4c N3 contract typed + Cucumber BDD (HyperframesParseContext, HyperframesContextExtractor, 14 unit + 3 func + 4 Cucumber, 43 verts) | ✅ TERMINÉ
 | 006 | 2026-07-03 | dev | CNV-6 Migration — convention plugins education.cccp.build.* v0.0.1 (gradle-plugin + publishing), build.gradle.kts 114→60 (-54), compileKotlin SUCCESS | ✅ TERMINÉ
 | 005 | 2026-06-11 | publish | Publication Maven Central 0.0.1 — version 0.1.0-SNAPSHOT→0.0.1, POM sans guard, Sonatype→nmcp, settings nmcp. Publié ✅ | 9/10
 | 004 | 2026-05-31 | impl | HF-4 Intégration N3 runner-gradle (collectHyperframesRetrieve task, contrat JSON, 26/26 PASS) | ✅ TERMINÉ

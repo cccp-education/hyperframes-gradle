@@ -1,0 +1,102 @@
+= Session 007 — HF-4c N3 contract typed + Cucumber BDD
+:author: opencode
+:date: 2026-07-06
+:session_type: impl
+:score: 8/10
+
+== Résumé
+
+Clôture EPIC HF-4 : la task `collectHyperframesRetrieve` produit désormais un
+`composite-context.json` **typé** conforme au contrat N3 documenté
+(`HYPERFRAMES_ARCHITECTURE.adoc:304-327`). Un contrat DDD value object
+`HyperframesParseContext` est la source unique de vérité, un domain service
+`HyperframesContextExtractor` extrait les `data-*` du HTML enrichi, et la
+sortie JSON est consommable par runner-gradle sans parsing HTML.
+
+Méthode : baby-step DDD/TDD/BDD — unit → fonctionnel → Cucumber.
+
+== Ce qui a été fait
+
+=== DDD — contrat typé N0 (valeur produit)
+- `contract/HyperframesParseContext.kt` — value object racine
+  - `HyperframesParseContext` (plugin, version, output, source, renderedAt, renderDurationMs)
+  - `HyperframesVideoOutput` (video, path, sizeBytes, durationSeconds, width, height, fps, codec)
+  - `HyperframesAsciidocSource` (asciidoc, compositions, tracks)
+- `contract/HyperframesContextExtractor.kt` — domain service pur
+  - parse `<div id="stage">` data-width/height/fps
+  - collecte `data-composition-id` (distinct)
+  - compte `data-track-index` (distinct)
+  - lit la taille MP4 depuis le filesystem
+
+=== TDD — unit tests (14)
+- `HyperframesParseContextTest` (5) — pins JSON shape, round-trip Jackson
+- `HyperframesContextExtractorTest` (9) — stage dimensions, compositions,
+  tracks count, MP4 size, missing file, codec default, asciidoc name
+
+=== Implémentation — task rewiring
+- `CollectHyperframesRetrieveTask.kt` réécrite :
+  - lit MP4 + index.html dans `outputDir`
+  - appelle `HyperframesContextExtractor`
+  - sérialise `HyperframesParseContext` en JSON
+  - si MP4/HTML manquants → succès sans écriture (idempotent)
+  - `pluginVersion` Property injecté depuis `project.version`
+- `HyperframesPlugin.kt` — câblage `task.pluginVersion.set(target.version.toString())`
+
+=== BDD — Cucumber (4 scénarios)
+- `src/test/resources/features/n3_contract.feature` — 4 scénarios :
+  1. Top-level fields (plugin, version, output, source, renderedAt, renderDurationMs)
+  2. Video descriptor (video, width, height, fps, sizeBytes, codec=h264)
+  3. Source descriptor (asciidoc, compositions, tracks)
+  4. No-artifacts case (task succeeds, no file written)
+- `HyperframesWorld` — temp project + GradleRunner
+- `N3ContractSteps` — Given/When/Then mapping
+- `CucumberRunner` — JUnit Platform Suite + glue
+- `build.gradle.kts` — task `cucumberTest` (excludeEngines junit-jupiter,
+  cucumber.junit-platform.naming-strategy=long, tag filter)
+- `libs.versions.toml` — cucumber 7.34.3 + junit-platform-suite 1.12.2
+
+=== Tests fonctionnels GradleTestKit (3)
+- `collectHyperframesRetrieve produces N3 contract JSON when MP4 and HTML exist`
+- `collectHyperframesRetrieve succeeds with no artifacts when nothing rendered yet`
+- `plugin registers collectHyperframesRetrieve task`
+
+== Vérifications
+
+- `./gradlew compileKotlin` ✅
+- `./gradlew test cucumberTest` ✅
+- `./gradlew check` ✅ BUILD SUCCESSFUL
+- 39 tests JUnit + 4 scénarios Cucumber = 43 verts
+
+== Fichiers créés
+
+- `src/main/kotlin/hyperframes/contract/HyperframesParseContext.kt`
+- `src/main/kotlin/hyperframes/contract/HyperframesContextExtractor.kt`
+- `src/test/kotlin/hyperframes/contract/HyperframesParseContextTest.kt`
+- `src/test/kotlin/hyperframes/contract/HyperframesContextExtractorTest.kt`
+- `src/test/kotlin/hyperframes/scenarios/HyperframesWorld.kt`
+- `src/test/kotlin/hyperframes/scenarios/N3ContractSteps.kt`
+- `src/test/kotlin/hyperframes/scenarios/CucumberRunner.kt`
+- `src/test/resources/features/n3_contract.feature`
+
+== Fichiers modifiés
+
+- `src/main/kotlin/hyperframes/CollectHyperframesRetrieveTask.kt` (réécriture)
+- `src/main/kotlin/hyperframes/HyperframesPlugin.kt` (pluginVersion câblage)
+- `src/test/kotlin/hyperframes/CollectHyperframesRetrieveTaskTest.kt` (3 tests rewiring)
+- `build.gradle.kts` (cucumberTest task + cucumber deps)
+- `gradle/libs.versions.toml` (cucumber + junit-platform-suite)
+
+== Prochaines étapes
+
+Reste roadmap hyperframes :
+1. HF-6a — Workflow CI GitHub Actions `test-hyperframes.yml` (sécuriser cucumberTest en CI)
+2. HF-5a-d — Templates HyperFrames (title-card, code-diff, data-chart, kinetic-captions)
+3. HF-6c — Publication Gradle Plugin Portal (handle cccp-education)
+4. EPIC PUB — PUB-2.2 (commentaire relocation) + PUB-5.16 (vérification Central)
+
+== Notes
+
+- Aucun commit/push effectué (Règle 1 respectée)
+- Git : 3 fichiers non commités (upgrade Gradle 9.6.1 + AsciidoctorJ 3.0.1 — session 095 Java 25) pré-existaient
+- Contrat N3 désormais source unique de vérité typée (vs JSON non typé précédent)
+- runner-gradle n'a pas de tests par design — la charge de la preuve est sur le plugin propriétaire (confirmé)

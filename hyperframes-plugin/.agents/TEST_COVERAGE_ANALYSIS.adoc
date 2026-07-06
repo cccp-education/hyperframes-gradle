@@ -1,11 +1,11 @@
 = Test Coverage Analysis — hyperframes-gradle
 
-_Dernière mise à jour_ : 2026-05-31 (Session 004 — HF-4 Intégration N3)
+_Dernière mise à jour_ : 2026-07-06 (Session 007 — HF-4c N3 contract typed)
 
 == Résumé
 
-Coverage actuelle : 85% des classes, 75% des lignes
-Focus : Plugin core + Tasks + HTML Processor
+Coverage actuelle : 100% des classes de contrat N3, 39 tests JUnit + 4 scénarios Cucumber
+Focus : Plugin core + Tasks + HTML Processor + N3 contract typed + BDD acceptance
 
 == Détail par module
 
