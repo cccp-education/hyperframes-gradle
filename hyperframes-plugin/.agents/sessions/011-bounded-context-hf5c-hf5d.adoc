@@ -1,0 +1,145 @@
+= Session 011 — 2026-07-09 — Recentrage Bounded Context + HF-5c data-chart + HF-5d kinetic-captions
+:session: 011
+:date: 2026-07-09
+:status: ✅ TERMINÉ — Correctif bounded context + EPIC HF-5 clôturé (4/4 templates)
+
+== Objectif
+
+Deux livrables :
+
+1. **Correctif de cadrage DDD** — la session 010 avait embarqué un dictionnaire
+   de domaine `fpa-fr` (vocabulaire métier privé de Newark/trainer-gradle) dans
+   un plugin public OSS. Violation du bounded context : un artefact Apache 2.0
+   générique (AsciiDoc → vidéo) ne doit porter aucun vocabulaire métier privé.
+   Recentrage sur le concept générique de *video-content*.
+
+2. **HF-5c data-chart + HF-5d kinetic-captions** — deux derniers templates de
+   l'EPIC HF-5, livrés en baby-step DDD/TDD/BDD sur le rail éprouvé
+   (value object → processor → Cucumber EN).
+
+== Fait en session
+
+=== Correctif bounded context (anti-fuite privée → publique)
+
+- Constat : `domain/fpa-fr.json` (AFNOR, REAC, stagiaire, formateur...) et
+  `domain/tech-en.json` embarqués dans un plugin `foundry/public/` — le
+  vocabulaire métier FPA appartient au bounded context de Newark (privé),
+  pas à Watts (public générique).
+- Décision : les dictionnaires pré-câblés couvrent désormais le vocabulaire
+  générique de la production vidéo. Un borough consommateur injecte son
+  dictionnaire métier via configuration Gradle, sans l'embarquer dans le
+  plugin public.
+- Renommage `fpa-fr.json` → `video-fr.json` (narration, transition, fondu,
+  calque, séquence, rendu, composition, piste, animation, vignette).
+- Renommage `tech-en.json` → `video-en.json` (render, codec, keyframe,
+  composition, track, transition, sequence, layer, fade, overlay).
+- Mise à jour `PronunciationDomainLoader` KDoc, `HyperframesParseContext`
+  KDoc, `PronunciationDomainLoaderTest` (7 tests, Red → Green).
+- Règle 9 ajoutée à `AGENT.adoc` + `INDEX.adoc` :
+  *BOUNDED CONTEXT — plugin générique public, aucun vocabulaire métier privé
+  embarqué*.
+- Docs gouvernance mises à jour : BACKLOG, INDEX, PILOTAGE, TEST_COVERAGE,
+  PROMPT_REPRISE.
+
+=== HF-5c — Template "data-chart" (graphique animé)
+
+- `DataChartTemplate` value object DDD (id, title, dataPoints, durationSeconds=4.0).
+- `DataPoint` value object imbriqué (label non-blank, value non-negative).
+- `render()` produit un fragment HTML HyperFrames : composition + track +
+  conteneur `hf-data-chart` + titre + un div `hf-data-chart-bar` par point
+  (hauteur proportionnelle à value/maxValue%), label visible, timeline GSAP
+  `scaleY: 0` → `scaleY: 1` avec `stagger: 0.15` (bars montent l'une après
+  l'autre).
+- `expandDataChartBlocks` processor : détecte `[.hyperframes-data-chart#id]`
+  AsciiDoc + listingblock `label: value` → remplace par le rendu. Regex
+  tolérant (lignes mal formées silencieusement ignorées).
+- Tests : 13 unit (Red → Green) + 4 Cucumber EN (data_chart_template.feature).
+- Helper `HyperframesWorld.writeDataChartAdoc` ajouté.
+- Bug fix : conteneur renommé `hf-data-chart-bars` → `hf-data-chart-plot`
+  (collision substring avec `hf-data-chart-bar` dans le test empty chart).
+
+=== HF-5d — Template "kinetic-captions" (sous-titres animés synchronisés)
+
+- `KineticCaptionsTemplate` value object DDD (id, captions, durationSeconds=5.0).
+- `Caption` value object imbriqué (start non-negative, end >= start, text non-blank).
+- `render()` produit un fragment HTML HyperFrames : composition + track +
+  conteneur `hf-kinetic-captions` + un div `hf-kinetic-caption` par caption
+  (hidden par défaut via `display:none`, `data-start`/`data-end`), timeline
+  GSAP `opacity: 0 → 1` à start, `opacity: 1 → 0` à end.
+- `expandKineticCaptionsBlocks` processor : détecte
+  `[.hyperframes-kinetic-captions#id]` AsciiDoc + listingblock
+  `start -> end: text` → remplace par le rendu.
+- Tests : 14 unit (Red → Green) + 4 Cucumber EN (kinetic_captions_template.feature).
+- Helper `HyperframesWorld.writeKineticCaptionsAdoc` ajouté.
+- Bug fix : AsciidoctorJ échappe `->` en `-&gt;` dans les `<pre>` — le regex
+  du processor a été élargi pour accepter `-&gt;`, `&#8594;` et `->`.
+
+== Production
+
+*Fichiers modifiés* :
+- `src/main/resources/domain/fpa-fr.json` → supprimé
+- `src/main/resources/domain/tech-en.json` → supprimé
+- `src/main/resources/domain/video-fr.json` → créé (10 hints vidéo FR)
+- `src/main/resources/domain/video-en.json` → créé (10 hints vidéo EN)
+- `src/main/kotlin/hyperframes/pronunciation/PronunciationDomainLoader.kt` — KDoc
+- `src/main/kotlin/hyperframes/contract/HyperframesParseContext.kt` — KDoc
+- `src/main/kotlin/hyperframes/HyperframesHtmlProcessor.kt` — 2 processors + pipeline
+- `src/test/kotlin/hyperframes/pronunciation/PronunciationDomainLoaderTest.kt` — 7 tests
+- `src/test/kotlin/hyperframes/scenarios/HyperframesWorld.kt` — 2 helpers
+- `AGENT.adoc` — Règle 9 Bounded Context
+- `PROMPT_REPRISE.adoc`, `BACKLOG.adoc`, `.agents/INDEX.adoc`,
+  `.agents/TEST_COVERAGE_ANALYSIS.adoc`, `doc/PILOTAGE_HYPERFRAMES.adoc`
+
+*Fichiers créés* :
+- `src/main/kotlin/hyperframes/template/DataChartTemplate.kt`
+- `src/main/kotlin/hyperframes/template/KineticCaptionsTemplate.kt`
+- `src/test/kotlin/hyperframes/template/DataChartTemplateTest.kt` (13 tests)
+- `src/test/kotlin/hyperframes/template/KineticCaptionsTemplateTest.kt` (14 tests)
+- `src/test/kotlin/hyperframes/scenarios/DataChartTemplateSteps.kt`
+- `src/test/kotlin/hyperframes/scenarios/KineticCaptionsTemplateSteps.kt`
+- `src/test/resources/features/data_chart_template.feature` (4 scénarios)
+- `src/test/resources/features/kinetic_captions_template.feature` (4 scénarios)
+
+== Tests
+
+`./gradlew check` ✅ vert.
+
+Décompte Cucumber : 29 scénarios (4 N3 + 4 title-card + 4 code-diff +
+4 data-chart + 4 kinetic-captions + 6 pronunciation dict + 3 pronunciation e2e),
+0 failure.
+
+Décompte unit/functional : ~99 tests JUnit5 (13 data-chart + 14 kinetic-captions
++ 7 pronunciation loader recentrés + ~65 existants).
+
+== Décisions
+
+- **Bounded context** : Watts (hyperframes-gradle, public OSS) couvre le
+  vocabulaire générique de la production vidéo. Newark (trainer-gradle, privé)
+  injectera son dictionnaire FPA via `pronunciationDomain.set(file(...))`.
+- **Pattern template éprouvé** : value object DDD pur → processor regex →
+  tests unit (Red) → implémentation (Green) → Cucumber EN. 4 templates
+  livrés sur ce rail (title-card, code-diff, data-chart, kinetic-captions).
+- **Échappement AsciidoctorJ** : `->` devient `-&gt;` dans les `<pre>` —
+  les processors doivent anticiper l'échappement HTML des caractères
+  spéciaux dans les listingblocks.
+
+== État des EPICs
+
+|===
+| EPIC | Statut
+| HF-0 Bootstrap | ✅ TERMINÉ
+| HF-1 Plugin + AsciidoctorJ | ✅ TERMINÉ
+| HF-2 Bridge CLI | ✅ TERMINÉ
+| HF-3 DSL AsciiDoc | ✅ TERMINÉ
+| HF-4 Intégration N3 | ✅ TERMINÉ
+| HF-5 Templates | ✅ TERMINÉ (4/4 — title-card, code-diff, data-chart, kinetic-captions)
+| HF-6 CI/CD | 6a ✅ CI, 6b ✅ Maven Central, 6c Gradle Portal à faire
+| HF-7 Pronunciation | ✅ TERMINÉ (recentré S011)
+|===
+
+== Prochaine session (012)
+
+Priorités restantes :
+1. HF-6c — Publication Gradle Plugin Portal (handle cccp-education)
+2. HF-7 évolution — câbler `PronunciationDomainLoader` dans l'extension Gradle
+   (`pronunciationDomain.set("video-fr")`) + merge automatique auteur/domaine

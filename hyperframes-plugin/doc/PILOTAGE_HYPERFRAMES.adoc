@@ -459,7 +459,7 @@ Critères d'acceptation :
 - HF-7a : Value object `PronunciationHint` (DDD pur, tests unit)
 - HF-7b : `PronunciationDictionary` aggregate (render JSON island, merge, Cucumber)
 - HF-7c : DSL AsciiDoc `[hyperframes-pronunciation]` + processor (tests fonctionnels)
-- HF-7d : Dictionnaire de domaine pré-câblé (fpa-fr, tech-en, custom)
+- HF-7d : Dictionnaire de domaine pré-câblé (video-fr, video-en, custom)
 - HF-7e : Hints inline `<<mot|phon>>` dans narration + processor
 - HF-7f : Intégration `metadata.json` N3 (section pronunciation)
 - HF-7g : Tests d'intégration end-to-end (Cucumber complet)
@@ -535,7 +535,7 @@ Critères d'acceptation :
 | HF-7a Value object PronunciationHint + tests unit | 2h | À faire
 | HF-7b PronunciationDictionary aggregate + Cucumber EN | 3h | À faire
 | HF-7c DSL AsciiDoc [hyperframes-pronunciation] + processor | 3h | À faire
-| HF-7d Dictionnaire de domaine pré-câblé (fpa-fr, tech-en) | 2h | À faire
+| HF-7d Dictionnaire de domaine pré-câblé (video-fr, video-en) | 2h | ✅ TERMINÉ
 | HF-7e Hints inline <<mot|phon>> dans narration | 2h | À faire
 | HF-7f Intégration metadata.json N3 | 1h | À faire
 | HF-7g Tests d'intégration end-to-end | 2h | À faire

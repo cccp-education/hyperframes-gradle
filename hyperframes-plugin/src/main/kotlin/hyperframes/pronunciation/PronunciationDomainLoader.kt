@@ -6,9 +6,14 @@ import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
  * HF-7d — Loads pre-built pronunciation domain dictionaries from classpath
  * resources (`domain/<name>.json`).
  *
- * Pre-built domains cover:
- * - `fpa-fr` — FPA training vocabulary (AFNOR, REAC, competencies, modules)
- * - `tech-en` — technical English vocabulary (Docker, Kubernetes, CI/CD)
+ * Pre-built domains cover generic video-content vocabulary:
+ * - `video-fr` — French video production vocabulary (narration, transition, render)
+ * - `video-en` — English video production vocabulary (render, codec, keyframe)
+ *
+ * The plugin is a generic AsciiDoc-to-video transformer (public OSS): domain
+ * dictionaries cover video production vocabulary only. Consumer boroughs with
+ * a private business vocabulary (training, medical, legal...) inject their own
+ * domain dictionary via configuration rather than embedding it in the plugin.
  *
  * A domain dictionary can be merged with an author dictionary so that
  * author hints override domain hints on conflict (word + language).
@@ -20,7 +25,7 @@ object PronunciationDomainLoader {
     /**
      * Loads a domain dictionary from the classpath resource `domain/$name.json`.
      *
-     * @param name the domain identifier (e.g. "fpa-fr", "tech-en")
+     * @param name the domain identifier (e.g. "video-fr", "video-en")
      * @return a non-empty [PronunciationDictionary]
      * @throws IllegalArgumentException when the domain is unknown or the resource
      *         is missing or unreadable

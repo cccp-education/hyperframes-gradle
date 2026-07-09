@@ -78,7 +78,7 @@ permettant le déploiement automatique sur le site statique.
 
 *Priorité* : P3
 *EPIC* : HF-5
-*Statut* : HF-5a ✅ TERMINÉ (session 008), HF-5b ✅ TERMINÉ (session 009), HF-5c/d à faire
+*Statut* : ✅ TERMINÉ — HF-5a (S008), HF-5b (S009), HF-5c (S011), HF-5d (S011)
 
 . Valeur
 Zéro code à écrire pour les cas d'usage standards. Un template AsciiDoc
@@ -86,8 +86,9 @@ Zéro code à écrire pour les cas d'usage standards. Un template AsciiDoc
 
 . Critères d'acceptation
 - Template "title-card" : fondu d'entrée, logo, titre, sous-titre ✅ (HF-5a)
-- Template "code-diff" : animation de diff de code avec coloration syntaxique
-- Template "kinetic-captions" : sous-titres animés synchronisés
+- Template "code-diff" : animation de diff de code avec coloration syntaxique ✅ (HF-5b)
+- Template "data-chart" : graphique animé, barres proportionnelles + stagger ✅ (HF-5c)
+- Template "kinetic-captions" : sous-titres animés synchronisés ✅ (HF-5d)
 - Chaque template a un fichier `.adoc` exemple et un `.mp4` golden de référence
 
 === US-HF-07 — En tant que formateur, je veux corriger la prononciation des mots mal lus par le TTS
@@ -275,26 +276,36 @@ AFNOR: afnor
 - AsciiDoc avec hint inline dans narration → hint extrait et injecté
 - AsciiDoc avec mot mal écrit → exception claire (format attendu : `mot: phon`)
 
-=== HF-7d — Dictionnaire de domaine pré-câblé (vocabulaire FPA)
+=== HF-7d — Dictionnaire de domaine pré-câblé (vocabulaire vidéo générique)
 
 *Priorité* : P2
 *Méthode* : TDD baby-step — tests unit
+*Statut* : ✅ TERMINÉ (session 010) — recentré session 011 (fuite bounded context corrigée)
 
-Dictionnaire par défaut couvrant le vocabulaire métier formation FPA,
-activable via extension Gradle `pronunciationDomain.set("fpa-fr")`.
+Dictionnaire par défaut couvrant le vocabulaire générique de la production vidéo,
+activable via extension Gradle `pronunciationDomain.set("video-fr")`.
 
 . Domaines pré-câblés
-- `fpa-fr` — vocabulaire AFNOR/REAC français (compétences, blocs, évaluations)
-- `tech-en` — vocabulaire technique anglais (Docker, Kubernetes, CI/CD)
+- `video-fr` — vocabulaire vidéo francophone (narration, transition, fondu, rendu)
+- `video-en` — vocabulaire vidéo anglophone (render, codec, keyframe, overlay)
 - `custom` — dictionnaire utilisateur fourni via fichier `.json`
 
+[NOTE]
+====
+Le plugin est un artefact OSS générique (AsciiDoc → vidéo). Les dictionnaires
+embarqués couvrent uniquement le vocabulaire de la production vidéo. Un borough
+consommateur avec un vocabulaire métier privé (formation FPA, médecine, juridique...)
+injecte son propre dictionnaire via configuration Gradle, sans l'embarquer dans le
+plugin public.
+====
+
 . Implémentation
-- Ressources classpath `domain/fpa-fr.json`, `domain/tech-en.json`
+- Ressources classpath `domain/video-fr.json`, `domain/video-en.json`
 - Chargement lazy via `PronunciationDictionary.loadDomain(name)`
 - Fusion : auteur > domaine > vide (priorité décroissante)
 
 . Tests unit
-- `loadDomain("fpa-fr")` retourne un dictionnaire non vide
+- `loadDomain("video-fr")` retourne un dictionnaire non vide
 - `loadDomain("inconnu")` → exception claire
 - Fusion auteur + domaine : hint auteur écrase hint domaine
 - `loadDomain("custom")` lit un fichier JSON fourni
@@ -336,7 +347,7 @@ exporté pour runner-gradle N3, pour traçabilité et audit.
 ```json
 {
   "pronunciation": {
-    "domain": "fpa-fr",
+    "domain": "video-fr",
     "hintsCount": 12,
     "hints": [
       {"word": "dos", "phonetic": "do", "language": "fr"},

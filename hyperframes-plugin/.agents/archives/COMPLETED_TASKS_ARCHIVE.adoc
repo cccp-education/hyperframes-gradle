@@ -1,6 +1,6 @@
 = COMPLETED_TASKS_ARCHIVE — hyperframes-gradle
 :date: 2026-05-31
-:last-updated: 2026-07-09 (session 010)
+:last-updated: 2026-07-09 (session 011)
 
 == Tâches terminées (session 000 — 2026-05-31)
 
@@ -97,4 +97,13 @@
 | HF-7e | Inline hints `hf:pron[word, phon]` + extract/strip processors (5 functional + 1 Cucumber) | ✅
 | HF-7f | N3 `HyperframesPronunciationContext` + `parsePronunciation` (5 unit) | ✅
 | HF-7g | End-to-end Cucumber (3 scénarios BDD EN — dictionnaire, inline, backward compat) | ✅
+|===
+
+== Tâches terminées (session 011 — 2026-07-09)
+
+|===
+| EPIC | Tâche | Statut
+| HF-7d | Recentrage bounded context : `fpa-fr` → `video-fr`, `tech-en` → `video-en` (anti-fuite privée→publique) + Règle 9 AGENT.adoc | ✅
+| HF-5c | Template "data-chart" (DataChartTemplate + DataPoint, expandDataChartBlocks, 13 unit + 4 Cucumber) | ✅
+| HF-5d | Template "kinetic-captions" (KineticCaptionsTemplate + Caption, expandKineticCaptionsBlocks, 14 unit + 4 Cucumber) | ✅
 |===

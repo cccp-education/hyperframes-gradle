@@ -1,46 +1,41 @@
-= PROMPT_REPRISE — HyperFrames Gradle (Session 010 TERMINÉE → 011)
-:session: 010
+= PROMPT_REPRISE — HyperFrames Gradle (Session 011 TERMINÉE → 012)
+:session: 011
 :date: 2026-07-09
-:status: ✅ TERMINÉ — EPIC HF-7 Pronunciation Control (7 phases HF-7a→g)
+:status: ✅ TERMINÉ — Correctif bounded context + EPIC HF-5 clôturé (4/4 templates)
 
 '''
 == État des lieux
 
 Plugin Gradle fonctionnel avec pipeline complet :
 AsciiDoc → AsciidoctorJ → HTML enrichi (stage, data-*, GSAP) → CLI Node.js → MP4.
-EPIC HF-5 **en cours** : 2/4 templates livrés (title-card ✅, code-diff ✅,
-data-chart à faire, kinetic-captions à faire).
+EPIC HF-5 **TERMINÉ** : 4/4 templates livrés (title-card ✅, code-diff ✅,
+data-chart ✅, kinetic-captions ✅).
 EPIC HF-6 **partiellement terminé** : CI ✅, Maven Central ✅, Gradle Portal à faire.
-EPIC HF-7 **TERMINÉ** : Pronunciation Control (TTS Phonetic Hints) — 7 phases livrées.
+EPIC HF-7 **TERMINÉ + recentré** : dictionnaires pré-câblés `video-fr`/`video-en`
+(contre `fpa-fr`/`tech-en` avant — fuite bounded context corrigée).
 Version `0.0.1` publiée sur Maven Central via nmcp.
 
-== Fait en session 010
+== Fait en session 011
 
-- EPIC HF-7 cadré et livré en 7 phases (baby-step DDD/TDD/BDD)
-- HF-7a : Value object `PronunciationHint` (factory `of()`, 10 tests unit)
-- HF-7b : `PronunciationDictionary` aggregate (add, find, merge, render, 12 unit + 4 Cucumber)
-- HF-7c : DSL `[.hyperframes-pronunciation]` + processor `expandPronunciationBlocks` (7 functional)
-- HF-7d : `PronunciationDomainLoader` + `domain/fpa-fr.json` + `domain/tech-en.json` (7 unit)
-- HF-7e : Inline hints `hf:pron[word, phon]` + extract/strip processors (5 functional)
-- HF-7f : N3 `HyperframesPronunciationContext` + `parsePronunciation` (5 unit)
-- HF-7g : End-to-end Cucumber (3 scénarios BDD EN)
-- `./gradlew check` ✅ vert (22 scénarios Cucumber, ~46 tests unit/functional)
-- Anglification de tous les KDoc/commentaires des fichiers touchés (règle AGENTS.adoc)
+- Correctif bounded context : `fpa-fr` (privé Newark) → `video-fr` (générique
+  Watts), `tech-en` → `video-en`. Règle 9 ajoutée à AGENT.adoc.
+- HF-5c data-chart : `DataChartTemplate` + `DataPoint` + `expandDataChartBlocks`
+  (13 unit + 4 Cucumber)
+- HF-5d kinetic-captions : `KineticCaptionsTemplate` + `Caption` +
+  `expandKineticCaptionsBlocks` (14 unit + 4 Cucumber). Bug AsciidoctorJ :
+  `->` échappé en `-&gt;` dans `<pre>` — regex élargi.
+- `./gradlew check` ✅ vert (29 scénarios Cucumber, ~99 tests unit/functional)
 
-== Prochaine session (011)
+== Prochaine session (012)
 
 Priorités restantes :
-1. HF-5c — Template "data-chart" (graphique animé, barres qui montent)
-2. HF-5d — Template "kinetic-captions" (sous-titres animés synchronisés)
-3. HF-6c — Publication Gradle Plugin Portal (handle cccp-education)
-4. HF-7 évolution — câbler `PronunciationDomainLoader` dans l'extension Gradle
-   (`pronunciationDomain.set("fpa-fr")`) + merge automatique auteur/domaine
+1. HF-6c — Publication Gradle Plugin Portal (handle cccp-education)
+2. HF-7 évolution — câbler `PronunciationDomainLoader` dans l'extension Gradle
+   (`pronunciationDomain.set("video-fr")`) + merge automatique auteur/domaine
 
 Le pattern DDD/TDD/BDD value object + processor expansion est éprouvé sur
-3 EPICs (title-card + code-diff + pronunciation). HF-5c/5d suivront le même rail :
-- value object `DataChartTemplate` / `KineticCaptionsTemplate`
-- processor `expandDataChartBlocks` / `expandKineticCaptionsBlocks`
-- tests unit + Cucumber + processor expansion
+4 templates. HF-6c est une tâche de publication (nmcp + Portal), pas de code.
+HF-7 évolution est un câblage Gradle (extension + task wiring).
 
 == Routes documents clés (lecture rapide)
 
@@ -49,7 +44,7 @@ Le pattern DDD/TDD/BDD value object + processor expansion est éprouvé sur
 | Architecture détaillée | `doc/HYPERFRAMES_ARCHITECTURE.adoc` | Pipeline global, décisions tech, contrat N3
 | Pilotage agile | `doc/PILOTAGE_HYPERFRAMES.adoc` | Product vision, personas, US, story map, backlog
 | Backlog | `BACKLOG.adoc` | User stories HF-1→HF-7, EPIC HF-7 détaillé, critères acceptation
-| Règles absolues | `AGENT.adoc` | 8 règles (commits, publish, DAG, secrets, bridge)
+| Règles absolues | `AGENT.adoc` | 9 règles (commits, publish, DAG, secrets, bridge, bounded context)
 | Roadmap | `.agents/INDEX.adoc` | Statut EPICs HF-0→HF-7, sessions
 |===
 
@@ -58,7 +53,7 @@ Le pattern DDD/TDD/BDD value object + processor expansion est éprouvé sur
 - **Version publiée** : 0.0.1 (Maven Central, asciidoctorj 3.0.0 dans POM — local 3.0.1)
 - **Pattern template** : value object DDD pur + `expand{Template}Blocks` processor
 - **Template = data class** : `render(): String`, zéro effet de bord
-- **Pronunciation** : `[.hyperframes-pronunciation]` (role point) + `hf:pron[word, phon]` inline
+- **Dictionnaires domaine** : `video-fr` / `video-en` (génériques vidéo, pas métier privé)
 - **Cucumber** : `./gradlew cucumberTest` (tag filter `not @wip and not @integration`), Gherkin EN
 - **CI** : `.github/workflows/test-hyperframes.yml` (JDK 25, 4 steps)
 - **English only** : code, identifiants, commentaires, Gherkin — pas de français (règle AGENTS.adoc)

@@ -139,6 +139,66 @@ class HyperframesWorld {
         srcDir.resolve("index.adoc").writeText(doc)
     }
 
+    fun writeDataChartAdoc(
+        id: String,
+        title: String,
+        dataPoints: List<Pair<String, Double>>,
+        duration: Int? = null
+    ) {
+        // Reset build artifacts so the generate task is not UP-TO-DATE.
+        buildDir.deleteRecursively()
+        buildDir.mkdirs()
+        val srcDir = projectDir.resolve("src/docs")
+        srcDir.deleteRecursively()
+        srcDir.mkdirs()
+        val doc = buildString {
+            appendLine("= Data-chart demo")
+            appendLine(":hyperframes-width: 1920")
+            appendLine(":hyperframes-height: 1080")
+            appendLine(":hyperframes-fps: 30")
+            appendLine()
+            appendLine("[.hyperframes-data-chart#$id${if (duration != null) ", duration=$duration" else ""}]")
+            appendLine("== $title")
+            appendLine()
+            appendLine("----")
+            dataPoints.forEach { (label, value) ->
+                appendLine("$label: $value")
+            }
+            appendLine("----")
+        }
+        srcDir.resolve("index.adoc").writeText(doc)
+    }
+
+    fun writeKineticCaptionsAdoc(
+        id: String,
+        title: String,
+        captions: List<Triple<Double, Double, String>>,
+        duration: Int? = null
+    ) {
+        // Reset build artifacts so the generate task is not UP-TO-DATE.
+        buildDir.deleteRecursively()
+        buildDir.mkdirs()
+        val srcDir = projectDir.resolve("src/docs")
+        srcDir.deleteRecursively()
+        srcDir.mkdirs()
+        val doc = buildString {
+            appendLine("= Kinetic-captions demo")
+            appendLine(":hyperframes-width: 1920")
+            appendLine(":hyperframes-height: 1080")
+            appendLine(":hyperframes-fps: 30")
+            appendLine()
+            appendLine("[.hyperframes-kinetic-captions#$id${if (duration != null) ", duration=$duration" else ""}]")
+            appendLine("== $title")
+            appendLine()
+            appendLine("----")
+            captions.forEach { (start, end, text) ->
+                appendLine("$start -> $end: $text")
+            }
+            appendLine("----")
+        }
+        srcDir.resolve("index.adoc").writeText(doc)
+    }
+
     fun writePronunciationAdoc(entries: List<Pair<String, String>>) {
         buildDir.deleteRecursively()
         buildDir.mkdirs()

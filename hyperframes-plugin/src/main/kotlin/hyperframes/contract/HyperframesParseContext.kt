@@ -68,7 +68,7 @@ data class HyperframesAsciidocSource(
  * HF-7f — Descriptor of the TTS pronunciation dictionary embedded in the N3
  * metadata.json for traceability and audit.
  *
- * @property domain the domain dictionary name if any (e.g. "fpa-fr"), or null
+ * @property domain the domain dictionary name if any (e.g. "video-fr"), or null
  * @property hintsCount number of hints in the dictionary
  * @property hints list of pronunciation hints
  */

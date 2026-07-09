@@ -1,0 +1,12 @@
+[
+  {"word": "render", "phonetic": "ren-der", "language": "en"},
+  {"word": "codec", "phonetic": "ko-dek", "language": "en"},
+  {"word": "keyframe", "phonetic": "kee-freym", "language": "en"},
+  {"word": "composition", "phonetic": "kom-po-zi-shun", "language": "en"},
+  {"word": "track", "phonetic": "trak", "language": "en"},
+  {"word": "transition", "phonetic": "tran-zi-shun", "language": "en"},
+  {"word": "sequence", "phonetic": "see-kwens", "language": "en"},
+  {"word": "layer", "phonetic": "lay-er", "language": "en"},
+  {"word": "fade", "phonetic": "feyd", "language": "en"},
+  {"word": "overlay", "phonetic": "oh-ver-lay", "language": "en"}
+]

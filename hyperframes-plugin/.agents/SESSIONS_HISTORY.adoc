@@ -1,5 +1,31 @@
 = SESSIONS_HISTORY — hyperframes-gradle
 
+== Session 011 (2026-07-09) — Bounded context + HF-5c + HF-5d (EPIC HF-5 clôturé)
+
+Deux livrables en une session. D'abord un correctif de cadrage DDD : la session
+010 avait embarqué `domain/fpa-fr.json` (vocabulaire métier privé de Newark) dans
+un plugin public OSS — violation du bounded context. Recentrage sur le concept
+générique de *video-content* : `fpa-fr` → `video-fr`, `tech-en` → `video-en`.
+Règle 9 ajoutée à AGENT.adoc (BOUNDED CONTEXT — plugin générique public, aucun
+vocabulaire métier privé embarqué).
+
+Ensuite, clôture de l'EPIC HF-5 (Templates) avec les deux derniers templates,
+livrés en baby-step DDD/TDD/BDD sur le rail éprouvé (value object → processor →
+Cucumber EN) :
+
+- HF-5c data-chart : `DataChartTemplate` + `DataPoint` (barres proportionnelles,
+  timeline GSAP `scaleY: 0 → 1` avec `stagger: 0.15`), `expandDataChartBlocks`
+  processor (13 unit + 4 Cucumber). Bug fix : conteneur renommé
+  `hf-data-chart-bars` → `hf-data-chart-plot` (collision substring).
+- HF-5d kinetic-captions : `KineticCaptionsTemplate` + `Caption` (captions
+  hidden, `opacity: 0 → 1` à start, `→ 0` à end), `expandKineticCaptionsBlocks`
+  processor (14 unit + 4 Cucumber). Bug fix : AsciidoctorJ échappe `->` en
+  `-&gt;` dans les `<pre>` — regex élargi pour accepter `-&gt;`, `&#8594;`, `->`.
+
+`./gradlew check` ✅ vert (29 scénarios Cucumber, ~99 tests unit/functional).
+EPIC HF-5 clôturé : 4/4 templates (title-card, code-diff, data-chart,
+kinetic-captions).
+
 == Session 010 (2026-07-09) — EPIC HF-7 Pronunciation Control
 
 Nouvel EPIC complet livré en une session : 7 phases HF-7a→g en baby-step
@@ -56,6 +82,7 @@ Cucumber 7.34.3 intégré (task `cucumberTest`, JUnit Platform Suite, glue
 
 |===
 | # | Date | Type | Sujet | Score
+| 011 | 2026-07-09 | impl | Correctif bounded context (fpa-fr → video-fr) + HF-5c data-chart + HF-5d kinetic-captions (EPIC HF-5 clôturé 4/4, 27 unit + 8 Cucumber + Règle 9) | ✅ TERMINÉ
 | 010 | 2026-07-09 | impl | HF-7 Pronunciation Control (7 phases — PronunciationHint, PronunciationDictionary, DomainLoader, DSL processor, inline hints, N3 metadata, e2e BDD, ~46 tests + 10 Cucumber) | ✅ TERMINÉ
 | 009 | 2026-07-07 | impl | HF-5b code-diff template (CodeDiffTemplate value object, expandCodeDiffBlocks, 10 unit + 4 Cucumber + 1 processor test, coloration lexicale 5 langues) | ✅ TERMINÉ
 | 008 | 2026-07-07 | impl | HF-5a title-card template (TitleCardTemplate value object, expandTitleCardBlocks, 7 unit + 4 Cucumber + 2 functional) + HF-6a CI workflow + PUB-2.2/5.16 | ✅ TERMINÉ

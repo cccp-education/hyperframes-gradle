@@ -1,0 +1,12 @@
+[
+  {"word": "narration", "phonetic": "na-ra-syon", "language": "fr"},
+  {"word": "transition", "phonetic": "tran-zi-syon", "language": "fr"},
+  {"word": "fondu", "phonetic": "fon-du", "language": "fr"},
+  {"word": "calque", "phonetic": "kalk", "language": "fr"},
+  {"word": "sequence", "phonetic": "se-kans", "language": "fr"},
+  {"word": "rendu", "phonetic": "ran-du", "language": "fr"},
+  {"word": "composition", "phonetic": "kom-po-zi-syon", "language": "fr"},
+  {"word": "piste", "phonetic": "pist", "language": "fr"},
+  {"word": "animation", "phonetic": "a-ni-ma-syon", "language": "fr"},
+  {"word": "vignette", "phonetic": "vi-nyet", "language": "fr"}
+]

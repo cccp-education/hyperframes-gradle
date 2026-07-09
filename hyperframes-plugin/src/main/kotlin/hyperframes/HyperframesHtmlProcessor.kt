@@ -2,7 +2,11 @@ package hyperframes
 
 import hyperframes.pronunciation.PronunciationDictionary
 import hyperframes.pronunciation.PronunciationHint
+import hyperframes.template.Caption
 import hyperframes.template.CodeDiffTemplate
+import hyperframes.template.DataChartTemplate
+import hyperframes.template.DataPoint
+import hyperframes.template.KineticCaptionsTemplate
 import hyperframes.template.TitleCardTemplate
 
 /**
@@ -13,10 +17,12 @@ import hyperframes.template.TitleCardTemplate
  * 2. Add `<div id="stage">` with data-* attributes (width, height, fps, output)
  * 3. HF-5a: Expand `hyperframes-title-card` blocks into animated title-card compositions
  * 4. HF-5b: Expand `hyperframes-code-diff` blocks into animated code-diff compositions
- * 5. HF-7c: Expand `hyperframes-pronunciation` blocks into a TTS hints JSON island
- * 6. Convert `hyperframes-composition` blocks -> `data-composition-id` (from child heading)
- * 7. Convert `hyperframes-track` blocks -> `data-track-index`, `data-start`, `data-duration`
- * 8. Convert `hyperframes-animation` (listingblock) -> `<script>` GSAP with `__timelines`
+ * 5. HF-5c: Expand `hyperframes-data-chart` blocks into animated bar-chart compositions
+ * 6. HF-5d: Expand `hyperframes-kinetic-captions` blocks into animated timed-caption compositions
+ * 7. HF-7c: Expand `hyperframes-pronunciation` blocks into a TTS hints JSON island
+ * 8. Convert `hyperframes-composition` blocks -> `data-composition-id` (from child heading)
+ * 9. Convert `hyperframes-track` blocks -> `data-track-index`, `data-start`, `data-duration`
+ * 10. Convert `hyperframes-animation` (listingblock) -> `<script>` GSAP with `__timelines`
  */
 class HyperframesHtmlProcessor(
     private val width: Int,
@@ -33,6 +39,8 @@ class HyperframesHtmlProcessor(
             .let { injectGaspCdn(it) }
             .let { expandTitleCardBlocks(it) }
             .let { expandCodeDiffBlocks(it) }
+            .let { expandDataChartBlocks(it) }
+            .let { expandKineticCaptionsBlocks(it) }
             .let { expandPronunciationBlocks(it) }
             .let { stripInlineHintsFromTracks(it) }
             .let { wrapBodyContentInStage(it) }
@@ -275,7 +283,133 @@ class HyperframesHtmlProcessor(
     }
 
     // ──────────────────────────────────────────────
-    // 3c. Pronunciation dictionary (HF-7c)
+    // 3c. Data-chart template (HF-5c)
+    // ──────────────────────────────────────────────
+
+    /**
+     * HF-5c — Expands `[.hyperframes-data-chart#id]` AsciiDoc blocks
+     * into animated HyperFrames bar-chart compositions.
+     *
+     * AsciidoctorJ produces the following HTML:
+     * ```
+     * [.hyperframes-data-chart#sales-chart]
+     * == Quarterly sales
+     *
+     * ----
+     * Q1: 30
+     * Q2: 50
+     * ----
+     * ```
+     * ```html
+     * <div class="sect1 hyperframes-data-chart">
+     *   <h2 id="sales-chart">Quarterly sales</h2>
+     *   <div class="sectionbody">
+     *     <div class="listingblock">
+     *       <div class="content">
+     *         <pre>Q1: 30
+     * Q2: 50</pre>
+     *       </div>
+     *     </div>
+     *   </div>
+     * </div>
+     * ```
+     *
+     * The whole block is replaced by [DataChartTemplate.render].
+     * Each `label: value` line becomes a [DataPoint]. Malformed lines
+     * (no colon, non-numeric value) are silently skipped for robustness.
+     */
+    private fun expandDataChartBlocks(html: String): String {
+        val blockRegex = Regex(
+            """<div[^>]*class="[^"]*hyperframes-data-chart[^"]*"[^>]*>\s*<h2[^>]*id="([^"]*)"[^>]*>([^<]*)</h2>\s*<div class="sectionbody">\s*<div class="listingblock">\s*<div class="content">\s*<pre>(.*?)</pre>\s*</div>\s*</div>\s*</div>\s*</div>""",
+            RegexOption.DOT_MATCHES_ALL
+        )
+        val lineRegex = Regex("""^\s*([^:]+?)\s*:\s*([0-9]+(?:\.[0-9]+)?)\s*$""")
+
+        return html.replace(blockRegex) { match ->
+            val id = match.groupValues[1]
+            val title = match.groupValues[2].trim()
+            val content = match.groupValues[3]
+            val dataPoints = content.lineSequence().mapNotNull { line ->
+                lineRegex.find(line)?.let { parsed ->
+                    DataPoint(parsed.groupValues[1].trim(), parsed.groupValues[2].toDouble())
+                }
+            }.toList()
+
+            DataChartTemplate(
+                id = id,
+                title = title,
+                dataPoints = dataPoints
+            ).render()
+        }
+    }
+
+    // ──────────────────────────────────────────────
+    // 3d. Kinetic-captions template (HF-5d)
+    // ──────────────────────────────────────────────
+
+    /**
+     * HF-5d — Expands `[.hyperframes-kinetic-captions#id]` AsciiDoc blocks
+     * into animated HyperFrames timed-caption compositions.
+     *
+     * AsciidoctorJ produces the following HTML:
+     * ```
+     * [.hyperframes-kinetic-captions#intro-captions]
+     * == Intro captions
+     *
+     * ----
+     * 0.0 -> 2.0: Hello world
+     * 2.0 -> 4.5: This is a kinetic caption
+     * ----
+     * ```
+     * ```html
+     * <div class="sect1 hyperframes-kinetic-captions">
+     *   <h2 id="intro-captions">Intro captions</h2>
+     *   <div class="sectionbody">
+     *     <div class="listingblock">
+     *       <div class="content">
+     *         <pre>0.0 -> 2.0: Hello world
+     * 2.0 -> 4.5: This is a kinetic caption</pre>
+     *       </div>
+     *     </div>
+     *   </div>
+     * </div>
+     * ```
+     *
+     * The whole block is replaced by [KineticCaptionsTemplate.render].
+     * Each `start -> end: text` line becomes a [Caption]. Malformed lines
+     * (no arrow, no colon, non-numeric times) are silently skipped for
+     * robustness.
+     */
+    private fun expandKineticCaptionsBlocks(html: String): String {
+        val blockRegex = Regex(
+            """<div[^>]*class="[^"]*hyperframes-kinetic-captions[^"]*"[^>]*>\s*<h2[^>]*id="([^"]*)"[^>]*>([^<]*)</h2>\s*<div class="sectionbody">\s*<div class="listingblock">\s*<div class="content">\s*<pre>(.*?)</pre>\s*</div>\s*</div>\s*</div>\s*</div>""",
+            RegexOption.DOT_MATCHES_ALL
+        )
+        val lineRegex = Regex("""^\s*([0-9]+(?:\.[0-9]+)?)\s*(?:-&gt;|&#8594;|->)\s*([0-9]+(?:\.[0-9]+)?)\s*:\s*(.+?)\s*$""")
+
+        return html.replace(blockRegex) { match ->
+            val id = match.groupValues[1]
+            val title = match.groupValues[2].trim()
+            val content = match.groupValues[3]
+            val captions = content.lineSequence().mapNotNull { line ->
+                lineRegex.find(line)?.let { parsed ->
+                    Caption(
+                        start = parsed.groupValues[1].toDouble(),
+                        end = parsed.groupValues[2].toDouble(),
+                        text = parsed.groupValues[3]
+                    )
+                }
+            }.toList()
+
+            KineticCaptionsTemplate(
+                id = id,
+                captions = captions
+            ).render()
+        }
+    }
+
+    // ──────────────────────────────────────────────
+    // 3e. Pronunciation dictionary (HF-7c)
     // ──────────────────────────────────────────────
 
     /**

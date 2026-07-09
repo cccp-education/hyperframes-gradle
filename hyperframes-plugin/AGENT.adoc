@@ -33,6 +33,7 @@ https://github.com/heygen-com/hyperframes (Apache 2.0, 22.7k ⭐)
 === 6. ZERO secret/token/api key en dur dans le code source
 === 7. HYPERFRAMES CONSOMME ASCIIDOC — ne modifie jamais la source, lit + transforme
 === 8. BRIDGE NODE.JS — pas de couplage code, contrat par CLI + fichiers
+=== 9. BOUNDED CONTEXT — plugin générique public, aucun vocabulaire métier privé embarqué (FPA, médical, juridique...). Les dictionnaires de domaine pré-câblés couvrent uniquement le vocabulaire de la production vidéo. Un borough consommateur injecte son vocabulaire métier via configuration Gradle.
 
 == Tâches Principales
 

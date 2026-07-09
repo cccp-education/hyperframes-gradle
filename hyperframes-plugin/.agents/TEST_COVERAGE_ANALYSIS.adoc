@@ -1,15 +1,17 @@
 = Test Coverage Analysis — hyperframes-gradle
 
-_Dernière mise à jour_ : 2026-07-09 (Session 010 — EPIC HF-7 Pronunciation Control)
+_Dernière mise à jour_ : 2026-07-09 (Session 011 — Bounded context + HF-5c + HF-5d)
 
 == Résumé
 
-Coverage actuelle : 100% des classes de contrat N3 + 2 value objects templates
-(TitleCardTemplate, CodeDiffTemplate) + 3 classes pronunciation (PronunciationHint,
-PronunciationDictionary, PronunciationDomainLoader). ~72 tests JUnit + 22 scénarios
-Cucumber (4 N3 contract + 4 title-card + 4 code-diff + 6 pronunciation dictionary +
-3 pronunciation e2e + 1 backward compat). Focus : Plugin core + Tasks + HTML Processor
-+ N3 contract typed + BDD acceptance + Templates + Pronunciation Control.
+Coverage actuelle : 100% des classes de contrat N3 + 4 value objects templates
+(TitleCardTemplate, CodeDiffTemplate, DataChartTemplate, KineticCaptionsTemplate)
++ 3 classes pronunciation (PronunciationHint, PronunciationDictionary,
+PronunciationDomainLoader). ~99 tests JUnit + 29 scénarios
+Cucumber (4 N3 contract + 4 title-card + 4 code-diff + 4 data-chart +
+4 kinetic-captions + 6 pronunciation dictionary + 3 pronunciation e2e).
+Focus : Plugin core + Tasks + HTML Processor + N3 contract typed + BDD
+acceptance + 4 Templates + Pronunciation Control.
 
 == Détail par module
 
@@ -48,11 +50,13 @@ Cucumber (4 N3 contract + 4 title-card + 4 code-diff + 6 pronunciation dictionar
 - Animations GSAP : ✅ couvert
 - Expansion title-card (HF-5a) : ✅ couvert (regex paragraph tolérante newlines)
 - Expansion code-diff (HF-5b) : ✅ couvert (regex 2 listingblocks consécutifs)
+- Expansion data-chart (HF-5c) : ✅ couvert (regex listingblock + line parser `label: value`)
+- Expansion kinetic-captions (HF-5d) : ✅ couvert (regex listingblock + line parser `start -> end: text`, échappement `-&gt;` géré)
 - Expansion pronunciation dictionary (HF-7c) : ✅ couvert (7 tests fonctionnels, regex listingblock + line parser)
 - Extraction inline hints + strip (HF-7e) : ✅ couvert (5 tests fonctionnels, `hf:pron[word, phon]` macro)
 - Injection JSON island inline (HF-7e) : ✅ couvert (dedup avec bloc pronunciation existant)
 
-=== 4. Templates (hyperframes.template) — HF-5a + HF-5b
+=== 4. Templates (hyperframes.template) — HF-5a + HF-5b + HF-5c + HF-5d
 *Coverage : 100% classes, 95% lignes*
 
 ==== TitleCardTemplate.kt (HF-5a)
@@ -77,6 +81,34 @@ Cucumber (4 N3 contract + 4 title-card + 4 code-diff + 6 pronunciation dictionar
 - render() coloration mots-clés kotlin (`<span class="hf-kw">val</span>`) : ✅ couvert
 - render() lang inconnu → pas de wrapping : ✅ couvert
 - render() classes lang sur les 2 `<pre>` : ✅ couvert
+
+==== DataChartTemplate.kt (HF-5c) — NOUVEAU
+- Value object DDD pur : ✅ 13 tests unitaires TDD
+- render() composition + data-composition-id : ✅ couvert
+- render() track + data-start/data-duration : ✅ couvert
+- render() duration défaut 4.0 : ✅ couvert
+- render() conteneur hf-data-chart + titre : ✅ couvert
+- render() un div bar par DataPoint (data-label, data-value) : ✅ couvert
+- render() hauteur proportionnelle (value/maxValue%) : ✅ couvert
+- render() GSAP scaleY:0 + stagger : ✅ couvert
+- render() label visible sous chaque barre : ✅ couvert
+- render() chart vide (conteneur sans bars) : ✅ couvert
+- DataPoint rejet label blank / value négative : ✅ couvert
+
+==== KineticCaptionsTemplate.kt (HF-5d) — NOUVEAU
+- Value object DDD pur : ✅ 14 tests unitaires TDD
+- render() composition + data-composition-id : ✅ couvert
+- render() track + data-start/data-duration : ✅ couvert
+- render() duration défaut 5.0 : ✅ couvert
+- render() conteneur hf-kinetic-captions : ✅ couvert
+- render() un div caption par Caption (data-start, data-end) : ✅ couvert
+- render() caption text dans le div : ✅ couvert
+- render() captions hidden (display:none) : ✅ couvert
+- render() GSAP opacity 0→1 à start, 1→0 à end : ✅ couvert
+- render() timeline au bon start time : ✅ couvert
+- render() timeline au bon end time : ✅ couvert
+- render() captions vides (conteneur sans caption divs) : ✅ couvert
+- Caption rejet start négatif / end < start / text blank : ✅ couvert
 
 === 5. Contract (hyperframes.contract) — HF-4c + HF-7f
 *Coverage : 100% classes, 95% lignes*
@@ -105,36 +137,32 @@ Cucumber (4 N3 contract + 4 title-card + 4 code-diff + 6 pronunciation dictionar
 
 ==== PronunciationDomainLoader.kt (HF-7d)
 - Classpath loader : ✅ 7 tests unitaires TDD
-- loadDomain fpa-fr/tech-en non vide : ✅ couvert
+- loadDomain video-fr/video-en non vide : ✅ couvert (recentré S011)
 - loadDomain unknown throws : ✅ couvert
 - merge auteur > domaine : ✅ couvert
 
 === 7. BDD Cucumber (hyperframes.scenarios)
-*Coverage : 22 scénarios (4 N3 + 4 title-card + 4 code-diff + 6 pronunciation dict + 3 pronunciation e2e + 1 backward compat)*
+*Coverage : 29 scénarios (4 N3 + 4 title-card + 4 code-diff + 4 data-chart + 4 kinetic-captions + 6 pronunciation dict + 3 pronunciation e2e)*
 
 - N3ContractSteps : ✅ 4 scénarios (export JSON, video descriptor, source descriptor, no-artefacts)
 - TitleCardTemplateSteps : ✅ 4 scénarios (composition div, title+subtitle, duration, no-subtitle)
 - CodeDiffTemplateSteps : ✅ 4 scénarios (composition div, before/after pre blocks, duration, keyword highlight)
+- DataChartTemplateSteps : ✅ 4 scénarios (composition div, bar label+value, duration, stagger+scaleY) — NOUVEAU
+- KineticCaptionsTemplateSteps : ✅ 4 scénarios (composition div, caption start+end+text, duration, display:none+opacity) — NOUVEAU
 - PronunciationDictionarySteps : ✅ 6 scénarios (single hint, dedup, author override, empty, e2e block, no-block)
 - PronunciationE2ESteps : ✅ 3 scénarios (dictionnaire block, inline hints, backward compat)
-- HyperframesWorld : ✅ writeTitleCardAdoc + writeCodeDiffAdoc + writePronunciationAdoc + writeInlineHintAdoc + writePlainAdoc
+- HyperframesWorld : ✅ writeTitleCardAdoc + writeCodeDiffAdoc + writeDataChartAdoc + writeKineticCaptionsAdoc + writePronunciationAdoc + writeInlineHintAdoc + writePlainAdoc
 
 == Gap Analysis
 
 === Manquants
-1. **Templates restants** :
-   - HF-5c data-chart (graphique animé)
-   - HF-5d kinetic-captions (sous-titres animés)
-
-2. **Publication** :
+1. **Publication** :
    - HF-6c Gradle Plugin Portal (handle cccp-education)
 
-3. **HF-7 évolution** :
+2. **HF-7 évolution** :
    - Câbler `PronunciationDomainLoader` dans l'extension Gradle
-     (`pronunciationDomain.set("fpa-fr")`) + merge automatique auteur/domaine
+     (`pronunciationDomain.set("video-fr")`) + merge automatique auteur/domaine
 
 === Recommandations
-- Session 011 : HF-5c data-chart (même pattern value object + processor expansion)
-- Session 012 : HF-5d kinetic-captions
-- Session 013 : HF-6c Gradle Portal
-- Session 014 : HF-7 évolution (câblage extension Gradle)
+- Session 012 : HF-6c Gradle Plugin Portal (tâche de publication, pas de code)
+- Session 013 : HF-7 évolution (câblage extension Gradle)
