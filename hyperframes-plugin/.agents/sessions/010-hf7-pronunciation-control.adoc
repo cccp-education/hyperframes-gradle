@@ -1,0 +1,154 @@
+= Session 010 — EPIC HF-7 Pronunciation Control (TTS Phonetic Hints)
+:session: 010
+:date: 2026-07-09
+:status: ✅ TERMINÉ
+:epic: HF-7
+
+== Objectif
+
+Cadrer et livrer un nouvel EPIC **HF-7 — Pronunciation Control** qui donne à
+l'auteur AsciiDoc le pouvoir de corriger la phonétique TTS sans toucher au
+moteur Node.js. Constat fondateur : le TTS lit « dos » comme « dosse » au lieu
+de « do » — défaut rédhibitoire pour la crédibilité d'un contenu de formation
+professionnelle. Les 7 sous-EPICs HF-7a→g ont été attaqués en baby-step
+DDD/TDD/BDD en une seule session.
+
+== Méthode
+
+Baby-step DDD/TDD/BDD en agile software craftsmanship :
+
+1. **Cadrage EPIC** — formalisation HF-7 dans BACKLOG, INDEX, PILOTAGE, PROMPT_REPRISE
+   (7 phases HF-7a→g, US-HF-07, critères d'acceptation, story map, sprint 7)
+2. **HF-7a DDD red→green** — Value object `PronunciationHint` (factory `of()`,
+   normalisation word lowercase + phonetic trim, language optionnel)
+   - 10 tests unit Red → implémentation Green
+3. **HF-7b DDD aggregate + BDD** — `PronunciationDictionary` (add dedup, find
+   case-insensitive + language fallback, merge immuable, render JSON island)
+   - 12 tests unit + 4 scénarios Cucumber EN
+4. **HF-7c DSL processor** — `[.hyperframes-pronunciation]` listingblock →
+   `expandPronunciationBlocks` (regex `word: phonetic` par ligne, malformed
+   lines skipped, empty block → `[]`)
+   - 7 tests fonctionnels + 2 scénarios Cucumber EN end-to-end
+5. **HF-7d Domain dictionaries** — `PronunciationDomainLoader` charge
+   `domain/fpa-fr.json` et `domain/tech-en.json` depuis le classpath
+   - 7 tests unit (load, unknown throws, merge auteur > domaine)
+6. **HF-7e Inline hints** — `hf:pron[word, phonetic]` dans tracks → extraction
+   `extractInlineHints` + strip `stripInlineHintsFromTracks` (mot visible,
+   phonetic consommée par TTS)
+   - 5 tests fonctionnels + 1 scénario Cucumber EN
+7. **HF-7f N3 metadata** — `HyperframesPronunciationContext` +
+   `HyperframesPronunciationEntry` ajoutés au contrat N3, extraction
+   `parsePronunciation` dans `HyperframesContextExtractor`
+   - 5 tests unit (null sans îlot, extraction 1/2 hints, language, count, empty)
+8. **HF-7g End-to-end BDD** — `pronunciation_e2e.feature` 3 scénarios
+   complets (dictionnaire, inline hints, backward compat sans pronunciation)
+
+== Livrables
+
+=== Production (6 fichiers + 2 resources)
+
+* `src/main/kotlin/hyperframes/pronunciation/PronunciationHint.kt` — value object DDD
+* `src/main/kotlin/hyperframes/pronunciation/PronunciationDictionary.kt` — aggregate root
+* `src/main/kotlin/hyperframes/pronunciation/PronunciationDomainLoader.kt` — classpath loader
+* `src/main/kotlin/hyperframes/contract/HyperframesParseContext.kt` — étendu (pronunciation)
+* `src/main/kotlin/hyperframes/contract/HyperframesContextExtractor.kt` — étendu (parsePronunciation)
+* `src/main/kotlin/hyperframes/HyperframesHtmlProcessor.kt` — étendu (expandPronunciationBlocks,
+  extractInlineHints, stripInlineHintsFromTracks, injectInlinePronunciationIsland)
+* `src/main/resources/domain/fpa-fr.json` — 10 hints vocabulaire FPA français
+* `src/main/resources/domain/tech-en.json` — 10 hints vocabulaire technique anglais
+
+=== Tests (5 fichiers + 2 features)
+
+* `src/test/kotlin/hyperframes/pronunciation/PronunciationHintTest.kt` — 10 tests unit TDD
+* `src/test/kotlin/hyperframes/pronunciation/PronunciationDictionaryTest.kt` — 12 tests unit TDD
+* `src/test/kotlin/hyperframes/pronunciation/PronunciationDomainLoaderTest.kt` — 7 tests unit TDD
+* `src/test/kotlin/hyperframes/HyperframesPronunciationProcessorTest.kt` — 7 tests fonctionnels
+* `src/test/kotlin/hyperframes/HyperframesInlineHintProcessorTest.kt` — 5 tests fonctionnels
+* `src/test/kotlin/hyperframes/contract/HyperframesContextExtractorTest.kt` — +5 tests N3 pronunciation
+* `src/test/resources/features/pronunciation_dictionary.feature` — 6 scénarios BDD EN
+* `src/test/resources/features/pronunciation_e2e.feature` — 3 scénarios BDD EN end-to-end
+* `src/test/kotlin/hyperframes/scenarios/PronunciationDictionarySteps.kt` — glue Cucumber EN
+* `src/test/kotlin/hyperframes/scenarios/PronunciationE2ESteps.kt` — glue Cucumber EN
+
+=== Gouvernance (4 documents)
+
+* `BACKLOG.adoc` — US-HF-07 + EPIC HF-7 détaillé (7 phases)
+* `.agents/INDEX.adoc` — roadmap HF-0→HF-7 + section EPIC HF-7
+* `doc/PILOTAGE_HYPERFRAMES.adoc` — story map + US-HF-07 + sprint 7
+* `PROMPT_REPRISE.adoc` — mission session 010 (HF-7a baby-step TDD)
+
+== Décisions techniques
+
+=== Syntaxe DSL AsciiDoc — role avec point
+
+`[.hyperframes-pronunciation]` (role avec point) produit
+`<div class="listingblock hyperframes-pronunciation">`. Sans le point,
+AsciidoctorJ ignore le style et la classe n'est pas appliquée. Même
+constat pour les tracks : `[.hyperframes-track]` au lieu de
+`[hyperframes-track, ...]`.
+
+=== Syntaxe inline hint — macro custom `hf:pron[]`
+
+Première tentative `<<dos|do>>` : interprété par AsciidoctorJ comme xref
+(cross-reference), pas comme texte brut. Deuxième tentative `hf:pron[dos, do]`
+(macro inline non reconnue) : AsciidoctorJ la laisse telle quelle dans le HTML,
+le processor peut l'extraire. Le mot reste visible, la phonétique est consommée
+par le TTS via le dictionnaire JSON.
+
+=== Factory `of()` pour normalisation
+
+`PronunciationHint` est une data class avec constructeur privé + factory
+`of()` qui normalise (word trim+lowercase, phonetic trim) et valide
+(non-empty). Permet `copy()` cohérent et égalité basée sur les valeurs
+normalisées.
+
+=== `find()` avec fallback language
+
+Le dictionnaire stocke les hints par clé `word|language` (ou `word|_` sans
+langue). `find(word, language)` privilégie le match exact de langue, puis
+retombe sur le hint sans langue, puis sur n'importe quel hint du mot. Permet
+aux dictionnaires de domaine (qui ont `language` setté) d'être trouvés même
+sans préciser la langue.
+
+=== Contrat N3 étendu — pronunciation optionnel
+
+`HyperframesParseContext.pronunciation` est `null` par défaut (backward
+compat). Quand l'îlot JSON est présent dans le HTML, `parsePronunciation`
+extrait les entries (word, phonetic, language) et le count.
+
+== Vérification
+
+`./gradlew check` ✅ vert (BUILD SUCCESSFUL).
+
+Compte tests HF-7 :
+- 10 unit PronunciationHintTest (TDD)
+- 12 unit PronunciationDictionaryTest (TDD)
+- 7 unit PronunciationDomainLoaderTest (TDD)
+- 7 functional HyperframesPronunciationProcessorTest
+- 5 functional HyperframesInlineHintProcessorTest
+- 5 unit N3 pronunciation (HyperframesContextExtractorTest)
+- 6 scénarios Cucumber pronunciation_dictionary (BDD)
+- 3 scénarios Cucumber pronunciation_e2e (BDD end-to-end)
+- Régressions : 16 tests existants (title-card, code-diff, N3 core) PASS
+
+Total Cucumber : 22 scénarios PASS (12 existants + 10 nouveaux).
+
+== Anglification des commentaires
+
+Conformément à la règle AGENTS.adoc (English only — Code, Gherkin,
+Commentaires), tous les KDoc et commentaires des fichiers touchés ont été
+passés en anglais :
+- `PronunciationHint.kt`, `PronunciationDictionary.kt` — KDoc anglais
+- `HyperframesHtmlProcessor.kt` — tous les KDoc méthodes en anglais
+- `TitleCardTemplate.kt`, `CodeDiffTemplate.kt` — KDoc anglais
+- `GenerateHyperframesHtmlTask.kt` — KDoc + commentaires inline anglais
+- `HyperframesParseContext.kt`, `HyperframesContextExtractor.kt` — KDoc anglais
+- Features Gherkin — "formateur" → "trainer"
+
+== Prochaines sessions
+
+1. **HF-5c** — Template "data-chart" (graphique animé)
+2. **HF-5d** — Template "kinetic-captions" (sous-titres animés)
+3. **HF-6c** — Publication Gradle Plugin Portal (handle cccp-education)
+4. **HF-7** évolution — câbler `PronunciationDomainLoader` dans l'extension
+   Gradle (`pronunciationDomain.set("fpa-fr")`) + merge automatique auteur/domaine

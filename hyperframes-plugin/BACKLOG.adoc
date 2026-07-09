@@ -80,15 +80,44 @@ permettant le déploiement automatique sur le site statique.
 *EPIC* : HF-5
 *Statut* : HF-5a ✅ TERMINÉ (session 008), HF-5b ✅ TERMINÉ (session 009), HF-5c/d à faire
 
-.Valeur
+. Valeur
 Zéro code à écrire pour les cas d'usage standards. Un template AsciiDoc
 + un template HTML HyperFrames préfabriqué couvrent 80% des besoins.
 
-.Critères d'acceptation
+. Critères d'acceptation
 - Template "title-card" : fondu d'entrée, logo, titre, sous-titre ✅ (HF-5a)
 - Template "code-diff" : animation de diff de code avec coloration syntaxique
 - Template "kinetic-captions" : sous-titres animés synchronisés
 - Chaque template a un fichier `.adoc` exemple et un `.mp4` golden de référence
+
+=== US-HF-07 — En tant que formateur, je veux corriger la prononciation des mots mal lus par le TTS
+
+*Priorité* : P1
+*EPIC* : HF-7
+*Statut* : ✅ TERMINÉ (session 010) — 7 phases HF-7a→g livrées
+
+. Valeur
+Une mauvaise prononciation détruit la crédibilité d'un contenu de formation.
+Exemple concret : le mot « dos » prononcé « dosse » au lieu de « do ».
+Ce genre de défaut est rédhibitoire pour un formateur professionnel —
+la crédibilité tombe à zéro dès la première seconde.
+
+L'auteur AsciiDoc doit pouvoir corriger la phonétique sans toucher au
+code Node.js ni au moteur TTS. Le plugin Kotlin extrait les hints de
+prononciation de l'AsciiDoc source et les injecte dans le HTML HyperFrames
+pour que la CLI consomme le dictionnaire au rendu.
+
+. Critères d'acceptation
+- Un bloc `[hyperframes-pronunciation]` au niveau document définit un
+  dictionnaire mot → phonétique approchée
+- Le dictionnaire est injecté dans le HTML HyperFrames sous forme de
+  `<script type="application/json" id="hf-pronunciation">...</script>`
+- Le `metadata.json` N3 embarque le dictionnaire pour traçabilité
+- Un dictionnaire de domaine pré-câblé couvre le vocabulaire formation FPA
+  (AFNOR, REAC, Docker, Kubernetes, etc.)
+- Les hints inline dans le texte de narration permettent une correction
+  ponctuelle sans dictionnaire global
+- `./gradlew check` vert (tests unit + fonctionnels + Cucumber EN)
 
 '''
 == Dette Technique
@@ -155,3 +184,180 @@ cd foundry/public/hyperframes-gradle && ./gradlew publish closeAndRelease
 | Artefact | URL |
 |---|---|
 | hyperframes-plugin | https://central.sonatype.com/artifact/education.cccp/hyperframes-plugin |
+
+'''
+
+== EPIC HF-7 — Pronunciation Control (TTS Phonetic Hints)
+
+_Vision_ : Donner à l'auteur AsciiDoc le pouvoir de corriger la phonétique
+TTS sans toucher au code Node.js. Une mauvaise prononciation est rédhibitoire
+pour la crédibilité d'un contenu de formation professionnel.
+
+_Problème constaté_ : Le moteur TTS lit « dos » comme « dosse » au lieu de « do ».
+Ce défaut détruit la crédibilité du formateur dès la première seconde.
+
+_Architecture_ : Le plugin Kotlin extrait les hints de prononciation de
+l'AsciiDoc source et les injecte dans le HTML HyperFrames sous forme de
+JSON island. La CLI HyperFrames consomme ce dictionnaire au rendu.
+Le contrôle reste côté auteur (AsciiDoc), pas côté moteur (Node.js).
+
+=== HF-7a — Value Object `PronunciationHint`
+
+*Priorité* : P1
+*Méthode* : TDD baby-step — tests unit d'abord, implémentation après
+*Statut* : ✅ TERMINÉ (session 010)
+
+DDD value object pur représentant une entrée du dictionnaire de prononciation.
+
+. Propriétés
+- `word: String` — le mot à corriger (ex: "dos", case-insensitive)
+- `phonetic: String` — la phonétique approchée (ex: "do")
+- `language: String?` — langue optionnelle (ex: "fr", "en") pour désambiguïsation
+
+. Tests unit (Red → Green)
+- `PronunciationHint` rend un objet JSON valide `{"word":"dos","phonetic":"do"}`
+- `PronunciationHint` avec langue ajoute `"language":"fr"`
+- `PronunciationHint` rejette un mot vide → exception
+- `PronunciationHint` rejette une phonétique vide → exception
+- `PronunciationHint` est case-insensitive sur `word` (normalisation lower)
+
+=== HF-7b — `PronunciationDictionary` aggregate (dictionnaire de domaine)
+
+*Priorité* : P1
+*Méthode* : TDD baby-step — tests unit + Cucumber EN
+
+Aggregate root qui collecte les hints et produit le JSON injecté dans le HTML.
+
+. Propriétés
+- `hints: List<PronunciationHint>` — les entrées du dictionnaire
+- `language: String?` — langue par défaut du dictionnaire
+
+. Comportements
+- `add(hint)` — ajoute un hint (déduplication sur word+language)
+- `render(): String` — produit le JSON island complet
+  `<script type="application/json" id="hf-pronunciation">[...]</script>`
+- `merge(domain: PronunciationDictionary)` — fusionne avec un dictionnaire
+  de domaine pré-câblé (les hints de l'auteur écrasent ceux du domaine)
+- `find(word: String): PronunciationHint?` — lookup case-insensitive
+
+. Tests Cucumber (Gherkin EN)
+- Scenario: dictionary renders a single hint as JSON island
+- Scenario: dictionary deduplicates hints on word+language
+- Scenario: author hints override domain dictionary entries
+- Scenario: empty dictionary renders empty JSON array
+
+=== HF-7c — DSL AsciiDoc `[hyperframes-pronunciation]`
+
+*Priorité* : P1
+*Méthode* : TDD baby-step — tests fonctionnels (processor end-to-end)
+
+Bloc AsciiDoc au niveau document pour déclarer le dictionnaire global.
+
+. Syntaxe AsciiDoc
+```
+[hyperframes-pronunciation, lang="fr"]
+----
+dos: do
+kubernetes: koobernetayz
+AFNOR: afnor
+----
+```
+
+. Processor `expandPronunciationBlocks`
+- Regex sur le `listingblock` porteur de la classe `hyperframes-pronunciation`
+- Parse chaque ligne `mot: phonétique` en `PronunciationHint`
+- Injecte le JSON island dans le HTML de sortie
+- Déduplication + fusion avec dictionnaire de domaine si activé
+
+. Tests fonctionnels (processor)
+- AsciiDoc avec bloc pronunciation → HTML contient le JSON island
+- AsciiDoc sans bloc pronunciation → HTML sans JSON island
+- AsciiDoc avec hint inline dans narration → hint extrait et injecté
+- AsciiDoc avec mot mal écrit → exception claire (format attendu : `mot: phon`)
+
+=== HF-7d — Dictionnaire de domaine pré-câblé (vocabulaire FPA)
+
+*Priorité* : P2
+*Méthode* : TDD baby-step — tests unit
+
+Dictionnaire par défaut couvrant le vocabulaire métier formation FPA,
+activable via extension Gradle `pronunciationDomain.set("fpa-fr")`.
+
+. Domaines pré-câblés
+- `fpa-fr` — vocabulaire AFNOR/REAC français (compétences, blocs, évaluations)
+- `tech-en` — vocabulaire technique anglais (Docker, Kubernetes, CI/CD)
+- `custom` — dictionnaire utilisateur fourni via fichier `.json`
+
+. Implémentation
+- Ressources classpath `domain/fpa-fr.json`, `domain/tech-en.json`
+- Chargement lazy via `PronunciationDictionary.loadDomain(name)`
+- Fusion : auteur > domaine > vide (priorité décroissante)
+
+. Tests unit
+- `loadDomain("fpa-fr")` retourne un dictionnaire non vide
+- `loadDomain("inconnu")` → exception claire
+- Fusion auteur + domaine : hint auteur écrase hint domaine
+- `loadDomain("custom")` lit un fichier JSON fourni
+
+=== HF-7e — Hints inline dans le texte de narration
+
+*Priorité* : P2
+*Méthode* : TDD baby-step — tests fonctionnels + Cucumber EN
+
+Correction ponctuelle sans dictionnaire global, directement dans le texte
+de narration du track.
+
+. Syntaxe AsciiDoc
+```
+[hyperframes-track, index=0, start=0, duration=4]
+Le conteneur <<dos|do>> isole l'application.
+```
+
+. Processor `expandInlineHints`
+- Regex sur `<<mot|phonétique>>` dans le texte des tracks
+- Extraction en `PronunciationHint` + injection dans le dictionnaire global
+- Le texte rendu garde le mot lisible (« dos »), la phonétique est consommée
+  par le TTS via le dictionnaire JSON, pas affichée à l'écran
+
+. Tests Cucumber (Gherkin EN)
+- Scenario: inline hint is extracted into the pronunciation dictionary
+- Scenario: inline hint keeps the word visible in the rendered text
+- Scenario: inline hint overrides domain dictionary for that word
+
+=== HF-7f — Intégration `metadata.json` N3
+
+*Priorité* : P2
+*Méthode* : TDD baby-step — tests unit
+
+Le dictionnaire de prononciation est embarqué dans le `metadata.json`
+exporté pour runner-gradle N3, pour traçabilité et audit.
+
+. Extension du contrat N3
+```json
+{
+  "pronunciation": {
+    "domain": "fpa-fr",
+    "hintsCount": 12,
+    "hints": [
+      {"word": "dos", "phonetic": "do", "language": "fr"},
+      {"word": "kubernetes", "phonetic": "koobernetayz"}
+    ]
+  }
+}
+```
+
+. Tests unit
+- `metadata.json` contient la section `pronunciation` si dictionnaire non vide
+- `metadata.json` sans dictionnaire → section `pronunciation` absente
+- Le compteur `hintsCount` est cohérent avec la taille de `hints`
+
+=== HF-7g — Tests d'intégration end-to-end
+
+*Priorité* : P2
+*Méthode* : BDD — scénario Cucumber complet AsciiDoc → HTML → metadata
+
+. Scénarios Cucumber (Gherkin EN)
+- Scenario: full pipeline with pronunciation dictionary
+- Scenario: full pipeline with inline hints in narration
+- Scenario: full pipeline with domain dictionary + author overrides
+- Scenario: full pipeline without pronunciation (backward compatibility)

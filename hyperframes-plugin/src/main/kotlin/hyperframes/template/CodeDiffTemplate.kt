@@ -1,23 +1,23 @@
 package hyperframes.template
 
 /**
- * HF-5b — Template "code-diff" : animation diff de code avec coloration syntaxique.
+ * HF-5b — "code-diff" template: animated code diff with syntax highlighting.
  *
- * Value object DDD pur — produit un fragment HTML HyperFrames valide,
- * composé d'un bloc `hyperframes-composition` + un track portant deux
- * blocs de code côte à côte (before / after) et une timeline GSAP qui
- * fondu le bloc before puis bascule vers after. Aucun effet de bord.
+ * Pure DDD value object — produces a valid HyperFrames HTML fragment,
+ * composed of a `hyperframes-composition` block + a track carrying two
+ * side-by-side code blocks (before / after) and a GSAP timeline that
+ * fades out the before block then switches to after. No side effects.
  *
- * La coloration syntaxique est lexicale et déterministe : les mots-clés
- * du langage [lang] sont wrappés dans des `<span class="hf-kw">`. Aucune
- * dépendance externe (Prism.js / highlight.js) — la coloration riche
- * reste une évolution future via une option `highlight`.
+ * Syntax highlighting is lexical and deterministic: the keywords of the
+ * [lang] language are wrapped in `<span class="hf-kw">`. No external
+ * dependency (Prism.js / highlight.js) — rich highlighting remains a
+ * future evolution via a `highlight` option.
  *
- * @property id identifiant de composition (rendu dans `data-composition-id`)
- * @property beforeCode source affiché en premier (état initial)
- * @property afterCode source affiché en second (état final, après refactor)
- * @property lang langage de coloration syntaxique (défaut : "kotlin")
- * @property durationSeconds durée du track en secondes (défaut : 3.0)
+ * @property id composition identifier (rendered as `data-composition-id`)
+ * @property beforeCode source displayed first (initial state)
+ * @property afterCode source displayed second (final state, after refactor)
+ * @property lang syntax highlighting language (default: "kotlin")
+ * @property durationSeconds track duration in seconds (default: 3.0)
  */
 data class CodeDiffTemplate(
     val id: String,
@@ -28,14 +28,14 @@ data class CodeDiffTemplate(
 ) {
 
     /**
-     * Rend le fragment HTML HyperFrames.
+     * Renders the HyperFrames HTML fragment.
      *
-     * Retourne un bloc `.hyperframes-composition` contenant un track unique
-     * dont la durée est [durationSeconds] (arrondie à l'entier le plus proche
-     * pour `data-duration`), deux blocs `<pre>` côte à côte (before / after)
-     * avec coloration syntaxique lexicale, et une timeline GSAP qui :
-     * 1. affiche le bloc before (fade-in)
-     * 2. après 40% de la durée, bascule vers after (fade-out before + fade-in after)
+     * Returns a `.hyperframes-composition` block containing a single track
+     * whose duration is [durationSeconds] (rounded to the nearest integer
+     * for `data-duration`), two side-by-side `<pre>` blocks (before / after)
+     * with lexical syntax highlighting, and a GSAP timeline that:
+     * 1. shows the before block (fade-in)
+     * 2. after 40% of the duration, switches to after (fade-out before + fade-in after)
      */
     fun render(): String = buildString {
         val durationInt = durationSeconds.toInt()
@@ -64,11 +64,11 @@ data class CodeDiffTemplate(
     }
 
     /**
-     * Coloration syntaxique lexicale — wrap les mots-clés du langage [lang]
-     * dans des `<span class="hf-kw">`. Déterministe, sans dépendance externe.
+     * Lexical syntax highlighting — wraps the keywords of the [lang] language
+     * in `<span class="hf-kw">`. Deterministic, no external dependency.
      *
-     * Le HTML du code source est échappé (`<`, `>`, `&`) avant la coloration
-     * pour éviter toute injection ou cassure de balise.
+     * The source code HTML is escaped (`<`, `>`, `&`) before highlighting
+     * to prevent injection or tag breaking.
      */
     private fun highlight(code: String): String {
         val escaped = code
@@ -84,8 +84,8 @@ data class CodeDiffTemplate(
     }
 
     /**
-     * Mots-clés par langage. Retourne null si le langage est inconnu
-     * (auquel cas aucun wrapping n'est appliqué — code brut échappé).
+     * Keywords per language. Returns null when the language is unknown
+     * (in which case no wrapping is applied — escaped raw code).
      */
     private fun keywordsFor(lang: String): List<String>? = when (lang) {
         "kotlin" -> listOf(

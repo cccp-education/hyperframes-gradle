@@ -1,19 +1,22 @@
 package hyperframes
 
+import hyperframes.pronunciation.PronunciationDictionary
+import hyperframes.pronunciation.PronunciationHint
 import hyperframes.template.CodeDiffTemplate
 import hyperframes.template.TitleCardTemplate
 
 /**
- * Transforme le HTML généré par AsciidoctorJ en HTML enrichi pour HyperFrames.
+ * Transforms the HTML produced by AsciidoctorJ into enriched HTML for HyperFrames.
  *
- * Pipeline :
- * 1. Injecte GSAP CDN dans `<head>`
- * 2. Ajoute `<div id="stage">` avec data-* attributes (width, height, fps, output)
- * 3. HF-5a : Étend les blocs `hyperframes-title-card` en compositions title-card animées
- * 4. HF-5b : Étend les blocs `hyperframes-code-diff` en compositions code-diff animées
- * 5. Convertit les blocs `hyperframes-composition` → `data-composition-id` (extrait du heading enfant)
- * 6. Convertit les blocs `hyperframes-track` → `data-track-index`, `data-start`, `data-duration`
- * 7. Convertit les blocs `hyperframes-animation` (listingblock) → `<script>` GSAP avec `__timelines`
+ * Pipeline:
+ * 1. Inject GSAP CDN into `<head>`
+ * 2. Add `<div id="stage">` with data-* attributes (width, height, fps, output)
+ * 3. HF-5a: Expand `hyperframes-title-card` blocks into animated title-card compositions
+ * 4. HF-5b: Expand `hyperframes-code-diff` blocks into animated code-diff compositions
+ * 5. HF-7c: Expand `hyperframes-pronunciation` blocks into a TTS hints JSON island
+ * 6. Convert `hyperframes-composition` blocks -> `data-composition-id` (from child heading)
+ * 7. Convert `hyperframes-track` blocks -> `data-track-index`, `data-start`, `data-duration`
+ * 8. Convert `hyperframes-animation` (listingblock) -> `<script>` GSAP with `__timelines`
  */
 class HyperframesHtmlProcessor(
     private val width: Int,
@@ -22,17 +25,88 @@ class HyperframesHtmlProcessor(
     private val outputName: String
 ) {
     /**
-     * Point d'entrée unique : transforme le HTML AsciiDoc en HTML HyperFrames.
+     * Single entry point: transforms AsciiDoc HTML into HyperFrames HTML.
      */
     fun enhance(html: String): String {
+        val inlineDictionary = extractInlineHints(html)
         return html
             .let { injectGaspCdn(it) }
             .let { expandTitleCardBlocks(it) }
             .let { expandCodeDiffBlocks(it) }
+            .let { expandPronunciationBlocks(it) }
+            .let { stripInlineHintsFromTracks(it) }
             .let { wrapBodyContentInStage(it) }
             .let { enhanceCompositionBlocks(it) }
             .let { enhanceTrackBlocks(it) }
             .let { enhanceAnimationBlocks(it) }
+            .let { injectInlinePronunciationIsland(it, inlineDictionary) }
+    }
+
+    // ──────────────────────────────────────────────
+    // 3d. Inline pronunciation hints in narration (HF-7e)
+    // ──────────────────────────────────────────────
+
+    /**
+     * HF-7e — Extracts inline `hf:pron[word, phonetic]` hints from track paragraphs.
+     *
+     * The hints are collected into a [PronunciationDictionary] and later
+     * injected as a JSON island by [injectInlinePronunciationIsland]. The
+     * word stays visible in the rendered text; the phonetic is consumed by
+     * the TTS engine, not displayed on screen.
+     *
+     * Only hints inside `hyperframes-track` paragraphs are extracted — hints
+     * outside tracks are ignored (they are not narration).
+     */
+    private fun extractInlineHints(html: String): PronunciationDictionary {
+        val dictionary = PronunciationDictionary()
+        val trackBlockRegex = Regex(
+            """<div[^>]*class="[^"]*hyperframes-track[^"]*"[^>]*>.*?</div>""",
+            RegexOption.DOT_MATCHES_ALL
+        )
+        val inlineHintRegex = Regex("""hf:pron\[([^,\]]+?),\s*([^\]]+?)\]""")
+
+        trackBlockRegex.findAll(html).forEach { trackMatch ->
+            inlineHintRegex.findAll(trackMatch.value).forEach { hintMatch ->
+                val word = hintMatch.groupValues[1]
+                val phonetic = hintMatch.groupValues[2]
+                dictionary.add(PronunciationHint.of(word, phonetic))
+            }
+        }
+        return dictionary
+    }
+
+    /**
+     * Strips the `hf:pron[word, phonetic]` syntax from track paragraphs, keeping
+     * only the word visible in the rendered text.
+     */
+    private fun stripInlineHintsFromTracks(html: String): String {
+        val trackBlockRegex = Regex(
+            """(<div[^>]*class="[^"]*hyperframes-track[^"]*"[^>]*>)(.*?)(</div>)""",
+            RegexOption.DOT_MATCHES_ALL
+        )
+        val inlineHintRegex = Regex("""hf:pron\[([^,\]]+?),\s*([^\]]+?)\]""")
+
+        return trackBlockRegex.replace(html) { match ->
+            val open = match.groupValues[1]
+            val content = match.groupValues[2]
+            val close = match.groupValues[3]
+            val stripped = inlineHintRegex.replace(content) { it.groupValues[1] }
+            "$open$stripped$close"
+        }
+    }
+
+    /**
+     * Injects the inline-hints JSON island before `</body>` when the
+     * dictionary is non-empty and no island already exists.
+     */
+    private fun injectInlinePronunciationIsland(html: String, dictionary: PronunciationDictionary): String {
+        if (dictionary.size() == 0) return html
+        if (html.contains("id=\"hf-pronunciation\"")) return html
+        val island = dictionary.render()
+        return when {
+            "</body>" in html -> html.replace("</body>", "    $island\n</body>")
+            else -> html + island
+        }
     }
 
     // ──────────────────────────────────────────────
@@ -87,10 +161,10 @@ class HyperframesHtmlProcessor(
     // ──────────────────────────────────────────────
 
     /**
-     * HF-5a — Étend les blocs `[.hyperframes-title-card#id]` AsciiDoc
-     * en compositions HyperFrames title-card animées (fade-in, titre, sous-titre).
+     * HF-5a — Expands `[.hyperframes-title-card#id]` AsciiDoc blocks
+     * into animated HyperFrames title-card compositions (fade-in, title, subtitle).
      *
-     * HTML AsciidoctorJ produit par :
+     * AsciidoctorJ produces the following HTML:
      * ```
      * [.hyperframes-title-card#intro, duration=3]
      * == My Formation
@@ -106,8 +180,8 @@ class HyperframesHtmlProcessor(
      * </div>
      * ```
      *
-     * Le bloc entier est remplacé par [TitleCardTemplate.render].
-     * Le sous-titre est le texte du premier paragraphe de la sectionbody.
+     * The whole block is replaced by [TitleCardTemplate.render].
+     * The subtitle is the text of the first paragraph in the sectionbody.
      */
     private fun expandTitleCardBlocks(html: String): String {
         val blockRegex = Regex(
@@ -135,10 +209,10 @@ class HyperframesHtmlProcessor(
     // ──────────────────────────────────────────────
 
     /**
-     * HF-5b — Étend les blocs `[.hyperframes-code-diff#id]` AsciiDoc
-     * en compositions HyperFrames code-diff animées (before/after, fade).
+     * HF-5b — Expands `[.hyperframes-code-diff#id]` AsciiDoc blocks
+     * into animated HyperFrames code-diff compositions (before/after, fade).
      *
-     * HTML AsciidoctorJ produit par :
+     * AsciidoctorJ produces the following HTML:
      * ```
      * [.hyperframes-code-diff#refactor-demo, lang="kotlin"]
      * == Refactoring demo
@@ -167,9 +241,9 @@ class HyperframesHtmlProcessor(
      * </div>
      * ```
      *
-     * Le bloc entier est remplacé par [CodeDiffTemplate.render].
-     * Le langage est extrait du `data-lang` du premier bloc de code.
-     * Les deux premiers blocs `listingblock` deviennent before / after.
+     * The whole block is replaced by [CodeDiffTemplate.render].
+     * The language is extracted from the `data-lang` of the first code block.
+     * The first two `listingblock` blocks become before / after.
      */
     private fun expandCodeDiffBlocks(html: String): String {
         val blockRegex = Regex(
@@ -200,11 +274,63 @@ class HyperframesHtmlProcessor(
         }
     }
 
+    // ──────────────────────────────────────────────
+    // 3c. Pronunciation dictionary (HF-7c)
+    // ──────────────────────────────────────────────
+
     /**
-     * Pour les blocs `hyperframes-composition`, ajoute `data-composition-id`
-     * basé sur l'`id` du premier heading enfant.
+     * HF-7c — Expands `[hyperframes-pronunciation]` AsciiDoc blocks
+     * into a JSON island consumed by the HyperFrames CLI to correct TTS phonetics.
      *
-     * HTML AsciidoctorJ :
+     * AsciidoctorJ produces the following HTML:
+     * ```
+     * [hyperframes-pronunciation]
+     * ----
+     * dos: do
+     * kubernetes: koobernetayz
+     * ----
+     * ```
+     * ```html
+     * <div class="listingblock hyperframes-pronunciation">
+     *   <div class="content">
+     *     <pre>dos: do
+     * kubernetes: koobernetayz</pre>
+     *   </div>
+     * </div>
+     * ```
+     *
+     * The whole block is replaced by the JSON island rendered by
+     * [PronunciationDictionary.render]. Each `word: phonetic` line becomes
+     * a [PronunciationHint]. Malformed lines (no colon) are silently
+     * skipped for robustness.
+     */
+    private fun expandPronunciationBlocks(html: String): String {
+        val blockRegex = Regex(
+            """<div[^>]*class="[^"]*hyperframes-pronunciation[^"]*"[^>]*>\s*<div class="content">\s*<pre>(.*?)</pre>\s*</div>\s*</div>""",
+            RegexOption.DOT_MATCHES_ALL
+        )
+        val lineRegex = Regex("""^\s*([^:]+?)\s*:\s*(.+?)\s*$""")
+
+        return html.replace(blockRegex) { match ->
+            val content = match.groupValues[1]
+            val dictionary = PronunciationDictionary()
+            content.lineSequence().forEach { line ->
+                val parsed = lineRegex.find(line)
+                if (parsed != null) {
+                    val word = parsed.groupValues[1]
+                    val phonetic = parsed.groupValues[2]
+                    dictionary.add(PronunciationHint.of(word, phonetic))
+                }
+            }
+            dictionary.render()
+        }
+    }
+
+    /**
+     * For `hyperframes-composition` blocks, adds `data-composition-id`
+     * based on the `id` of the first child heading.
+     *
+     * AsciidoctorJ HTML:
      * ```html
      * <div class="sect1 hyperframes-composition">
      *   <h2 id="intro">Introduction</h2>
@@ -247,11 +373,11 @@ class HyperframesHtmlProcessor(
     // ──────────────────────────────────────────────
 
     /**
-     * Pour les blocs `hyperframes-track`, ajoute les data-* attributes
-     * de timing : `data-track-index`, `data-start`, `data-duration`.
-     * Valeurs par défaut : index=0, start=0, duration=6.
+     * For `hyperframes-track` blocks, adds the timing data-* attributes:
+     * `data-track-index`, `data-start`, `data-duration`.
+     * Defaults: index=0, start=0, duration=6.
      *
-     * HTML AsciidoctorJ :
+     * AsciidoctorJ HTML:
      * ```html
      * <div class="paragraph hyperframes-track">
      *   <p>...</p>
@@ -271,7 +397,7 @@ class HyperframesHtmlProcessor(
 
             val attrs = match.groupValues[1]
 
-            // Extraire les attributs déjà présents, avec défauts
+            // Extract existing attributes, with defaults
             val existing = attrRegex.findAll(attrs).associate { it.groupValues[1] to it.groupValues[2] }
             val index = existing["data-track-index"] ?: trackIndex.toString()
             val start = existing["data-start"] ?: "0"
@@ -291,10 +417,10 @@ class HyperframesHtmlProcessor(
     // ──────────────────────────────────────────────
 
     /**
-     * Pour les blocs `hyperframes-animation` (listingblock AsciiDoc),
-     * transforme le contenu `<pre>code</pre>` en balise `<script>` GSAP.
+     * For `hyperframes-animation` (AsciiDoc listingblock) blocks,
+     * transforms the `<pre>code</pre>` content into a `<script>` GSAP tag.
      *
-     * HTML AsciidoctorJ :
+     * AsciidoctorJ HTML:
      * ```html
      * <div class="listingblock hyperframes-animation">
      *   <div class="content">

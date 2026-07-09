@@ -1,17 +1,17 @@
 package hyperframes.template
 
 /**
- * HF-5a — Template "title-card" : fondu d'entrée, logo, titre et sous-titre.
+ * HF-5a — "title-card" template: fade-in, logo, title and subtitle.
  *
- * Value object DDD pur — produit un fragment HTML HyperFrames valide,
- * composé d'un bloc `hyperframes-composition` + un track portant une
- * timeline GSAP fade-in. Aucun effet de bord.
+ * Pure DDD value object — produces a valid HyperFrames HTML fragment,
+ * composed of a `hyperframes-composition` block + a track carrying a
+ * GSAP fade-in timeline. No side effects.
  *
- * @property id identifiant de composition (rendu dans `data-composition-id`)
- * @property title texte principal affiché
- * @property subtitle texte secondaire affiché sous le titre
- * @property logoPath chemin optionnel d'un logo (rendu en `<img src=...>`)
- * @property durationSeconds durée du track en secondes (défaut : 2.0)
+ * @property id composition identifier (rendered as `data-composition-id`)
+ * @property title main displayed text
+ * @property subtitle secondary text displayed under the title
+ * @property logoPath optional logo path (rendered as `<img src=...>`)
+ * @property durationSeconds track duration in seconds (default: 2.0)
  */
 data class TitleCardTemplate(
     val id: String,
@@ -22,12 +22,12 @@ data class TitleCardTemplate(
 ) {
 
     /**
-     * Rend le fragment HTML HyperFrames.
+     * Renders the HyperFrames HTML fragment.
      *
-     * Retourne un bloc `.hyperframes-composition` contenant un track unique
-     * dont la durée est [durationSeconds] (arrondie à l'entier le plus proche
-     * pour `data-duration`), un visuel optionnel, le titre, le sous-titre,
-     * et une timeline GSAP fade-in injectée via `window.__timelines`.
+     * Returns a `.hyperframes-composition` block containing a single track
+     * whose duration is [durationSeconds] (rounded to the nearest integer
+     * for `data-duration`), an optional visual, the title, the subtitle,
+     * and a GSAP fade-in timeline injected via `window.__timelines`.
      */
     fun render(): String = buildString {
         appendLine("<div class=\"sect1 hyperframes-composition\" data-composition-id=\"$id\">")

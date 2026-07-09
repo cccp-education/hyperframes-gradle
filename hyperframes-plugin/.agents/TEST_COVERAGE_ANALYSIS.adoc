@@ -1,13 +1,15 @@
 = Test Coverage Analysis — hyperframes-gradle
 
-_Dernière mise à jour_ : 2026-07-07 (Session 009 — HF-5b code-diff template)
+_Dernière mise à jour_ : 2026-07-09 (Session 010 — EPIC HF-7 Pronunciation Control)
 
 == Résumé
 
 Coverage actuelle : 100% des classes de contrat N3 + 2 value objects templates
-(TitleCardTemplate, CodeDiffTemplate). ~36 tests JUnit + 12 scénarios Cucumber
-(4 N3 contract + 4 title-card + 4 code-diff). Focus : Plugin core + Tasks +
-HTML Processor + N3 contract typed + BDD acceptance + Templates.
+(TitleCardTemplate, CodeDiffTemplate) + 3 classes pronunciation (PronunciationHint,
+PronunciationDictionary, PronunciationDomainLoader). ~72 tests JUnit + 22 scénarios
+Cucumber (4 N3 contract + 4 title-card + 4 code-diff + 6 pronunciation dictionary +
+3 pronunciation e2e + 1 backward compat). Focus : Plugin core + Tasks + HTML Processor
++ N3 contract typed + BDD acceptance + Templates + Pronunciation Control.
 
 == Détail par module
 
@@ -42,10 +44,13 @@ HTML Processor + N3 contract typed + BDD acceptance + Templates.
 
 - Injection GSAP CDN : ✅ couvert
 - Stage wrapper : ✅ couvert
-- Transformations data-* (composition, track, animation) : ✅ couvert 
+- Transformations data-* (composition, track, animation) : ✅ couvert
 - Animations GSAP : ✅ couvert
 - Expansion title-card (HF-5a) : ✅ couvert (regex paragraph tolérante newlines)
 - Expansion code-diff (HF-5b) : ✅ couvert (regex 2 listingblocks consécutifs)
+- Expansion pronunciation dictionary (HF-7c) : ✅ couvert (7 tests fonctionnels, regex listingblock + line parser)
+- Extraction inline hints + strip (HF-7e) : ✅ couvert (5 tests fonctionnels, `hf:pron[word, phon]` macro)
+- Injection JSON island inline (HF-7e) : ✅ couvert (dedup avec bloc pronunciation existant)
 
 === 4. Templates (hyperframes.template) — HF-5a + HF-5b
 *Coverage : 100% classes, 95% lignes*
@@ -73,20 +78,46 @@ HTML Processor + N3 contract typed + BDD acceptance + Templates.
 - render() lang inconnu → pas de wrapping : ✅ couvert
 - render() classes lang sur les 2 `<pre>` : ✅ couvert
 
-=== 5. Contract (hyperframes.contract) — HF-4c
+=== 5. Contract (hyperframes.contract) — HF-4c + HF-7f
 *Coverage : 100% classes, 95% lignes*
 
 ==== HyperframesParseContext.kt + HyperframesContextExtractor.kt
 - Contrat N3 typé : ✅ 14 tests unitaires
 - Extraction stage/compositions/tracks : ✅ couvert
+- Extraction pronunciation (HF-7f) : ✅ couvert (5 tests — null sans îlot, 1/2 hints, language, count, empty)
 
-=== 6. BDD Cucumber (hyperframes.scenarios)
-*Coverage : 12 scénarios (4 N3 + 4 title-card + 4 code-diff)*
+=== 6. Pronunciation (hyperframes.pronunciation) — HF-7a/b/d — NOUVEAU
+*Coverage : 100% classes, 95% lignes*
+
+==== PronunciationHint.kt (HF-7a)
+- Value object DDD (factory `of()`) : ✅ 10 tests unitaires TDD
+- render() JSON object avec/sans language : ✅ couvert
+- Normalisation word lowercase + phonetic trim : ✅ couvert
+- Rejet word/phonetic empty/blank : ✅ couvert
+- Égalité basée sur valeurs normalisées : ✅ couvert
+
+==== PronunciationDictionary.kt (HF-7b)
+- Aggregate root : ✅ 12 tests unitaires TDD
+- add() dedup (word+language) : ✅ couvert
+- find() case-insensitive + language fallback : ✅ couvert
+- merge() immuable (receiver + argument non mutés) : ✅ couvert
+- render() JSON island (empty array, single, multi) : ✅ couvert
+
+==== PronunciationDomainLoader.kt (HF-7d)
+- Classpath loader : ✅ 7 tests unitaires TDD
+- loadDomain fpa-fr/tech-en non vide : ✅ couvert
+- loadDomain unknown throws : ✅ couvert
+- merge auteur > domaine : ✅ couvert
+
+=== 7. BDD Cucumber (hyperframes.scenarios)
+*Coverage : 22 scénarios (4 N3 + 4 title-card + 4 code-diff + 6 pronunciation dict + 3 pronunciation e2e + 1 backward compat)*
 
 - N3ContractSteps : ✅ 4 scénarios (export JSON, video descriptor, source descriptor, no-artefacts)
 - TitleCardTemplateSteps : ✅ 4 scénarios (composition div, title+subtitle, duration, no-subtitle)
 - CodeDiffTemplateSteps : ✅ 4 scénarios (composition div, before/after pre blocks, duration, keyword highlight)
-- HyperframesWorld : ✅ writeTitleCardAdoc + writeCodeDiffAdoc + generatedHtml + isolation (--rerun-tasks)
+- PronunciationDictionarySteps : ✅ 6 scénarios (single hint, dedup, author override, empty, e2e block, no-block)
+- PronunciationE2ESteps : ✅ 3 scénarios (dictionnaire block, inline hints, backward compat)
+- HyperframesWorld : ✅ writeTitleCardAdoc + writeCodeDiffAdoc + writePronunciationAdoc + writeInlineHintAdoc + writePlainAdoc
 
 == Gap Analysis
 
@@ -98,7 +129,12 @@ HTML Processor + N3 contract typed + BDD acceptance + Templates.
 2. **Publication** :
    - HF-6c Gradle Plugin Portal (handle cccp-education)
 
+3. **HF-7 évolution** :
+   - Câbler `PronunciationDomainLoader` dans l'extension Gradle
+     (`pronunciationDomain.set("fpa-fr")`) + merge automatique auteur/domaine
+
 === Recommandations
-- Session 010 : HF-5c data-chart (même pattern value object + processor expansion)
-- Session 011 : HF-5d kinetic-captions
-- Session 012 : HF-6c Gradle Portal
+- Session 011 : HF-5c data-chart (même pattern value object + processor expansion)
+- Session 012 : HF-5d kinetic-captions
+- Session 013 : HF-6c Gradle Portal
+- Session 014 : HF-7 évolution (câblage extension Gradle)

@@ -1,7 +1,7 @@
-= PROMPT_REPRISE — HyperFrames Gradle (Session 009 TERMINÉE → 010)
-:session: 009
-:date: 2026-07-07
-:status: ✅ TERMINÉ — HF-5b code-diff template (value object + processor + BDD)
+= PROMPT_REPRISE — HyperFrames Gradle (Session 010 TERMINÉE → 011)
+:session: 010
+:date: 2026-07-09
+:status: ✅ TERMINÉ — EPIC HF-7 Pronunciation Control (7 phases HF-7a→g)
 
 '''
 == État des lieux
@@ -10,27 +10,34 @@ Plugin Gradle fonctionnel avec pipeline complet :
 AsciiDoc → AsciidoctorJ → HTML enrichi (stage, data-*, GSAP) → CLI Node.js → MP4.
 EPIC HF-5 **en cours** : 2/4 templates livrés (title-card ✅, code-diff ✅,
 data-chart à faire, kinetic-captions à faire).
-HF-6 **partiellement terminé** : CI ✅, Maven Central ✅, Gradle Portal à faire.
+EPIC HF-6 **partiellement terminé** : CI ✅, Maven Central ✅, Gradle Portal à faire.
+EPIC HF-7 **TERMINÉ** : Pronunciation Control (TTS Phonetic Hints) — 7 phases livrées.
 Version `0.0.1` publiée sur Maven Central via nmcp.
 
-== Fait en session 009
+== Fait en session 010
 
-- HF-5b TERMINÉ : `CodeDiffTemplate` value object DDD + `expandCodeDiffBlocks` processor
-- 10 tests unit + 4 scénarios Cucumber EN + 1 test processor expansion
-- Coloration syntaxique lexicale maison (kotlin/java/python/js/ts, zéro dépendance externe)
-- Timeline GSAP : fade-in before → fade-out before → display + fade-in after
-- Regex processor robuste : capture explicite des 2 `listingblock` consécutifs
-- `./gradlew check` ✅ vert
+- EPIC HF-7 cadré et livré en 7 phases (baby-step DDD/TDD/BDD)
+- HF-7a : Value object `PronunciationHint` (factory `of()`, 10 tests unit)
+- HF-7b : `PronunciationDictionary` aggregate (add, find, merge, render, 12 unit + 4 Cucumber)
+- HF-7c : DSL `[.hyperframes-pronunciation]` + processor `expandPronunciationBlocks` (7 functional)
+- HF-7d : `PronunciationDomainLoader` + `domain/fpa-fr.json` + `domain/tech-en.json` (7 unit)
+- HF-7e : Inline hints `hf:pron[word, phon]` + extract/strip processors (5 functional)
+- HF-7f : N3 `HyperframesPronunciationContext` + `parsePronunciation` (5 unit)
+- HF-7g : End-to-end Cucumber (3 scénarios BDD EN)
+- `./gradlew check` ✅ vert (22 scénarios Cucumber, ~46 tests unit/functional)
+- Anglification de tous les KDoc/commentaires des fichiers touchés (règle AGENTS.adoc)
 
-== Prochaine session (010)
+== Prochaine session (011)
 
 Priorités restantes :
 1. HF-5c — Template "data-chart" (graphique animé, barres qui montent)
 2. HF-5d — Template "kinetic-captions" (sous-titres animés synchronisés)
 3. HF-6c — Publication Gradle Plugin Portal (handle cccp-education)
+4. HF-7 évolution — câbler `PronunciationDomainLoader` dans l'extension Gradle
+   (`pronunciationDomain.set("fpa-fr")`) + merge automatique auteur/domaine
 
 Le pattern DDD/TDD/BDD value object + processor expansion est éprouvé sur
-2 templates (title-card + code-diff). HF-5c/5d suivront le même rail :
+3 EPICs (title-card + code-diff + pronunciation). HF-5c/5d suivront le même rail :
 - value object `DataChartTemplate` / `KineticCaptionsTemplate`
 - processor `expandDataChartBlocks` / `expandKineticCaptionsBlocks`
 - tests unit + Cucumber + processor expansion
@@ -41,9 +48,9 @@ Le pattern DDD/TDD/BDD value object + processor expansion est éprouvé sur
 | Document | Chemin | Utilité
 | Architecture détaillée | `doc/HYPERFRAMES_ARCHITECTURE.adoc` | Pipeline global, décisions tech, contrat N3
 | Pilotage agile | `doc/PILOTAGE_HYPERFRAMES.adoc` | Product vision, personas, US, story map, backlog
-| Backlog | `BACKLOG.adoc` | User stories HF-1→HF-6, critères acceptation, risques
+| Backlog | `BACKLOG.adoc` | User stories HF-1→HF-7, EPIC HF-7 détaillé, critères acceptation
 | Règles absolues | `AGENT.adoc` | 8 règles (commits, publish, DAG, secrets, bridge)
-| Roadmap | `.agents/INDEX.adoc` | Statut EPICs HF-0→HF-6, sessions
+| Roadmap | `.agents/INDEX.adoc` | Statut EPICs HF-0→HF-7, sessions
 |===
 
 == Rappels techniques
@@ -51,6 +58,8 @@ Le pattern DDD/TDD/BDD value object + processor expansion est éprouvé sur
 - **Version publiée** : 0.0.1 (Maven Central, asciidoctorj 3.0.0 dans POM — local 3.0.1)
 - **Pattern template** : value object DDD pur + `expand{Template}Blocks` processor
 - **Template = data class** : `render(): String`, zéro effet de bord
+- **Pronunciation** : `[.hyperframes-pronunciation]` (role point) + `hf:pron[word, phon]` inline
 - **Cucumber** : `./gradlew cucumberTest` (tag filter `not @wip and not @integration`), Gherkin EN
 - **CI** : `.github/workflows/test-hyperframes.yml` (JDK 25, 4 steps)
+- **English only** : code, identifiants, commentaires, Gherkin — pas de français (règle AGENTS.adoc)
 - **ZERO commit/push** sans permission explicite

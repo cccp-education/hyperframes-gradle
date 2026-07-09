@@ -5,6 +5,7 @@ import org.junit.jupiter.api.io.TempDir
 import java.io.File
 import java.nio.file.Path
 import kotlin.test.assertEquals
+import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
 /**
@@ -94,6 +95,68 @@ class HyperframesContextExtractorTest {
         val mp4 = fakeMp4("v.mp4")
         val ctx = extractor.extract(sampleHtml(), mp4, "x.adoc", "2026-05-31T14:30:00Z", 0L)
         assertEquals("h264", ctx.output.codec)
+    }
+
+    // ──────────────────────────────────────────────
+    // HF-7f — Pronunciation section in metadata.json
+    // ──────────────────────────────────────────────
+
+    @Test
+    fun `pronunciation section is null when the HTML has no pronunciation island`() {
+        val mp4 = fakeMp4("v.mp4")
+        val ctx = extractor.extract(sampleHtml(), mp4, "x.adoc", "2026-05-31T14:30:00Z", 0L)
+
+        assertNull(ctx.pronunciation, "pronunciation should be null when no island is present")
+    }
+
+    @Test
+    fun `pronunciation section is extracted from the JSON island`() {
+        val html = sampleHtml() + """
+            <script type="application/json" id="hf-pronunciation">[{"word":"dos","phonetic":"do"}]</script>
+        """.trimIndent()
+        val mp4 = fakeMp4("v.mp4")
+        val ctx = extractor.extract(html, mp4, "x.adoc", "2026-05-31T14:30:00Z", 0L)
+
+        val pronunciation = ctx.pronunciation
+        assertTrue(pronunciation != null, "pronunciation section should be present")
+        assertEquals(1, pronunciation.hintsCount)
+        assertEquals("dos", pronunciation.hints[0].word)
+        assertEquals("do", pronunciation.hints[0].phonetic)
+    }
+
+    @Test
+    fun `pronunciation section with language tags extracts the language field`() {
+        val html = sampleHtml() + """
+            <script type="application/json" id="hf-pronunciation">[{"word":"dos","phonetic":"do","language":"fr"}]</script>
+        """.trimIndent()
+        val mp4 = fakeMp4("v.mp4")
+        val ctx = extractor.extract(html, mp4, "x.adoc", "2026-05-31T14:30:00Z", 0L)
+
+        assertEquals("fr", ctx.pronunciation?.hints?.get(0)?.language)
+    }
+
+    @Test
+    fun `pronunciation section hints count matches the number of hints`() {
+        val html = sampleHtml() + """
+            <script type="application/json" id="hf-pronunciation">[{"word":"dos","phonetic":"do"},{"word":"kubernetes","phonetic":"koobernetayz"}]</script>
+        """.trimIndent()
+        val mp4 = fakeMp4("v.mp4")
+        val ctx = extractor.extract(html, mp4, "x.adoc", "2026-05-31T14:30:00Z", 0L)
+
+        assertEquals(2, ctx.pronunciation?.hintsCount)
+        assertEquals(2, ctx.pronunciation?.hints?.size)
+    }
+
+    @Test
+    fun `pronunciation section empty island yields zero hints`() {
+        val html = sampleHtml() + """
+            <script type="application/json" id="hf-pronunciation">[]</script>
+        """.trimIndent()
+        val mp4 = fakeMp4("v.mp4")
+        val ctx = extractor.extract(html, mp4, "x.adoc", "2026-05-31T14:30:00Z", 0L)
+
+        assertEquals(0, ctx.pronunciation?.hintsCount)
+        assertTrue(ctx.pronunciation?.hints?.isEmpty() == true)
     }
 
     private fun fakeMp4(name: String, content: ByteArray = ByteArray(256)): File {

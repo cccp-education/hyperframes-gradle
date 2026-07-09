@@ -139,6 +139,82 @@ class HyperframesWorld {
         srcDir.resolve("index.adoc").writeText(doc)
     }
 
+    fun writePronunciationAdoc(entries: List<Pair<String, String>>) {
+        buildDir.deleteRecursively()
+        buildDir.mkdirs()
+        val srcDir = projectDir.resolve("src/docs")
+        srcDir.deleteRecursively()
+        srcDir.mkdirs()
+        val doc = buildString {
+            appendLine("= Pronunciation demo")
+            appendLine(":hyperframes-width: 1920")
+            appendLine(":hyperframes-height: 1080")
+            appendLine(":hyperframes-fps: 30")
+            appendLine()
+            appendLine("[.hyperframes-pronunciation]")
+            appendLine("----")
+            entries.forEach { (word, phon) -> appendLine("$word: $phon") }
+            appendLine("----")
+        }
+        srcDir.resolve("index.adoc").writeText(doc)
+    }
+
+    fun writePlainAdoc() {
+        buildDir.deleteRecursively()
+        buildDir.mkdirs()
+        val srcDir = projectDir.resolve("src/docs")
+        srcDir.deleteRecursively()
+        srcDir.mkdirs()
+        val doc = buildString {
+            appendLine("= Plain demo")
+            appendLine(":hyperframes-width: 1920")
+            appendLine(":hyperframes-height: 1080")
+            appendLine(":hyperframes-fps: 30")
+            appendLine()
+            appendLine("Le conteneur isole l'application.")
+        }
+        srcDir.resolve("index.adoc").writeText(doc)
+    }
+
+    fun writePronunciationTwoEntriesAdoc() {
+        buildDir.deleteRecursively()
+        buildDir.mkdirs()
+        val srcDir = projectDir.resolve("src/docs")
+        srcDir.deleteRecursively()
+        srcDir.mkdirs()
+        val doc = buildString {
+            appendLine("= Pronunciation demo")
+            appendLine(":hyperframes-width: 1920")
+            appendLine(":hyperframes-height: 1080")
+            appendLine(":hyperframes-fps: 30")
+            appendLine()
+            appendLine("[.hyperframes-pronunciation]")
+            appendLine("----")
+            appendLine("dos: do")
+            appendLine("kubernetes: koobernetayz")
+            appendLine("----")
+        }
+        srcDir.resolve("index.adoc").writeText(doc)
+    }
+
+    fun writeInlineHintAdoc() {
+        buildDir.deleteRecursively()
+        buildDir.mkdirs()
+        val srcDir = projectDir.resolve("src/docs")
+        srcDir.deleteRecursively()
+        srcDir.mkdirs()
+        val doc = buildString {
+            appendLine("= Inline hint demo")
+            appendLine(":hyperframes-width: 1920")
+            appendLine(":hyperframes-height: 1080")
+            appendLine(":hyperframes-fps: 30")
+            appendLine()
+            appendLine("[.hyperframes-track]")
+            appendLine("Le conteneur hf:pron[dos, do] isole l'application.")
+        }
+        srcDir.resolve("index.adoc").writeText(doc)
+    }
+
     fun runTask(taskName: String) {
         buildResult = GradleRunner.create()
             .withProjectDir(projectDir)

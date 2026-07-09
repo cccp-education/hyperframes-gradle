@@ -17,12 +17,12 @@ import org.asciidoctor.SafeMode
 import java.io.File
 
 /**
- * Tâche Gradle qui convertit un fichier AsciiDoc (index.adoc) en HTML
- * via AsciidoctorJ, puis post-processe le HTML avec [HyperframesHtmlProcessor]
- * pour ajouter les data-* attributes nécessaires au rendu HyperFrames.
+ * Gradle task that converts an AsciiDoc file (index.adoc) to HTML
+ * via AsciidoctorJ, then post-processes the HTML with [HyperframesHtmlProcessor]
+ * to add the data-* attributes needed for HyperFrames rendering.
  *
- * HF-1 : Conversion AsciiDoc → HTML standard.
- * HF-3 : Post-processing → stage div, data-composition-id, data-track-*, animations.
+ * HF-1: AsciiDoc -> standard HTML conversion.
+ * HF-3: Post-processing -> stage div, data-composition-id, data-track-*, animations.
  */
 @DisableCachingByDefault(because = "Filesystem-bound: reads AsciiDoc and writes HTML")
 abstract class GenerateHyperframesHtmlTask : DefaultTask() {
@@ -76,7 +76,7 @@ abstract class GenerateHyperframesHtmlTask : DefaultTask() {
                 .attributes(attrs)
                 .build()
 
-            // Étape 1 : Conversion AsciiDoc → HTML (AsciidoctorJ)
+            // Step 1: AsciiDoc -> HTML conversion (AsciidoctorJ)
             asciidoctor.convertFile(sourceFile, options)
 
             val generatedHtml = outputFile.resolve("index.html")
@@ -84,7 +84,7 @@ abstract class GenerateHyperframesHtmlTask : DefaultTask() {
                 "Generated HTML not found: ${generatedHtml.absolutePath}"
             }
 
-            // Étape 2 : Post-processing HyperFrames (stage, data-*, GSAP)
+            // Step 2: HyperFrames post-processing (stage, data-*, GSAP)
             val rawHtml = generatedHtml.readText()
             val processor = HyperframesHtmlProcessor(
                 width = width.get(),

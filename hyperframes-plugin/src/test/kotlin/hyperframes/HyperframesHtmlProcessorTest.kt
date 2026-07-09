@@ -174,7 +174,7 @@ class HyperframesHtmlProcessorTest {
 
     @Test
     fun `wrap hyperframes-animation listingblock in script tag with GSAP`() {
-        // Arrange — en AsciiDoc c'est un listingblock (---- fencé)
+        // Arrange — in AsciiDoc it is a listingblock (---- fenced)
         val html = """<!DOCTYPE html>
 <html>
 <head><title>Test</title></head>

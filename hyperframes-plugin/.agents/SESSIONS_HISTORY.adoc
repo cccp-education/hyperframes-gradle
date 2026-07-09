@@ -1,5 +1,26 @@
 = SESSIONS_HISTORY — hyperframes-gradle
 
+== Session 010 (2026-07-09) — EPIC HF-7 Pronunciation Control
+
+Nouvel EPIC complet livré en une session : 7 phases HF-7a→g en baby-step
+DDD/TDD/BDD. Constat fondateur : le TTS lit « dos » comme « dosse » au lieu de
+« do » — défaut rédhibitoire pour la crédibilité d'un contenu de formation.
+L'auteur AsciiDoc corrige la phonétique sans toucher au moteur Node.js.
+
+Production (6 fichiers + 2 resources) :
+- `PronunciationHint` value object (factory `of()`, normalisation word lowercase + phonetic trim)
+- `PronunciationDictionary` aggregate (add dedup, find case-insensitive + language fallback, merge immuable, render JSON island)
+- `PronunciationDomainLoader` (charge `domain/fpa-fr.json` + `domain/tech-en.json` depuis classpath)
+- `HyperframesHtmlProcessor` étendu : `expandPronunciationBlocks` (DSL `[.hyperframes-pronunciation]`),
+  `extractInlineHints` + `stripInlineHintsFromTracks` (macro `hf:pron[word, phon]` dans tracks)
+- `HyperframesParseContext` + `HyperframesContextExtractor` étendus (section pronunciation N3)
+
+Décisions : syntaxe DSL avec role point (`[.hyperframes-pronunciation]`),
+macro inline `hf:pron[]` (xref `<<>>` interprété par AsciidoctorJ), factory
+`of()` pour normalisation, `find()` avec fallback language, N3 pronunciation
+optionnel (backward compat). Anglification de tous les KDoc/commentaires
+(règle AGENTS.adoc). `./gradlew check` ✅ vert (22 scénarios Cucumber, ~46 tests).
+
 == Session 009 (2026-07-07) — HF-5b code-diff template
 
 Second template HyperFrames : `CodeDiffTemplate` value object DDD (id, beforeCode,
@@ -35,6 +56,7 @@ Cucumber 7.34.3 intégré (task `cucumberTest`, JUnit Platform Suite, glue
 
 |===
 | # | Date | Type | Sujet | Score
+| 010 | 2026-07-09 | impl | HF-7 Pronunciation Control (7 phases — PronunciationHint, PronunciationDictionary, DomainLoader, DSL processor, inline hints, N3 metadata, e2e BDD, ~46 tests + 10 Cucumber) | ✅ TERMINÉ
 | 009 | 2026-07-07 | impl | HF-5b code-diff template (CodeDiffTemplate value object, expandCodeDiffBlocks, 10 unit + 4 Cucumber + 1 processor test, coloration lexicale 5 langues) | ✅ TERMINÉ
 | 008 | 2026-07-07 | impl | HF-5a title-card template (TitleCardTemplate value object, expandTitleCardBlocks, 7 unit + 4 Cucumber + 2 functional) + HF-6a CI workflow + PUB-2.2/5.16 | ✅ TERMINÉ
 | 007 | 2026-07-06 | impl | HF-4c N3 contract typed + Cucumber BDD (HyperframesParseContext, HyperframesContextExtractor, 14 unit + 3 func + 4 Cucumber, 43 verts) | ✅ TERMINÉ

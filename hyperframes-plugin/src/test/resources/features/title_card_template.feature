@@ -1,5 +1,5 @@
 Feature: HF-5a — Title-card template expansion
-  As a formateur writing AsciiDoc
+  As a trainer writing AsciiDoc
   I want the [.hyperframes-title-card#id] block to expand into a HyperFrames title-card composition
   So that I get fade-in animation, title and subtitle without writing HTML
 

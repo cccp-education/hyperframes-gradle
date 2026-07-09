@@ -1,0 +1,12 @@
+[
+  {"word": "docker", "phonetic": "dok-er", "language": "en"},
+  {"word": "kubernetes", "phonetic": "koo-ber-net-ayz", "language": "en"},
+  {"word": "container", "phonetic": "kon-tay-ner", "language": "en"},
+  {"word": "ci", "phonetic": "see-eye", "language": "en"},
+  {"word": "cd", "phonetic": "see-dee", "language": "en"},
+  {"word": "devops", "phonetic": "dev-ops", "language": "en"},
+  {"word": "ffmpeg", "phonetic": "ef-ef-em-peg", "language": "en"},
+  {"word": "git", "phonetic": "git", "language": "en"},
+  {"word": "gradle", "phonetic": "gray-dul", "language": "en"},
+  {"word": "kotlin", "phonetic": "kot-lin", "language": "en"}
+]

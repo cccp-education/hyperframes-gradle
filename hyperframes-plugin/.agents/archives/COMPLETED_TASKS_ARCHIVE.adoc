@@ -1,6 +1,6 @@
 = COMPLETED_TASKS_ARCHIVE — hyperframes-gradle
 :date: 2026-05-31
-:last-updated: 2026-07-07 (session 009)
+:last-updated: 2026-07-09 (session 010)
 
 == Tâches terminées (session 000 — 2026-05-31)
 
@@ -84,4 +84,17 @@
 | HF-6a | Workflow CI GitHub Actions test-hyperframes.yml (JDK 25, 4 steps) | ✅
 | PUB-2.2 | Commentaire relocation build.gradle.kts (forme courte) | ✅
 | PUB-5.16 | Vérification Maven Central (education.ccp:hyperframes-plugin:0.0.1 OK) | ✅
+|===
+
+== Tâches terminées (session 010 — 2026-07-09)
+
+|===
+| EPIC | Tâche | Statut
+| HF-7a | Value object `PronunciationHint` (factory `of()`, normalisation, 10 tests unit) | ✅
+| HF-7b | `PronunciationDictionary` aggregate (add, find, merge, render JSON island, 12 unit + 4 Cucumber) | ✅
+| HF-7c | DSL `[.hyperframes-pronunciation]` + `expandPronunciationBlocks` processor (7 functional + 2 Cucumber) | ✅
+| HF-7d | `PronunciationDomainLoader` + `domain/fpa-fr.json` + `domain/tech-en.json` (7 unit) | ✅
+| HF-7e | Inline hints `hf:pron[word, phon]` + extract/strip processors (5 functional + 1 Cucumber) | ✅
+| HF-7f | N3 `HyperframesPronunciationContext` + `parsePronunciation` (5 unit) | ✅
+| HF-7g | End-to-end Cucumber (3 scénarios BDD EN — dictionnaire, inline, backward compat) | ✅
 |===

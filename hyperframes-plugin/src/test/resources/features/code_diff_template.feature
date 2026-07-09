@@ -1,5 +1,5 @@
 Feature: HF-5b — Code-diff template expansion
-  As a formateur writing AsciiDoc
+  As a trainer writing AsciiDoc
   I want the [.hyperframes-code-diff#id] block to expand into a HyperFrames code-diff composition
   So that I get before/after code blocks with syntax highlighting and a fade animation
 

@@ -1,0 +1,12 @@
+[
+  {"word": "afnor", "phonetic": "af-nor", "language": "fr"},
+  {"word": "reac", "phonetic": "re-ak", "language": "fr"},
+  {"word": "competence", "phonetic": "kom-pe-tans", "language": "fr"},
+  {"word": "bloc", "phonetic": "blok", "language": "fr"},
+  {"word": "evaluation", "phonetic": "e-va-lu-a-syon", "language": "fr"},
+  {"word": "formation", "phonetic": "for-ma-syon", "language": "fr"},
+  {"word": "stagiaire", "phonetic": "sta-zhi-er", "language": "fr"},
+  {"word": "formateur", "phonetic": "for-ma-ter", "language": "fr"},
+  {"word": "module", "phonetic": "mo-dyul", "language": "fr"},
+  {"word": "session", "phonetic": "se-syon", "language": "fr"}
+]

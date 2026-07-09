@@ -350,6 +350,7 @@ window.__timelines.intro = tl;
 | HF-4 | US-HF-04 | P2 | Intégration N3 runner-gradle (metadata.json)
 | HF-5 | US-HF-05 | P3 | Templates prêts à l'emploi
 | HF-6 | US-HF-06 | P3 | CI/CD + publication Maven Central / Gradle Portal
+| HF-7 | US-HF-07 | P1 | Pronunciation Control (TTS Phonetic Hints)
 |===
 
 === 5.2 User Stories détaillées
@@ -423,7 +424,7 @@ Critères d'acceptation :
 
 ==== US-HF-06 — CI/CD + Publication (session 006)
 
-.En tant que *DevOps*,
+. En tant que *DevOps*,
 Je veux *le plugin publié sur Maven Central et Gradle Portal*
 Afin de *le distribuer aux consommateurs N2 et N3*
 
@@ -431,6 +432,37 @@ Critères d'acceptation :
 - GitHub Actions workflow `test-hyperframes.yml`
 - Publication Maven Central (group `education.cccp`, artifact `hyperframes-gradle`)
 - Publication Gradle Plugin Portal (handle `cccp-education`)
+
+==== US-HF-07 — Pronunciation Control (EPIC HF-7)
+
+. En tant que *formateur*,
+Je veux *corriger la prononciation des mots mal lus par le TTS*
+Afin de *garantir la crédibilité professionnelle de mes vidéos*
+
+_Problème constaté_ : Le moteur TTS lit « dos » comme « dosse » au lieu de « do ».
+Ce genre de défaut est rédhibitoire — la crédibilité du formateur tombe
+à zéro dès la première seconde de vidéo.
+
+Critères d'acceptation :
+- Un bloc `[hyperframes-pronunciation, lang="fr"]` au niveau document définit
+  un dictionnaire mot → phonétique approchée
+- Le dictionnaire est injecté dans le HTML sous forme de JSON island
+  `<script type="application/json" id="hf-pronunciation">...</script>`
+- Le `metadata.json` N3 embarque le dictionnaire pour traçabilité
+- Un dictionnaire de domaine pré-câblé couvre le vocabulaire FPA (AFNOR, REAC)
+- Des hints inline `<<mot|phonétique>>` dans le texte de narration permettent
+  une correction ponctuelle sans dictionnaire global
+- Le texte rendu garde le mot lisible, la phonétique est consommée par le TTS
+- `./gradlew check` vert (tests unit + fonctionnels + Cucumber EN)
+
+. Phases (HF-7a → HF-7g)
+- HF-7a : Value object `PronunciationHint` (DDD pur, tests unit)
+- HF-7b : `PronunciationDictionary` aggregate (render JSON island, merge, Cucumber)
+- HF-7c : DSL AsciiDoc `[hyperframes-pronunciation]` + processor (tests fonctionnels)
+- HF-7d : Dictionnaire de domaine pré-câblé (fpa-fr, tech-en, custom)
+- HF-7e : Hints inline `<<mot|phon>>` dans narration + processor
+- HF-7f : Intégration `metadata.json` N3 (section pronunciation)
+- HF-7g : Tests d'intégration end-to-end (Cucumber complet)
 
 '''
 == Atelier 6 — Backlog priorisé
@@ -494,6 +526,19 @@ Critères d'acceptation :
 | GitHub Actions workflow | 2h | À faire
 | Publication Maven Central | 2h | À faire
 | Publication Gradle Portal | 1h | À faire
+|===
+
+=== Sprint 7 — HF-7 Pronunciation Control (SESSION 010+)
+
+|===
+| Tâche | Effort | Statut
+| HF-7a Value object PronunciationHint + tests unit | 2h | À faire
+| HF-7b PronunciationDictionary aggregate + Cucumber EN | 3h | À faire
+| HF-7c DSL AsciiDoc [hyperframes-pronunciation] + processor | 3h | À faire
+| HF-7d Dictionnaire de domaine pré-câblé (fpa-fr, tech-en) | 2h | À faire
+| HF-7e Hints inline <<mot|phon>> dans narration | 2h | À faire
+| HF-7f Intégration metadata.json N3 | 1h | À faire
+| HF-7g Tests d'intégration end-to-end | 2h | À faire
 |===
 
 '''
