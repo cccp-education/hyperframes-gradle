@@ -5,6 +5,7 @@ import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputDirectory
+import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.OutputDirectory
 import org.gradle.api.tasks.TaskAction
 import org.gradle.work.DisableCachingByDefault
@@ -14,6 +15,7 @@ import org.asciidoctor.Asciidoctor
 import org.asciidoctor.Attributes
 import org.asciidoctor.Options
 import org.asciidoctor.SafeMode
+import hyperframes.pronunciation.PronunciationDomainLoader
 import java.io.File
 
 /**
@@ -45,6 +47,15 @@ abstract class GenerateHyperframesHtmlTask : DefaultTask() {
 
     @get:Input
     abstract val outputName: Property<String>
+
+    /**
+     * HF-7 evolution — optional pre-built pronunciation domain name
+     * (e.g. `video-fr`, `video-en`). When set, the domain dictionary is
+     * loaded from classpath resources and merged with author hints.
+     */
+    @get:Input
+    @get:Optional
+    abstract val pronunciationDomain: Property<String>
 
     @TaskAction
     fun generate() {
@@ -86,12 +97,13 @@ abstract class GenerateHyperframesHtmlTask : DefaultTask() {
 
             // Step 2: HyperFrames post-processing (stage, data-*, GSAP)
             val rawHtml = generatedHtml.readText()
+            val domainDictionary = pronunciationDomain.orNull?.let { PronunciationDomainLoader.load(it) }
             val processor = HyperframesHtmlProcessor(
                 width = width.get(),
                 height = height.get(),
                 fps = fps.get(),
                 outputName = outputName.get()
-            )
+            ).withDomainDictionary(domainDictionary)
             val enhancedHtml = processor.enhance(rawHtml)
             generatedHtml.writeText(enhancedHtml)
 

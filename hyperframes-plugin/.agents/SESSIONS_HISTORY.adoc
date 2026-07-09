@@ -1,5 +1,31 @@
 = SESSIONS_HISTORY — hyperframes-gradle
 
+== Session 012 (2026-07-09) — HF-7 évolution : Pronunciation Domain Wiring
+
+Câblage du `PronunciationDomainLoader` (livré session 010) dans le pipeline
+Gradle. Le domaine pré-câblé `video-fr`/`video-en` était inerte — il fallait
+le connecter à l'extension, la task, et le processor.
+
+Production (4 fichiers) :
+- `HyperframesExtension.pronunciationDomain: Property<String>` (`@Input @Optional`)
+- `GenerateHyperframesHtmlTask.pronunciationDomain` + chargement `PronunciationDomainLoader.load(it)`
+- `HyperframesPlugin` wiring extension → task
+- `HyperframesHtmlProcessor` refactor : constructeur internal avec `domainDictionary`,
+  `withDomainDictionary()`, merge auteur (block + inline) → domaine en une seule passe,
+  `mergeAuthorOverDomain` (hint auteur sans langue override toutes langues du domaine,
+  domain jamais muté — filtered copy)
+
+Décision clé : un hint auteur sans langue override TOUTES les langues du domaine
+pour le même mot. Sans cette règle, les clés `word|_` et `word|fr` ne dédupliquent
+pas → le hint domaine persiste malgré l'override auteur. L'auteur a le dernier mot.
+
+Tests baby-step DDD/TDD/BDD : 9 unit `HyperframesDomainWiringTest` (merge, override,
+baseline, inline, immutabilité) + 3 fonctionnel `HyperframesPluginTest` (baseline,
+override, backward compat) + 4 Cucumber `pronunciation_domain.feature` (full pipeline
+BDD EN). 1 test existant ajusté (empty block → no island, comportement plus cohérent).
+
+`./gradlew check` ✅ vert — 178 unit/functional + 33 Cucumber = 211 tests.
+
 == Session 011 (2026-07-09) — Bounded context + HF-5c + HF-5d (EPIC HF-5 clôturé)
 
 Deux livrables en une session. D'abord un correctif de cadrage DDD : la session

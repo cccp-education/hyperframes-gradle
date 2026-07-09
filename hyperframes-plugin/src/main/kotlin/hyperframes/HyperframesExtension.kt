@@ -55,6 +55,28 @@ abstract class HyperframesExtension {
     @get:Optional
     abstract val nodeExecutable: Property<String>
 
+    /**
+     * HF-7 evolution — optional pre-built pronunciation domain loaded from
+     * classpath resources (`domain/<name>.json`).
+     *
+     * Built-in domains cover generic video-content vocabulary:
+     * - `video-fr` — French video production vocabulary
+     * - `video-en` — English video production vocabulary
+     *
+     * When set, the domain is merged with author hints (pronunciation
+     * blocks + inline hints) so that author hints override domain hints
+     * on conflict (word + language). Domain-only words are injected as
+     * the baseline dictionary — the whole point of the configuration.
+     *
+     * The plugin is a generic public OSS artefact: domain dictionaries
+     * cover video vocabulary only. A consumer borough with a private
+     * business vocabulary injects its own dictionary via a custom domain
+     * file rather than embedding it in the plugin.
+     */
+    @get:Input
+    @get:Optional
+    abstract val pronunciationDomain: Property<String>
+
     init {
         width.convention(1920)
         height.convention(1080)

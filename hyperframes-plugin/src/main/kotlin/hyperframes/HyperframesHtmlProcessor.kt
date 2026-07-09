@@ -20,34 +20,51 @@ import hyperframes.template.TitleCardTemplate
  * 5. HF-5c: Expand `hyperframes-data-chart` blocks into animated bar-chart compositions
  * 6. HF-5d: Expand `hyperframes-kinetic-captions` blocks into animated timed-caption compositions
  * 7. HF-7c: Expand `hyperframes-pronunciation` blocks into a TTS hints JSON island
+ *    HF-7 evolution: merge author hints with an optional domain dictionary
+ *    (author > domain > empty). Domain-only words are kept as baseline.
  * 8. Convert `hyperframes-composition` blocks -> `data-composition-id` (from child heading)
  * 9. Convert `hyperframes-track` blocks -> `data-track-index`, `data-start`, `data-duration`
  * 10. Convert `hyperframes-animation` (listingblock) -> `<script>` GSAP with `__timelines`
  */
-class HyperframesHtmlProcessor(
+class HyperframesHtmlProcessor internal constructor(
     private val width: Int,
     private val height: Int,
     private val fps: Int,
-    private val outputName: String
+    private val outputName: String,
+    private val domainDictionary: PronunciationDictionary?
 ) {
+    /** Backward-compatible constructor — no domain dictionary. */
+    constructor(width: Int, height: Int, fps: Int, outputName: String) : this(width, height, fps, outputName, null)
+
+    /**
+     * Returns a copy of this processor wired with [domain].
+     *
+     * The receiver is not mutated — the domain is merged into the author
+     * dictionary (block + inline) during [enhance], with author hints
+     * overriding domain hints on conflict (word + language).
+     */
+    fun withDomainDictionary(domain: PronunciationDictionary?): HyperframesHtmlProcessor =
+        HyperframesHtmlProcessor(width, height, fps, outputName, domain)
+
     /**
      * Single entry point: transforms AsciiDoc HTML into HyperFrames HTML.
      */
     fun enhance(html: String): String {
         val inlineDictionary = extractInlineHints(html)
+        val blockDictionary = PronunciationDictionary()
         return html
             .let { injectGaspCdn(it) }
             .let { expandTitleCardBlocks(it) }
             .let { expandCodeDiffBlocks(it) }
             .let { expandDataChartBlocks(it) }
             .let { expandKineticCaptionsBlocks(it) }
-            .let { expandPronunciationBlocks(it) }
+            .let { expandPronunciationBlocks(it, blockDictionary) }
             .let { stripInlineHintsFromTracks(it) }
             .let { wrapBodyContentInStage(it) }
             .let { enhanceCompositionBlocks(it) }
             .let { enhanceTrackBlocks(it) }
             .let { enhanceAnimationBlocks(it) }
-            .let { injectInlinePronunciationIsland(it, inlineDictionary) }
+            .let { injectPronunciationIsland(it, blockDictionary, inlineDictionary) }
     }
 
     // ──────────────────────────────────────────────
@@ -104,17 +121,60 @@ class HyperframesHtmlProcessor(
     }
 
     /**
-     * Injects the inline-hints JSON island before `</body>` when the
-     * dictionary is non-empty and no island already exists.
+     * Merges author hints (block + inline) with the optional domain dictionary
+     * and injects the resulting JSON island before `</body>`.
+     *
+     * Precedence: author (block > inline on conflict) > domain > empty.
+     *
+     * An author hint without a language overrides every domain hint for the
+     * same word (all languages) — the author has the final say. An author hint
+     * with a language only overrides the domain hint matching that language.
+     *
+     * When no author hints and no domain are present, no island is injected
+     * (backward compatibility). When a domain is present but no author hints,
+     * the domain is injected as the baseline dictionary — the whole point of
+     * the `pronunciationDomain` configuration.
+     *
+     * The domain dictionary is never mutated — a filtered copy is used.
      */
-    private fun injectInlinePronunciationIsland(html: String, dictionary: PronunciationDictionary): String {
-        if (dictionary.size() == 0) return html
+    private fun injectPronunciationIsland(
+        html: String,
+        blockDictionary: PronunciationDictionary,
+        inlineDictionary: PronunciationDictionary
+    ): String {
+        val author = inlineDictionary.merge(blockDictionary)
+        val finalDictionary = if (domainDictionary != null) mergeAuthorOverDomain(author, domainDictionary) else author
+        if (finalDictionary.size() == 0) return html
         if (html.contains("id=\"hf-pronunciation\"")) return html
-        val island = dictionary.render()
+        val island = finalDictionary.render()
         return when {
             "</body>" in html -> html.replace("</body>", "    $island\n</body>")
             else -> html + island
         }
+    }
+
+    /**
+     * Merges [author] over [domain] so that author hints win on conflict.
+     *
+     * An author hint without a language overrides every domain hint for the
+     * same word (all languages). An author hint with a language only overrides
+     * the matching domain hint. Domain-only words are kept. Neither [author]
+     * nor [domain] is mutated.
+     */
+    private fun mergeAuthorOverDomain(
+        author: PronunciationDictionary,
+        domain: PronunciationDictionary
+    ): PronunciationDictionary {
+        val authorWordsLanguageAgnostic: Set<String> = author.snapshot()
+            .filter { it.language == null }
+            .map { it.word }
+            .toSet()
+
+        val filteredDomain = PronunciationDictionary()
+        domain.snapshot().forEach { hint ->
+            if (hint.word !in authorWordsLanguageAgnostic) filteredDomain.add(hint)
+        }
+        return author.merge(filteredDomain)
     }
 
     // ──────────────────────────────────────────────
@@ -438,7 +498,7 @@ class HyperframesHtmlProcessor(
      * a [PronunciationHint]. Malformed lines (no colon) are silently
      * skipped for robustness.
      */
-    private fun expandPronunciationBlocks(html: String): String {
+    private fun expandPronunciationBlocks(html: String, dictionary: PronunciationDictionary): String {
         val blockRegex = Regex(
             """<div[^>]*class="[^"]*hyperframes-pronunciation[^"]*"[^>]*>\s*<div class="content">\s*<pre>(.*?)</pre>\s*</div>\s*</div>""",
             RegexOption.DOT_MATCHES_ALL
@@ -447,7 +507,6 @@ class HyperframesHtmlProcessor(
 
         return html.replace(blockRegex) { match ->
             val content = match.groupValues[1]
-            val dictionary = PronunciationDictionary()
             content.lineSequence().forEach { line ->
                 val parsed = lineRegex.find(line)
                 if (parsed != null) {
@@ -456,7 +515,10 @@ class HyperframesHtmlProcessor(
                     dictionary.add(PronunciationHint.of(word, phonetic))
                 }
             }
-            dictionary.render()
+            // Remove the block from the HTML — the JSON island is injected
+            // later by [injectPronunciationIsland] once all author hints
+            // (block + inline) are collected.
+            ""
         }
     }
 

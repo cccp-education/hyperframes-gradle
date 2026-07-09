@@ -128,7 +128,7 @@ kubernetes: koobernetayz</pre>
     }
 
     @Test
-    fun `pronunciation block with empty content renders an empty JSON array`() {
+    fun `pronunciation block with empty content produces no JSON island`() {
         val html = """<!DOCTYPE html>
 <html>
 <head><title>Test</title></head>
@@ -143,8 +143,10 @@ kubernetes: koobernetayz</pre>
 
         val result = processor.enhance(html)
 
-        assertContains(result, """<script type="application/json" id="hf-pronunciation">""")
-        assertContains(result, "[]</script>")
+        assertFalse(
+            result.contains("id=\"hf-pronunciation\""),
+            "an empty pronunciation block collects no hints — no JSON island should be injected"
+        )
     }
 
     @Test

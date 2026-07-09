@@ -1,41 +1,39 @@
-= PROMPT_REPRISE — HyperFrames Gradle (Session 011 TERMINÉE → 012)
-:session: 011
+= PROMPT_REPRISE — HyperFrames Gradle (Session 012 TERMINÉE → 013)
+:session: 012
 :date: 2026-07-09
-:status: ✅ TERMINÉ — Correctif bounded context + EPIC HF-5 clôturé (4/4 templates)
+:status: ✅ TERMINÉ — HF-7 évolution : câblage PronunciationDomainLoader dans le pipeline Gradle
 
 '''
 == État des lieux
 
 Plugin Gradle fonctionnel avec pipeline complet :
 AsciiDoc → AsciidoctorJ → HTML enrichi (stage, data-*, GSAP) → CLI Node.js → MP4.
-EPIC HF-5 **TERMINÉ** : 4/4 templates livrés (title-card ✅, code-diff ✅,
-data-chart ✅, kinetic-captions ✅).
+EPIC HF-5 **TERMINÉ** : 4/4 templates livrés (title-card, code-diff, data-chart, kinetic-captions).
 EPIC HF-6 **partiellement terminé** : CI ✅, Maven Central ✅, Gradle Portal à faire.
-EPIC HF-7 **TERMINÉ + recentré** : dictionnaires pré-câblés `video-fr`/`video-en`
-(contre `fpa-fr`/`tech-en` avant — fuite bounded context corrigée).
+EPIC HF-7 **TERMINÉ + câblé** : dictionnaires pré-câblés `video-fr`/`video-en` +
+câblage `pronunciationDomain.set("video-fr")` dans l'extension Gradle + merge
+automatique auteur/domaine (author > domain > empty).
 Version `0.0.1` publiée sur Maven Central via nmcp.
 
-== Fait en session 011
+== Fait en session 012
 
-- Correctif bounded context : `fpa-fr` (privé Newark) → `video-fr` (générique
-  Watts), `tech-en` → `video-en`. Règle 9 ajoutée à AGENT.adoc.
-- HF-5c data-chart : `DataChartTemplate` + `DataPoint` + `expandDataChartBlocks`
-  (13 unit + 4 Cucumber)
-- HF-5d kinetic-captions : `KineticCaptionsTemplate` + `Caption` +
-  `expandKineticCaptionsBlocks` (14 unit + 4 Cucumber). Bug AsciidoctorJ :
-  `->` échappé en `-&gt;` dans `<pre>` — regex élargi.
-- `./gradlew check` ✅ vert (29 scénarios Cucumber, ~99 tests unit/functional)
+- `HyperframesExtension.pronunciationDomain: Property<String>` (`@Input @Optional`)
+- `GenerateHyperframesHtmlTask.pronunciationDomain` + chargement `PronunciationDomainLoader.load(it)`
+- `HyperframesPlugin` wiring extension → task
+- `HyperframesHtmlProcessor` refactor : constructeur internal avec `domainDictionary`,
+  `withDomainDictionary()`, merge auteur (block + inline) → domaine en une seule passe,
+  `mergeAuthorOverDomain` (hint auteur sans langue override toutes langues du domaine)
+- 9 tests unit `HyperframesDomainWiringTest` (merge, override, baseline, inline, immutabilité)
+- 3 tests fonctionnels `HyperframesPluginTest` (baseline, override, backward compat)
+- 4 scénarios Cucumber `pronunciation_domain.feature` (full pipeline BDD EN)
+- 1 test existant ajusté (empty block → no island, comportement plus cohérent)
+- `./gradlew check` ✅ vert — 178 unit/functional + 33 Cucumber = 211 tests
 
-== Prochaine session (012)
+== Prochaine session (013)
 
-Priorités restantes :
+Priorité restante :
 1. HF-6c — Publication Gradle Plugin Portal (handle cccp-education)
-2. HF-7 évolution — câbler `PronunciationDomainLoader` dans l'extension Gradle
-   (`pronunciationDomain.set("video-fr")`) + merge automatique auteur/domaine
-
-Le pattern DDD/TDD/BDD value object + processor expansion est éprouvé sur
-4 templates. HF-6c est une tâche de publication (nmcp + Portal), pas de code.
-HF-7 évolution est un câblage Gradle (extension + task wiring).
+   Tâche de config/publish, pas de code. Dernier item pour clôturer EPIC HF-6.
 
 == Routes documents clés (lecture rapide)
 
@@ -54,6 +52,8 @@ HF-7 évolution est un câblage Gradle (extension + task wiring).
 - **Pattern template** : value object DDD pur + `expand{Template}Blocks` processor
 - **Template = data class** : `render(): String`, zéro effet de bord
 - **Dictionnaires domaine** : `video-fr` / `video-en` (génériques vidéo, pas métier privé)
+- **Pronunciation domain** : `hyperframes { pronunciationDomain.set("video-fr") }` active le merge
+- **Merge precedence** : author (block > inline) > domain > empty. Author sans langue override toutes langues du domaine.
 - **Cucumber** : `./gradlew cucumberTest` (tag filter `not @wip and not @integration`), Gherkin EN
 - **CI** : `.github/workflows/test-hyperframes.yml` (JDK 25, 4 steps)
 - **English only** : code, identifiants, commentaires, Gherkin — pas de français (règle AGENTS.adoc)

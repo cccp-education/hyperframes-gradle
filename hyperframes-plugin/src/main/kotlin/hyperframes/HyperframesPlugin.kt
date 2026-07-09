@@ -36,6 +36,7 @@ class HyperframesPlugin : Plugin<Project> {
             task.height.set(extension.height)
             task.fps.set(extension.fps)
             task.outputName.set(extension.outputName)
+            task.pronunciationDomain.set(extension.pronunciationDomain)
         }
 
         // Tâche : rendu MP4 via HyperFrames CLI (ProcessBuilder → node hyperframes render)

@@ -1,0 +1,113 @@
+= Session 012 — HF-7 évolution : Pronunciation Domain Wiring
+:date: 2026-07-09
+:status: ✅ TERMINÉ — Câblage du PronunciationDomainLoader dans le pipeline Gradle
+
+== Mission
+
+Câbler le `PronunciationDomainLoader` (livré session 010) dans l'extension
+Gradle et la task `generateHyperframesHtml`, avec merge automatique
+auteur/domaine (author > domain > empty). Le pattern DDD/TDD/BDD baby-step
+éprouvé sur HF-5 et HF-7 est appliqué : value object → processor → tests
+unit (Red) → impl (Green) → Cucumber EN (critères acceptation).
+
+== Constat de départ
+
+`PronunciationDomainLoader` existait et était testé en isolation (session
+010, HF-7d), mais n'était PAS câblé dans le pipeline. `HyperframesExtension`
+n'avait pas de propriété `pronunciationDomain`, `GenerateHyperframesHtmlTask`
+ne chargeait aucun dictionnaire de domaine, `HyperframesHtmlProcessor` ne
+recevait pas de domaine. Le domaine pré-câblé `video-fr` était inerte.
+
+== Livrables
+
+=== Production code (4 fichiers)
+
+- `HyperframesExtension.kt` — nouvelle propriété `pronunciationDomain:
+  Property<String>` (`@Input @Optional`). Documentée KDoc (bounded context :
+  domaine générique vidéo, un borough consommateur injecte son vocabulaire
+  métier privé via config, pas via le plugin public).
+- `GenerateHyperframesHtmlTask.kt` — propriété `pronunciationDomain` + import
+  `PronunciationDomainLoader` + chargement `pronunciationDomain.orNull?.let {
+  PronunciationDomainLoader.load(it) }` → `processor.withDomainDictionary(domain)`.
+- `HyperframesPlugin.kt` — wiring `task.pronunciationDomain.set(
+  extension.pronunciationDomain)`.
+- `HyperframesHtmlProcessor.kt` — refactor majeur :
+  - Constructeur internal `(... domainDictionary: PronunciationDictionary?)` +
+    backward-compatible constructor (4 args, domain null).
+  - Méthode `withDomainDictionary(domain): HyperframesHtmlProcessor` (copie
+    immuable, le receiver n'est pas muté).
+  - `expandPronunciationBlocks` ne rend plus directement le JSON island — il
+    collecte les hints auteur dans un `blockDictionary` partagé. L'injection
+    finale se fait en une seule passe.
+  - `injectPronunciationIsland` remplace `injectInlinePronunciationIsland` :
+    merge `inlineDictionary.merge(blockDictionary)` puis
+    `mergeAuthorOverDomain(author, domain)`.
+  - `mergeAuthorOverDomain` : un hint auteur sans langue override TOUTES les
+    langues du domaine pour le même mot (l'auteur a le dernier mot). Un hint
+    auteur avec langue ne override que la langue correspondante. Domain-only
+    words conservés. Domain jamais muté (filtered copy).
+
+=== Tests (Red → Green → BDD)
+
+- **9 tests unit** `HyperframesDomainWiringTest` : merge block+domain, author
+  override conflict, baseline injection (no block, no inline), backward compat
+  (no domain), inline+domain merge, inline override, block+inline+domain all
+  merge, immutabilité du domaine.
+- **3 tests fonctionnels** `HyperframesPluginTest` : task Gradle avec
+  `pronunciationDomain.set("video-fr")` — (1) baseline sans block produit
+  domain hints, (2) author block override domain + domain-only words kept,
+  (3) no domain + no block = no island (backward compat).
+- **4 scénarios Cucumber** `pronunciation_domain.feature` : full pipeline BDD
+  EN — baseline, author override, inline+domain, no-domain.
+- **1 test existant ajusté** `HyperframesPronunciationProcessorTest` : `empty
+  content renders empty JSON array` → `empty content produces no JSON island`
+  (un block vide ne collecte aucun hint → aucun island, comportement plus
+  cohérent avec la nouvelle sémantique de merge).
+
+== Décisions techniques
+
+. **Merge sémantique author-over-domain** : un hint auteur sans langue
+  supprime tous les hints domaine du même mot (toutes langues). Justification :
+  l'auteur qui écrit `narration: my-override` (sans langue) s'attend à override
+  le domaine `narration: na-ra-syon` (langue fr). Sans cette règle, les clés
+  `word|_` et `word|fr` ne dédupliquent pas → le hint domaine persiste.
+. **Domain jamais muté** : `mergeAuthorOverDomain` travaille sur une copie
+  filtrée du domaine. Test `domain dictionary is not mutated by the processor`
+  verrouille cette propriété. Permet de réutiliser le même domaine pour
+  plusieurs documents dans un même build.
+. **Injection en une seule passe** : refactor de `expandPronunciationBlocks`
+  (rendait directement) → collecte dans `blockDictionary`. L'island final est
+  injecté par `injectPronunciationIsland` après que tous les hints auteur
+  (block + inline) sont collectés. Évite les islands multiples et garantit
+  l'ordre de precedence.
+. **HyperframesWorld.createProject() idempotent** : `if (::projectDir.isInitialized
+  && projectDir.exists()) return`. Permet au step `the project uses the
+  pronunciation domain` de créer le projet avec le domaine configuré, puis aux
+  steps existants (`source contains...`) d'être réutilisés sans écraser le
+  build.gradle.kts.
+
+== Résultat
+
+`./gradlew check` ✅ vert — **178 tests unit/functional + 33 scénarios Cucumber
+= 211 tests**, zéro échec, zéro secret.
+
+== Reste à faire
+
+- **HF-6c** — Publication Gradle Plugin Portal (handle `cccp-education`).
+  Tâche de config/publish, pas de code. Dernier item pour clôturer EPIC HF-6.
+
+== Fichiers modifiés
+
+Production :
+- `src/main/kotlin/hyperframes/HyperframesExtension.kt`
+- `src/main/kotlin/hyperframes/GenerateHyperframesHtmlTask.kt`
+- `src/main/kotlin/hyperframes/HyperframesPlugin.kt`
+- `src/main/kotlin/hyperframes/HyperframesHtmlProcessor.kt`
+
+Tests :
+- `src/test/kotlin/hyperframes/HyperframesDomainWiringTest.kt` (nouveau)
+- `src/test/kotlin/hyperframes/HyperframesPluginTest.kt` (3 tests + helper)
+- `src/test/kotlin/hyperframes/HyperframesPronunciationProcessorTest.kt` (1 ajusté)
+- `src/test/kotlin/hyperframes/scenarios/PronunciationDomainSteps.kt` (nouveau)
+- `src/test/kotlin/hyperframes/scenarios/HyperframesWorld.kt` (idempotent + domain)
+- `src/test/resources/features/pronunciation_domain.feature` (nouveau)

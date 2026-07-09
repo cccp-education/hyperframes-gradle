@@ -487,7 +487,8 @@ class HyperframesPluginTest {
     private fun writeBuildFiles(
         projectDir: File,
         cliScript: String = "",
-        renderTimeoutMs: String = "300000"
+        renderTimeoutMs: String = "300000",
+        pronunciationDomain: String = ""
     ) {
         projectDir.resolve("settings.gradle.kts").writeText("""
             pluginManagement {
@@ -515,7 +516,107 @@ class HyperframesPluginTest {
                 ${if (cliScript.isNotEmpty()) """cliScript.set("$cliScript")""" else ""}
                 ${if (cliScript.isNotEmpty()) """nodeExecutable.set("$cliScript")""" else ""}
                 renderTimeoutMs.set($renderTimeoutMs)
+                ${if (pronunciationDomain.isNotEmpty()) """pronunciationDomain.set("$pronunciationDomain")""" else ""}
             }
         """.trimIndent())
+    }
+
+    // ──────────────────────────────────────────────────
+    // HF-7 evolution Tests — Pronunciation domain wiring
+    // ──────────────────────────────────────────────────
+
+    @Test
+    fun `generateHyperframesHtml with pronunciationDomain video-fr injects domain hints without author block`() {
+        writeBuildFiles(projectDir, pronunciationDomain = "video-fr")
+
+        val srcDir = projectDir.resolve("src/docs")
+        srcDir.mkdirs()
+        srcDir.resolve("index.adoc").writeText(buildString {
+            appendLine("= Domain baseline demo")
+            appendLine(":hyperframes-width: 1920")
+            appendLine(":hyperframes-height: 1080")
+            appendLine(":hyperframes-fps: 30")
+            appendLine()
+            appendLine("== Introduction")
+            appendLine()
+            append("Le rendu de la narration.")
+        })
+
+        val result = GradleRunner.create()
+            .withProjectDir(projectDir)
+            .withPluginClasspath()
+            .withArguments("generateHyperframesHtml", "--info")
+            .build()
+
+        assertTrue(result.task(":generateHyperframesHtml")?.outcome?.toString()?.contains("SUCCESS") == true)
+        val html = projectDir.resolve("build/hyperframes/index.html").readText()
+        assertContains(html, """<script type="application/json" id="hf-pronunciation">""")
+        assertContains(html, """"word":"narration"""")
+        assertContains(html, """"phonetic":"na-ra-syon"""")
+    }
+
+    @Test
+    fun `generateHyperframesHtml with pronunciationDomain merges author block over domain`() {
+        writeBuildFiles(projectDir, pronunciationDomain = "video-fr")
+
+        val srcDir = projectDir.resolve("src/docs")
+        srcDir.mkdirs()
+        srcDir.resolve("index.adoc").writeText(buildString {
+            appendLine("= Domain merge demo")
+            appendLine(":hyperframes-width: 1920")
+            appendLine(":hyperframes-height: 1080")
+            appendLine(":hyperframes-fps: 30")
+            appendLine()
+            appendLine("[.hyperframes-pronunciation]")
+            appendLine("----")
+            appendLine("narration: my-override")
+            appendLine("----")
+        })
+
+        val result = GradleRunner.create()
+            .withProjectDir(projectDir)
+            .withPluginClasspath()
+            .withArguments("generateHyperframesHtml", "--info")
+            .build()
+
+        assertTrue(result.task(":generateHyperframesHtml")?.outcome?.toString()?.contains("SUCCESS") == true)
+        val html = projectDir.resolve("build/hyperframes/index.html").readText()
+        assertContains(html, """"word":"narration"""")
+        assertContains(html, """"phonetic":"my-override"""")
+        assertFalse(
+            html.contains(""""phonetic":"na-ra-syon""""),
+            "author hint should override the domain phonetic for 'narration'"
+        )
+        assertContains(html, """"word":"transition"""")
+        assertContains(html, """"phonetic":"tran-zi-syon"""")
+    }
+
+    @Test
+    fun `generateHyperframesHtml without pronunciationDomain produces no JSON island when no author block`() {
+        writeBuildFiles(projectDir)
+
+        val srcDir = projectDir.resolve("src/docs")
+        srcDir.mkdirs()
+        srcDir.resolve("index.adoc").writeText(buildString {
+            appendLine("= No domain demo")
+            appendLine(":hyperframes-width: 1920")
+            appendLine(":hyperframes-height: 1080")
+            appendLine(":hyperframes-fps: 30")
+            appendLine()
+            append("Le rendu de la narration.")
+        })
+
+        val result = GradleRunner.create()
+            .withProjectDir(projectDir)
+            .withPluginClasspath()
+            .withArguments("generateHyperframesHtml", "--info")
+            .build()
+
+        assertTrue(result.task(":generateHyperframesHtml")?.outcome?.toString()?.contains("SUCCESS") == true)
+        val html = projectDir.resolve("build/hyperframes/index.html").readText()
+        assertFalse(
+            html.contains("id=\"hf-pronunciation\""),
+            "no JSON island without domain and without author block"
+        )
     }
 }

@@ -17,7 +17,10 @@ class HyperframesWorld {
     var buildResult: org.gradle.testkit.runner.BuildResult? = null
     private val mapper = jacksonObjectMapper()
 
+    var pronunciationDomain: String? = null
+
     fun createProject() {
+        if (::projectDir.isInitialized && projectDir.exists()) return
         projectDir = Files.createTempDirectory("hyperframes-cucumber").toFile()
         projectDir.resolve("settings.gradle.kts").writeText(
             """
@@ -37,6 +40,7 @@ class HyperframesWorld {
                 height.set(1080)
                 fps.set(30)
                 outputName.set("test-video")
+                ${if (pronunciationDomain != null) """pronunciationDomain.set("$pronunciationDomain")""" else ""}
             }
             """.trimIndent()
         )
