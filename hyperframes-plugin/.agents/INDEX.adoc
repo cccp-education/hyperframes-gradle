@@ -6,10 +6,10 @@ _DAG_ : N2 — Plugin Gradle de transformation documentaire AsciiDoc → vidéo 
 _Dépendance N2_ : codex-gradle (compileOnly, AsciidoctorJ partagé)
 _Bridge externe_ : HyperFrames CLI (Node.js via gradle-node-plugin, ProcessBuilder)
 
-_Dernière mise à jour_ : 2026-07-09 (Session 013 — HF-6c Gradle Plugin Portal publié, EPIC HF-6 clôturé)
-_Session terminée_ : 013 — Publication Gradle Plugin Portal (handle cccp-education, en attente d'approbation)
-_Prochaine session_ : 014 — Maintenance / nouveau besoin (tous les EPICs HF-0→HF-7 terminés)
-_Version publiée_ : 0.0.2 (Maven Central + Gradle Plugin Portal)
+_Dernière mise à jour_ : 2026-07-09 (Session 014 — BOM intégrée, version 0.0.3 publiée Maven Central)
+_Session terminée_ : 014 — Intégration workspace-bom + publication 0.0.3 (bundle `5d48222c`)
+_Prochaine session_ : 015 — Maintenance / nouveau besoin (tous les EPICs HF-0→HF-7 terminés)
+_Version publiée_ : 0.0.3 (Maven Central, bundle `5d48222c`) + Gradle Plugin Portal (en attente d'approbation)
 
 '''
 == RÈGLES ABSOLUES (résumé)
@@ -167,6 +167,7 @@ Le dictionnaire reste côté auteur (AsciiDoc), pas côté moteur (Node.js).
 
 |===
 | # | Date | Type | Sujet | Score
+| 014 | 2026-07-09 | integration | BOM integration (workspace-bom:0.0.7) + publication 0.0.3 Maven Central (bundle `5d48222c`) + BOM 0.0.8 | ✅ TERMINÉ
 | 013 | 2026-07-09 | publish | HF-6c — Publication Gradle Plugin Portal (handle cccp-education, en attente d'approbation) | ✅ TERMINÉ
 | 012 | 2026-07-09 | impl | HF-7 évolution — câblage PronunciationDomainLoader dans l'extension Gradle + merge auteur/domaine (9 unit + 3 func + 4 Cucumber, 211 tests) | ✅ TERMINÉ
 | 011 | 2026-07-09 | impl | Correctif bounded context (fpa-fr → video-fr) + HF-5c data-chart + HF-5d kinetic-captions (EPIC HF-5 clôturé 4/4, 27 unit + 8 Cucumber + Règle 9) | ✅ TERMINÉ

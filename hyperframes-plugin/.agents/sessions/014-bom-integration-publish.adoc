@@ -1,0 +1,57 @@
+= Session 014 — BOM Integration + Publication 0.0.3
+
+:date: 2026-07-09
+:status: ✅ TERMINÉ
+:type: integration + publish
+
+== Objectif
+
+Intégrer `workspace-bom` comme source unique de vérité des versions de dépendances
+dans hyperframes-gradle, puis publier la version 0.0.3 avec les corrections de
+namespace (`vcsUrl`/`website` `cheroliv` → `cccp-education`).
+
+== Constat initial
+
+Hyperframes ne consommait PAS la BOM. Toutes les versions étaient hardcodées
+dans son propre `libs.versions.toml`, avec des divergences vs la BOM :
+- `junit-platform-launcher` : 1.12.2 vs 1.14.3 (BOM)
+- `junit-platform-suite` : 1.12.2 vs 1.14.3 (BOM)
+- `plugin-publish` : 1.3.1 vs 2.1.0 (BOM)
+
+== Travail réalisé
+
+=== 1. Intégration BOM
+
+- `build.gradle.kts` : ajout `implementation(platform("education.cccp:workspace-bom:0.0.7"))`
+- `libs.versions.toml` : suppression des versions couvertes par la BOM (jackson, junit, cucumber, slf4j, logback)
+- Conservé uniquement : `asciidoctorj`, `node-gradle`, `kotlin`, `plugin-publish` (non couverts ou divergents)
+- `compileKotlin` ✅ BUILD SUCCESSFUL
+
+=== 2. Bump 0.0.3
+
+- `build.gradle.kts` : version `0.0.2` → `0.0.3`
+- `libs.versions.toml` : `hyperframes = "0.0.3"`
+- `vcsUrl`/`website` déjà corrigés en session 013
+
+=== 3. BOM 0.0.8
+
+- `workspace-bom/gradle/libs.versions.toml` : `hyperframes-plugin = "0.0.3"`
+- `workspace-bom/build.gradle.kts` : `asciidoctorj:3.0.0` → `3.0.1`, version `0.0.7` → `0.0.8`
+- Publiée sur Maven Central (bundle `3ab0e4b8`)
+
+=== 4. Publication Hyperframes 0.0.3
+
+- `./gradlew publishAggregationToCentralPortal` → BUILD SUCCESSFUL
+- Bundle `5d48222c` — en attente de validation Central
+
+== Résultat
+
+- Hyperframes consomme désormais la BOM comme source unique de vérité
+- Version 0.0.3 publiée avec namespace `cccp-education` correct
+- BOM 0.0.8 publiée avec bump hyperframes + asciidoctorj
+- `compileKotlin` ✅ vert
+
+== Prochaine session (015)
+
+Borough DORMANT — tous les EPICs HF-0→HF-7 terminés.
+Prochaine session : maintenance, mise à jour de version, ou nouveau besoin.

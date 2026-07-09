@@ -1,5 +1,24 @@
 = SESSIONS_HISTORY — hyperframes-gradle
 
+== Session 014 (2026-07-09) — BOM Integration + Publication 0.0.3
+
+Intégration de `workspace-bom:0.0.7` comme source unique de vérité des versions
+de dépendances. Hyperframes ne consommait pas la BOM — toutes les versions étaient
+hardcodées dans son propre `libs.versions.toml` avec des divergences (junit-platform
+1.12.2 vs 1.14.3, plugin-publish 1.3.1 vs 2.1.0).
+
+Production (2 fichiers) :
+- `build.gradle.kts` : ajout `implementation(platform("education.cccp:workspace-bom:0.0.7"))`
+- `libs.versions.toml` : suppression versions couvertes par la BOM (jackson, junit,
+  cucumber, slf4j, logback), conservé `asciidoctorj`, `node-gradle`, `kotlin`,
+  `plugin-publish`
+
+Bump 0.0.3 avec corrections namespace `cccp-education` dans le POM publié.
+BOM 0.0.8 publiée (bump `hyperframes-plugin:0.0.3` + `asciidoctorj:3.0.1`).
+Publication Maven Central 0.0.3 (bundle `5d48222c`).
+
+`./gradlew compileKotlin` ✅ BUILD SUCCESSFUL.
+
 == Session 013 (2026-07-09) — HF-6c Gradle Plugin Portal
 
 Publication du plugin `education.cccp.hyperframes` sur le Gradle Plugin Portal

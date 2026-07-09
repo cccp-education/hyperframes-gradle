@@ -1,6 +1,6 @@
 = COMPLETED_TASKS_ARCHIVE — hyperframes-gradle
 :date: 2026-05-31
-:last-updated: 2026-07-09 (session 013)
+:last-updated: 2026-07-09 (session 014)
 
 == Tâches terminées (session 000 — 2026-05-31)
 
@@ -130,4 +130,15 @@
 | HF-6c | Correction `vcsUrl` + `website` (cheroliv → cccp-education) | ✅
 | HF-6c | `./gradlew publishPlugins --no-daemon` → BUILD SUCCESSFUL | ✅
 | HF-6c | Plugin `education.cccp.hyperframes` soumis pour approbation sur Gradle Plugin Portal | ✅
+|===
+
+== Tâches terminées (session 014 — 2026-07-09)
+
+|===
+| EPIC | Tâche | Statut
+| BOM | Intégration `workspace-bom:0.0.7` comme source unique de vérité (platform dans build.gradle.kts) | ✅
+| BOM | Nettoyage `libs.versions.toml` — suppression versions couvertes par la BOM (jackson, junit, cucumber, slf4j, logback) | ✅
+| PUB | Bump 0.0.3 — corrections namespace `cccp-education` dans le POM publié | ✅
+| PUB | BOM 0.0.8 publiée (bump hyperframes-plugin 0.0.3 + asciidoctorj 3.0.1, bundle `3ab0e4b8`) | ✅
+| PUB | Publication Maven Central 0.0.3 (bundle `5d48222c`) | ✅
 |===

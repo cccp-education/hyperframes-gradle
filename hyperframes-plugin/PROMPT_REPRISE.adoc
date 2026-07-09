@@ -1,7 +1,7 @@
-= PROMPT_REPRISE — HyperFrames Gradle (Session 013 TERMINÉE → 014)
-:session: 013
+= PROMPT_REPRISE — HyperFrames Gradle (Session 014 TERMINÉE → 015)
+:session: 014
 :date: 2026-07-09
-:status: ✅ TERMINÉ — HF-6c Gradle Plugin Portal publié, EPIC HF-6 clôturé
+:status: ✅ TERMINÉ — BOM intégrée, version 0.0.3 publiée Maven Central
 
 '''
 == État des lieux
@@ -9,16 +9,17 @@
 Plugin Gradle fonctionnel avec pipeline complet :
 AsciiDoc → AsciidoctorJ → HTML enrichi (stage, data-*, GSAP) → CLI Node.js → MP4.
 Tous les EPICs terminés : HF-0→HF-7 ✅.
-Version `0.0.2` publiée sur Maven Central + Gradle Plugin Portal (en attente d'approbation).
+Version `0.0.3` publiée sur Maven Central (bundle `5d48222c`) + Gradle Plugin Portal (en attente d'approbation).
 
-== Fait en session 013
+== Fait en session 014
 
-- Correction `vcsUrl` : `cheroliv/hyperframes-gradle` → `cccp-education/hyperframes-gradle`
-- Correction `website` : `cheroliv.com` → `github.com/cccp-education/hyperframes-gradle`
-- `./gradlew publishPlugins --no-daemon` → BUILD SUCCESSFUL
-- Plugin `education.cccp.hyperframes` soumis pour approbation
+- Intégration `workspace-bom:0.0.7` comme source unique de vérité des versions
+- Nettoyage `libs.versions.toml` : suppression versions couvertes par la BOM
+- Bump 0.0.3 avec corrections namespace `cccp-education` dans le POM publié
+- BOM 0.0.8 publiée (bump hyperframes-plugin 0.0.3 + asciidoctorj 3.0.1)
+- Publication Maven Central 0.0.3 (bundle `5d48222c`)
 
-== Prochaine session (014)
+== Prochaine session (015)
 
 Borough DORMANT — tous les EPICs HF-0→HF-7 sont terminés.
 Prochaine session : maintenance, mise à jour de version, ou nouveau besoin.
@@ -36,7 +37,8 @@ Prochaine session : maintenance, mise à jour de version, ou nouveau besoin.
 
 == Rappels techniques
 
-- **Version publiée** : 0.0.2 (Maven Central + Portal, asciidoctorj 3.0.1)
+- **Version publiée** : 0.0.3 (Maven Central, bundle `5d48222c`)
+- **BOM** : `implementation(platform("education.cccp:workspace-bom:0.0.7"))` — source unique de vérité
 - **Pattern template** : value object DDD pur + `expand{Template}Blocks` processor
 - **Template = data class** : `render(): String`, zéro effet de bord
 - **Dictionnaires domaine** : `video-fr` / `video-en` (génériques vidéo, pas métier privé)
