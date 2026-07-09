@@ -1,0 +1,26 @@
+= Session 013 — HF-6c Gradle Plugin Portal
+:date: 2026-07-09
+:status: ✅ TERMINÉ
+
+== Objectif
+
+Publier `education.cccp.hyperframes` sur le Gradle Plugin Portal
+sous le handle `cccp-education`. Dernier item de l'EPIC HF-6.
+
+== Actions
+
+- Correction `vcsUrl` : `cheroliv/hyperframes-gradle` → `cccp-education/hyperframes-gradle`
+- Correction `website` : `cheroliv.com` → `github.com/cccp-education/hyperframes-gradle`
+- `./gradlew publishPlugins --no-daemon` → BUILD SUCCESSFUL
+- Plugin soumis pour approbation par les ingénieurs Gradle
+
+== Résultat
+
+Plugin `education.cccp.hyperframes` en attente d'approbation sur
+https://plugins.gradle.org/plugin/education.cccp.hyperframes
+
+EPIC HF-6 clôturé : HF-6a CI ✅, HF-6b Maven Central ✅, HF-6c Portal ✅.
+
+== Fichiers modifiés
+
+- `build.gradle.kts` : website + vcsUrl corrigés

@@ -7,7 +7,7 @@ plugins {
 }
 
 group = "education.cccp"
-version = "0.0.1"
+version = "0.0.2"
 
 repositories {
     mavenCentral()
@@ -74,8 +74,8 @@ gradlePlugin {
             tags.set(listOf("asciidoc", "hyperframes", "video", "mp4", "kotlin"))
         }
     }
-    website = "https://cheroliv.com"
-    vcsUrl = "https://github.com/cheroliv/hyperframes-gradle.git"
+    website = "https://github.com/cccp-education/hyperframes-gradle"
+    vcsUrl = "https://github.com/cccp-education/hyperframes-gradle.git"
 }
 
 publishingConventions {

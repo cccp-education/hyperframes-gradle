@@ -1,5 +1,15 @@
 = SESSIONS_HISTORY — hyperframes-gradle
 
+== Session 013 (2026-07-09) — HF-6c Gradle Plugin Portal
+
+Publication du plugin `education.cccp.hyperframes` sur le Gradle Plugin Portal
+sous le handle `cccp-education`. Correction `vcsUrl` et `website` pour pointer
+vers `cccp-education/hyperframes-gradle` (au lieu de `cheroliv`). `./gradlew
+publishPlugins --no-daemon` → BUILD SUCCESSFUL. Plugin soumis pour approbation.
+
+EPIC HF-6 clôturé : HF-6a CI ✅, HF-6b Maven Central ✅, HF-6c Portal ✅.
+Tous les EPICs HF-0→HF-7 sont terminés. Borough DORMANT.
+
 == Session 012 (2026-07-09) — HF-7 évolution : Pronunciation Domain Wiring
 
 Câblage du `PronunciationDomainLoader` (livré session 010) dans le pipeline
@@ -108,6 +118,8 @@ Cucumber 7.34.3 intégré (task `cucumberTest`, JUnit Platform Suite, glue
 
 |===
 | # | Date | Type | Sujet | Score
+| 013 | 2026-07-09 | publish | HF-6c — Publication Gradle Plugin Portal (handle cccp-education, en attente d'approbation) | ✅ TERMINÉ
+| 012 | 2026-07-09 | impl | HF-7 évolution — câblage PronunciationDomainLoader (9 unit + 3 func + 4 Cucumber, 211 tests) | ✅ TERMINÉ
 | 011 | 2026-07-09 | impl | Correctif bounded context (fpa-fr → video-fr) + HF-5c data-chart + HF-5d kinetic-captions (EPIC HF-5 clôturé 4/4, 27 unit + 8 Cucumber + Règle 9) | ✅ TERMINÉ
 | 010 | 2026-07-09 | impl | HF-7 Pronunciation Control (7 phases — PronunciationHint, PronunciationDictionary, DomainLoader, DSL processor, inline hints, N3 metadata, e2e BDD, ~46 tests + 10 Cucumber) | ✅ TERMINÉ
 | 009 | 2026-07-07 | impl | HF-5b code-diff template (CodeDiffTemplate value object, expandCodeDiffBlocks, 10 unit + 4 Cucumber + 1 processor test, coloration lexicale 5 langues) | ✅ TERMINÉ

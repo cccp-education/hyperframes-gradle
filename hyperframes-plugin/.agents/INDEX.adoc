@@ -6,10 +6,10 @@ _DAG_ : N2 — Plugin Gradle de transformation documentaire AsciiDoc → vidéo 
 _Dépendance N2_ : codex-gradle (compileOnly, AsciidoctorJ partagé)
 _Bridge externe_ : HyperFrames CLI (Node.js via gradle-node-plugin, ProcessBuilder)
 
-_Dernière mise à jour_ : 2026-07-09 (Session 012 — HF-7 évolution : câblage PronunciationDomainLoader)
-_Session terminée_ : 012 — Câblage PronunciationDomainLoader dans l'extension Gradle + merge automatique auteur/domaine (author > domain > empty)
-_Prochaine session_ : 013 — HF-6c (Gradle Plugin Portal, handle cccp-education)
-_Version publiée_ : 0.0.1 (Maven Central)
+_Dernière mise à jour_ : 2026-07-09 (Session 013 — HF-6c Gradle Plugin Portal publié, EPIC HF-6 clôturé)
+_Session terminée_ : 013 — Publication Gradle Plugin Portal (handle cccp-education, en attente d'approbation)
+_Prochaine session_ : 014 — Maintenance / nouveau besoin (tous les EPICs HF-0→HF-7 terminés)
+_Version publiée_ : 0.0.2 (Maven Central + Gradle Plugin Portal)
 
 '''
 == RÈGLES ABSOLUES (résumé)
@@ -50,7 +50,7 @@ _Version publiée_ : 0.0.1 (Maven Central)
 | HF-3 | DSL AsciiDoc customs (blocs, docinfo attributes, templates) | ✅ TERMINÉ (session 003) | P1
 | HF-4 | Intégration N3 runner-gradle (collectHyperframesRetrieve, metadata.json) | ✅ TERMINÉ (session 007) | P2
 | HF-5 | Templates HyperFrames prêts à l'emploi (title-card, code-diff, data-chart, kinetic-captions) | ✅ TERMINÉ (4/4 — sessions 008-011) | P3
-| HF-6 | CI + publication Maven Central / Gradle Portal | ✅ Maven Central (session 005) / CI (session 008) / Gradle Portal à faire | P3
+| HF-6 | CI + publication Maven Central / Gradle Portal | ✅ TERMINÉ (Maven Central S005, CI S008, Portal S013) | P3
 | HF-7 | Pronunciation Control (TTS Phonetic Hints) — corriger la phonétique TTS depuis l'AsciiDoc | ✅ TERMINÉ (session 010) + câblé (session 012) | P1
 |===
 
@@ -134,7 +134,7 @@ et Gradle Plugin Portal sous le handle cccp-education.
 | Phase | Livrable | Statut
 | HF-6a | GitHub Actions workflow test-hyperframes.yml | ✅ TERMINÉ (session 008)
 | HF-6b | Publication Maven Central (group education.cccp, artifact hyperframes-gradle) | ✅ TERMINÉ (session 005)
-| HF-6c | Publication Gradle Plugin Portal (handle cccp-education) | À faire
+| HF-6c | Publication Gradle Plugin Portal (handle cccp-education) | ✅ 2026-07-09
 |===
 
 '''
@@ -167,6 +167,7 @@ Le dictionnaire reste côté auteur (AsciiDoc), pas côté moteur (Node.js).
 
 |===
 | # | Date | Type | Sujet | Score
+| 013 | 2026-07-09 | publish | HF-6c — Publication Gradle Plugin Portal (handle cccp-education, en attente d'approbation) | ✅ TERMINÉ
 | 012 | 2026-07-09 | impl | HF-7 évolution — câblage PronunciationDomainLoader dans l'extension Gradle + merge auteur/domaine (9 unit + 3 func + 4 Cucumber, 211 tests) | ✅ TERMINÉ
 | 011 | 2026-07-09 | impl | Correctif bounded context (fpa-fr → video-fr) + HF-5c data-chart + HF-5d kinetic-captions (EPIC HF-5 clôturé 4/4, 27 unit + 8 Cucumber + Règle 9) | ✅ TERMINÉ
 | 010 | 2026-07-09 | impl | HF-7 Pronunciation Control (7 phases HF-7a→g — PronunciationHint, PronunciationDictionary, DomainLoader, DSL processor, inline hints, N3 metadata, e2e BDD) | ✅ TERMINÉ

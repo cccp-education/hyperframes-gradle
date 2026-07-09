@@ -1,6 +1,6 @@
 = COMPLETED_TASKS_ARCHIVE — hyperframes-gradle
 :date: 2026-05-31
-:last-updated: 2026-07-09 (session 012)
+:last-updated: 2026-07-09 (session 013)
 
 == Tâches terminées (session 000 — 2026-05-31)
 
@@ -121,4 +121,13 @@
 | HF-7 | 3 tests fonctionnels `HyperframesPluginTest` (baseline, override, backward compat) | ✅
 | HF-7 | 4 scénarios Cucumber `pronunciation_domain.feature` (full pipeline BDD EN) | ✅
 | HF-7 | 1 test existant ajusté (empty block → no island, comportement plus cohérent) | ✅
+|===
+
+== Tâches terminées (session 013 — 2026-07-09)
+
+|===
+| EPIC | Tâche | Statut
+| HF-6c | Correction `vcsUrl` + `website` (cheroliv → cccp-education) | ✅
+| HF-6c | `./gradlew publishPlugins --no-daemon` → BUILD SUCCESSFUL | ✅
+| HF-6c | Plugin `education.cccp.hyperframes` soumis pour approbation sur Gradle Plugin Portal | ✅
 |===

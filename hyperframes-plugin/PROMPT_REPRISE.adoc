@@ -1,39 +1,27 @@
-= PROMPT_REPRISE — HyperFrames Gradle (Session 012 TERMINÉE → 013)
-:session: 012
+= PROMPT_REPRISE — HyperFrames Gradle (Session 013 TERMINÉE → 014)
+:session: 013
 :date: 2026-07-09
-:status: ✅ TERMINÉ — HF-7 évolution : câblage PronunciationDomainLoader dans le pipeline Gradle
+:status: ✅ TERMINÉ — HF-6c Gradle Plugin Portal publié, EPIC HF-6 clôturé
 
 '''
 == État des lieux
 
 Plugin Gradle fonctionnel avec pipeline complet :
 AsciiDoc → AsciidoctorJ → HTML enrichi (stage, data-*, GSAP) → CLI Node.js → MP4.
-EPIC HF-5 **TERMINÉ** : 4/4 templates livrés (title-card, code-diff, data-chart, kinetic-captions).
-EPIC HF-6 **partiellement terminé** : CI ✅, Maven Central ✅, Gradle Portal à faire.
-EPIC HF-7 **TERMINÉ + câblé** : dictionnaires pré-câblés `video-fr`/`video-en` +
-câblage `pronunciationDomain.set("video-fr")` dans l'extension Gradle + merge
-automatique auteur/domaine (author > domain > empty).
-Version `0.0.1` publiée sur Maven Central via nmcp.
+Tous les EPICs terminés : HF-0→HF-7 ✅.
+Version `0.0.2` publiée sur Maven Central + Gradle Plugin Portal (en attente d'approbation).
 
-== Fait en session 012
+== Fait en session 013
 
-- `HyperframesExtension.pronunciationDomain: Property<String>` (`@Input @Optional`)
-- `GenerateHyperframesHtmlTask.pronunciationDomain` + chargement `PronunciationDomainLoader.load(it)`
-- `HyperframesPlugin` wiring extension → task
-- `HyperframesHtmlProcessor` refactor : constructeur internal avec `domainDictionary`,
-  `withDomainDictionary()`, merge auteur (block + inline) → domaine en une seule passe,
-  `mergeAuthorOverDomain` (hint auteur sans langue override toutes langues du domaine)
-- 9 tests unit `HyperframesDomainWiringTest` (merge, override, baseline, inline, immutabilité)
-- 3 tests fonctionnels `HyperframesPluginTest` (baseline, override, backward compat)
-- 4 scénarios Cucumber `pronunciation_domain.feature` (full pipeline BDD EN)
-- 1 test existant ajusté (empty block → no island, comportement plus cohérent)
-- `./gradlew check` ✅ vert — 178 unit/functional + 33 Cucumber = 211 tests
+- Correction `vcsUrl` : `cheroliv/hyperframes-gradle` → `cccp-education/hyperframes-gradle`
+- Correction `website` : `cheroliv.com` → `github.com/cccp-education/hyperframes-gradle`
+- `./gradlew publishPlugins --no-daemon` → BUILD SUCCESSFUL
+- Plugin `education.cccp.hyperframes` soumis pour approbation
 
-== Prochaine session (013)
+== Prochaine session (014)
 
-Priorité restante :
-1. HF-6c — Publication Gradle Plugin Portal (handle cccp-education)
-   Tâche de config/publish, pas de code. Dernier item pour clôturer EPIC HF-6.
+Borough DORMANT — tous les EPICs HF-0→HF-7 sont terminés.
+Prochaine session : maintenance, mise à jour de version, ou nouveau besoin.
 
 == Routes documents clés (lecture rapide)
 
@@ -48,7 +36,7 @@ Priorité restante :
 
 == Rappels techniques
 
-- **Version publiée** : 0.0.1 (Maven Central, asciidoctorj 3.0.0 dans POM — local 3.0.1)
+- **Version publiée** : 0.0.2 (Maven Central + Portal, asciidoctorj 3.0.1)
 - **Pattern template** : value object DDD pur + `expand{Template}Blocks` processor
 - **Template = data class** : `render(): String`, zéro effet de bord
 - **Dictionnaires domaine** : `video-fr` / `video-en` (génériques vidéo, pas métier privé)

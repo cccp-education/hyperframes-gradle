@@ -1,5 +1,5 @@
 [versions]
-hyperframes = "0.0.1"
+hyperframes = "0.0.2"
 kotlin = "2.3.20"
 asciidoctorj = "3.0.1"
 junit-jupiter = "5.12.2"
