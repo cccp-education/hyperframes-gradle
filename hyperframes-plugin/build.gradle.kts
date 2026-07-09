@@ -7,7 +7,7 @@ plugins {
 }
 
 group = "education.cccp"
-version = "0.0.2"
+version = "0.0.3"
 
 repositories {
     mavenCentral()
@@ -15,6 +15,8 @@ repositories {
 }
 
 dependencies {
+    implementation(platform("education.cccp:workspace-bom:0.0.7"))
+
     implementation(kotlin("stdlib-jdk8"))
     implementation(libs.asciidoctorj)
     implementation(libs.node.gradle)
