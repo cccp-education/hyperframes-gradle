@@ -49,6 +49,19 @@ Le projet utilise JUnit5, GradleTestKit et Cucumber BDD.
 Toute modification de code source DOIT passer `./gradlew check`
 (sauf permission contraire).
 
+== Conventions Plugins (ABIDJAN N0)
+
+HyperFrames consomme les convention plugins centralises `education.cccp.build` v0.0.3 :
+
+[cols="2,5"]
+|===
+| Plugin ID | Role
+| `education.cccp.build.gradle-plugin` | java-gradle-plugin + kotlin-jvm + test JUnit + withSourcesJar/JavadocJar + mavenLocal + deps junit test
+| `education.cccp.build.publishing` | POM Maven Central + signing conditionnel + relocation + publicationType
+|===
+
+Ces 2 plugins remplacent ~54 lignes de build redondantes (POM, signing, toolchain, testLogging).
+
 == Stack
 
 - Kotlin — DSL Gradle
