@@ -1,6 +1,6 @@
 [versions]
 hyperframes = "0.0.3"
-kotlin = "2.3.20"
+kotlin = "2.4.10"
 asciidoctorj = "3.0.1"
 plugin-publish = "2.1.0"
 node-gradle = "7.1.0"

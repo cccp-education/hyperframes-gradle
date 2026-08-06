@@ -372,3 +372,36 @@ exporté pour runner-gradle N3, pour traçabilité et audit.
 - Scenario: full pipeline with inline hints in narration
 - Scenario: full pipeline with domain dictionary + author overrides
 - Scenario: full pipeline without pronunciation (backward compatibility)
+
+'''
+== 🔴 EPIC HF-CR3 — Revue CR-GLOBALE-003 : Création de Contenu Solide
+
+_Source_ : `GLOBAL_CODE_REVIEW.adoc` (workspace root) — session CR-GLOBALE-003 (2026-08-04).
+_Focus_ : le rendu hyperframes est le maillon le moins couvert en intégration réelle
+(réseau + regex + headless). Un MP4 « réussi » ≠ rendu conforme.
+
+[cols="1,3,2,2", options="header"]
+|===
+| EPIC | Description | Priorité | Statut
+
+| HF-CR3-1
+| **Vendoriser GSAP (sortir du CDN externe)** — `HyperframesHtmlProcessor.injectGaspCdn` injecte
+`https://cdnjs.cloudflare.com/gsap` → le rendu dépend du réseau. Inliner la lib (fichier local
+dans le plugin) ou exiger un pré-install npm. Élimine la dépendance runtime au CDN.
+| 🔴 P0
+| ⬜ TODO
+
+| HF-CR3-2
+| **CI `full` rendu réel + probe de durée** — Nouveau job CI avec Node.js + dépendances hyperframes réelles.
+Lance `generateHyperframesHtml` → `renderHyperframes` sur un deck démo, probe la durée du MP4 final
+(`ffprobe`), vérifie non-vide et > seuil min. Un job CI réel (pas seulement unit/Cucumber hermétiques).
+| 🔴 P0
+| ⬜ TODO
+
+| HF-CR3-3
+| **Test « rendu réel » (pas seulement unitaire sur chaînes)** — Au moins un test d'intégration qui exécute
+vraiment la CLI hyperframes sur le HTML produit et valide le MP4 (exit 0 + fichier lisible + première frame).
+Sortir les regex `enhance*` du seul régime des tests de chaînes.
+| 🟠 P1
+| ⬜ TODO
+|===
