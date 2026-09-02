@@ -405,3 +405,29 @@ Sortir les regex `enhance*` du seul régime des tests de chaînes.
 | 🟠 P1
 | ⬜ TODO
 |===
+
+'''
+== 🟡 EPIC MEM-CAT-ROLLOUT — Adoption version catalog workspace (S-028, cross-borough MEMPHIS)
+
+_Origine : demande pilote S-028 (workspace-bom) — généralisation du pattern
+version catalog prouvé par le pilote bakery (S-208). Référentiel :
+`workspace-bom/BACKLOG.adoc`._
+
+=== US-ROLLOUT-4 — Pin workspace-catalog + version dérivée + platform 0.0.30
+
+*Priorite* : P2
+*EPIC* : MEM-CAT-ROLLOUT
+*Estimation* : 3 pts
+*Statut* : 🟡 À FAIRE (ordre 4)
+
+.Valeur
+Version du plugin depuis la source unique de vérité (`ws.versions.*`)
+— élimine les bumps éparpillés cross-borough (hyperframes était à 0.0.7).
+
+.Critères d'acceptation
+- [ ] `hyperframes-plugin/settings.gradle.kts` : `create("ws") { from("education.cccp:workspace-catalog:0.0.30") }` (pin unique D4)
+- [ ] `build.gradle.kts` : `version = ws.versions.hyperframes.plugin.get()` (version dérivée D3)
+- [ ] platform `workspace-bom` pin 0.0.7 → 0.0.30
+- [ ] Gate : `./gradlew check` VERT baseline exacte
+- [ ] `publishToMavenLocal` VERT si release
+- [ ] Baby-step TDD : test hygiène version dérivée d'abord (pattern bakery S-026)
