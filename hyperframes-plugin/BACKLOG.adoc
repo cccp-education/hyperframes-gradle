@@ -407,7 +407,7 @@ Sortir les regex `enhance*` du seul régime des tests de chaînes.
 |===
 
 '''
-== 🟡 EPIC MEM-CAT-ROLLOUT — Adoption version catalog workspace (S-028, cross-borough MEMPHIS)
+== ✅ EPIC MEM-CAT-ROLLOUT — Adoption version catalog workspace (S-028, cross-borough MEMPHIS)
 
 _Origine : demande pilote S-028 (workspace-bom) — généralisation du pattern
 version catalog prouvé par le pilote bakery (S-208). Référentiel :
@@ -418,16 +418,16 @@ version catalog prouvé par le pilote bakery (S-208). Référentiel :
 *Priorite* : P2
 *EPIC* : MEM-CAT-ROLLOUT
 *Estimation* : 3 pts
-*Statut* : 🟡 À FAIRE (ordre 4)
+*Statut* : ✅ TERMINÉ (S-031 — garde 3/3, check 214/0, mavenLocal VERT POM 0.0.3/platform 0.0.30, pas de split-brain local)
 
 .Valeur
 Version du plugin depuis la source unique de vérité (`ws.versions.*`)
 — élimine les bumps éparpillés cross-borough (hyperframes était à 0.0.7).
 
 .Critères d'acceptation
-- [ ] `hyperframes-plugin/settings.gradle.kts` : `create("ws") { from("education.cccp:workspace-catalog:0.0.30") }` (pin unique D4)
-- [ ] `build.gradle.kts` : `version = ws.versions.hyperframes.plugin.get()` (version dérivée D3)
-- [ ] platform `workspace-bom` pin 0.0.7 → 0.0.30
-- [ ] Gate : `./gradlew check` VERT baseline exacte
-- [ ] `publishToMavenLocal` VERT si release
-- [ ] Baby-step TDD : test hygiène version dérivée d'abord (pattern bakery S-026)
+- [x] `hyperframes-plugin/settings.gradle.kts` : `create("ws") { from("education.cccp:workspace-catalog:0.0.30") }` (pin unique D4)
+- [x] `build.gradle.kts` : `version = ws.versions.hyperframes.plugin.get()` (version dérivée D3)
+- [x] platform `workspace-bom` pin 0.0.7 → 0.0.30
+- [x] Garde `HyperframesPluginPublicationTest` 3/3 (RED → GREEN, pattern Document S-244)
+- [x] Gate : `./gradlew check` VERT — 214 tests 0 FAIL
+- [x] `publishToMavenLocal` VERT — POM `0.0.3` + platform `0.0.30` vérifiés

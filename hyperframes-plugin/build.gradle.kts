@@ -7,7 +7,8 @@ plugins {
 }
 
 group = "education.cccp"
-version = "0.0.3"
+// MEM-CAT-ROLLOUT-4 (D3) — self version derived from the published workspace catalog.
+version = ws.versions.hyperframes.plugin.get()
 
 repositories {
     mavenCentral()
@@ -15,7 +16,7 @@ repositories {
 }
 
 dependencies {
-    implementation(platform("education.cccp:workspace-bom:0.0.7"))
+    implementation(platform("education.cccp:workspace-bom:0.0.30"))
 
     implementation(kotlin("stdlib-jdk8"))
     implementation(libs.asciidoctorj)
