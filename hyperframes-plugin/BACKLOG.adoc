@@ -20,7 +20,7 @@ via le moteur HyperFrames (HeyGen, Apache 2.0), sans post-production humaine.
 
 .Valeur
 Une vidéo de teasing de 60 secondes générée automatiquement depuis le manuel
-de formation AFNOR/REAC, avec animations GSAP et narration TTS.
+de formation du référentiel, avec animations GSAP et narration TTS.
 
 .Critères d'acceptation
 - Un document AsciiDoc avec attributs `:hyperframes-*` produit un HTML HyperFrames valide
@@ -114,8 +114,8 @@ pour que la CLI consomme le dictionnaire au rendu.
 - Le dictionnaire est injecté dans le HTML HyperFrames sous forme de
   `<script type="application/json" id="hf-pronunciation">...</script>`
 - Le `metadata.json` N3 embarque le dictionnaire pour traçabilité
-- Un dictionnaire de domaine pré-câblé couvre le vocabulaire formation FPA
-  (AFNOR, REAC, Docker, Kubernetes, etc.)
+- Un dictionnaire de domaine pré-câblé couvre le vocabulaire formation
+  (référentiel, Docker, Kubernetes, etc.)
 - Les hints inline dans le texte de narration permettent une correction
   ponctuelle sans dictionnaire global
 - `./gradlew check` vert (tests unit + fonctionnels + Cucumber EN)
@@ -260,7 +260,7 @@ Bloc AsciiDoc au niveau document pour déclarer le dictionnaire global.
 ----
 dos: do
 kubernetes: koobernetayz
-AFNOR: afnor
+referentiel: rayferencyel
 ----
 ```
 
@@ -294,7 +294,7 @@ activable via extension Gradle `pronunciationDomain.set("video-fr")`.
 ====
 Le plugin est un artefact OSS générique (AsciiDoc → vidéo). Les dictionnaires
 embarqués couvrent uniquement le vocabulaire de la production vidéo. Un borough
-consommateur avec un vocabulaire métier privé (formation FPA, médecine, juridique...)
+consommateur avec un vocabulaire métier privé (formation réglementaire, médecine, juridique...)
 injecte son propre dictionnaire via configuration Gradle, sans l'embarquer dans le
 plugin public.
 ====

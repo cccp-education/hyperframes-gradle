@@ -27,14 +27,14 @@ Méthode : 7 ateliers agiles inspirés du mémo `0054_memo_cadrage_post.adoc`.
 | Facette | Réponse
 | *Qui* (acteurs)
 a| **Directs :**
-- Formateurs FPA (rédacteurs AsciiDoc)
+- Formateurs professionnels (rédacteurs AsciiDoc)
 - Ingénieurs pédagogiques (création contenu formation)
 - Stagiaires (consommateurs vidéo)
 
 **Indirects :**
 - Équipe DevOps (CI/CD pipeline)
 - Apprentis agenceurs du workspace (intégration N3)
-- LLM (gpt-oss:120b-cloud) — prompte les SPG/SPD
+- LLM (gpt-oss:120b-cloud) — prompte les scénarios pédagogiques
 
 | *Quoi* (produit)
 a| Un plugin Gradle N2 (`education.cccp.hyperframes`) qui transforme
@@ -46,7 +46,7 @@ Pipeline :
 
 | *Où* (périmètre)
 a| **In-scope :**
-- Documents AsciiDoc produits par planner-gradle (SPG/SPD)
+- Documents AsciiDoc produits par planner-gradle (scénarios pédagogiques)
 - Intégration dans runner-gradle N3 (assembleCompositeContext)
 - Déploiement sur site statique gh-pages
 
@@ -56,7 +56,7 @@ a| **In-scope :**
 - Sous-titrage multilingue automatique
 
 | *Quand* (timing)
-a| **MVP0 :** 32 sessions formation FPA → 12 jours
+a| **MVP0 :** 32 sessions de formation → 12 jours
 - HF-1 (Plugin stub + AsciidoctorJ) : ✅ session 001 (ce jour)
 - HF-2 (Bridge CLI) : session 002
 - HF-3 (DSL AsciiDoc customs) : session 003
@@ -85,7 +85,7 @@ a| - Complète la chaîne vidéo : capsule-gradle (reveal.js → WebM) vs
 
 |===
 | Profil | Besoin | Fréquence
-| Formateur FPA | Transformer manuel AFNOR/REAC en vidéo teasing | 1/session
+| Formateur professionnel | Transformer manuel de formation en vidéo teasing | 1/session
 | Ingénieur pédagogique | Produire des vidéos démo animées | 1/module
 | Stagiaire | Consulter des vidéos explicatives | 4/semaine
 | Développeur pipeline | Automatiser le rendu vidéo en CI | 1/build
@@ -114,7 +114,7 @@ a| - Complète la chaîne vidéo : capsule-gradle (reveal.js → WebM) vs
 
 |===
 | Métrique | Cible | Mesure
-| Vidéos générées | 32 vidéos pour 32 sessions FPA | `find . -name "*.mp4" | wc -l`
+| Vidéos générées | 32 vidéos pour 32 sessions de formation | `find . -name "*.mp4" | wc -l`
 | Taux d'échec rendu | < 5% | Logs CI
 | Temps de rendu | < 5 min / vidéo | Métriques `renderDurationMs`
 | Tests PASS | 100% | `./gradlew check`
@@ -129,7 +129,7 @@ sans post-production._
 '''
 == Atelier 2 — Personas / Parcours Utilisateurs
 
-=== Persona 1 : Alex — Formateur FPA
+=== Persona 1 : Alex — Formateur professionnel
 
 [cols="2,5"]
 |===
@@ -143,7 +143,7 @@ sans post-production._
 
 .Parcours utilisateur — Alex
 
-. Il rédige son SPG/SPD en AsciiDoc dans `training/`
+. Il rédige son scénario pédagogique en AsciiDoc dans `training/`
 . Il ajoute des blocs `[hyperframes-composition]` et `[hyperframes-track]`
 . Il exécute `./gradlew renderHyperframes`
 . Le plugin parse l'AsciiDoc, génère le HTML, appelle la CLI HyperFrames
@@ -202,7 +202,7 @@ skinparam backgroundColor #FEFEFE
 title Zoning — HyperFrames dans l'écosystème
 
 package "Espace Auteur (AsciiDoc)" #LightYellow {
-  rectangle "SPG/SPD\n.adoc" as source
+  rectangle "Scénarios pédagogiques\n.adoc" as source
   rectangle "templates\n.adoc" as templates
 }
 
@@ -246,7 +246,7 @@ runner --> site
 
 === 3.2 Storyboard — Pipeline de bout en bout
 
-. **Rédaction** : Le formateur écrit son SPG en AsciiDoc (planner-gradle)
+. **Rédaction** : Le formateur écrit son scénario pédagogique en AsciiDoc (planner-gradle)
 . **Annotation** : Il ajoute des blocs `[hyperframes-composition]` et
   des attributs docinfo `:hyperframes-width: 1920`
 . **Génération HTML** : `./gradlew generateHyperframesHtml` parse
@@ -449,7 +449,7 @@ Critères d'acceptation :
 - Le dictionnaire est injecté dans le HTML sous forme de JSON island
   `<script type="application/json" id="hf-pronunciation">...</script>`
 - Le `metadata.json` N3 embarque le dictionnaire pour traçabilité
-- Un dictionnaire de domaine pré-câblé couvre le vocabulaire FPA (AFNOR, REAC)
+- Un dictionnaire de domaine pré-câblé couvre le vocabulaire formation (référentiel)
 - Des hints inline `<<mot|phonétique>>` dans le texte de narration permettent
   une correction ponctuelle sans dictionnaire global
 - Le texte rendu garde le mot lisible, la phonétique est consommée par le TTS
@@ -707,7 +707,7 @@ title Chaîne de Valeur — Production Vidéo dans le Workspace
 actor "Formateur" as formateur
 actor "Stagiaire" as stagiaire
 
-rectangle "planner-gradle\n(LLM SPG/SPD)" as planner
+rectangle "planner-gradle\n(LLM scénarios)" as planner
 rectangle "AsciiDoc\nannoté" as adoc
 rectangle "slider-gradle\n(reveal.js)" as slider
 rectangle "capsule-gradle\n(WebM)" as capsule
@@ -715,7 +715,7 @@ rectangle "**hyperframes-gradle**\n(MP4)" as hf
 rectangle "Site statique\ngh-pages" as site
 
 formateur --> planner : rédige
-planner --> adoc : SPG/SPD
+planner --> adoc : scénarios pédagogiques
 adoc --> slider : source
 adoc --> hf : source
 slider --> capsule : HTML

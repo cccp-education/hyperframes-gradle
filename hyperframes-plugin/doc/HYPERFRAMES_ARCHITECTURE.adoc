@@ -366,7 +366,7 @@ dans `collectHyperframesRetrieve`.
 | Capsule révision stagiaire | capsule-gradle | `./gradlew generateCapsuleVideo`
 | *Vidéo teasing formation* | *hyperframes-gradle* | `./gradlew renderHyperframes`
 | *Démo technique animée* | *hyperframes-gradle* | Code diff animé, data viz
-| *Tuto doc-to-video* | *hyperframes-gradle* | Manuel AFNOR → vidéo explicative
+| *Tuto doc-to-video* | *hyperframes-gradle* | Manuel de formation → vidéo explicative
 |===
 
 '''
