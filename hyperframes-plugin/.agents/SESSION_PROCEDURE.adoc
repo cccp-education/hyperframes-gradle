@@ -73,4 +73,4 @@ grep -r "TOKEN\|SECRET\|PASSWORD\|API_KEY\|gho_\|ghp_" --include="*.kts" --inclu
 * AsciidoctorJ en implementation (HF-1) → passera en compileOnly en HF-4 (partagé avec codex-gradle)
 * Contrat par fichiers : AsciiDoc → HTML HyperFrames → MP4
 * Bridge Node.js : `node hyperframes-cli render` via ProcessBuilder + plugin Gradle Node, pas de npx système
-* Aucun commit sans permission explicite
+* Commit/push/merge autorisés (décision pilote 2026-09-17). Ne JAMAIS commiter de secret.

@@ -47,4 +47,4 @@ Prochaine session : maintenance, mise à jour de version, ou nouveau besoin.
 - **Cucumber** : `./gradlew cucumberTest` (tag filter `not @wip and not @integration`), Gherkin EN
 - **CI** : `.github/workflows/test-hyperframes.yml` (JDK 25, 4 steps)
 - **English only** : code, identifiants, commentaires, Gherkin — pas de français (règle AGENTS.adoc)
-- **ZERO commit/push** sans permission explicite
+- **Git autorisé** (décision pilote 2026-09-17) — zéro secret commité

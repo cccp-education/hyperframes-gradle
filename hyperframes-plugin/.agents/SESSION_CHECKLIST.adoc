@@ -11,7 +11,7 @@
 
 == Pendant la session
 
-. [ ] Respecter Règle 1 — AUCUN commit sans permission
+. [ ] Respecter la Règle — Git autorisé (décision 2026-09-17), zéro secret commité
 . [ ] Respecter Règle 2 — AUCUN publish sans permission
 . [ ] Respecter Règle 7 — HYPERFRAMES CONSOMME ASCIIDOC sans modifier la source
 . [ ] Respecter Règle 8 — Bridge Node.js par CLI, pas de couplage code
@@ -90,4 +90,4 @@ grep -r "TOKEN\|SECRET\|PASSWORD\|API_KEY\|gho_\|ghp_" --include="*.kts" --inclu
 * AsciidoctorJ est partagé avec codex-gradle en compileOnly
 * Le contrat AsciiDoc → HyperFrames : blocs customs + docinfo attributes
 * Bridge JVM→Node.js : ProcessBuilder, pas de couplage npm dans Gradle
-* Aucun commit sans permission explicite
+* Commit/push/merge autorisés (décision pilote 2026-09-17). Ne JAMAIS commiter de secret.
