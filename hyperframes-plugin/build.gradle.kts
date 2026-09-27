@@ -2,8 +2,8 @@ plugins {
     `java-library`
     alias(libs.plugins.kotlin.jvm)
     alias(libs.plugins.plugin.publish)
-    id("education.cccp.build.gradle-plugin") version "0.0.4"
-    id("education.cccp.build.publishing") version "0.0.4"
+    id("education.cccp.build.gradle-plugin") version "0.0.7"
+    id("education.cccp.build.publishing") version "0.0.7"
 }
 
 group = "education.cccp"
