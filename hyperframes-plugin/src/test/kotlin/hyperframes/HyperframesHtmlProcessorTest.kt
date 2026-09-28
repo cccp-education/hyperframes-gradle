@@ -7,7 +7,7 @@ import kotlin.test.assertTrue
 
 /**
  * Tests unitaires pour [HyperframesHtmlProcessor].
- * Vérifie la transformation HTML : rôles AsciiDoc → data-* attributes HyperFrames.
+ * Verifies the HTML transformation: AsciiDoc roles → HyperFrames data-* attributes.
  */
 class HyperframesHtmlProcessorTest {
 

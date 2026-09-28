@@ -235,13 +235,13 @@ class HyperframesHtmlProcessor internal constructor(
      * AsciidoctorJ produces the following HTML:
      * ```
      * [.hyperframes-title-card#intro, duration=3]
-     * == My Formation
+     * == My Presentation
      *
      * Module 01
      * ```
      * ```html
      * <div class="sect1 hyperframes-title-card">
-     *   <h2 id="intro">My Formation</h2>
+     *   <h2 id="intro">My Presentation</h2>
      *   <div class="sectionbody">
      *     <div class="paragraph"><p>Module 01</p></div>
      *   </div>

@@ -152,7 +152,7 @@ skinparam defaultFontSize 12
 title Flux de Données — AsciiDoc → HTML HyperFrames → MP4
 
 actor "Rédacteur" as author
-database "ma-formation.adoc" as source
+database "my-presentation.adoc" as source
 collections "HyperframesExtension\n(DSL Gradle)" as dsl
 collections "GenerateHyperframesHtmlTask" as genHtml
 database "index.html\n(HyperFrames)" as html
@@ -317,7 +317,7 @@ Le plugin exporte un `metadata.json` pour le runner-gradle N3 :
     "codec": "h264"
   },
   "source": {
-    "asciidoc": "ma-formation.adoc",
+    "asciidoc": "my-presentation.adoc",
     "compositions": ["intro", "comparison"],
     "tracks": 5
   },

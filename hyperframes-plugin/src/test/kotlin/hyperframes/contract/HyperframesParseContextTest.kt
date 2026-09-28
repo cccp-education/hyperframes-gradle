@@ -56,7 +56,7 @@ class HyperframesParseContextTest {
         val ctx = sampleContext()
         val json = mapper.writeValueAsString(ctx)
         val source = mapper.readTree(json)["source"]
-        assertEquals("ma-formation.adoc", source["asciidoc"].asText())
+        assertEquals("my-presentation.adoc", source["asciidoc"].asText())
         val compositions = source["compositions"]
         assertEquals(2, compositions.size())
         assertEquals("intro", compositions[0].asText())
@@ -84,7 +84,7 @@ class HyperframesParseContextTest {
             fps = 30
         ),
         source = HyperframesAsciidocSource(
-            asciidoc = "ma-formation.adoc",
+            asciidoc = "my-presentation.adoc",
             compositions = listOf("intro", "comparison"),
             tracks = 5
         ),

@@ -21,7 +21,7 @@ class N3ContractSteps(private val world: HyperframesWorld) {
     @Given("the build directory contains an enriched HyperFrames index.html")
     fun htmlExists() {
         world.writeHtml(compositions = listOf("intro"), tracks = 1)
-        world.writeAsciidoc("ma-formation.adoc")
+        world.writeAsciidoc("my-presentation.adoc")
     }
 
     @Given("the build directory contains no MP4 file")
@@ -106,7 +106,7 @@ class N3ContractSteps(private val world: HyperframesWorld) {
     @Then("the JSON output field {string} contains {string} with the source filename")
     fun sourceAsciidoc(parent: String, child: String) {
         val node = world.compositeContextJson().path(parent).path(child)
-        assertThat(node.asText()).isEqualTo("ma-formation.adoc")
+        assertThat(node.asText()).isEqualTo("my-presentation.adoc")
     }
 
     @Then("the JSON output field {string} contains {string} with the detected composition ids")

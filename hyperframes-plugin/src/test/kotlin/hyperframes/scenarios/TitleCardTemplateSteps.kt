@@ -17,7 +17,7 @@ class TitleCardTemplateSteps(private val world: HyperframesWorld) {
     fun sourceContainsTitleCard() {
         world.writeTitleCardAdoc(
             id = "intro",
-            title = "My Formation",
+            title = "My Presentation",
             subtitle = "Module 01"
         )
     }

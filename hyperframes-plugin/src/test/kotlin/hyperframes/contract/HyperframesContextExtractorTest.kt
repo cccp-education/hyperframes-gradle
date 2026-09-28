@@ -83,8 +83,8 @@ class HyperframesContextExtractorTest {
     @Test
     fun `carries asciidoc name and renderedAt and renderDuration`() {
         val mp4 = fakeMp4("v.mp4")
-        val ctx = extractor.extract(sampleHtml(), mp4, "ma-formation.adoc", "2026-07-06T10:00:00Z", 45230L)
-        assertEquals("ma-formation.adoc", ctx.source.asciidoc)
+        val ctx = extractor.extract(sampleHtml(), mp4, "my-presentation.adoc", "2026-07-06T10:00:00Z", 45230L)
+        assertEquals("my-presentation.adoc", ctx.source.asciidoc)
         assertEquals("2026-07-06T10:00:00Z", ctx.renderedAt)
         assertEquals(45230L, ctx.renderDurationMs)
         assertEquals("0.0.1", ctx.version)

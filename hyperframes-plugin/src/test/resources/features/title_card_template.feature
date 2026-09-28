@@ -17,7 +17,7 @@ Feature: HF-5a — Title-card template expansion
   Scenario: Title and subtitle are rendered inside the title-card composition
     Given the source directory contains an AsciiDoc document using the title-card template
     When I run the generateHyperframesHtml task
-    Then the generated HTML contains the title "My Formation"
+    Then the generated HTML contains the title "My Presentation"
     And the generated HTML contains the subtitle "Module 01"
 
   Scenario: Title-card track has default duration of two seconds
