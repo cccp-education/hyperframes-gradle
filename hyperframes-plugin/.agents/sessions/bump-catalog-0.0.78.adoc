@@ -1,0 +1,19 @@
+= Re-pin catalog 0.0.30 → 0.0.78
+
+_Date_ : 2026-10-11
+_Borough_ : hyperframes-gradle (Watts, N2)
+_Type_ : maintenance build (rollout catalog MEMPHIS 0.0.78)
+
+== Livré
+
+* `settings.gradle.kts` : `from("education.cccp:workspace-catalog:0.0.30 → 0.0.78")`.
+* `build.gradle.kts` : `platform("education.cccp:workspace-bom:0.0.30 → 0.0.78")`.
+
+== Preuve
+
+`./gradlew compileKotlin compileTestKotlin` **VERT** contre le catalog `0.0.78`
+(après nettoyage d'un cache incrémental Kotlin transitoire).
+
+== Notes
+
+* Zéro secret, zéro Python.

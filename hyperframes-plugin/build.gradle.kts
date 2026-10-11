@@ -16,7 +16,7 @@ repositories {
 }
 
 dependencies {
-    implementation(platform("education.cccp:workspace-bom:0.0.30"))
+    implementation(platform("education.cccp:workspace-bom:0.0.78"))
 
     implementation(kotlin("stdlib-jdk8"))
     implementation(libs.asciidoctorj)
