@@ -2,6 +2,7 @@
 :toc:
 
 _Règles absolues_ : voir `AGENT.adoc`
+_Derniere mise a jour_ : 2026-10-11 (Session 007 — re-pin catalog ws `0.0.30 → 0.0.78` + platform BOM, rollout MEMPHIS 0.0.78 ; compile VERT)
 _DAG_ : N2 — Plugin Gradle de transformation documentaire AsciiDoc → vidéo MP4
 _Dépendance N2_ : codex-gradle (compileOnly, AsciidoctorJ partagé)
 _Bridge externe_ : HyperFrames CLI (Node.js via gradle-node-plugin, ProcessBuilder)

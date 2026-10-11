@@ -151,4 +151,5 @@ Cucumber 7.34.3 intégré (task `cucumberTest`, JUnit Platform Suite, glue
 | 002 | 2026-05-31 | impl | HF-2 — Bridge CLI HyperFrames (gradle-node-plugin + ProcessBuilder + error handling + mock CLI tests, 7/7 PASS) | ✅ TERMINÉ
 | 001 | 2026-05-31 | impl | HF-1 — Plugin Gradle stub + AsciidoctorJ intégration (build, plugin, extension, tasks, 3 tests) | ✅ TERMINÉ
 | 000 | 2026-05-31 | bootstrap | HF-0 — Bootstrap gouvernance + cadrage architecture | ✅ TERMINÉ
+| 007 | 2026-10-11 | maintenance build | Re-pin catalog ws `0.0.30 → 0.0.78` (rollout MEMPHIS 0.0.78) + platform `workspace-bom 0.0.30 → 0.0.78`. `compileKotlin compileTestKotlin` VERT. | ✅
 |===
