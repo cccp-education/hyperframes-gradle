@@ -1,6 +1,6 @@
 = COMPLETED_TASKS_ARCHIVE — hyperframes-gradle
 :date: 2026-05-31
-:last-updated: 2026-07-09 (session 014)
+:last-updated: 2026-10-12 (session 015)
 
 == Tâches terminées (session 000 — 2026-05-31)
 
@@ -141,4 +141,14 @@
 | PUB | Bump 0.0.3 — corrections namespace `cccp-education` dans le POM publié | ✅
 | PUB | BOM 0.0.8 publiée (bump hyperframes-plugin 0.0.3 + asciidoctorj 3.0.1, bundle `3ab0e4b8`) | ✅
 | PUB | Publication Maven Central 0.0.3 (bundle `5d48222c`) | ✅
+|===
+
+== Tâches terminées (session 015 — 2026-10-12)
+
+|===
+| EPIC | Tâche | Statut
+| HF-KERNEL-ADAPTER | Cadrage EPIC (gouvernance pure, zéro code) — préparation du 2ᵉ adaptateur du noyau vidéo partagé (`video-kernel`) extrait de capsule (`CAP-ENGINE-DECOUPLING`) | ✅
+| HF-KERNEL-ADAPTER | Audit au code — 6 défauts vérifiés (D-A→D-F : `outputDir` annoté input, `node-gradle` mort, `durationSeconds` 0.0, doc/code, `pronunciation domain` perdu, pas de cache/functionalTest) | ✅
+| HF-KERNEL-ADAPTER | Décisions D1→D7 + roadmap US-0→US-5 (US-1 défauts autonome ; US-2+ après le noyau capsule) | ✅
+| HF-KERNEL-ADAPTER | Doc `.agents/CADRAGE_EPIC_HF_KERNEL_ADAPTER.adoc` + `BACKLOG.adoc` + `.agents/INDEX.adoc` + `PROMPT_REPRISE.adoc` + rapport session 015 | ✅
 |===
