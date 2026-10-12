@@ -1,5 +1,28 @@
 = SESSIONS_HISTORY — hyperframes-gradle
 
+== Session 015 (2026-10-12) — Cadrage EPIC HF-KERNEL-ADAPTER
+
+Gouvernance pure, zéro code (patron S-057/S-063). Préparation de `hyperframes-gradle`
+à devenir le **2ᵉ adaptateur** du **noyau vidéo partagé** (`video-kernel`) extrait de
+capsule (`CAP-ENGINE-DECOUPLING`), pour un câblage anticipé.
+
+Audit au code (16 fichiers prod / 3 tâches) — **6 défauts vérifiés** : D-A
+`HyperframesExtension.outputDir` annoté `@InputDirectory` (devrait être output) ;
+D-B `node-gradle` déclaré mais jamais utilisé (résolution FS + `which node`) ;
+D-C `durationSeconds` codé en dur `0.0` (pas de ffprobe) ; D-D `node <script> render`
+vs description `npx hyperframes render` ; D-E `pronunciation domain` perdu dans le
+contrat N3 ; D-F aucun cache/incremental, pas de `functionalTest`, pas de NoOp/strict.
+
+7 décisions (D1 hyperframes = 2ᵉ `VideoEngine` adapter ; D2 corriger les défauts
+d'abord ; D3 contrat N3 neutre ; D4 port `VideoEngine` ; D5 consommation du noyau ;
+D6 hyperframes expose des `VideoSegment` ; D7 DAG N2/noyau N1, pas de cycle).
+Roadmap US-0→US-5 (US-1 défauts **autonome**, démarrable immédiatement ; US-2+ après
+le noyau capsule).
+
+Livrables : `.agents/CADRAGE_EPIC_HF_KERNEL_ADAPTER.adoc` + `BACKLOG.adoc` + `INDEX.adoc`
++ `PROMPT_REPRISE.adoc` + `SESSIONS_HISTORY.adoc`. Côté Détroit :
+`capsule-plugin/.agents/CADRAGE_EPIC_CAP_ENGINE_DECOUPLING.adoc`. Zéro secret.
+
 == Session 014 (2026-07-09) — BOM Integration + Publication 0.0.3
 
 Intégration de `workspace-bom:0.0.7` comme source unique de vérité des versions

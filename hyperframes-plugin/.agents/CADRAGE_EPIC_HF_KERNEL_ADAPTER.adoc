@@ -1,0 +1,103 @@
+= CADRAGE — EPIC HF-KERNEL-ADAPTER (Watts / hyperframes-gradle)
+:session: 015
+:date: 2026-10-12
+:statut: 🟡 EN COURS — cadrage (US-0)
+:toc:
+
+== Objectif
+
+Préparer `hyperframes-gradle` à devenir le **2ᵉ adaptateur** du **noyau vidéo partagé**
+(`video-kernel`) en cours d'extraction côté capsule (EPIC `CAP-ENGINE-DECOUPLING`).
+
+But : disposer d'une **littérature agentique prête** (ports à implémenter, gaps à
+combler, défauts à corriger, contrat N3 à aligner) afin que le **câblage à l'extraction
+soit anticipé** — sans implémenter tant que le noyau capsule n'est pas posé.
+
+_Origine_ : session pilote 2026-10-12 — « préparer la littérature agentique de
+gouvernance de hyperframes pour qu'il soit prêt quand on aura proprement préparé
+l'extraction, pour un câblage plus anticipé ».
+
+== Constats (audit au code S-184)
+
+=== C1 — État réel
+
+16 fichiers prod / 3 tâches. Pipeline : AsciiDoc → AsciidoctorJ → HTML enrichi
+(stage, data-*, GSAP) → CLI Node → MP4. **Aucun `dependsOn`** entre les 3 tâches
+(ordre par convention de fichier partagé).
+
+=== C2 — Défauts de contrat vérifiés
+
+[cols="1,3", options="header"]
+|===
+| # | Défaut
+| D-A | `HyperframesExtension.outputDir` annoté `@InputDirectory` (devrait être output).
+| D-B | `node-gradle` **déclaré en dépendance mais jamais utilisé** (résolution FS + `which node`).
+| D-C | `HyperframesContextExtractor`: `durationSeconds` **codé en dur `0.0`** → pas de ffprobe, pas de validation durée.
+| D-D | Commande exécutée `node <script> render` vs description `npx hyperframes render` — incohérence doc/code.
+| D-E | `pronunciation domain` **perdu** dans le contrat N3 (toujours `null`).
+| D-F | Aucun cache/incremental (toutes tâches `@DisableCachingByDefault`) ; pas de source set `functionalTest` ; pas de NoOp/strict.
+|===
+
+=== C3 — Ce que hyperframes a en propre (et que le noyau ne fournit pas)
+
+Le **runtime HyperFrames** (motion HTML continue seek-safe, GSAP), **4 templates**
+motion purs (`title-card`, `code-diff`, `data-chart`, `kinetic-captions`), le
+**bridge CLI Node**, et le noyau **prononciation**. C'est **le moteur de rendu visuel**
+que capsule n'a pas (capsule = slides). C'est exactement le rôle du 2ᵉ `VideoEngine`.
+
+=== C4 — Gap vs noyau capsule
+
+Absent chez hyperframes, présent (récupérable) chez capsule : TTS, audio-post,
+sous-titres/burn-in, validation durée, QC, chapitres, podcast, transcript,
+multi-langue, LLM (koog), config 4-source, viral, contexte augmenté.
+
+== Décisions
+
+. **D1 — hyperframes = 2ᵉ `VideoEngine` adapter**, pas une réécriture. Le parser
+   AsciiDoc→HTML + le bridge CLI = l'adapter ; le reste (TTS, sous-titres, audio, durée,
+   config) vient du **noyau partagé**.
+. **D2 — Corriger les défauts d'abord** (US-1) avant tout câblage du noyau.
+. **D3 — Aligner le contrat N3** sur le modèle neutre (US-2) : `metadata.json` /
+   `composite-context.json` exposent `segments`, `durationSeconds` **mesuré**, `engine`.
+. **D4 — Implémenter le port `VideoEngine`** (US-3) : `HyperframesCliEngine.render(...)`.
+. **D5 — Consommer le noyau partagé** (US-4) : TTS/sous-titres/audio/durée/config.
+. **D6 — Vocabulaire** : hyperframes garde son domaine (`composition`, `track`) mais
+   **expose** des `VideoSegment` au noyau (frontière via les ports).
+. **D7 — DAG** : hyperframes reste **N2** ; le noyau est **N1** (ports possiblement N0).
+   Pas de cycle (le noyau ne dépend pas de hyperframes).
+
+== Roadmap — EPIC HF-KERNEL-ADAPTER
+
+[cols="1,3,1,1", options="header"]
+|===
+| US | Livrable | Statut | Effort
+| US-0 | Cadrage (ce document) + roadmap/backlog/prompt-reprise | ✅ S-015 | —
+| US-1 | Corriger les défauts D-A→D-F (annotation outputDir, `dependsOn`, `node-gradle` mort, probe durée, doc/code) | 🟡 À FAIRE | M
+| US-2 | Aligner le contrat N3 sur le modèle neutre (`segments`/`durationSeconds` mesuré/`engine`) | 🟡 À FAIRE | M
+| US-3 | Implémenter le port `VideoEngine` (adapter HyperFrames CLI) | 🟡 À FAIRE | L
+| US-4 | Consommer le noyau partagé (TTS/sous-titres/audio/durée/config) | 🟡 À FAIRE | L
+| US-5 | BDD + dogfooding cccp.education | 🟡 À FAIRE | M
+|===
+
+== Condition de déclenchement
+
+Ne **pas** démarrer US-2→US-5 avant que le noyau capsule (`CAP-ENGINE-DECOUPLING`
+US-1→US-4) soit posé et l'artefact `video-kernel` stabilisé. **US-1 (defects) peut
+démarrer immédiatement** (autonome).
+
+== Risques
+
+* Node/npm dans un écosystème **JVM-exclusif** (déjà assumé ; cf. pompes, S-163 capsule).
+* Défauts de contrat Gradle (cache/incremental) à corriger.
+* Écart de maturité avec capsule (16 vs 190 fichiers).
+
+== Hors scope
+
+* L'extraction du noyau (côté capsule, `CAP-ENGINE-DECOUPLING`).
+* La publication de `video-kernel` (accord pilote).
+
+== Traçabilité
+
+* Review code des deux boroughs (S-184, inventaire 16 vs 190 fichiers).
+* `hyperframes-plugin/.agents/INDEX.adoc`, `BACKLOG.adoc`.
+* Côté Détroit : `capsule-plugin/.agents/CADRAGE_EPIC_CAP_ENGINE_DECOUPLING.adoc`.

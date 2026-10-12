@@ -53,7 +53,26 @@ _Version publiée_ : 0.0.3 (Maven Central, bundle `5d48222c`) + Gradle Plugin Po
 | HF-5 | Templates HyperFrames prêts à l'emploi (title-card, code-diff, data-chart, kinetic-captions) | ✅ TERMINÉ (4/4 — sessions 008-011) | P3
 | HF-6 | CI + publication Maven Central / Gradle Portal | ✅ TERMINÉ (Maven Central S005, CI S008, Portal S013) | P3
 | HF-7 | Pronunciation Control (TTS Phonetic Hints) — corriger la phonétique TTS depuis l'AsciiDoc | ✅ TERMINÉ (session 010) + câblé (session 012) | P1
+| HF-KERNEL-ADAPTER | 2ᵉ adaptateur du noyau vidéo partagé (`video-kernel`) — mutualisation avec capsule ; corriger défauts (D-A→D-F) + aligner contrat N3 + ports `VideoEngine`/`SegmentSource` + consommation du noyau. Cadrage `.agents/CADRAGE_EPIC_HF_KERNEL_ADAPTER.adoc`. | 🟡 EN COURS — cadrage S-015 (US-1→5 À FAIRE) | P1
 |===
+
+'''
+== EPIC HF-KERNEL-ADAPTER — 2ᵉ adaptateur du noyau vidéo partagé
+
+_Statut_ : 🟡 EN COURS — cadrage S-015. Doc `.agents/CADRAGE_EPIC_HF_KERNEL_ADAPTER.adoc`.
+
+_Décision pilote (S-184)_ : mutualisation **anticipée** avec `capsule-gradle`
+(`CAP-ENGINE-DECOUPLING`) — ne pas attendre le seuil « factoriser à 3 ».
+
+_Portée_ : hyperframes devient le **moteur de rendu visuel** (motion HTML continue)
+d'un **noyau vidéo engine-agnostique** (`video-kernel`, N1) qui porte TTS, audio-post,
+sous-titres, durée, config. Le parser AsciiDoc→HTML + bridge CLI = l'**adapter**.
+
+_US_ : US-0 cadrage ✅ S-015 · US-1 défauts (D-A→D-F) 🟡 (autonome) · US-2 contrat N3
+neutre 🟡 · US-3 port `VideoEngine` 🟡 · US-4 consommation noyau 🟡 · US-5 BDD/dogfooding 🟡.
+
+_Condition_ : US-2→US-5 conditionnées au noyau capsule posé (`CAP-ENGINE-DECOUPLING`
+US-1→US-4). US-1 démarrable immédiatement.
 
 '''
 == EPIC HF-1 — Plugin Gradle + AsciidoctorJ

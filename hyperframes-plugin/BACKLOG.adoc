@@ -121,12 +121,45 @@ pour que la CLI consomme le dictionnaire au rendu.
 - `./gradlew check` vert (tests unit + fonctionnels + Cucumber EN)
 
 '''
+== 🟡 HF-KERNEL-ADAPTER — EN COURS (S-015 cadrage)
+_📖 Littérature : `.agents/CADRAGE_EPIC_HF_KERNEL_ADAPTER.adoc`._
+
+_Préparer hyperframes à devenir le **2ᵉ adaptateur** du **noyau vidéo partagé**
+(`video-kernel`) extrait de capsule (`CAP-ENGINE-DECOUPLING`). Littérature prête :
+ports à implémenter, défauts à corriger (D-A→D-F), contrat N3 à aligner. **Ne pas
+implémenter US-2→US-5 avant que le noyau capsule soit posé** ; **US-1 (defects)
+peut démarrer immédiatement**. Décision pilote : mutualisation anticipée (pas
+d'attente du seuil « factoriser à 3 »)._
+
+[cols="1,3,1,1", options="header"]
+|===
+| US | Livrable | Statut | Effort
+| US-0 | Cadrage + roadmap/backlog/prompt-reprise | ✅ S-015 | —
+| US-1 | Corriger défauts D-A→D-F (annotation outputDir, `dependsOn`, `node-gradle` mort, probe durée, doc/code) | 🟡 À FAIRE | M
+| US-2 | Aligner le contrat N3 sur le modèle neutre (`segments`/`durationSeconds` mesuré/`engine`) | 🟡 À FAIRE | M
+| US-3 | Implémenter le port `VideoEngine` (adapter HyperFrames CLI) | 🟡 À FAIRE | L
+| US-4 | Consommer le noyau partagé (TTS/sous-titres/audio/durée/config) | 🟡 À FAIRE | L
+| US-5 | BDD + dogfooding cccp.education | 🟡 À FAIRE | M
+|===
+
+'''
 == Dette Technique
 
 [cols="1,5,2", options="header"]
 |===
 | ID | Description | Priorité
 | DT-01 | Aucune — projet neuf, zéro dette | -
+|===
+
+[cols="1,3,2", options="header"]
+|===
+| ID | Défaut (audit S-184) | Priorité
+| D-A | `HyperframesExtension.outputDir` annoté `@InputDirectory` (devrait être output) | P1
+| D-B | `node-gradle` déclaré mais jamais utilisé (résolution FS + `which node`) | P2
+| D-C | `durationSeconds` codé en dur `0.0` (pas de ffprobe → pas de validation durée) | P1
+| D-D | Commande `node <script> render` vs description `npx hyperframes render` | P3
+| D-E | `pronunciation domain` perdu dans le contrat N3 (toujours `null`) | P2
+| D-F | Aucun cache/incremental ; pas de `functionalTest` ; pas de NoOp/strict | P2
 |===
 
 '''

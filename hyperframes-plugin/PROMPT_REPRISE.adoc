@@ -1,50 +1,52 @@
-= PROMPT_REPRISE — HyperFrames Gradle (Session 014 TERMINÉE → 015)
-:session: 014
-:date: 2026-07-09
-:status: ✅ TERMINÉ — BOM intégrée, version 0.0.3 publiée Maven Central
+= PROMPT_REPRISE — HyperFrames Gradle (Session 015 TERMINÉE → 016)
+:session: 015
+:date: 2026-10-12
+:status: ✅ TERMINÉ — cadrage EPIC HF-KERNEL-ADAPTER
+:borough: Watts
 
 '''
 == État des lieux
 
-Plugin Gradle fonctionnel avec pipeline complet :
-AsciiDoc → AsciidoctorJ → HTML enrichi (stage, data-*, GSAP) → CLI Node.js → MP4.
-Tous les EPICs terminés : HF-0→HF-7 ✅.
-Version `0.0.3` publiée sur Maven Central (bundle `5d48222c`) + Gradle Plugin Portal (en attente d'approbation).
+Plugin Gradle fonctionnel : AsciiDoc → AsciidoctorJ → HTML enrichi (stage, data-*, GSAP)
+→ CLI Node.js → MP4. EPICs HF-0→HF-7 ✅. Version `0.0.3` (Maven Central).
 
-== Fait en session 014
+== Fait en session 015
 
-- Intégration `workspace-bom:0.0.7` comme source unique de vérité des versions
-- Nettoyage `libs.versions.toml` : suppression versions couvertes par la BOM
-- Bump 0.0.3 avec corrections namespace `cccp-education` dans le POM publié
-- BOM 0.0.8 publiée (bump hyperframes-plugin 0.0.3 + asciidoctorj 3.0.1)
-- Publication Maven Central 0.0.3 (bundle `5d48222c`)
+- **Cadrage EPIC HF-KERNEL-ADAPTER** (gouvernance pure, zéro code) : préparer
+  hyperframes à devenir le **2ᵉ adaptateur** du **noyau vidéo partagé** (`video-kernel`)
+  extrait de capsule (`CAP-ENGINE-DECOUPLING`).
+- Audit au code : 16 fichiers / 3 tâches ; **6 défauts vérifiés** (D-A→D-F) :
+  `outputDir` annoté `@InputDirectory` ; `node-gradle` mort ; `durationSeconds` codé
+  `0.0` ; `node <script> render` vs `npx hyperframes render` ; `pronunciation domain`
+  perdu ; pas de cache/incremental/functionalTest.
+- Décisions D1→D7 + roadmap US-0→US-5. Condition : US-2→US-5 après le noyau capsule ;
+  **US-1 (defects) autonome, démarrable immédiatement**.
+- Doc `.agents/CADRAGE_EPIC_HF_KERNEL_ADAPTER.adoc`.
 
-== Prochaine session (015)
+== Mission Session 016 — HF-KERNEL-ADAPTER US-1 (défauts autonomes)
 
-Borough DORMANT — tous les EPICs HF-0→HF-7 sont terminés.
-Prochaine session : maintenance, mise à jour de version, ou nouveau besoin.
+Corriger D-A→D-F (annotation `outputDir`, `dependsOn` explicite, retrait `node-gradle`
+mort ou usage réel, probe durée ffprobe, alignement doc/code de la commande). Baby-step
+DDD/TDD/BDD. Autonome (pas de dépendance au noyau capsule).
 
 == Routes documents clés (lecture rapide)
 
 |===
 | Document | Chemin | Utilité
-| Architecture détaillée | `doc/HYPERFRAMES_ARCHITECTURE.adoc` | Pipeline global, décisions tech, contrat N3
-| Pilotage agile | `doc/PILOTAGE_HYPERFRAMES.adoc` | Product vision, personas, US, story map, backlog
-| Backlog | `BACKLOG.adoc` | User stories HF-1→HF-7, EPIC HF-7 détaillé, critères acceptation
-| Règles absolues | `AGENT.adoc` | 9 règles (commits, publish, DAG, secrets, bridge, bounded context)
-| Roadmap | `.agents/INDEX.adoc` | Statut EPICs HF-0→HF-7, sessions
+| Cadrage kernel | `.agents/CADRAGE_EPIC_HF_KERNEL_ADAPTER.adoc` | Vision mutualisation + défauts + roadmap
+| Architecture | `doc/HYPERFRAMES_ARCHITECTURE.adoc` | Pipeline global, contrat N3
+| Backlog | `BACKLOG.adoc` | US HF-1→HF-7 + HF-KERNEL-ADAPTER + dette (D-A→D-F)
+| Règles | `AGENT.adoc` | 9 règles (commits, publish, DAG, secrets, bridge, bounded context)
+| Roadmap | `.agents/INDEX.adoc` | Statut EPICs + HF-KERNEL-ADAPTER
 |===
 
 == Rappels techniques
 
-- **Version publiée** : 0.0.3 (Maven Central, bundle `5d48222c`)
-- **BOM** : `implementation(platform("education.cccp:workspace-bom:0.0.7"))` — source unique de vérité
-- **Pattern template** : value object DDD pur + `expand{Template}Blocks` processor
-- **Template = data class** : `render(): String`, zéro effet de bord
-- **Dictionnaires domaine** : `video-fr` / `video-en` (génériques vidéo, pas métier privé)
-- **Pronunciation domain** : `hyperframes { pronunciationDomain.set("video-fr") }` active le merge
-- **Merge precedence** : author (block > inline) > domain > empty. Author sans langue override toutes langues du domaine.
-- **Cucumber** : `./gradlew cucumberTest` (tag filter `not @wip and not @integration`), Gherkin EN
-- **CI** : `.github/workflows/test-hyperframes.yml` (JDK 25, 4 steps)
-- **English only** : code, identifiants, commentaires, Gherkin — pas de français (règle AGENTS.adoc)
-- **Git autorisé** (décision pilote 2026-09-17) — zéro secret commité
+- **Version publiée** : 0.0.3 (Maven Central). **BOM** : `workspace-bom:0.0.78`.
+- **Bridge Node** : `ProcessBuilder` ; commande réelle `node <cliScript> render --input <html> --output <name>.mp4`.
+- **Templates** = value objects purs (`render(): String`), zéro effet de bord.
+- **Pronunciation domain** : `hyperframes { pronunciationDomain.set("video-fr") }`.
+- **Local = Build, Tests = CI**. **English only**. **Zéro secret**. **Zéro Python**.
+- **Git autorisé** (décision pilote 2026-09-17) — zéro secret commité.
+- **Mutualisation** : hyperframes ne réécrit pas capsule ; il **consomme** le noyau
+  (`video-kernel`, N1) via les ports `SegmentSource` + `VideoEngine`.

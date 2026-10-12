@@ -1,0 +1,61 @@
+= Session 015 — Cadrage EPIC HF-KERNEL-ADAPTER
+:session: 015
+:date: 2026-10-12
+:type: cadrage (gouvernance pure, zéro code)
+:borough: Watts / hyperframes-gradle
+:toc:
+
+== Objectif
+
+Préparer `hyperframes-gradle` à devenir le **2ᵉ adaptateur** du **noyau vidéo partagé**
+(`video-kernel`) extrait de capsule (`CAP-ENGINE-DECOUPLING`), pour un **câblage
+anticipé** une fois l'extraction posée.
+
+== Déclencheur
+
+Demande pilote 2026-10-12 (session jumelle de capsule S-184) : « préparer la littérature
+agentique de gouvernance de hyperframes pour qu'il soit prêt quand on aura proprement
+préparé l'extraction, pour un câblage plus anticipé ».
+
+== Travail réalisé (lecture seule + littérature)
+
+. **Audit au code** : 16 fichiers prod / 3 tâches ; pipeline AsciiDoc → AsciidoctorJ →
+   HTML enrichi → CLI Node → MP4 ; **aucun `dependsOn`**.
+. **6 défauts vérifiés** :
+   * D-A `HyperframesExtension.outputDir` annoté `@InputDirectory` (devrait être output).
+   * D-B `node-gradle` déclaré mais jamais utilisé (résolution FS + `which node`).
+   * D-C `durationSeconds` codé en dur `0.0` (pas de ffprobe → pas de validation durée).
+   * D-D `node <script> render` vs description `npx hyperframes render`.
+   * D-E `pronunciation domain` perdu dans le contrat N3 (toujours `null`).
+   * D-F aucun cache/incremental ; pas de `functionalTest` ; pas de NoOp/strict.
+. **Ce que hyperframes a en propre** : runtime HyperFrames (motion HTML continue),
+   4 templates motion purs, bridge CLI Node, noyau prononciation. → rôle du 2ᵉ `VideoEngine`.
+. **Décisions** D1→D7 + roadmap US-0→US-5, condition de déclenchement (US-2+ après le noyau).
+
+== Livrables
+
+* `.agents/CADRAGE_EPIC_HF_KERNEL_ADAPTER.adoc` (créé).
+* `BACKLOG.adoc` : section `HF-KERNEL-ADAPTER` + table US + dette D-A→D-F documentée.
+* `.agents/INDEX.adoc` : ligne roadmap + section EPIC.
+* `PROMPT_REPRISE.adoc` (S-016, mission US-1 défauts).
+* `.agents/SESSIONS_HISTORY.adoc` : entrée 015.
+* Côté Détroit : `capsule-plugin/.agents/CADRAGE_EPIC_CAP_ENGINE_DECOUPLING.adoc`.
+
+== Décisions clés
+
+[cols="1,4", options="header"]
+|===
+| # | Décision
+| D1 | hyperframes = 2ᵉ `VideoEngine` adapter (pas une réécriture).
+| D2 | Corriger les défauts d'abord (US-1, autonome).
+| D3 | Aligner le contrat N3 sur le modèle neutre (`segments`/`durationSeconds` mesuré/`engine`).
+| D4 | Implémenter le port `VideoEngine` (adapter HyperFrames CLI).
+| D5 | Consommer le noyau partagé (TTS/sous-titres/audio/durée/config).
+| D6 | hyperframes expose des `VideoSegment` au noyau (garde son domaine `composition`/`track`).
+| D7 | DAG : hyperframes N2 ; noyau N1 (ports possiblement N0) ; pas de cycle.
+|===
+
+== Statut
+
+Gouvernance pure. `HF-KERNEL-ADAPTER` 🟡 EN COURS (US-0 ✅, US-1→5 À FAIRE).
+Zéro code modifié, zéro bump, zéro publication, zéro secret.
