@@ -2,13 +2,13 @@
 :toc:
 
 _Règles absolues_ : voir `AGENT.adoc`
-_Derniere mise a jour_ : 2026-10-13 (Session 018 — **HF-KERNEL-ADAPTER US-3 ✅** : `renderHyperframes` **délègue** au noyau `capsule.kernel.VideoEngine` (`HyperFramesEngine.renderDetailed`) — plus de CLI dupliquée. **CI verte** run `38454105445`.)
+_Derniere mise a jour_ : 2026-10-13 (Session 019 — **HF-KERNEL-ADAPTER US-2 ✅** : contrat N3 aligné sur le modèle neutre (`engine`, `segments`, durée mesurée). US-1/US-2/US-3 livrées.)
 _DAG_ : N2 — Plugin Gradle de transformation documentaire AsciiDoc → vidéo MP4
 _Dépendance N2_ : codex-gradle (compileOnly, AsciidoctorJ partagé)
 _Bridge externe_ : HyperFrames CLI via le noyau `VideoEngine` (`node <cliScript> render`)
 
-_Dernière session terminée_ : 018 — **HF-KERNEL-ADAPTER US-3** : le rendu délègue au port `VideoEngine` (`HyperFramesEngine`), diagnostics Gradle préservés. Rapport `.agents/sessions/018-hf-kernel-adapter-us3.adoc`.
-_Prochaine session_ : 019 — au choix : A) HF-KERNEL-ADAPTER US-2 (contrat N3 neutre : `engine`/`segments`) ; B) US-4 consommation du noyau (TTS/sous-titres/audio/config) ; C) US-5 (BDD e2e + dogfooding) ; D) dette D-F (cache/incremental).
+_Dernière session terminée_ : 019 — **HF-KERNEL-ADAPTER US-2** : `engine` + `segments` (modèle neutre) + durée mesurée ajoutés au contrat N3. Rapport `.agents/sessions/019-hf-kernel-adapter-us2.adoc`.
+_Prochaine session_ : 020 — au choix : A) HF-KERNEL-ADAPTER US-4 (consommation du noyau : TTS/sous-titres/audio/config) ; B) US-5 (BDD e2e + dogfooding) ; C) dette D-F (cache/incremental) ; D) video-kernel geler `0.1.0` ou VK-3 (BOM).
 _Version publiée_ : 0.0.3 (Maven Central, bundle `5d48222c`) + Gradle Plugin Portal (en attente d'approbation)
 
 '''
@@ -52,7 +52,7 @@ _Version publiée_ : 0.0.3 (Maven Central, bundle `5d48222c`) + Gradle Plugin Po
 | HF-5 | Templates HyperFrames prêts à l'emploi (title-card, code-diff, data-chart, kinetic-captions) | ✅ TERMINÉ (4/4 — sessions 008-011) | P3
 | HF-6 | CI + publication Maven Central / Gradle Portal | ✅ TERMINÉ (Maven Central S005, CI S008, Portal S013) | P3
 | HF-7 | Pronunciation Control (TTS Phonetic Hints) — corriger la phonétique TTS depuis l'AsciiDoc | ✅ TERMINÉ (session 010) + câblé (session 012) | P1
-| HF-KERNEL-ADAPTER | 2ᵉ adaptateur du noyau vidéo partagé (`video-kernel`) — mutualisation avec capsule ; corriger défauts (D-A→D-F) + aligner contrat N3 + ports `VideoEngine`/`SegmentSource` + consommation du noyau. Cadrage `.agents/CADRAGE_EPIC_HF_KERNEL_ADAPTER.adoc`. | 🟡 EN COURS — US-1 ✅ S-017 · **US-3 ✅ S-018** ; US-2/US-4/US-5 À FAIRE | P1
+| HF-KERNEL-ADAPTER | 2ᵉ adaptateur du noyau vidéo partagé (`video-kernel`) — mutualisation avec capsule ; corriger défauts (D-A→D-F) + aligner contrat N3 + ports `VideoEngine`/`SegmentSource` + consommation du noyau. Cadrage `.agents/CADRAGE_EPIC_HF_KERNEL_ADAPTER.adoc`. | 🟡 EN COURS — US-1 ✅ S-017 · **US-2 ✅ S-019** · US-3 ✅ S-018 ; US-4/US-5 À FAIRE | P1
 |===
 
 '''
@@ -68,7 +68,7 @@ d'un **noyau vidéo engine-agnostique** (`video-kernel`, N1) qui porte TTS, audi
 sous-titres, durée, config. Le parser AsciiDoc→HTML + bridge CLI = l'**adapter**.
 
 _US_ : US-0 cadrage ✅ S-015 · US-1 défauts (D-A→D-F) ✅ **S-017** · US-2 contrat N3
-neutre 🟡 · US-3 port `VideoEngine` ✅ **S-018** · US-4 consommation noyau 🟡 · US-5 BDD/dogfooding 🟡.
+neutre ✅ **S-019** · US-3 port `VideoEngine` ✅ **S-018** · US-4 consommation noyau 🟡 · US-5 BDD/dogfooding 🟡.
 
 _Prérequis CI_ : la CI était rouge sur 100 % des runs (configuration nmcp + gardes de
 publication racy). **Soldé S-017** (tolérance nmcp + injection des versions du catalogue
@@ -190,6 +190,7 @@ Le dictionnaire reste côté auteur (AsciiDoc), pas côté moteur (Node.js).
 
 |===
 | # | Date | Type | Sujet | Score
+| 019 | 2026-10-13 | feat | **HF-KERNEL-ADAPTER US-2 ✅** — contrat N3 aligné sur le modèle neutre : `engine` (identité `VideoEngine`) + `segments` (bornes de compositions) + durée **mesurée** (D-C). +3 unit + 1 BDD. Additif, backward-compat. | ✅ TERMINÉ
 | 018 | 2026-10-13 | refactor | **HF-KERNEL-ADAPTER US-3 ✅** — `RenderHyperframesTask` **délègue** au noyau `VideoEngine` (`HyperFramesEngine.renderDetailed`, `HyperFramesRenderOutcome`), diagnostics Gradle préservés, +3 unit + 2 BDD. Plus de CLI dupliquée. | ✅ TERMINÉ
 | 017 | 2026-10-13 | impl + ci | **HF-KERNEL-ADAPTER US-1 ✅** — défauts D-A→D-F corrigés (outputDir, node-gradle mort retiré, durée mesurée ffprobe, doc/code, domaine N3, strict + `hyperframesPipeline`) + **CI débloquée** (tolérance nmcp + gardes racy soldées par injection des versions du catalogue publié). 16 unit + 4 fonctionnels + 3 BDD. | ✅ TERMINÉ
 | 016 | 2026-10-12 | spike | Spike fitness noyau — `HyperFramesEngine : capsule.kernel.VideoEngine` (video-kernel 0.0.2), gap `VideoOutcome` confirmé | ✅ TERMINÉ

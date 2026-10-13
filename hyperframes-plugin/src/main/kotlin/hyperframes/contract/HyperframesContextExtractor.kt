@@ -59,6 +59,9 @@ class HyperframesContextExtractor(
                 compositions = compositions,
                 tracks = tracks
             ),
+            // US-2 (S-019) — neutral-model segments: one addressable unit per
+            // composition boundary (whole-document engine).
+            segments = compositions.mapIndexed { index, id -> HyperframesSegment(index = index, id = id) },
             pronunciation = pronunciation,
             renderedAt = renderedAt,
             renderDurationMs = renderDurationMs

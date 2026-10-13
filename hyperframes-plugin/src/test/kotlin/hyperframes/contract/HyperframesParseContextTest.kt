@@ -37,6 +37,25 @@ class HyperframesParseContextTest {
     }
 
     @Test
+    fun `serializes the engine identity and neutral segments`() {
+        val ctx = sampleContext().copy(
+            segments = listOf(HyperframesSegment(0, "intro"), HyperframesSegment(1, "outro"))
+        )
+        val tree = mapper.readTree(mapper.writeValueAsString(ctx))
+
+        assertEquals("hyperframes", tree["engine"].asText())
+        assertEquals(HyperframesParseContext.ENGINE, tree["engine"].asText())
+
+        val segments = tree["segments"]
+        assertTrue(segments.isArray)
+        assertEquals(2, segments.size())
+        assertEquals("intro", segments[0]["id"].asText())
+        assertEquals(0, segments[0]["index"].asInt())
+        assertEquals(1, segments[1]["index"].asInt())
+        assertEquals("outro", segments[1]["id"].asText())
+    }
+
+    @Test
     fun `output descriptor contains video path and dimensions`() {
         val ctx = sampleContext()
         val json = mapper.writeValueAsString(ctx)

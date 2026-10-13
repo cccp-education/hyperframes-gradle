@@ -104,6 +104,9 @@ class CollectHyperframesRetrieveTaskTest {
         assertContains(contextContent, "\"output\"")
         assertContains(contextContent, "\"renderedAt\"")
         assertContains(contextContent, "\"renderDurationMs\"")
+        // N3 contract — US-2 (S-019): engine identity + neutral segments
+        assertContains(contextContent, "\"engine\" : \"hyperframes\"")
+        assertContains(contextContent, "\"segments\"")
         // N3 contract — nested video descriptor
         assertContains(contextContent, "\"video\"")
         assertContains(contextContent, "test-video.mp4")

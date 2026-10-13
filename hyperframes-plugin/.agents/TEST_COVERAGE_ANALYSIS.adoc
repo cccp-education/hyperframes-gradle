@@ -1,6 +1,18 @@
 = Test Coverage Analysis — hyperframes-gradle
 
-_Dernière mise à jour_ : 2026-10-13 (Session 018 — HF-KERNEL-ADAPTER US-3 : délégation du rendu au noyau `VideoEngine`)
+_Dernière mise à jour_ : 2026-10-13 (Session 019 — HF-KERNEL-ADAPTER US-2 : contrat N3 neutre `engine`/`segments`)
+
+== Couverture — 13 octobre 2026 (après session 019)
+
+.HF-KERNEL-ADAPTER US-2 (contrat N3 aligné sur le modèle neutre)
+|===
+| Élément | Changement | Tests
+
+| `contract/HyperframesParseContext.kt` | + `engine`, `segments`, DTO `HyperframesSegment(index, id)` | `HyperframesParseContextTest` (+1 unit)
+| `contract/HyperframesContextExtractor.kt` | compositions → segments ordonnés | `HyperframesContextExtractorTest` (+2 unit)
+| Fonctionnel | contrat JSON expose `engine`/`segments` | `CollectHyperframesRetrieveTaskTest` (assertions)
+| BDD | scénario US-2 | `n3_contract.feature` (+1)
+|===
 
 == Couverture — 13 octobre 2026 (après session 018)
 

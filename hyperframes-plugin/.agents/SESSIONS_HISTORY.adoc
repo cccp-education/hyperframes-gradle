@@ -1,5 +1,22 @@
 = SESSIONS_HISTORY — hyperframes-gradle
 
+== Session 019 (2026-10-13) — HF-KERNEL-ADAPTER US-2 (contrat N3 aligné sur le modèle neutre)
+
+Contrat N3 (`composite-context.json`/`metadata.json`) enrichi **additivement** :
+`engine` (identité neutre, alignée sur `VideoEngine.name()`, via
+`HyperframesParseContext.ENGINE`) + `segments` (`List<HyperframesSegment(index, id)>`
+— une entrée par borne de composition, vue modèle neutre d'un moteur document-entier)
++ durée **mesurée** (déjà livrée par D-C S-017). DTO `HyperframesSegment(index, id)`.
+`HyperframesContextExtractor` mappe les compositions en segments ordonnés. Le
+consommateur N3 (`runner-gradle`) ne parse pas ce contrat → enrichissement sans
+split-brain.
+
+Tests : +2 unit `HyperframesContextExtractorTest` (engine, segments), +1 unit
+`HyperframesParseContextTest` (sérialisation `engine`/`segments`), assertions
+ajoutées au fonctionnel `CollectHyperframesRetrieveTaskTest`, +1 scénario BDD
+`n3_contract.feature`. **Local = Build** : `compileKotlin compileTestKotlin` ✅.
+**Tests = CI**. Doc `.agents/sessions/019-hf-kernel-adapter-us2.adoc`. Zéro secret.
+
 == Session 018 (2026-10-13) — HF-KERNEL-ADAPTER US-3 (le rendu délègue au noyau)
 
 Le port `capsule.kernel.VideoEngine` devient la **voie de rendu unique** de

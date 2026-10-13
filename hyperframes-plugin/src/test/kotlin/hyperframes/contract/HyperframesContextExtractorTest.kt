@@ -196,6 +196,29 @@ class HyperframesContextExtractorTest {
         assertNull(ctx.pronunciation?.domain)
     }
 
+    // ──────────────────────────────────────────────
+    // US-2 (S-019) — engine identity + neutral segments
+    // ──────────────────────────────────────────────
+
+    @Test
+    fun `exposes the producing engine identity`() {
+        val ctx = extractor.extract(sampleHtml(), fakeMp4("v.mp4"), "x.adoc", "2026-05-31T14:30:00Z", 0L)
+        assertEquals("hyperframes", ctx.engine)
+        assertEquals(HyperframesParseContext.ENGINE, ctx.engine)
+    }
+
+    @Test
+    fun `maps compositions to ordered neutral segments`() {
+        val html = sampleHtml(compositions = listOf("intro", "comparison"))
+        val ctx = extractor.extract(html, fakeMp4("v.mp4"), "x.adoc", "2026-05-31T14:30:00Z", 0L)
+
+        assertEquals(2, ctx.segments.size)
+        assertEquals(0, ctx.segments[0].index)
+        assertEquals("intro", ctx.segments[0].id)
+        assertEquals(1, ctx.segments[1].index)
+        assertEquals("comparison", ctx.segments[1].id)
+    }
+
     private fun fakeMp4(name: String, content: ByteArray = ByteArray(256)): File {
         val f = tempDir.toFile().resolve(name)
         f.writeBytes(content)

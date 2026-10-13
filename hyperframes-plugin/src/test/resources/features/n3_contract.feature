@@ -33,6 +33,11 @@ Feature: HF-4c — N3 contract for runner-gradle integration
     And the JSON output field "source" contains "compositions" with the detected composition ids
     And the JSON output field "source" contains "tracks" with the number of distinct tracks
 
+  Scenario: Export the engine identity and neutral segments (US-2)
+    When I run the collectHyperframesRetrieve task
+    Then the JSON contains the field "engine" with value "hyperframes"
+    And the JSON contains the field "segments"
+
   Scenario: Succeed with no artifacts when nothing has been rendered yet
     Given the build directory contains no MP4 file
     When I run the collectHyperframesRetrieve task

@@ -8,8 +8,12 @@ package hyperframes.contract
  *
  * @property plugin id of the emitting plugin (always "hyperframes-gradle")
  * @property version version of the emitting plugin
+ * @property engine producing engine identity (US-2, S-019) — matches the neutral
+ *        `VideoEngine.name()` (`"hyperframes"`).
  * @property output descriptor of the produced MP4 video
  * @property source descriptor of the original AsciiDoc document
+ * @property segments neutral-model view of the document (US-2, S-019): one entry per
+ *        composition boundary. A whole-document engine has no narration/scene segments.
  * @property pronunciation optional descriptor of the TTS pronunciation dictionary
  * @property renderedAt ISO-8601 render timestamp
  * @property renderDurationMs render duration in milliseconds
@@ -17,16 +21,34 @@ package hyperframes.contract
 data class HyperframesParseContext(
     val plugin: String = "hyperframes-gradle",
     val version: String,
+    val engine: String = ENGINE,
     val output: HyperframesVideoOutput,
     val source: HyperframesAsciidocSource,
+    val segments: List<HyperframesSegment> = emptyList(),
     val pronunciation: HyperframesPronunciationContext? = null,
     val renderedAt: String,
     val renderDurationMs: Long
 ) {
     companion object {
         const val PLUGIN_ID = "hyperframes-gradle"
+
+        /** US-2 (S-019) — neutral engine identity (matches `VideoEngine.name()`). */
+        const val ENGINE = "hyperframes"
     }
 }
+
+/**
+ * US-2 (S-019) — neutral-model segment exposing a whole-document composition
+ * boundary. HyperFrames produces a single continuous render; the neutral model
+ * still needs addressable units, so each composition becomes one segment.
+ *
+ * @property index zero-based ordered index
+ * @property id the composition id (from `data-composition-id`)
+ */
+data class HyperframesSegment(
+    val index: Int,
+    val id: String
+)
 
 /**
  * Descriptor of the produced MP4 video rendered by HyperFrames.

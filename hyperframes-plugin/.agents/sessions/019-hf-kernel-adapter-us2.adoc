@@ -1,0 +1,71 @@
+= Session 019 — HF-KERNEL-ADAPTER US-2 : contrat N3 aligné sur le modèle neutre
+:session: 019
+:date: 2026-10-13
+:type: feat + test
+:borough: Watts / hyperframes-gradle
+:epic: HF-KERNEL-ADAPTER
+:us: US-2
+:statut: ✅ TERMINÉ (US-2)
+:toc:
+
+== Mission
+
+US-2 de l'EPIC `HF-KERNEL-ADAPTER` : aligner le contrat N3 (`composite-context.json`
+/ `metadata.json`) sur le **modèle neutre** du noyau — exposer `engine`, des
+`segments`, et une durée **mesurée** (D3 du cadrage). Méthode baby-step DDD/TDD/BDD.
+**Local = Build, Tests = CI**.
+
+== Constat
+
+- `durationSeconds` **mesuré** : déjà livré par **D-C** (S-017, sonde ffprobe).
+- Le contrat N3 n'exposait **ni** l'identité du moteur producteur (`engine`) **ni**
+  de vue `segments` du noyau.
+- Le consommateur N3 (`runner-gradle`) **ne parse pas** ce contrat (`grep` = 0) →
+  enrichissement **additif** sans risque de split-brain cross-borough.
+
+== Livrable
+
+=== Contrat — `HyperframesParseContext`
+
+- Nouveau champ **`engine: String = "hyperframes"`** (identité neutre, alignée sur
+  `VideoEngine.name()`), via `HyperframesParseContext.ENGINE` (source unique).
+- Nouveau champ **`segments: List<HyperframesSegment> = emptyList()`** : vue
+  **modèle neutre** du document — une entrée par **borne de composition**
+  (`data-composition-id`). Un moteur document-entier n'a ni narration ni scène ;
+  les compositions sont ses unités adressables (D6 du cadrage).
+- Nouveau DTO `HyperframesSegment(index, id)`.
+- Tous les nouveaux champs sont **additifs avec défauts** → backward-compat JSON totale.
+
+=== Extracteur — `HyperframesContextExtractor`
+
+- Mappe les compositions détectées en `segments` ordonnés (`index`, `id`).
+
+== Tests
+
+- **Unit** — `HyperframesContextExtractorTest` (+2) : identité moteur (`engine`),
+  mapping compositions → segments ordonnés. `HyperframesParseContextTest` (+1) :
+  sérialisation `engine` + `segments` (tableau, index, id).
+- **Fonctionnel (TestKit)** — `CollectHyperframesRetrieveTaskTest` : le test du
+  contrat JSON asserte désormais `"engine" : "hyperframes"` et `"segments"`.
+- **Cucumber (BDD EN)** — nouveau scénario dans `n3_contract.feature` :
+  « Export the engine identity and neutral segments (US-2) ».
+
+== Gates
+
+- **Local = Build** : `./gradlew compileKotlin compileTestKotlin` ✅ BUILD SUCCESSFUL.
+- **Tests = CI** : workflow `test-hyperframes.yml` (compile → test → cucumberTest → check).
+- **Zéro secret** ; **English only** dans le code ajouté ; Gherkin EN.
+
+== Effet transverse
+
+- `video-kernel` (N1) : le contrat N3 d'hyperframes reflète désormais le vocabulaire
+  neutre (`engine`, unités adressables, durée mesurée) — cohérent avec
+  `VideoRenderResult`/`VideoOutcome`. Aucune modification de `video-kernel`.
+- `capsule` (N2) : inchangé.
+
+== Suite
+
+- **US-4** : consommer le noyau partagé (TTS/sous-titres/audio/config) — gros chantier.
+- **US-5** : BDD e2e + dogfooding cccp.education.
+- **Dette D-F** : cache/incremental profond.
+- **Video-kernel** : geler `0.1.0` (contrat éprouvé par 2 moteurs en production).

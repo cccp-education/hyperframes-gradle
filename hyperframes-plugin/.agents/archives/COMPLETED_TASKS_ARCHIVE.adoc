@@ -1,6 +1,6 @@
 = COMPLETED_TASKS_ARCHIVE — hyperframes-gradle
 :date: 2026-05-31
-:last-updated: 2026-10-13 (session 018)
+:last-updated: 2026-10-13 (session 019)
 
 == Tâches terminées (session 000 — 2026-05-31)
 
@@ -183,6 +183,15 @@
 | HF-KERNEL-ADAPTER | US-3 — `HyperFramesRenderOutcome` + `renderDetailed` ; le port `render` délègue | ✅
 | HF-KERNEL-ADAPTER | `RenderHyperframesTask` **délègue** à `HyperFramesEngine` (plus de CLI dupliquée), diagnostics Gradle préservés, + `width`/`height` | ✅
 | HF-KERNEL-ADAPTER | Tests : +3 unit `HyperFramesEngineTest` + 2 scénarios Cucumber (`hf_kernel_adapter_us3.feature`) ; fonctionnels `renderHyperframes` via l'engine | ✅
+|===
+
+== Tâches terminées (session 019 — 2026-10-13)
+
+|===
+| EPIC | Tâche | Statut
+| HF-KERNEL-ADAPTER | US-2 — `HyperframesParseContext.engine` (identité neutre `VideoEngine`) + `segments` (`HyperframesSegment(index, id)`) | ✅
+| HF-KERNEL-ADAPTER | `HyperframesContextExtractor` mappe compositions → segments ordonnés ; durée mesurée (D-C) | ✅
+| HF-KERNEL-ADAPTER | Tests : +3 unit + assertions fonctionnelles + 1 scénario BDD (`n3_contract.feature`) | ✅
 |===
 
 == Dette ouverte
