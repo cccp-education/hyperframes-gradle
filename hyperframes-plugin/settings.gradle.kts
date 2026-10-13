@@ -20,8 +20,10 @@ val globalProps = java.util.Properties().also {
 
 nmcpSettings {
     centralPortal {
-        username = globalProps.getProperty("ossrhUsername") ?: error("ossrhUsername not found")
-        password = globalProps.getProperty("ossrhPassword") ?: error("ossrhPassword not found")
+        // Tolerate a credential-less CI runner: publishing is a local/authorized
+        // action, the build itself must configure and test everywhere.
+        username = globalProps.getProperty("ossrhUsername") ?: ""
+        password = globalProps.getProperty("ossrhPassword") ?: ""
         publishingType = "AUTOMATIC"
     }
 }
