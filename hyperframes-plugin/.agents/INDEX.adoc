@@ -2,13 +2,13 @@
 :toc:
 
 _Règles absolues_ : voir `AGENT.adoc`
-_Derniere mise a jour_ : 2026-10-11 (Session 007 — re-pin catalog ws `0.0.30 → 0.0.78` + platform BOM, rollout MEMPHIS 0.0.78 ; compile VERT)
+_Derniere mise a jour_ : 2026-10-13 (Session 017 — **HF-KERNEL-ADAPTER US-1 ✅** corrections D-A→D-F + **CI débloquée** : tolérance nmcp + gardes de publication racy soldées par injection des versions du catalogue publié.)
 _DAG_ : N2 — Plugin Gradle de transformation documentaire AsciiDoc → vidéo MP4
 _Dépendance N2_ : codex-gradle (compileOnly, AsciidoctorJ partagé)
-_Bridge externe_ : HyperFrames CLI (Node.js via gradle-node-plugin, ProcessBuilder)
+_Bridge externe_ : HyperFrames CLI (Node.js via `ProcessBuilder` — `node <cliScript> render` ; plugin Gradle Node non appliqué)
 
-_Dernière session terminée_ : 016 — **spike fitness du noyau** : `HyperFramesEngine` implémente `capsule.kernel.VideoEngine` (`video-kernel:0.0.2`) ; port **valide**, gap confirmé (`VideoOutcome` manquant). Doc `.agents/sessions/016-spike-fitness-noyau.adoc`.
-_Prochaine session_ : 017 — au choix : A) noyau `VideoOutcome` (video-kernel 0.0.3 → geler 0.1.0) ; B) intégration `HyperFramesEngine` + défauts D-A→D-F ; C) suite cadrage HF-KERNEL-ADAPTER.
+_Dernière session terminée_ : 017 — **HF-KERNEL-ADAPTER US-1** : 6 défauts corrigés (D-A annotation, D-B `node-gradle` mort retiré, D-C durée mesurée via ffprobe, D-D doc/code, D-E domaine N3, D-F strict + `hyperframesPipeline`) + CI débloquée. Rapport `.agents/sessions/017-hf-kernel-adapter-us1.adoc`.
+_Prochaine session_ : 018 — au choix : A) HF-KERNEL-ADAPTER US-2 (contrat N3 neutre) ; B) US-3 (`VideoEngine` — les 3 tâches délèguent) ; C) US-4 consommation du noyau ; D) VK-2 (package neutre `video.kernel.*`).
 _Version publiée_ : 0.0.3 (Maven Central, bundle `5d48222c`) + Gradle Plugin Portal (en attente d'approbation)
 
 '''
@@ -52,7 +52,7 @@ _Version publiée_ : 0.0.3 (Maven Central, bundle `5d48222c`) + Gradle Plugin Po
 | HF-5 | Templates HyperFrames prêts à l'emploi (title-card, code-diff, data-chart, kinetic-captions) | ✅ TERMINÉ (4/4 — sessions 008-011) | P3
 | HF-6 | CI + publication Maven Central / Gradle Portal | ✅ TERMINÉ (Maven Central S005, CI S008, Portal S013) | P3
 | HF-7 | Pronunciation Control (TTS Phonetic Hints) — corriger la phonétique TTS depuis l'AsciiDoc | ✅ TERMINÉ (session 010) + câblé (session 012) | P1
-| HF-KERNEL-ADAPTER | 2ᵉ adaptateur du noyau vidéo partagé (`video-kernel`) — mutualisation avec capsule ; corriger défauts (D-A→D-F) + aligner contrat N3 + ports `VideoEngine`/`SegmentSource` + consommation du noyau. Cadrage `.agents/CADRAGE_EPIC_HF_KERNEL_ADAPTER.adoc`. | 🟡 EN COURS — cadrage S-015 (US-1→5 À FAIRE) | P1
+| HF-KERNEL-ADAPTER | 2ᵉ adaptateur du noyau vidéo partagé (`video-kernel`) — mutualisation avec capsule ; corriger défauts (D-A→D-F) + aligner contrat N3 + ports `VideoEngine`/`SegmentSource` + consommation du noyau. Cadrage `.agents/CADRAGE_EPIC_HF_KERNEL_ADAPTER.adoc`. | 🟡 EN COURS — **US-1 ✅ S-017** ; US-2→5 À FAIRE | P1
 |===
 
 '''
@@ -67,11 +67,15 @@ _Portée_ : hyperframes devient le **moteur de rendu visuel** (motion HTML conti
 d'un **noyau vidéo engine-agnostique** (`video-kernel`, N1) qui porte TTS, audio-post,
 sous-titres, durée, config. Le parser AsciiDoc→HTML + bridge CLI = l'**adapter**.
 
-_US_ : US-0 cadrage ✅ S-015 · US-1 défauts (D-A→D-F) 🟡 (autonome) · US-2 contrat N3
+_US_ : US-0 cadrage ✅ S-015 · US-1 défauts (D-A→D-F) ✅ **S-017** · US-2 contrat N3
 neutre 🟡 · US-3 port `VideoEngine` 🟡 · US-4 consommation noyau 🟡 · US-5 BDD/dogfooding 🟡.
 
+_Prérequis CI_ : la CI était rouge sur 100 % des runs (configuration nmcp + gardes de
+publication racy). **Soldé S-017** (tolérance nmcp + injection des versions du catalogue
+publié). Aucun accès cross-repo dans les tests.
+
 _Condition_ : US-2→US-5 conditionnées au noyau capsule posé (`CAP-ENGINE-DECOUPLING`
-US-1→US-4). US-1 démarrable immédiatement.
+US-1→US-4). US-1 était démarrable immédiatement (**✅ livrée S-017**).
 
 '''
 == EPIC HF-1 — Plugin Gradle + AsciidoctorJ
@@ -186,6 +190,8 @@ Le dictionnaire reste côté auteur (AsciiDoc), pas côté moteur (Node.js).
 
 |===
 | # | Date | Type | Sujet | Score
+| 017 | 2026-10-13 | impl + ci | **HF-KERNEL-ADAPTER US-1 ✅** — défauts D-A→D-F corrigés (outputDir, node-gradle mort retiré, durée mesurée ffprobe, doc/code, domaine N3, strict + `hyperframesPipeline`) + **CI débloquée** (tolérance nmcp + gardes racy soldées par injection des versions du catalogue publié). 16 unit + 4 fonctionnels + 3 BDD. | ✅ TERMINÉ
+| 016 | 2026-10-12 | spike | Spike fitness noyau — `HyperFramesEngine : capsule.kernel.VideoEngine` (video-kernel 0.0.2), gap `VideoOutcome` confirmé | ✅ TERMINÉ
 | 014 | 2026-07-09 | integration | BOM integration (workspace-bom:0.0.7) + publication 0.0.3 Maven Central (bundle `5d48222c`) + BOM 0.0.8 | ✅ TERMINÉ
 | 013 | 2026-07-09 | publish | HF-6c — Publication Gradle Plugin Portal (handle cccp-education, en attente d'approbation) | ✅ TERMINÉ
 | 012 | 2026-07-09 | impl | HF-7 évolution — câblage PronunciationDomainLoader dans l'extension Gradle + merge auteur/domaine (9 unit + 3 func + 4 Cucumber, 211 tests) | ✅ TERMINÉ

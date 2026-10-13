@@ -241,14 +241,16 @@ audio::assets/narration-comparison.mp3[]
 == Bridge Node.js — ProcessBuilder
 
 Le bridge entre la JVM (Gradle/Kotlin) et le CLI HyperFrames (Node.js/TypeScript)
-est géré par le plugin `com.github.node-gradle:gradle-node-plugin` (même pattern
-que slider-gradle). Node.js est pinné, downloadé automatiquement par Gradle.
+est géré par `ProcessBuilder` : le plugin exécute `node <cliScript> render`.
+L'exécutable Node est résolu depuis `nodeExecutable` (tests/CI), puis un cache Node
+géré par Gradle, puis le `PATH`. Le plugin `com.github.node-gradle:gradle-node-plugin`
+n'est pas appliqué (dépendance morte retirée S-017, défaut D-B).
 
 === Stratégie
 
 Le plugin n'importe JAMAIS de code Node.js directement. Le contrat est :
-- Le plugin Gradle Node gère l'installation de Node.js et du package npm `hyperframes`
-- `ProcessBuilder` exécute le binaire `node` fourni par le plugin
+- L'utilisateur fournit la CLI `hyperframes` (npm) et configure `cliScript` (défaut : `node_modules/.bin/hyperframes`)
+- `ProcessBuilder` exécute le binaire `node` résolu (`nodeExecutable`, cache Gradle, ou `PATH`)
 - Communication par fichiers sur disque :
 
 [source,kotlin]
@@ -350,7 +352,7 @@ dans `collectHyperframesRetrieve`.
 |===
 | Décision | Raison | Alternative rejetée
 | AsciidoctorJ en implementation (HF-1) | Nécessaire pour GradleTestKit ; passera en compileOnly en HF-4 | compileOnly (cassait les tests)
-| gradle-node-plugin + ProcessBuilder | Node.js pinné, download auto Gradle, CI reproductible | npx système (version non garantie), J2V8 (trop lourd), GraalJS (trop lourd)
+| ProcessBuilder + `node <cliScript> render` | Contrat CLI simple, Node résolu (`nodeExecutable`/cache/PATH) | gradle-node-plugin (dépendance déclarée mais jamais appliquée — retirée S-017), J2V8 (trop lourd), GraalJS (trop lourd)
 | HyperFrames CLI externe | Isolation, upgrade indépendant | Bundler HyperFrames dans le plugin (trop complexe)
 | MP4 h264 + AAC | Standard universel, compatible tous lecteurs | WebM (Playwright natif, moins compatible)
 | DSL en AsciiDoc customs | Naturel pour l'écosystème existant | DSL YAML/JSON (moins intégré)

@@ -1,0 +1,95 @@
+= Session 017 — HF-KERNEL-ADAPTER US-1 : correction des défauts D-A→D-F
+:session: 017
+:date: 2026-10-13
+:type: impl + ci
+:borough: Watts / hyperframes-gradle
+:epic: HF-KERNEL-ADAPTER
+:us: US-1
+:statut: ✅ TERMINÉ (US-1) + prérequis CI
+:toc:
+
+== Mission
+
+Première US actionnable et **autonome** de l'EPIC `HF-KERNEL-ADAPTER`
+(session transverse hyperframes / video-kernel / capsule) : corriger les
+6 défauts d'audit D-A→D-F avant tout câblage du noyau partagé. Méthode
+baby-step DDD/TDD/BDD (unit / fonctionnel / Cucumber). **Local = Build,
+Tests = CI** (aucun `test`/`check` exécuté en local ; seule la compilation
+`compileKotlin`/`compileTestKotlin` est prouvée localement).
+
+== Prérequis CI (BS-0) — la CI était rouge sur 100 % des runs
+
+Constat en ouverture (`gh run list`) : **tous les runs sont `failure`**, y compris
+celui qui portait le fix S-016. Deux causes structurelles :
+
+. **Configuration** — `settings.gradle.kts` exigeait `ossrhUsername`/`ossrhPassword`
+   (`?: error(...)`), reverté au commit `dacf6c3` « out-of-scope ». Sur un runner
+   sans `~/.gradle/gradle.properties`, la configuration échoue (~40 s).
+   → tolérance `?: ""` restaurée (miroir exact de `capsule-plugin/settings.gradle.kts`).
+. **Gardes de publication racy** — `HyperframesPluginPublicationTest` lisait le
+   *working tree* du repo voisin `../workspace-bom/gradle/libs.versions.toml`,
+   **absent du runner isolé** et racy entre sessions parallèles (échec prouvé :
+   `java.lang.IllegalStateException at HyperframesPluginPublicationTest.kt:66`,
+   `185 tests completed, 2 failed`). → patron **D5-RACE** (graphify S-029) :
+   les versions du catalogue **publié** sont *injectées par Gradle*
+   (`systemProperty("hyperframes.publishedCatalog.pluginVersion", ws.versions.hyperframes.plugin.get())`
+   et `...bomVersion`, depuis `ws.versions.workspace.bom`). La garde ne lit plus
+   jamais un repo voisin ; RED-prouvable par propriété absente.
+
+== Défauts corrigés
+
+[cols="1,5,1", options="header"]
+|===
+| # | Correction | Tests
+
+| D-A | `HyperframesExtension.outputDir` : annotation `@InputDirectory` → `@OutputDirectory` (elle décrit une sortie) | `HyperframesExtensionContractTest` (2 unit, réflexion)
+| D-B | dépendance morte `com.github.node-gradle:gradle-node-plugin` retirée (`implementation` + entrées toml `[versions]`/`[libraries]`) ; messages de résolution Node.js et docs réalignés sur `nodeExecutable`/cache/PATH | compile (aucune référence résiduelle)
+| D-C | durée **mesurée** : port pur `VideoDurationProbe`, parser pur `FfprobeDurationParser`, adapter `FfprobeDurationProbe` (`ProcessBuilderProbeRunner`), seam `ProbeRunner` ; `HyperframesContextExtractor.extract(..., durationSeconds)` ; wiring `CollectHyperframesRetrieveTask.ffprobeExecutable` + extension. Dégradé `0.0` (jamais d'échec de build) | `FfprobeDurationProbeTest` (10 unit) + `HyperframesContextExtractorTest` (+2) + 2 fonctionnels TestKit (stub ffprobe / dégradé) + 1 scénario Cucumber
+| D-D | description `renderHyperframes` + KDoc `RenderHyperframesTask` réalignés sur la commande **réelle** `node <cliScript> render` (l'ancienne mention `npx hyperframes render` est l'équivalent utilisateur) | doc
+| D-E | domaine de prononciation **propagé** dans le contrat N3 (`pronunciation.domain` était toujours `null`) : `HyperframesContextExtractor(pluginVersion, pronunciationDomain)` + property de tâche + wiring plugin | `HyperframesContextExtractorTest` (+2) + 1 scénario Cucumber
+| D-F | `strict` (NoOp → **échec** au lieu d'un skip silencieux) ; ordonnancement `mustRunAfter` (generate → render → collect) ; tâche de cycle de vie `hyperframesPipeline` (dépend des 3). Cache/incremental profond + source set `functionalTest` **DIFFÉRÉS** (voir dette) | 1 fonctionnel TestKit (strict) + 1 fonctionnel TestKit (ordre du pipeline, `--dry-run`) + 1 scénario Cucumber
+|===
+
+== Livrables (fichiers)
+
+.Production*
+- `contract/VideoDurationProbe.kt` (créé — port + parser + seam)
+- `contract/FfprobeDurationProbe.kt` (créé — adapter + runner)
+- `contract/HyperframesContextExtractor.kt` (modifié — durée + domaine)
+- `CollectHyperframesRetrieveTask.kt` (modifié — sonde + domaine + strict)
+- `HyperframesExtension.kt` (modifié — D-A + `ffprobeExecutable` + `strict`)
+- `HyperframesPlugin.kt` (modifié — wiring + `mustRunAfter` + `hyperframesPipeline`)
+- `RenderHyperframesTask.kt` (modifié — KDoc + messages Node)
+- `build.gradle.kts` + `gradle/libs.versions.toml` (modifiés — dep morte retirée + injection versions)
+- `settings.gradle.kts` (modifié — tolérance nmcp)
+
+.Tests*
+- `HyperframesExtensionContractTest.kt` (créé — 2 unit)
+- `contract/FfprobeDurationProbeTest.kt` (créé — 10 unit)
+- `contract/HyperframesContextExtractorTest.kt` (modifié — +4 unit)
+- `CollectHyperframesRetrieveTaskTest.kt` (modifié — +4 fonctionnels TestKit)
+- `scenarios/HfKernelAdapterUs1Steps.kt` (créé) + `scenarios/HyperframesWorld.kt` (modifié)
+- `resources/features/hf_kernel_adapter_us1.feature` (créé — 3 scénarios BDD)
+
+.Docs* — `AGENT.adoc`, `.agents/SESSION_PROCEDURE.adoc`, `doc/HYPERFRAMES_ARCHITECTURE.adoc`.
+
+== Gates
+
+- **Local = Build** : `./gradlew compileKotlin compileTestKotlin` ✅ BUILD SUCCESSFUL
+  (la configuration évalue `ws.versions.workspace.bom` sans erreur — l'accesseur
+  injecté est valide).
+- **Tests = CI** : délégués au workflow `test-hyperframes.yml` (compile → test →
+  cucumberTest → check). Aucun `test`/`check` local.
+- **Zéro secret** ; **English only** dans le code ajouté ; Gherkin EN.
+
+== Dette / suite
+
+. **D-F profond (différé)** — cache/incremental réel des tâches
+   (`@DisableCachingByDefault` conservé : process externe + HTML AsciidoctorJ
+   potentiellement horodaté) et source set `functionalTest` séparé (convention
+   actuelle : les tests TestKit vivent dans `src/test`, acceptée).
+. **US-2** — aligner le contrat N3 sur le modèle neutre (`segments`,
+   `durationSeconds` mesuré, `engine`) : partiellement amorcé par D-C.
+. **US-3/US-4** — port `VideoEngine` (les 3 tâches délèguent à `HyperFramesEngine`)
+   + consommation du noyau partagé.
+. **US-5** — BDD + dogfooding cccp.education.

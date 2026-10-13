@@ -11,8 +11,13 @@ package hyperframes.contract
  * and the `<script id="hf-pronunciation">` island for the TTS dictionary.
  *
  * @param pluginVersion version of the emitting plugin (injected by the Gradle task)
+ * @param pronunciationDomain optional configured pronunciation domain name (D-E, S-017);
+ *        echoed into the N3 `pronunciation.domain` field. `null` when no domain is configured.
  */
-class HyperframesContextExtractor(private val pluginVersion: String) {
+class HyperframesContextExtractor(
+    private val pluginVersion: String,
+    private val pronunciationDomain: String? = null,
+) {
 
     /**
      * Extracts the N3 context from the HyperFrames HTML and the rendered MP4.
@@ -22,13 +27,16 @@ class HyperframesContextExtractor(private val pluginVersion: String) {
      * @param asciidocName name of the source AsciiDoc file
      * @param renderedAt ISO-8601 render timestamp
      * @param renderDurationMs render duration in ms
+     * @param durationSeconds measured video duration in seconds (D-C, S-017).
+     *        `0.0` when unknown (prober absent/failed).
      */
     fun extract(
         html: String,
         mp4: java.io.File,
         asciidocName: String,
         renderedAt: String,
-        renderDurationMs: Long
+        renderDurationMs: Long,
+        durationSeconds: Double = 0.0
     ): HyperframesParseContext {
         val stage = parseStage(html)
         val compositions = parseCompositions(html)
@@ -41,7 +49,7 @@ class HyperframesContextExtractor(private val pluginVersion: String) {
                 video = mp4.name,
                 path = mp4.absolutePath,
                 sizeBytes = if (mp4.exists()) mp4.length() else 0L,
-                durationSeconds = 0.0,
+                durationSeconds = durationSeconds,
                 width = stage.width,
                 height = stage.height,
                 fps = stage.fps
@@ -82,6 +90,9 @@ class HyperframesContextExtractor(private val pluginVersion: String) {
     /**
      * HF-7f — Parses the `<script id="hf-pronunciation">` JSON island into a
      * [HyperframesPronunciationContext]. Returns null when no island is present.
+     *
+     * D-E (S-017) — the configured [pronunciationDomain] is echoed into the N3
+     * `domain` field (it was previously always `null`).
      */
     private fun parsePronunciation(html: String): HyperframesPronunciationContext? {
         val islandRegex = Regex(
@@ -91,7 +102,7 @@ class HyperframesContextExtractor(private val pluginVersion: String) {
         val match = islandRegex.find(html) ?: return null
         val arrayContent = match.groupValues[1].trim()
         if (arrayContent.isEmpty()) {
-            return HyperframesPronunciationContext(domain = null, hintsCount = 0, hints = emptyList())
+            return HyperframesPronunciationContext(domain = pronunciationDomain, hintsCount = 0, hints = emptyList())
         }
 
         val entryRegex = Regex(
@@ -106,7 +117,7 @@ class HyperframesContextExtractor(private val pluginVersion: String) {
         }.toList()
 
         return HyperframesPronunciationContext(
-            domain = null,
+            domain = pronunciationDomain,
             hintsCount = entries.size,
             hints = entries
         )

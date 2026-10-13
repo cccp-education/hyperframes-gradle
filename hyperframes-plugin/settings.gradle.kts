@@ -20,8 +20,10 @@ val globalProps = java.util.Properties().also {
 
 nmcpSettings {
     centralPortal {
-        username = globalProps.getProperty("ossrhUsername") ?: error("ossrhUsername not found")
-        password = globalProps.getProperty("ossrhPassword") ?: error("ossrhPassword not found")
+        // Tolerate a credential-less runner (CI): publishing later fails loudly,
+        // but configuration + tests run. Mirrors the capsule settings (S-016 fix).
+        username = globalProps.getProperty("ossrhUsername") ?: ""
+        password = globalProps.getProperty("ossrhPassword") ?: ""
         publishingType = "AUTOMATIC"
     }
 }

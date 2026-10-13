@@ -5,6 +5,7 @@ import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputDirectory
 import org.gradle.api.tasks.Optional
+import org.gradle.api.tasks.OutputDirectory
 
 /**
  * DSL d'extension [hyperframes] pour configure le pipeline HyperFrames.
@@ -17,8 +18,14 @@ abstract class HyperframesExtension {
     @get:InputDirectory
     abstract val inputDir: DirectoryProperty
 
-    /** Répertoire de sortie pour le HTML intermédiaire et le MP4 final */
-    @get:InputDirectory
+    /**
+     * Répertoire de sortie pour le HTML intermédiaire et le MP4 final.
+     *
+     * D-A (S-017) — cette propriété était annotée `@InputDirectory` par erreur :
+     * elle décrit une **sortie**. Le noyau du plugin porte déjà l'annotation
+     * `@OutputDirectory` sur les tâches ; l'annotation ici exprime l'intention DSL.
+     */
+    @get:OutputDirectory
     abstract val outputDir: DirectoryProperty
 
     /** Largeur de la vidéo en pixels (défaut : 1920) */
@@ -77,11 +84,31 @@ abstract class HyperframesExtension {
     @get:Optional
     abstract val pronunciationDomain: Property<String>
 
+    /**
+     * D-C (S-017) — chemin vers l'exécutable `ffprobe` utilisé pour mesurer la
+     * durée réelle du MP4 produit (descripteur d'issue N3 `durationSeconds`).
+     * Défaut : `ffprobe` résolu sur le `PATH`. Absent → dégradation silencieuse
+     * (`durationSeconds = 0.0`), jamais un échec de build.
+     */
+    @get:Input
+    @get:Optional
+    abstract val ffprobeExecutable: Property<String>
+
+    /**
+     * D-F (S-017) — `strict` transforme les dégradations silencieuses en échec.
+     * Par défaut `false` (dégradé, backward-compatible). Quand `true`, une
+     * collecte sans artefacts rendus (MP4/HTML) échoue la tâche au lieu de
+     * seulement journaliser.
+     */
+    @get:Input
+    abstract val strict: Property<Boolean>
+
     init {
         width.convention(1920)
         height.convention(1080)
         fps.convention(30)
         outputName.convention("output")
         renderTimeoutMs.convention(300_000L)
+        strict.convention(false)
     }
 }

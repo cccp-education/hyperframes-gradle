@@ -39,9 +39,9 @@ class HyperframesPlugin : Plugin<Project> {
             task.pronunciationDomain.set(extension.pronunciationDomain)
         }
 
-        // Tâche : rendu MP4 via HyperFrames CLI (ProcessBuilder → node hyperframes render)
+        // Tâche : rendu MP4 via HyperFrames CLI (ProcessBuilder → node <cliScript> render)
         target.tasks.register("renderHyperframes", RenderHyperframesTask::class.java) { task ->
-            task.description = "Render HyperFrames HTML to MP4 via CLI (npx hyperframes render)"
+            task.description = "Render HyperFrames HTML to MP4 via the HyperFrames CLI (node <cliScript> render)"
             task.group = "hyperframes"
             task.outputDir.set(extension.outputDir)
             task.outputName.set(extension.outputName)
@@ -58,6 +58,22 @@ class HyperframesPlugin : Plugin<Project> {
             task.group = "collect"
             task.outputFile.set(target.layout.buildDirectory.file("hyperframes/composite-context.json"))
             task.pluginVersion.set(target.version.toString())
+            task.pronunciationDomain.set(extension.pronunciationDomain)
+            task.ffprobeExecutable.set(extension.ffprobeExecutable)
+            task.strict.set(extension.strict)
+        }
+
+        // D-F (S-017) — pipeline ordering: generate → render → collect.
+        // `mustRunAfter` (not `dependsOn`) orders the tasks when they are all in
+        // the graph without forcing the expensive render on a plain collect.
+        target.tasks.named("renderHyperframes") { it.mustRunAfter("generateHyperframesHtml") }
+        target.tasks.named("collectHyperframesRetrieve") { it.mustRunAfter("renderHyperframes") }
+
+        // D-F (S-017) — lifecycle task running the whole pipeline in order.
+        target.tasks.register("hyperframesPipeline") { task ->
+            task.description = "Run the full HyperFrames pipeline: AsciiDoc → HTML → MP4 → N3 metadata"
+            task.group = "hyperframes"
+            task.dependsOn("generateHyperframesHtml", "renderHyperframes", "collectHyperframesRetrieve")
         }
     }
 }

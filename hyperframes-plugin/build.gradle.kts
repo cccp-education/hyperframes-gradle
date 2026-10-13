@@ -22,7 +22,6 @@ dependencies {
     // N1 shared engine-neutral video kernel (spike — 2nd engine adapter).
     implementation(libs.video.kernel)
     implementation(libs.asciidoctorj)
-    implementation(libs.node.gradle)
     implementation(libs.jackson.databind)
     implementation(libs.jackson.module.kotlin)
 
@@ -41,6 +40,13 @@ dependencies {
 
 tasks.withType<Test> {
     outputs.cacheIf { true }
+
+    // D5R-2 (cross-borough pattern, graphify S-029) — inject the *published*
+    // workspace catalog versions resolved by Gradle from the catalog pin.
+    // The publication hygiene guard must never read a neighbour repository's
+    // working tree: that is racy between parallel sessions (and absent on CI).
+    systemProperty("hyperframes.publishedCatalog.pluginVersion", ws.versions.hyperframes.plugin.get())
+    systemProperty("hyperframes.publishedCatalog.bomVersion", ws.versions.workspace.bom.get())
 }
 
 // Cucumber BDD — features in src/test/resources/features, steps in src/test/kotlin/hyperframes/scenarios

@@ -18,6 +18,8 @@ class HyperframesWorld {
     private val mapper = jacksonObjectMapper()
 
     var pronunciationDomain: String? = null
+    var ffprobeExecutable: String? = null
+    var strictMode: Boolean = false
 
     fun createProject() {
         if (::projectDir.isInitialized && projectDir.exists()) return
@@ -30,6 +32,17 @@ class HyperframesWorld {
             rootProject.name = "cucumber-hyperframes"
             """.trimIndent()
         )
+        writeBuildScript()
+        buildDir = projectDir.resolve("build/hyperframes")
+        buildDir.mkdirs()
+    }
+
+    /**
+     * (Re)writes the consumer build script from the current world configuration.
+     * Invoked at project creation and whenever a step configures the extension
+     * after the project already exists (ffprobe stub, strict mode).
+     */
+    fun writeBuildScript() {
         projectDir.resolve("build.gradle.kts").writeText(
             """
             plugins { id("education.cccp.hyperframes") }
@@ -41,11 +54,53 @@ class HyperframesWorld {
                 fps.set(30)
                 outputName.set("test-video")
                 ${if (pronunciationDomain != null) """pronunciationDomain.set("$pronunciationDomain")""" else ""}
+                ${if (ffprobeExecutable != null) """ffprobeExecutable.set("$ffprobeExecutable")""" else ""}
+                strict.set($strictMode)
             }
             """.trimIndent()
         )
-        buildDir = projectDir.resolve("build/hyperframes")
-        buildDir.mkdirs()
+    }
+
+    /**
+     * D-C — writes a stub `ffprobe` printing [seconds] and reconfigures the build.
+     */
+    fun writeStubFfprobe(seconds: String) {
+        val script = projectDir.resolve("stub-ffprobe.sh")
+        script.writeText(
+            """
+            #!/bin/bash
+            echo "$seconds"
+            exit 0
+            """.trimIndent()
+        )
+        script.setExecutable(true)
+        ffprobeExecutable = script.absolutePath
+        writeBuildScript()
+    }
+
+    /**
+     * D-F — reconfigures the build in strict mode.
+     */
+    fun setStrictMode() {
+        strictMode = true
+        writeBuildScript()
+    }
+
+    /**
+     * D-E — writes an enriched HTML carrying a pronunciation JSON island.
+     */
+    fun writeHtmlWithPronunciationIsland() {
+        buildDir.resolve("index.html").writeText(
+            """
+            <html><body>
+            <div id="stage" data-width="1920" data-height="1080" data-fps="30" data-output="test-video.mp4">
+            <div class="sect1 hyperframes-composition" data-composition-id="intro"><h2 id="intro">intro</h2></div>
+            <div class="paragraph hyperframes-track" data-track-index="0" data-start="0" data-duration="5"></div>
+            </div>
+            <script type="application/json" id="hf-pronunciation">[{"word":"dos","phonetic":"do"}]</script>
+            </body></html>
+            """.trimIndent()
+        )
     }
 
     fun writeMp4(name: String, bytes: ByteArray = ByteArray(1024)) {
@@ -285,6 +340,18 @@ class HyperframesWorld {
             .withPluginClasspath()
             .withArguments(taskName, "--info", "--rerun-tasks")
             .build()
+    }
+
+    /**
+     * D-F — runs a task expected to fail (strict mode), capturing the failure
+     * build result instead of throwing.
+     */
+    fun runTaskExpectingFailure(taskName: String) {
+        buildResult = GradleRunner.create()
+            .withProjectDir(projectDir)
+            .withPluginClasspath()
+            .withArguments(taskName, "--info", "--rerun-tasks")
+            .buildAndFail()
     }
 
     fun generatedHtml(): String {

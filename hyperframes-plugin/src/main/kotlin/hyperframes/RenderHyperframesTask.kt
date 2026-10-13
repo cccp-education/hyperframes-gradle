@@ -21,10 +21,14 @@ private class HyperframesException(message: String) : RuntimeException(message)
  * Tâche Gradle qui appelle la CLI HyperFrames pour convertir le HTML
  * généré en vidéo MP4.
  *
- * HF-2 : Implémentation complète avec ProcessBuilder → node hyperframes-cli render.
+ * HF-2 : Implémentation complète avec ProcessBuilder → `node <cliScript> render`.
  *
- * Le chemin Node.js est résolu depuis le plugin Gradle Node (`NodeExtension`)
- * ou depuis [nodeExecutable] si fourni (utile pour les tests avec mock CLI).
+ * D-D (S-017) — the documented invocation is the *actual* one: the plugin runs
+ * `node <cliScript> render` through ProcessBuilder (the user-facing equivalent
+ * is `npx hyperframes render`). The command was previously mis-documented.
+ *
+ * Le chemin Node.js est résolu depuis [nodeExecutable] si fourni (tests / mock CLI),
+ * puis depuis un cache Node géré par Gradle, puis depuis le `PATH` système.
  */
 @DisableCachingByDefault(because = "External process-bound: calls Node.js HyperFrames CLI")
 abstract class RenderHyperframesTask : DefaultTask() {
@@ -215,7 +219,7 @@ abstract class RenderHyperframesTask : DefaultTask() {
                 val systemNode = File(nodePath)
                 if (systemNode.exists()) {
                     logger.warn("Using system Node.js at ${systemNode.absolutePath}. " +
-                        "Consider applying com.github.node-gradle.node for reproducible builds.")
+                        "Set nodeExecutable in the hyperframes extension for reproducible builds.")
                     return systemNode
                 }
             }
@@ -225,7 +229,7 @@ abstract class RenderHyperframesTask : DefaultTask() {
 
         throw HyperframesException(
             "Node.js executable not found. " +
-                "Apply com.github.node-gradle.node plugin or set nodeExecutable " +
+                "Install node on the PATH or set nodeExecutable " +
                 "in the hyperframes extension."
         )
     }

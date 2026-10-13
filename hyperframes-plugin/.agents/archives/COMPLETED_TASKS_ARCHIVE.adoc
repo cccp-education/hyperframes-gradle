@@ -1,6 +1,6 @@
 = COMPLETED_TASKS_ARCHIVE — hyperframes-gradle
 :date: 2026-05-31
-:last-updated: 2026-10-12 (session 015)
+:last-updated: 2026-10-13 (session 017)
 
 == Tâches terminées (session 000 — 2026-05-31)
 
@@ -152,3 +152,34 @@
 | HF-KERNEL-ADAPTER | Décisions D1→D7 + roadmap US-0→US-5 (US-1 défauts autonome ; US-2+ après le noyau capsule) | ✅
 | HF-KERNEL-ADAPTER | Doc `.agents/CADRAGE_EPIC_HF_KERNEL_ADAPTER.adoc` + `BACKLOG.adoc` + `.agents/INDEX.adoc` + `PROMPT_REPRISE.adoc` + rapport session 015 | ✅
 |===
+
+== Tâches terminées (session 016 — 2026-10-12)
+
+|===
+| EPIC | Tâche | Statut
+| HF-KERNEL-ADAPTER | Spike fitness : `hyperframes.kernel.HyperFramesEngine : capsule.kernel.VideoEngine` (video-kernel 0.0.2), seam `HyperFramesRenderRunner`, `HyperFramesEngineConfig`, `HyperFramesEngineTest` | ✅
+| HF-KERNEL-ADAPTER | Falsification du port (mapping 1:1, gap `VideoOutcome` confirmé, `failedUnits` révèle-shaped, duplication CLI) + suivi `VideoOutcome` (video-kernel 0.0.3) | ✅
+|===
+
+== Tâches terminées (session 017 — 2026-10-13)
+
+|===
+| EPIC | Tâche | Statut
+| CI (prérequis) | Tolérance nmcp `ossrhUsername ?: ""` (miroir capsule) — configuration sur runner sans credentials | ✅
+| CI (prérequis) | Gardes de publication racy → versions du catalogue publié **injectées par Gradle** (`systemProperty`), plus d'accès au repo voisin (`HyperframesPluginPublicationTest`) | ✅
+| HF-KERNEL-ADAPTER | D-A `HyperframesExtension.outputDir` `@InputDirectory` → `@OutputDirectory` + garde réflexion | ✅
+| HF-KERNEL-ADAPTER | D-B dépendance morte `node-gradle` retirée (build + toml) + résolution Node.js/docs réalignées | ✅
+| HF-KERNEL-ADAPTER | D-C durée **mesurée** (`VideoDurationProbe`/`FfprobeDurationParser`/`FfprobeDurationProbe`, seam `ProbeRunner`, dégradé `0.0`) | ✅
+| HF-KERNEL-ADAPTER | D-D description/KDoc réalignés sur `node <cliScript> render` | ✅
+| HF-KERNEL-ADAPTER | D-E `pronunciation.domain` propagé dans le contrat N3 | ✅
+| HF-KERNEL-ADAPTER | D-F mode `strict` + `mustRunAfter` (generate→render→collect) + tâche `hyperframesPipeline` | ✅
+| HF-KERNEL-ADAPTER | Tests : 16 unit + 4 fonctionnels TestKit + 3 scénarios Cucumber (`hf_kernel_adapter_us1.feature`) | ✅
+|===
+
+== Dette ouverte
+
+|===
+| ID | Dette | Priorité
+| D-F+ | Cache/incremental réel des tâches + source set `functionalTest` séparé (convention actuelle : TestKit dans `src/test`) | P2
+|===
+

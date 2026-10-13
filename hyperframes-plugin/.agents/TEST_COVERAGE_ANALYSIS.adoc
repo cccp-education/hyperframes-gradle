@@ -1,6 +1,22 @@
 = Test Coverage Analysis — hyperframes-gradle
 
-_Dernière mise à jour_ : 2026-10-12 (Session 016 — spike fitness noyau : `HyperFramesEngine` + `HyperFramesEngineTest`)
+_Dernière mise à jour_ : 2026-10-13 (Session 017 — HF-KERNEL-ADAPTER US-1 : durée mesurée, domaine N3, strict, pipeline + gardes CI)
+
+== Couverture — 13 octobre 2026 (après session 017)
+
+.HF-KERNEL-ADAPTER US-1 (défauts D-A→D-F)
+|===
+| Élément | Changement | Tests
+
+| `HyperframesExtension.kt` | D-A `outputDir` → `@OutputDirectory` ; + `ffprobeExecutable`, `strict` | `HyperframesExtensionContractTest` (2 unit)
+| `contract/VideoDurationProbe.kt` (créé) | port + parser pur + seam `ProbeRunner` | `FfprobeDurationProbeTest` (10 unit)
+| `contract/FfprobeDurationProbe.kt` (créé) | adapter ffprobe + `ProcessBuilderProbeRunner` | idem
+| `contract/HyperframesContextExtractor.kt` | durée mesurée + domaine de prononciation N3 | `HyperframesContextExtractorTest` (+4 unit)
+| `CollectHyperframesRetrieveTask.kt` | sonde durée + domaine + strict | `CollectHyperframesRetrieveTaskTest` (+4 fonctionnels TestKit)
+| `HyperframesPlugin.kt` | wiring + `mustRunAfter` + `hyperframesPipeline` | idem (ordre du pipeline)
+| BDD | `hf_kernel_adapter_us1.feature` | 3 scénarios Cucumber
+| CI | gardes de publication racy → versions injectées (`systemProperty`) | `HyperframesPluginPublicationTest` (RED-prouvable)
+|===
 
 == Couverture — 12 octobre 2026 (après session 016)
 

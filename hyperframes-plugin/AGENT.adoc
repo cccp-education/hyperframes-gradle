@@ -13,7 +13,11 @@ Le DSL de configuration est porté par AsciidoctorJ — les blocs
 customs et attributs docinfo définissent les compositions,
 les tracks, les animations et les médias.
 
-Le bridge Node.js est géré via le plugin Gradle Node (`com.github.node-gradle:gradle-node-plugin`) + ProcessBuilder. Le `node` executable est managé par Gradle, pas par le système.
+Le bridge Node.js est géré via `ProcessBuilder` + la CLI HyperFrames : le plugin
+exécute `node <cliScript> render` (équivalent utilisateur : `npx hyperframes render`).
+L'exécutable Node est résolu depuis `nodeExecutable` (tests/CI), puis un cache Node
+géré par Gradle, puis le `PATH` système. Le plugin Gradle Node (`com.github.node-gradle`)
+n'est **pas** appliqué (dépendance morte retirée S-017, défaut D-B).
 Le contrat est par fichiers : AsciiDoc source + metadata.json → HTML HyperFrames → MP4.
 
 Pipeline :

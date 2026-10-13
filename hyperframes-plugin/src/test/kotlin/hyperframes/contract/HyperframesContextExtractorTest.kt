@@ -159,6 +159,43 @@ class HyperframesContextExtractorTest {
         assertTrue(ctx.pronunciation?.hints?.isEmpty() == true)
     }
 
+    // ──────────────────────────────────────────────
+    // D-C / D-E (S-017) — measured duration + pronunciation domain
+    // ──────────────────────────────────────────────
+
+    @Test
+    fun `carries the measured duration into the video descriptor`() {
+        val mp4 = fakeMp4("v.mp4")
+        val ctx = extractor.extract(sampleHtml(), mp4, "x.adoc", "2026-05-31T14:30:00Z", 0L, 42.5)
+        assertEquals(42.5, ctx.output.durationSeconds)
+    }
+
+    @Test
+    fun `duration defaults to zero when not measured`() {
+        val mp4 = fakeMp4("v.mp4")
+        val ctx = extractor.extract(sampleHtml(), mp4, "x.adoc", "2026-05-31T14:30:00Z", 0L)
+        assertEquals(0.0, ctx.output.durationSeconds)
+    }
+
+    @Test
+    fun `configured pronunciation domain is echoed into the N3 descriptor`() {
+        val domainExtractor = HyperframesContextExtractor(pluginVersion = "0.0.1", pronunciationDomain = "video-fr")
+        val html = sampleHtml() + """
+            <script type="application/json" id="hf-pronunciation">[{"word":"dos","phonetic":"do"}]</script>
+        """.trimIndent()
+        val ctx = domainExtractor.extract(html, fakeMp4("v.mp4"), "x.adoc", "2026-05-31T14:30:00Z", 0L)
+        assertEquals("video-fr", ctx.pronunciation?.domain)
+    }
+
+    @Test
+    fun `pronunciation domain is null when no domain is configured`() {
+        val html = sampleHtml() + """
+            <script type="application/json" id="hf-pronunciation">[{"word":"dos","phonetic":"do"}]</script>
+        """.trimIndent()
+        val ctx = extractor.extract(html, fakeMp4("v.mp4"), "x.adoc", "2026-05-31T14:30:00Z", 0L)
+        assertNull(ctx.pronunciation?.domain)
+    }
+
     private fun fakeMp4(name: String, content: ByteArray = ByteArray(256)): File {
         val f = tempDir.toFile().resolve(name)
         f.writeBytes(content)

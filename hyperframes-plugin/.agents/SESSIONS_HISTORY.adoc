@@ -1,5 +1,35 @@
 = SESSIONS_HISTORY — hyperframes-gradle
 
+== Session 017 (2026-10-13) — HF-KERNEL-ADAPTER US-1 (défauts D-A→D-F) + CI débloquée
+
+**Prérequis CI (BS-0).** La CI était **rouge sur 100 % des runs** (`gh run list`).
+Deux causes structurelles : (1) `settings.gradle.kts` exigeait `ossrhUsername`
+(`?: error(...)`, reverté S-016) → tolérance `?: ""` restaurée (miroir capsule) ;
+(2) `HyperframesPluginPublicationTest` lisait le *working tree* du repo voisin
+`../workspace-bom` (absent du runner, racy) → versions du catalogue **publié**
+**injectées par Gradle** (`systemProperty("hyperframes.publishedCatalog.{pluginVersion,bomVersion}",
+ws.versions...)`, patron graphify D5-RACE S-029). Plus aucun accès cross-repo.
+
+**US-1 — 6 défauts corrigés.** D-A `HyperframesExtension.outputDir` `@InputDirectory`
+→ `@OutputDirectory` (+ garde réflexion `HyperframesExtensionContractTest`) ;
+D-B dépendance morte `node-gradle` retirée (`implementation` + toml), résolution
+Node.js (`nodeExecutable`/cache/PATH) et docs réalignées ; D-C durée **mesurée** —
+port pur `VideoDurationProbe`, parser pur `FfprobeDurationParser`, adapter
+`FfprobeDurationProbe` (runner injectable), `HyperframesContextExtractor.extract(...,
+durationSeconds)`, wiring `ffprobeExecutable`, dégradé `0.0` ; D-D KDoc/description
+réalignés sur `node <cliScript> render` ; D-E `pronunciation.domain` propagé dans le
+contrat N3 (était toujours `null`) ; D-F mode `strict` (NoOp → échec) + `mustRunAfter`
+(generate→render→collect) + tâche de cycle de vie `hyperframesPipeline`.
+
+**Tests baby-step DDD/TDD/BDD** : `HyperframesExtensionContractTest` (2 unit),
+`FfprobeDurationProbeTest` (10 unit), `HyperframesContextExtractorTest` (+4 unit),
+`CollectHyperframesRetrieveTaskTest` (+4 fonctionnels TestKit : durée, dégradé, strict,
+ordre du pipeline), `hf_kernel_adapter_us1.feature` (3 scénarios) +
+`HfKernelAdapterUs1Steps` + `HyperframesWorld` étendu. **Local = Build** :
+`compileKotlin compileTestKotlin` ✅. **Tests = CI** (`test-hyperframes.yml`).
+Dette différée : cache/incremental profond + source set `functionalTest`.
+Doc `.agents/sessions/017-hf-kernel-adapter-us1.adoc`. Zéro secret.
+
 == Session 016 (2026-10-12) — Spike : HyperFrames comme 2ᵉ moteur du noyau
 
 Spike de **falsification** du contrat `video-kernel:0.0.2`. Ajout de la dépendance

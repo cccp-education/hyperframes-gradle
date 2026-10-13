@@ -4,7 +4,6 @@ video-kernel = "0.0.3"
 kotlin = "2.4.10"
 asciidoctorj = "3.0.1"
 plugin-publish = "2.1.0"
-node-gradle = "7.1.0"
 
 [libraries]
 asciidoctorj = { module = "org.asciidoctor:asciidoctorj", version.ref = "asciidoctorj" }
@@ -16,7 +15,6 @@ junit-platform-launcher = { module = "org.junit.platform:junit-platform-launcher
 junit-platform-suite = { module = "org.junit.platform:junit-platform-suite" }
 slf4j-api = { module = "org.slf4j:slf4j-api" }
 logback-classic = { module = "ch.qos.logback:logback-classic" }
-node-gradle = { module = "com.github.node-gradle:gradle-node-plugin", version.ref = "node-gradle" }
 jackson-module-kotlin = { module = "com.fasterxml.jackson.module:jackson-module-kotlin" }
 jackson-databind = { module = "com.fasterxml.jackson.core:jackson-databind" }
 cucumber-java = { module = "io.cucumber:cucumber-java" }
