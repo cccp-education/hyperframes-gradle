@@ -19,6 +19,8 @@ dependencies {
     implementation(platform("education.cccp:workspace-bom:0.0.78"))
 
     implementation(kotlin("stdlib-jdk8"))
+    // N1 shared engine-neutral video kernel (spike — 2nd engine adapter).
+    implementation(libs.video.kernel)
     implementation(libs.asciidoctorj)
     implementation(libs.node.gradle)
     implementation(libs.jackson.databind)

@@ -1,5 +1,6 @@
 [versions]
 hyperframes = "0.0.3"
+video-kernel = "0.0.2"
 kotlin = "2.4.10"
 asciidoctorj = "3.0.1"
 plugin-publish = "2.1.0"
@@ -7,6 +8,7 @@ node-gradle = "7.1.0"
 
 [libraries]
 asciidoctorj = { module = "org.asciidoctor:asciidoctorj", version.ref = "asciidoctorj" }
+video-kernel = { module = "education.cccp:video-kernel", version.ref = "video-kernel" }
 kotlin-stdlib = { module = "org.jetbrains.kotlin:kotlin-stdlib" }
 kotlin-test-junit5 = { module = "org.jetbrains.kotlin:kotlin-test-junit5", version.ref = "kotlin" }
 junit-jupiter = { module = "org.junit.jupiter:junit-jupiter" }

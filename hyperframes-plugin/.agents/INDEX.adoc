@@ -7,9 +7,8 @@ _DAG_ : N2 — Plugin Gradle de transformation documentaire AsciiDoc → vidéo 
 _Dépendance N2_ : codex-gradle (compileOnly, AsciidoctorJ partagé)
 _Bridge externe_ : HyperFrames CLI (Node.js via gradle-node-plugin, ProcessBuilder)
 
-_Dernière mise à jour_ : 2026-07-09 (Session 014 — BOM intégrée, version 0.0.3 publiée Maven Central)
-_Session terminée_ : 014 — Intégration workspace-bom + publication 0.0.3 (bundle `5d48222c`)
-_Prochaine session_ : 015 — Maintenance / nouveau besoin (tous les EPICs HF-0→HF-7 terminés)
+_Dernière session terminée_ : 016 — **spike fitness du noyau** : `HyperFramesEngine` implémente `capsule.kernel.VideoEngine` (`video-kernel:0.0.2`) ; port **valide**, gap confirmé (`VideoOutcome` manquant). Doc `.agents/sessions/016-spike-fitness-noyau.adoc`.
+_Prochaine session_ : 017 — au choix : A) noyau `VideoOutcome` (video-kernel 0.0.3 → geler 0.1.0) ; B) intégration `HyperFramesEngine` + défauts D-A→D-F ; C) suite cadrage HF-KERNEL-ADAPTER.
 _Version publiée_ : 0.0.3 (Maven Central, bundle `5d48222c`) + Gradle Plugin Portal (en attente d'approbation)
 
 '''

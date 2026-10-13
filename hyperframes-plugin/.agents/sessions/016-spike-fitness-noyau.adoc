@@ -1,0 +1,84 @@
+= Session 016 — Spike : HyperFrames comme 2ᵉ moteur du noyau `video-kernel`
+:session: 016
+:date: 2026-10-12
+:type: spike (falsification du contrat partagé)
+:borough: Watts / hyperframes-gradle
+:toc:
+
+== Objectif du spike
+
+Éprouver — ou **falsifier** — le contrat partagé `video-kernel:0.0.2` en l'implémentant
+pour un **2ᵉ moteur réel** (HyperFrames, rendu **document-entier**), afin de savoir
+si le noyau est mature avant de le geler.
+
+Un contrat non éprouvé par un 2ᵉ consommateur reste une hypothèse : ce spike est le
+test qui tranche.
+
+== Ce qui a été fait
+
+* Dépendance `education.cccp:video-kernel:0.0.2` ajoutée à hyperframes.
+* `hyperframes.kernel.HyperFramesEngine : capsule.kernel.VideoEngine` — adapter
+  **minimal** : rend `index.html` (le `VisualSource`) → 1 MP4 via la CLI
+  `node <cli> render --input <html> --output <mp4>`.
+  * seam `HyperFramesRenderRunner` (injectable, jamais de process réel en test).
+  * `HyperFramesEngineConfig(nodeExecutable, cliScript, timeoutMillis)`.
+  * `render(request)` : lit `request.visual.file`, `request.outputDir`, `request.name`,
+    `request.timeoutMillis` → `VideoRenderResult(produced = mp4)`.
+* Tests unitaires (`HyperFramesEngineTest`, fake runner).
+
+== Résultats de falsification
+
+=== ✅ Le port tient (ce qui colle)
+
+[cols="2,2,2", options="header"]
+|===
+| Élément noyau | HyperFrames | Verdict
+
+| `VideoRenderRequest.visual: VisualSource` | `index.html` | ✅ mappe 1:1 (`--input`)
+| `VideoRenderRequest.name` + `outputDir` | `--output <dir>/<name>.mp4` | ✅ mappe
+| `VideoRenderResult.produced` | le MP4 | ✅ mappe
+| `VideoRenderRequest.timeoutMillis` | timeout CLI | ✅ honoré (défaut = config)
+| `segments`/`durations`/`viewport`/`parallel` | sans objet | ✅ **plus imposés** (l'objet du 0.0.2)
+| `SegmentSource`/`VideoSegment` (en `capsule.kernel.segment`) | sans objet | ✅ capacité non imposée
+|===
+
+**Conclusion partielle** : le **dénominateur commun** (« un moteur = `render(visual) → vidéo` »)
+est **valide** ; un orchestrateur générique peut rendre une vidéo via l'un ou l'autre
+moteur **sans fuite reveal**.
+
+=== ❌ Ce que le spike a révélé (gaps réels)
+
+. **Pas de descripteur d'issue neutre.** `VideoRenderResult` ne porte que
+  `produced: File?`. Or HyperFrames possède `HyperframesParseContext`
+  (durée/dims/codec/fps/compositions) et capsule calcule la durée via
+  `MediaProbeUtil` — **chacun à sa façon**. Un consommateur générique (runner/N3)
+  **ne peut pas lire une vidéo uniformément**. → **Gap confirmé.**
+  Candidat : `VideoRenderResult.outcome: VideoOutcome?`
+  (`duration`, `width`, `height`, `sizeBytes`, `codec`).
+. **`failedUnits` est révèle-shaped** dans le résultat partagé : un moteur
+  document-entier est tout-ou-rien (toujours vide). Inoffensif (défaut) mais
+  vocabulaire de sous-unité dans le contrat commun.
+. **`isAvailable()` ne distingue pas** « moteur absent » de « rendu qui n'a rien
+  produit » (les deux donnent `produced = null`). Sémantique d'échec à préciser.
+. **Duplication de la CLI** : `HyperFramesEngine` réimplémente l'appel CLI déjà
+  présent dans `RenderHyperframesTask` (futur : la tâche délègue à l'engine).
+. `metadata.json` (provenance source/type/deps) reste **dupliqué** par borough
+  (hors périmètre render, mais un orchestrateur pourrait le vouloir unifié).
+
+== Verdict
+
+Le port **survit** au test du 2ᵉ consommateur pour l'objectif essentiel (rendu
+uniforme, sans couplage moteur). Il est **incomplet pour une orchestration
+uniforme** : il manque **au minimum un `VideoOutcome`** (durée/dims/taille/codec).
+
+== Recommandation
+
+. Ajouter `VideoOutcome` au noyau (`video-kernel:0.0.3`), alimenté par **les deux**
+   moteurs (capsule via `MediaProbeUtil`, hyperframes via son parse context).
+. Geler **`0.1.0`** seulement **après** cette addition, éprouvée par les 2 moteurs.
+. Intégration complète (les 3 tâches hyperframes délèguent à `HyperFramesEngine`,
+   défauts D-A→D-F) = US ultérieure.
+
+== Statut
+
+Spike terminé. `video-kernel:0.0.2` : port valide, **non gelé** (gap `VideoOutcome`).

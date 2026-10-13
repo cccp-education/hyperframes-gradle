@@ -11,6 +11,13 @@ Un plugin Gradle N2 qui transforme un document AsciiDoc annoté en vidéo MP4
 via le moteur HyperFrames (HeyGen, Apache 2.0), sans post-production humaine.
 
 '''
+== Spike fitness noyau (S-016) ✅
+
+`HyperFramesEngine` implémente `capsule.kernel.VideoEngine` (`video-kernel:0.0.2`,
+rendu document-entier). Port **valide** ; **gap confirmé** : `VideoOutcome` manquant
+(durée/dims/taille/codec) pour une orchestration uniforme. Doc
+`.agents/sessions/016-spike-fitness-noyau.adoc`.
+
 == User Stories
 
 === US-HF-01 — En tant que formateur, je veux transformer mon manuel AsciiDoc en vidéo de présentation

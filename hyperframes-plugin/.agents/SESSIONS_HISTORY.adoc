@@ -1,5 +1,22 @@
 = SESSIONS_HISTORY — hyperframes-gradle
 
+== Session 016 (2026-10-12) — Spike : HyperFrames comme 2ᵉ moteur du noyau
+
+Spike de **falsification** du contrat `video-kernel:0.0.2`. Ajout de la dépendance
+`education.cccp:video-kernel:0.0.2` + adapter minimal
+`hyperframes.kernel.HyperFramesEngine : capsule.kernel.VideoEngine` (rendu
+**document-entier** `index.html` → 1 MP4 via la CLI Node), seam injectable
+`HyperFramesRenderRunner`, `HyperFramesEngineConfig`, tests (`HyperFramesEngineTest`).
+
+**Résultat** : le port **tient** — `visual`/`name`/`outputDir`/`timeoutMillis`
+mappent 1:1 sur `--input`/`--output`, `produced` sur le MP4, **sans** imposer
+segments/durations/viewport/parallel (l'objet du 0.0.2). **Gap confirmé** : pas de
+**descripteur d'issue neutre** (`VideoOutcome` : durée/dims/taille/codec) → un
+orchestrateur ne peut pas lire les vidéos des deux moteurs uniformément. `failedUnits`
+est révèle-shaped (vide ici). Duplication CLI avec `RenderHyperframesTask` (futur :
+délégation). Recommandation : ajouter `VideoOutcome` (video-kernel `0.0.3`) puis geler
+`0.1.0`. Doc `.agents/sessions/016-spike-fitness-noyau.adoc`.
+
 == Session 015 (2026-10-12) — Cadrage EPIC HF-KERNEL-ADAPTER
 
 Gouvernance pure, zéro code (patron S-057/S-063). Préparation de `hyperframes-gradle`

@@ -1,0 +1,85 @@
+package hyperframes.kernel
+
+import capsule.kernel.FileVisualSource
+import capsule.kernel.VideoRenderRequest
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertNull
+import org.junit.jupiter.api.Assertions.assertTrue
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.io.TempDir
+import java.io.File
+
+/**
+ * SPIKE — HyperFrames engine implements the shared `capsule.kernel.VideoEngine`
+ * port (video-kernel 0.0.2). Verifies the neutral contract fits a whole-document
+ * engine with no segments/durations/viewport.
+ */
+class HyperFramesEngineTest {
+
+    @TempDir
+    lateinit var tempDir: File
+
+    private fun config() = HyperFramesEngineConfig(
+        nodeExecutable = "/fake/node",
+        cliScript = "/fake/hyperframes",
+    )
+
+    private fun request(): VideoRenderRequest {
+        val html = File(tempDir, "index.html").apply { writeText("<html><body>hi</body></html>") }
+        return VideoRenderRequest(
+            name = "output",
+            visual = FileVisualSource(html),
+            outputDir = File(tempDir, "out"),
+        )
+    }
+
+    @Test
+    fun `renders the whole document to an MP4 and returns it as produced`() {
+        val engine = HyperFramesEngine(config(), runner = { argv, workingDir, _ ->
+            // The real CLI writes the file named by --output; emulate it.
+            val outputPath = argv[argv.indexOf("--output") + 1]
+            File(outputPath).apply { parentFile?.mkdirs(); writeText("fake-mp4") }
+            HyperFramesProcessResult(exitCode = 0)
+        })
+
+        val result = engine.render(request())
+
+        assertEquals("output.mp4", result.produced?.name)
+        assertTrue(result.failedUnits.isEmpty())
+    }
+
+    @Test
+    fun `a failing CLI yields no produced video, without throwing`() {
+        val engine = HyperFramesEngine(config(), runner = { _, _, _ ->
+            HyperFramesProcessResult(exitCode = 1, output = "boom")
+        })
+
+        val result = engine.render(request())
+
+        assertNull(result.produced)
+        assertTrue(result.failedUnits.isEmpty())
+    }
+
+    @Test
+    fun `engine identity is stable and availability reflects configured files`() {
+        val engine = HyperFramesEngine(config(), runner = { _, _, _ -> HyperFramesProcessResult(0) })
+
+        assertEquals("hyperframes", engine.name())
+        assertTrue(!engine.isAvailable(), "fake node/cli paths do not exist")
+    }
+
+    @Test
+    fun `the request timeout is forwarded to the runner, zero means the engine default`() {
+        val seen = mutableListOf<Long>()
+        val engine = HyperFramesEngine(config(), runner = { _, _, timeout ->
+            seen.add(timeout)
+            HyperFramesProcessResult(exitCode = 1)
+        })
+
+        engine.render(request().copy(timeoutMillis = 1_234))
+        engine.render(request().copy(timeoutMillis = 0))
+
+        assertEquals(1_234L, seen[0])
+        assertEquals(300_000L, seen[1])
+    }
+}
