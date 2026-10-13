@@ -1,6 +1,17 @@
 = Test Coverage Analysis — hyperframes-gradle
 
-_Dernière mise à jour_ : 2026-07-09 (Session 011 — Bounded context + HF-5c + HF-5d)
+_Dernière mise à jour_ : 2026-10-12 (Session 016 — spike fitness noyau : `HyperFramesEngine` + `HyperFramesEngineTest`)
+
+== Couverture — 12 octobre 2026 (après session 016)
+
+.Adaptation au noyau partagé (video-kernel 0.0.3)
+|===
+| Élément | Changement | Tests
+
+| `hyperframes/kernel/HyperFramesEngine.kt` (créé) | `capsule.kernel.VideoEngine` (rendu document-entier) + `VideoOutcome` | +4 `HyperFramesEngineTest`
+|===
+
+_Historique 011_ : Bounded context + HF-5c + HF-5d.
 
 == Résumé
 
