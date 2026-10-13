@@ -82,3 +82,19 @@ uniforme** : il manque **au minimum un `VideoOutcome`** (durée/dims/taille/code
 == Statut
 
 Spike terminé. `video-kernel:0.0.2` : port valide, **non gelé** (gap `VideoOutcome`).
+
+== Constat CI (pré-existant, hors spike)
+
+La CI hyperframes était **rouge avant ce spike** (échec en *configuration* :
+`settings.gradle.kts` exigeait `ossrhUsername`). Corrigé (tolérance `?: ""`, même
+fix que capsule) : la CI exécute désormais compile + tests (185 tests).
+
+Deux échecs **pré-existants** subsistent — gardes de publication
+`HyperframesPluginPublicationTest` (`plugin version matches root consumer catalog`,
+`workspace bom platform pin matches …`) : elles lisent le catalogue **cross-repo**
+`../workspace-bom/gradle/libs.versions.toml` (absent du runner isolé) et sont en
+**drift** (pins `0.0.78`/`0.0.3` vs catalogue courant). C'est le **même anti-pattern
+racy** soldé ailleurs (graphify `D5-RACE` S-029, bakery S-243 : injecter la version
+par `systemProperty` Gradle, RED-prouvé). → **maintenance dédiée** (hors spike).
+
+Les gates **locaux** du spike (compile + `assemble` + `validatePlugins`) sont VERTS.
