@@ -15,7 +15,8 @@ Tests : +2 unit `HyperframesContextExtractorTest` (engine, segments), +1 unit
 `HyperframesParseContextTest` (sérialisation `engine`/`segments`), assertions
 ajoutées au fonctionnel `CollectHyperframesRetrieveTaskTest`, +1 scénario BDD
 `n3_contract.feature`. **Local = Build** : `compileKotlin compileTestKotlin` ✅.
-**Tests = CI**. Doc `.agents/sessions/019-hf-kernel-adapter-us2.adoc`. Zéro secret.
+**Tests = CI** — **run `38455083938` ✅ success** (2m46s) : nouveaux tests US-2 PASSED.
+Doc `.agents/sessions/019-hf-kernel-adapter-us2.adoc`. Zéro secret.
 
 == Session 018 (2026-10-13) — HF-KERNEL-ADAPTER US-3 (le rendu délègue au noyau)
 

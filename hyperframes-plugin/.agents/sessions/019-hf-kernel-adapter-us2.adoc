@@ -54,6 +54,11 @@ US-2 de l'EPIC `HF-KERNEL-ADAPTER` : aligner le contrat N3 (`composite-context.j
 
 - **Local = Build** : `./gradlew compileKotlin compileTestKotlin` ✅ BUILD SUCCESSFUL.
 - **Tests = CI** : workflow `test-hyperframes.yml` (compile → test → cucumberTest → check).
+- **Preuve CI — run `38455083938` ✅ success** (2m46s, job `115495626412`) : compile 28s ·
+  `test` 1m8s · `cucumberTest` 42s · `check` 1s. Nouveaux tests **PASSED** :
+  `exposes the producing engine identity`, `maps compositions to ordered neutral
+  segments`, `serializes the engine identity and neutral segments`, scénario
+  `Export the engine identity and neutral segments (US-2)`.
 - **Zéro secret** ; **English only** dans le code ajouté ; Gherkin EN.
 
 == Effet transverse

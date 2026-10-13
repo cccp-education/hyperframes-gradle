@@ -25,7 +25,8 @@ US-3 ✅ S-018** (US-4/US-5 À FAIRE). Version `0.0.3` (Maven Central). Catalogu
 . **Tests** : +3 unit (extracteur engine/segments, sérialisation) + assertions
    fonctionnelles + 1 scénario BDD (`n3_contract.feature`).
 . **Local = Build** : `compileKotlin compileTestKotlin` ✅. **Tests = CI**
-   (`test-hyperframes.yml`). Rapport `.agents/sessions/019-hf-kernel-adapter-us2.adoc`.
+   (`test-hyperframes.yml`) — **run `38455083938` ✅ success** (2m46s) : +3 unit + 1 scénario
+   BDD (US-2) PASSED. Rapport `.agents/sessions/019-hf-kernel-adapter-us2.adoc`.
 
 == Mission Session 020 — au choix (pilote)
 
