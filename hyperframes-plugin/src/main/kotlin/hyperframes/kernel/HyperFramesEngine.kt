@@ -1,6 +1,7 @@
 package hyperframes.kernel
 
 import capsule.kernel.VideoEngine
+import capsule.kernel.VideoOutcome
 import capsule.kernel.VideoRenderRequest
 import capsule.kernel.VideoRenderResult
 import java.io.File
@@ -31,6 +32,9 @@ data class HyperFramesEngineConfig(
     val nodeExecutable: String,
     val cliScript: String,
     val timeoutMillis: Long = 300_000L,
+    val width: Int = 0,
+    val height: Int = 0,
+    val codec: String = "h264",
 )
 
 /**
@@ -74,7 +78,18 @@ open class HyperFramesEngine(
         } else {
             null
         }
-        return VideoRenderResult(produced = produced)
+        val outcome = produced?.let {
+            // duration is unknown here (the CLI does not report it); a consumer
+            // that needs it probes the file or reads the N3 parse context.
+            VideoOutcome(
+                durationSeconds = 0.0,
+                width = config.width,
+                height = config.height,
+                sizeBytes = it.length(),
+                codec = config.codec,
+            )
+        }
+        return VideoRenderResult(produced = produced, outcome = outcome)
     }
 
     override fun close() {}

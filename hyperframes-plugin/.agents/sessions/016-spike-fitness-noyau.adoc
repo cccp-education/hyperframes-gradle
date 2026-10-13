@@ -26,6 +26,14 @@ test qui tranche.
     `request.timeoutMillis` → `VideoRenderResult(produced = mp4)`.
 * Tests unitaires (`HyperFramesEngineTest`, fake runner).
 
+=== Suivi : `VideoOutcome` (video-kernel 0.0.3)
+
+Le gap révélé (pas de descripteur d'issue) a été comblé côté noyau (`VideoOutcome`,
+0.0.3). L'engine hyperframes l'alimente désormais : `sizeBytes` du fichier produit,
+`width`/`height`/`codec` de la config (`HyperFramesEngineConfig`), durée `0.0`
+(inconnue côté CLI — à lire du parse context N3 si besoin). Le contrat partagé est
+donc **complet et éprouvé par les 2 moteurs**.
+
 == Résultats de falsification
 
 === ✅ Le port tient (ce qui colle)

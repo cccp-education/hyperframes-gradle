@@ -22,6 +22,8 @@ class HyperFramesEngineTest {
     private fun config() = HyperFramesEngineConfig(
         nodeExecutable = "/fake/node",
         cliScript = "/fake/hyperframes",
+        width = 1920,
+        height = 1080,
     )
 
     private fun request(): VideoRenderRequest {
@@ -46,6 +48,11 @@ class HyperFramesEngineTest {
 
         assertEquals("output.mp4", result.produced?.name)
         assertTrue(result.failedUnits.isEmpty())
+        // Uniform outcome descriptor (video-kernel 0.0.3) is filled.
+        assertEquals(1920, result.outcome?.width)
+        assertEquals(1080, result.outcome?.height)
+        assertEquals("h264", result.outcome?.codec)
+        assertTrue((result.outcome?.sizeBytes ?: 0L) > 0L)
     }
 
     @Test
