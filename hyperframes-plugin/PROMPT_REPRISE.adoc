@@ -24,7 +24,9 @@ BOM plateforme `0.0.78`. Noyau `education.cccp:video-kernel:0.0.3`.
    (mock CLI) exercent la délégation ; +2 scénarios BDD `hf_kernel_adapter_us3.feature`
    + `HfKernelAdapterUs3Steps` + `HyperframesWorld.writeStubCli`.
 . **Local = Build** : `compileKotlin compileTestKotlin` ✅. **Tests = CI**
-   (`test-hyperframes.yml`). Rapport `.agents/sessions/018-hf-kernel-adapter-us3.adoc`.
+   (`test-hyperframes.yml`) — **run `38454105445` ✅ success** (2m46s) : +3 unit
+   `HyperFramesEngineTest` + 2 scénarios `HF-KERNEL-ADAPTER US-3` PASSED.
+   Rapport `.agents/sessions/018-hf-kernel-adapter-us3.adoc`.
 
 == Mission Session 019 — au choix (pilote)
 

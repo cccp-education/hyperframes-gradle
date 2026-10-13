@@ -17,6 +17,8 @@ duplication : la tâche **délègue** au noyau.
   exercent désormais la délégation ; +2 scénarios BDD `hf_kernel_adapter_us3.feature`
   + `HfKernelAdapterUs3Steps` + `HyperframesWorld.writeStubCli`.
 - **Local = Build** : `compileKotlin compileTestKotlin` ✅. **Tests = CI**.
+  **Preuve CI — run `38454105445` ✅ success** (2m46s) : +3 unit `HyperFramesEngineTest`
+  et 2 scénarios `HF-KERNEL-ADAPTER US-3` PASSED.
 - Effet transverse : avance `video-kernel` **VK-1** (le 2ᵉ moteur consomme le port en
   production) ; capsule inchangé. Doc `.agents/sessions/018-hf-kernel-adapter-us3.adoc`.
   Zéro secret.

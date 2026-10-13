@@ -2,7 +2,7 @@
 :toc:
 
 _Règles absolues_ : voir `AGENT.adoc`
-_Derniere mise a jour_ : 2026-10-13 (Session 018 — **HF-KERNEL-ADAPTER US-3 ✅** : `renderHyperframes` **délègue** au noyau `capsule.kernel.VideoEngine` (`HyperFramesEngine.renderDetailed`) — plus de CLI dupliquée. CI verte S-017 conservée.)
+_Derniere mise a jour_ : 2026-10-13 (Session 018 — **HF-KERNEL-ADAPTER US-3 ✅** : `renderHyperframes` **délègue** au noyau `capsule.kernel.VideoEngine` (`HyperFramesEngine.renderDetailed`) — plus de CLI dupliquée. **CI verte** run `38454105445`.)
 _DAG_ : N2 — Plugin Gradle de transformation documentaire AsciiDoc → vidéo MP4
 _Dépendance N2_ : codex-gradle (compileOnly, AsciidoctorJ partagé)
 _Bridge externe_ : HyperFrames CLI via le noyau `VideoEngine` (`node <cliScript> render`)

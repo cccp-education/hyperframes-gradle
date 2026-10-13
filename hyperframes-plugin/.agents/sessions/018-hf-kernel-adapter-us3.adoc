@@ -61,6 +61,10 @@ local).
 
 - **Local = Build** : `./gradlew compileKotlin compileTestKotlin` ✅ BUILD SUCCESSFUL.
 - **Tests = CI** : workflow `test-hyperframes.yml` (compile → test → cucumberTest → check).
+- **Preuve CI — run `38454105445` ✅ success** (2m46s, job `115492247709`) : compile 23s ·
+  `test` 1m7s · `cucumberTest` 44s · `check` 1s. Nouveaux tests **PASSED** : 3 unit
+  `HyperFramesEngineTest` (`renderDetailed` process en échec, timeout, équivalence) et
+  2 scénarios `HF-KERNEL-ADAPTER US-3`.
 - **Zéro secret** ; **English only** dans le code ajouté ; Gherkin EN.
 
 == Effet transverse
