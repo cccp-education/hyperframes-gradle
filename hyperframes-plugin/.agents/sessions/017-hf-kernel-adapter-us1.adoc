@@ -80,6 +80,14 @@ celui qui portait le fix S-016. Deux causes structurelles :
   injecté est valide).
 - **Tests = CI** : délégués au workflow `test-hyperframes.yml` (compile → test →
   cucumberTest → check). Aucun `test`/`check` local.
+- **Preuve CI — run `38451568605` ✅ success** (3m17s, job `115483500492`) :
+  `Compile plugin` 44s · `Run unit and functional tests` 1m14s ·
+  `Run Cucumber BDD tests` 45s · `Full check` 2s. Les nouveaux tests **PASSED** :
+  3 scénarios `HF-KERNEL-ADAPTER US-1` (durée mesurée, domaine, strict),
+  `collectHyperframesRetrieve reports the measured video duration (D-C)`,
+  `hyperframesPipeline lifecycle task orders generate then render then collect (D-F)`,
+  `collectHyperframesRetrieve fails in strict mode when no artifacts exist (D-F)`.
+  **Première CI verte du borough depuis ≥ 2026-10-11.**
 - **Zéro secret** ; **English only** dans le code ajouté ; Gherkin EN.
 
 == Dette / suite

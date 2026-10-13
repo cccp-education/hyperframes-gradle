@@ -2,7 +2,7 @@
 :toc:
 
 _Règles absolues_ : voir `AGENT.adoc`
-_Derniere mise a jour_ : 2026-10-13 (Session 017 — **HF-KERNEL-ADAPTER US-1 ✅** corrections D-A→D-F + **CI débloquée** : tolérance nmcp + gardes de publication racy soldées par injection des versions du catalogue publié.)
+_Derniere mise a jour_ : 2026-10-13 (Session 017 — **HF-KERNEL-ADAPTER US-1 ✅** corrections D-A→D-F + **CI verte** (run `38451568605`) : tolérance nmcp + gardes de publication racy soldées par injection des versions du catalogue publié.)
 _DAG_ : N2 — Plugin Gradle de transformation documentaire AsciiDoc → vidéo MP4
 _Dépendance N2_ : codex-gradle (compileOnly, AsciidoctorJ partagé)
 _Bridge externe_ : HyperFrames CLI (Node.js via `ProcessBuilder` — `node <cliScript> render` ; plugin Gradle Node non appliqué)

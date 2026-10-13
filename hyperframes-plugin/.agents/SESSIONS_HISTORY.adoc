@@ -28,7 +28,9 @@ ordre du pipeline), `hf_kernel_adapter_us1.feature` (3 scénarios) +
 `HfKernelAdapterUs1Steps` + `HyperframesWorld` étendu. **Local = Build** :
 `compileKotlin compileTestKotlin` ✅. **Tests = CI** (`test-hyperframes.yml`).
 Dette différée : cache/incremental profond + source set `functionalTest`.
-Doc `.agents/sessions/017-hf-kernel-adapter-us1.adoc`. Zéro secret.
+Doc `.agents/sessions/017-hf-kernel-adapter-us1.adoc`. **Preuve CI — run
+`38451568605` ✅ success** (3m17s ; compile 44s, `test` 1m14s, `cucumberTest` 45s,
+`check` 2s) : première CI verte du borough depuis ≥ 2026-10-11. Zéro secret.
 
 == Session 016 (2026-10-12) — Spike : HyperFrames comme 2ᵉ moteur du noyau
 

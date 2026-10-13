@@ -29,8 +29,10 @@ Dépendance noyau `education.cccp:video-kernel:0.0.3`.
    * D-F mode `strict` + `mustRunAfter` (generate→render→collect) + tâche `hyperframesPipeline`.
 . **Tests** : 2 + 10 + 4 unit, 4 fonctionnels TestKit, 3 scénarios Cucumber (`hf_kernel_adapter_us1.feature`).
 . **Docs** : `AGENT.adoc`, `SESSION_PROCEDURE.adoc`, `doc/HYPERFRAMES_ARCHITECTURE.adoc`.
-. **Local = Build** : `compileKotlin compileTestKotlin` ✅. **Tests = CA** (workflow
-   `test-hyperframes.yml`). Rapport `.agents/sessions/017-hf-kernel-adapter-us1.adoc`.
+. **Local = Build** : `compileKotlin compileTestKotlin` ✅. **Tests = CI** (workflow
+   `test-hyperframes.yml`) — **run `38451568605` ✅ success** (3m17s) : compile 44s,
+   `test` 1m14s, `cucumberTest` 45s, `check` 2s ; nouveaux tests **PASSED**.
+   Rapport `.agents/sessions/017-hf-kernel-adapter-us1.adoc`.
 
 == Mission Session 018 — au choix (pilote)
 
