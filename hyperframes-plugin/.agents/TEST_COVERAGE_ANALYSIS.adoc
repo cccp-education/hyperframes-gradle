@@ -1,6 +1,17 @@
 = Test Coverage Analysis — hyperframes-gradle
 
-_Dernière mise à jour_ : 2026-10-13 (Session 017 — HF-KERNEL-ADAPTER US-1 : durée mesurée, domaine N3, strict, pipeline + gardes CI)
+_Dernière mise à jour_ : 2026-10-13 (Session 018 — HF-KERNEL-ADAPTER US-3 : délégation du rendu au noyau `VideoEngine`)
+
+== Couverture — 13 octobre 2026 (après session 018)
+
+.HF-KERNEL-ADAPTER US-3 (délégation au port `VideoEngine`)
+|===
+| Élément | Changement | Tests
+
+| `kernel/HyperFramesEngine.kt` | `HyperFramesRenderOutcome` + `renderDetailed` ; `render` délègue | `HyperFramesEngineTest` (+3 unit)
+| `RenderHyperframesTask.kt` | délègue à `HyperFramesEngine` ; diagnostics préservés ; + `width`/`height` | fonctionnels `renderHyperframes` (mock CLI, désormais via l'engine)
+| BDD | `hf_kernel_adapter_us3.feature` + `HfKernelAdapterUs3Steps` + `HyperframesWorld.writeStubCli` | 2 scénarios Cucumber
+|===
 
 == Couverture — 13 octobre 2026 (après session 017)
 

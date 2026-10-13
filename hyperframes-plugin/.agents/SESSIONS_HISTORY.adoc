@@ -1,5 +1,26 @@
 = SESSIONS_HISTORY — hyperframes-gradle
 
+== Session 018 (2026-10-13) — HF-KERNEL-ADAPTER US-3 (le rendu délègue au noyau)
+
+Le port `capsule.kernel.VideoEngine` devient la **voie de rendu unique** de
+hyperframes. L'adapter `HyperFramesEngine` (spike S-016) n'était utilisé que par
+ses tests ; `RenderHyperframesTask` dupliquait l'appel CLI. **US-3** supprime la
+duplication : la tâche **délègue** au noyau.
+
+- Noyau : nouveau `HyperFramesRenderOutcome(result, process)` + `renderDetailed(request)` ;
+  le port `render` délègue (`renderDetailed(request).result`).
+- Tâche : construit `HyperFramesEngineConfig` + `VideoRenderRequest` → `renderDetailed` ;
+  **diagnostics Gradle préservés** (timeout, exit code, MP4 absent/vide, succès) ;
+  + `@Input width`/`height` câblés depuis l'extension.
+- Tests : +3 unit `HyperFramesEngineTest` (process en échec, timeout, équivalence
+  `render`/`renderDetailed`) ; les tests fonctionnels `renderHyperframes` (mock CLI)
+  exercent désormais la délégation ; +2 scénarios BDD `hf_kernel_adapter_us3.feature`
+  + `HfKernelAdapterUs3Steps` + `HyperframesWorld.writeStubCli`.
+- **Local = Build** : `compileKotlin compileTestKotlin` ✅. **Tests = CI**.
+- Effet transverse : avance `video-kernel` **VK-1** (le 2ᵉ moteur consomme le port en
+  production) ; capsule inchangé. Doc `.agents/sessions/018-hf-kernel-adapter-us3.adoc`.
+  Zéro secret.
+
 == Session 017 (2026-10-13) — HF-KERNEL-ADAPTER US-1 (défauts D-A→D-F) + CI débloquée
 
 **Prérequis CI (BS-0).** La CI était **rouge sur 100 % des runs** (`gh run list`).

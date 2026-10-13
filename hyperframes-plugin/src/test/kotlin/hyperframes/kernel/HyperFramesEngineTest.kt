@@ -3,6 +3,7 @@ package hyperframes.kernel
 import capsule.kernel.FileVisualSource
 import capsule.kernel.VideoRenderRequest
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
@@ -88,5 +89,50 @@ class HyperFramesEngineTest {
 
         assertEquals(1_234L, seen[0])
         assertEquals(300_000L, seen[1])
+    }
+
+    // ──────────────────────────────────────────────
+    // US-3 (S-018) — renderDetailed exposes the raw CLI outcome for diagnostics
+    // ──────────────────────────────────────────────
+
+    @Test
+    fun `renderDetailed exposes the raw process outcome of a failing CLI`() {
+        val engine = HyperFramesEngine(config(), runner = { _, _, _ ->
+            HyperFramesProcessResult(exitCode = 7, output = "boom")
+        })
+
+        val outcome = engine.renderDetailed(request())
+
+        assertNull(outcome.result.produced)
+        assertEquals(7, outcome.process.exitCode)
+        assertEquals("boom", outcome.process.output)
+        assertFalse(outcome.process.timedOut)
+    }
+
+    @Test
+    fun `renderDetailed exposes a timed out CLI`() {
+        val engine = HyperFramesEngine(config(), runner = { _, _, _ ->
+            HyperFramesProcessResult(exitCode = -1, timedOut = true)
+        })
+
+        val outcome = engine.renderDetailed(request())
+
+        assertTrue(outcome.process.timedOut)
+        assertNull(outcome.result.produced)
+    }
+
+    @Test
+    fun `render returns the same result as renderDetailed`() {
+        val engine = HyperFramesEngine(config(), runner = { argv, _, _ ->
+            val outputPath = argv[argv.indexOf("--output") + 1]
+            File(outputPath).apply { parentFile?.mkdirs(); writeText("fake-mp4") }
+            HyperFramesProcessResult(exitCode = 0)
+        })
+
+        val direct = engine.render(request())
+        val detailed = engine.renderDetailed(request()).result
+
+        assertEquals(direct.produced?.name, detailed.produced?.name)
+        assertEquals(direct.outcome?.width, detailed.outcome?.width)
     }
 }

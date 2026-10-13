@@ -1,71 +1,65 @@
-= PROMPT_REPRISE — HyperFrames Gradle (Session 017 TERMINÉE → 018)
-:session: 017
+= PROMPT_REPRISE — HyperFrames Gradle (Session 018 TERMINÉE → 019)
+:session: 018
 :date: 2026-10-13
-:status: ✅ TERMINÉ — HF-KERNEL-ADAPTER US-1 (défauts D-A→D-F) + CI débloquée
+:status: ✅ TERMINÉ — HF-KERNEL-ADAPTER US-3 (le rendu délègue au noyau `VideoEngine`)
 :borough: Watts
 
 '''
 == État des lieux
 
 Plugin Gradle fonctionnel : AsciiDoc → AsciidoctorJ → HTML enrichi → CLI Node → MP4.
-EPICs HF-0→HF-7 ✅. `HF-KERNEL-ADAPTER` **US-0 ✅ S-015, US-1 ✅ S-017** (US-2→5 À FAIRE).
-Version `0.0.3` (Maven Central). Catalogue ws `0.0.78` / BOM plateforme `0.0.78`.
-Dépendance noyau `education.cccp:video-kernel:0.0.3`.
+EPICs HF-0→HF-7 ✅. `HF-KERNEL-ADAPTER` : **US-0 ✅ S-015, US-1 ✅ S-017, US-3 ✅ S-018**
+(US-2/US-4/US-5 À FAIRE). Version `0.0.3` (Maven Central). Catalogue ws `0.0.78` /
+BOM plateforme `0.0.78`. Noyau `education.cccp:video-kernel:0.0.3`.
+**CI verte** (S-017, run `38451568605`).
 
-== Fait en session 017
+== Fait en session 018
 
-. **Prérequis CI (BS-0)** — la CI était **rouge sur 100 % des runs** :
-   * `settings.gradle.kts` : tolérance `ossrhUsername ?: ""` restaurée (miroir capsule) ;
-   * `HyperframesPluginPublicationTest` : plus aucun accès au repo voisin
-     `../workspace-bom` — versions du catalogue **publié** injectées par Gradle
-     (`systemProperty("hyperframes.publishedCatalog.{pluginVersion,bomVersion}", ws.versions.*)`,
-     patron graphify D5-RACE S-029).
-. **US-1 — défauts D-A→D-F corrigés** :
-   * D-A `outputDir` `@OutputDirectory` (+ garde réflexion) ;
-   * D-B dépendance morte `node-gradle` retirée (build + toml) ;
-   * D-C durée **mesurée** (`VideoDurationProbe`/`FfprobeDurationParser`/`FfprobeDurationProbe`), dégradé `0.0` ;
-   * D-D KDoc/description réalignés sur `node <cliScript> render` ;
-   * D-E `pronunciation.domain` propagé dans le contrat N3 ;
-   * D-F mode `strict` + `mustRunAfter` (generate→render→collect) + tâche `hyperframesPipeline`.
-. **Tests** : 2 + 10 + 4 unit, 4 fonctionnels TestKit, 3 scénarios Cucumber (`hf_kernel_adapter_us1.feature`).
-. **Docs** : `AGENT.adoc`, `SESSION_PROCEDURE.adoc`, `doc/HYPERFRAMES_ARCHITECTURE.adoc`.
-. **Local = Build** : `compileKotlin compileTestKotlin` ✅. **Tests = CI** (workflow
-   `test-hyperframes.yml`) — **run `38451568605` ✅ success** (3m17s) : compile 44s,
-   `test` 1m14s, `cucumberTest` 45s, `check` 2s ; nouveaux tests **PASSED**.
-   Rapport `.agents/sessions/017-hf-kernel-adapter-us1.adoc`.
+. **US-3 — délégation au noyau.** `HyperFramesEngine` gagne `HyperFramesRenderOutcome`
+   (`result` neutre + `process` brut) et `renderDetailed(request)` ; le port `render`
+   délègue. `RenderHyperframesTask` **délègue** (plus de CLI dupliquée) tout en
+   préservant les diagnostics Gradle (timeout / exit code / MP4 absent-vide / succès).
+   `@Input width`/`height` câblés depuis l'extension.
+. **Tests** : +3 unit `HyperFramesEngineTest` ; fonctionnels `renderHyperframes`
+   (mock CLI) exercent la délégation ; +2 scénarios BDD `hf_kernel_adapter_us3.feature`
+   + `HfKernelAdapterUs3Steps` + `HyperframesWorld.writeStubCli`.
+. **Local = Build** : `compileKotlin compileTestKotlin` ✅. **Tests = CI**
+   (`test-hyperframes.yml`). Rapport `.agents/sessions/018-hf-kernel-adapter-us3.adoc`.
 
-== Mission Session 018 — au choix (pilote)
+== Mission Session 019 — au choix (pilote)
 
-* A) **HF-KERNEL-ADAPTER US-3** : implémenter le port `VideoEngine`
-  (`HyperFramesEngine` existe déjà — spike S-016) et faire déléguer les 3 tâches
-  (`generateHyperframesHtml`/`renderHyperframes`/`collectHyperframesRetrieve`).
-* B) **HF-KERNEL-ADAPTER US-2** : aligner le contrat N3 sur le modèle neutre
-  (`segments`, `durationSeconds` mesuré, `engine`).
-* C) **HF-KERNEL-ADAPTER US-4** : consommer le noyau partagé (TTS/sous-titres/audio/config).
-* D) **Video-kernel VK-2** : promotion package neutre `video.kernel.*` (breaking coordonné capsule+hyperframes).
-* E) **Dette D-F** : cache/incremental réel + source set `functionalTest`.
+* A) **HF-KERNEL-ADAPTER US-2** : aligner le contrat N3 sur le modèle neutre —
+  ajouter `engine` (et éventuellement `segments`) au `HyperframesParseContext`.
+* B) **HF-KERNEL-ADAPTER US-4** : consommer le noyau partagé (TTS/sous-titres/audio/config).
+  **Attention** : gros chantier — hyperframes n'a aujourd'hui ni TTS ni audio ;
+  à cadrer/découper finement.
+* C) **HF-KERNEL-ADAPTER US-5** : BDD e2e + dogfooding cccp.education.
+* D) **Dette D-F** : cache/incremental réel des tâches + source set `functionalTest`.
+* E) **Video-kernel** : geler `0.1.0` (contrat éprouvé par 2 moteurs, dont hyperframes
+  en production depuis S-018) ou VK-3 (entrée BOM MEMPHIS).
 
 == Points d'attention
 
 * **Local = Build, Tests = CI** : ne jamais lancer `test`/`check` en local.
 * **Règle 2 — PUBLISH** : accord pilote requis. **Règle 6 — ZÉRO secret**.
 * **English only** dans le code ; Gherkin EN ; runner/glue dédiés par feature.
-* Ne jamais relire un working tree de repo voisin dans un test (racy) : injecter
-  la version par `systemProperty` (patron D5-RACE).
+* Ne jamais relire un working tree de repo voisin dans un test (racy) : injecter par
+  `systemProperty` (patron D5-RACE).
 * Les tests TestKit vivent dans `src/test` (pas de source set `functionalTest`).
 
 == Rappels techniques
 
+- **Rendu** : `RenderHyperframesTask` → `HyperFramesEngine.renderDetailed` (port N1).
 - **Bridge Node** : `node <cliScript> render --input <html> --output <mp4>`.
 - `ffprobe` optionnel (`ffprobeExecutable`) — absent → `durationSeconds = 0.0`.
-- Noyau partagé `education.cccp:video-kernel:0.0.3` (`capsule.kernel` cœur =
-  `VisualSource` + `VideoEngine` + `VideoOutcome` ; segment en `capsule.kernel.segment`).
+- Noyau partagé `education.cccp:video-kernel:0.0.3` (`VisualSource` + `VideoEngine`
+  + `VideoOutcome`/`VideoRenderResult` ; segment en `capsule.kernel.segment`).
 
 == Routes documents clés
 
 |===
 | Document | Chemin
-| Rapport S-017 | `.agents/sessions/017-hf-kernel-adapter-us1.adoc`
+| Rapport S-018 | `.agents/sessions/018-hf-kernel-adapter-us3.adoc`
 | Cadrage kernel | `.agents/CADRAGE_EPIC_HF_KERNEL_ADAPTER.adoc`
 | Backlog | `BACKLOG.adoc`
 | Règles | `AGENT.adoc`

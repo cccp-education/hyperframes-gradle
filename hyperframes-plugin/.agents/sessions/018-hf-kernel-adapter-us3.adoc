@@ -1,0 +1,77 @@
+= Session 018 — HF-KERNEL-ADAPTER US-3 : le rendu hyperframes délègue au noyau partagé
+:session: 018
+:date: 2026-10-13
+:type: refactor + test
+:borough: Watts / hyperframes-gradle
+:epic: HF-KERNEL-ADAPTER
+:us: US-3
+:statut: ✅ TERMINÉ (US-3)
+:toc:
+
+== Mission
+
+US-3 de l'EPIC `HF-KERNEL-ADAPTER` : le port `capsule.kernel.VideoEngine` devient
+la **voie de rendu unique** de hyperframes. L'adapter `HyperFramesEngine` existait
+depuis le spike S-016 mais n'était **utilisé que par ses tests** — `RenderHyperframesTask`
+dupliquait l'appel CLI. Cette session supprime la duplication : la tâche **délègue**
+au noyau (payoff de la mutualisation ; avance aussi `video-kernel` VK-1).
+
+Méthode baby-step DDD/TDD/BDD. **Local = Build, Tests = CI** (aucun `test`/`check`
+local).
+
+== Livrable
+
+=== Noyau (adapter) — `hyperframes.kernel.HyperFramesEngine`
+
+- Nouveau **résultat détaillé** `HyperFramesRenderOutcome(result, process)` portant
+  le `VideoRenderResult` neutre **et** la sortie brute du process CLI
+  (`HyperFramesProcessResult` : exit code / timeout / output).
+- `renderDetailed(request): HyperFramesRenderOutcome` ; le port `render(request) = renderDetailed(request).result` (le contrat N1 reste pur, sans diagnostics Gradle).
+
+=== Tâche — `RenderHyperframesTask`
+
+- **Délègue** à `HyperFramesEngine` : construit `HyperFramesEngineConfig`
+  (`nodeExecutable`/`cliScript`/`timeoutMillis`/`width`/`height`) + `VideoRenderRequest`
+  (`name`/`visual = index.html`/`outputDir`/`timeoutMillis`) → `engine.renderDetailed`.
+- La tâche **conserve les diagnostics Gradle** — la logique CLI n'est plus dupliquée :
+  * `process.timedOut` → « HyperFrames CLI timed out … » ;
+  * `process.exitCode != 0` → « HyperFrames CLI failed with exit code N. Command … Output … » ;
+  * MP4 absent / vide → messages inchangés ;
+  * succès → `HyperFrames CLI completed: … (N bytes)`.
+- Résolution préalable inchangée (`require index.html`, `resolveCliScript`,
+  `resolveNodeExecutable`) — les messages de pré-requis sont préservés.
+- Nouveaux `@Input width`/`height` (transmis au descripteur d'issue du noyau), câblés
+  depuis l'extension.
+
+== Tests
+
+- **Unit** — `HyperFramesEngineTest` (+3) : `renderDetailed` expose le process en
+  échec (exit 7 / output / `timedOut=false`), expose un timeout, et `render` renvoie
+  le même résultat que `renderDetailed`.
+- **Fonctionnel (TestKit)** — les tests existants `renderHyperframes` (mock CLI
+  exit 0/1, script inexistant, timeout, MP4 produit) **exercent désormais la
+  délégation** de bout en bout (aucun nouveau test requis ; ils valident l'engine
+  en production).
+- **Cucumber (BDD EN)** — `hf_kernel_adapter_us3.feature` 2 scénarios +
+  `HfKernelAdapterUs3Steps` + `HyperframesWorld.writeStubCli` :
+  * rendu délégué réussit (`MOCK-MP4`) ;
+  * CLI en échec → diagnostics de l'engine remontés.
+
+== Gates
+
+- **Local = Build** : `./gradlew compileKotlin compileTestKotlin` ✅ BUILD SUCCESSFUL.
+- **Tests = CI** : workflow `test-hyperframes.yml` (compile → test → cucumberTest → check).
+- **Zéro secret** ; **English only** dans le code ajouté ; Gherkin EN.
+
+== Effet transverse
+
+- `video-kernel` (N1) : **VK-1 avancé** — le 2ᵉ moteur consomme réellement le port
+  `VideoEngine` en production (plus seulement en test).
+- `capsule` (N2) : aucun changement (contrat `capsule.kernel` consommé tel quel).
+
+== Suite
+
+- **US-2** : aligner le contrat N3 sur le modèle neutre (`engine`, `segments`).
+- **US-4** : consommer le noyau partagé (TTS/sous-titres/audio/config).
+- **US-5** : BDD e2e + dogfooding cccp.education.
+- **Dette D-F** : cache/incremental profond.

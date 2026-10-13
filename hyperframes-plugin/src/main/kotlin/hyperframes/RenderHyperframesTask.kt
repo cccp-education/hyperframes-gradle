@@ -1,5 +1,9 @@
 package hyperframes
 
+import capsule.kernel.FileVisualSource
+import capsule.kernel.VideoRenderRequest
+import hyperframes.kernel.HyperFramesEngine
+import hyperframes.kernel.HyperFramesEngineConfig
 import org.gradle.api.DefaultTask
 import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.provider.Property
@@ -18,14 +22,15 @@ import java.util.concurrent.TimeUnit
 private class HyperframesException(message: String) : RuntimeException(message)
 
 /**
- * Tâche Gradle qui appelle la CLI HyperFrames pour convertir le HTML
- * généré en vidéo MP4.
+ * Tâche Gradle qui rend le HTML HyperFrames en MP4 via le **noyau partagé**.
  *
- * HF-2 : Implémentation complète avec ProcessBuilder → `node <cliScript> render`.
+ * HF-2 : bridge CLI `node <cliScript> render`.
+ * US-3 (S-018) : la tâche **délègue** au port `capsule.kernel.VideoEngine`
+ * (`HyperFramesEngine`) — plus de CLI dupliquée. La tâche porte les diagnostics
+ * Gradle (timeout, code de sortie, sortie CLI, fichier manquant/vide).
  *
  * D-D (S-017) — the documented invocation is the *actual* one: the plugin runs
- * `node <cliScript> render` through ProcessBuilder (the user-facing equivalent
- * is `npx hyperframes render`). The command was previously mis-documented.
+ * `node <cliScript> render` (the user-facing equivalent is `npx hyperframes render`).
  *
  * Le chemin Node.js est résolu depuis [nodeExecutable] si fourni (tests / mock CLI),
  * puis depuis un cache Node géré par Gradle, puis depuis le `PATH` système.
@@ -54,6 +59,14 @@ abstract class RenderHyperframesTask : DefaultTask() {
     @get:Input
     abstract val outputName: Property<String>
 
+    /** Largeur de la vidéo en pixels (descripteur d'issue du noyau) */
+    @get:Input
+    abstract val width: Property<Int>
+
+    /** Hauteur de la vidéo en pixels (descripteur d'issue du noyau) */
+    @get:Input
+    abstract val height: Property<Int>
+
     @TaskAction
     fun render() {
         val outputDirFile = outputDir.asFile.get()
@@ -80,40 +93,41 @@ abstract class RenderHyperframesTask : DefaultTask() {
         logger.lifecycle("   Output MP4      : ${outputMp4.absolutePath}")
         logger.lifecycle("   Timeout         : ${renderTimeoutMs.get()}ms")
 
-        // Construire et exécuter la commande
-        val process = ProcessBuilder(
-            nodeExe.absolutePath,
-            cliScriptFile.absolutePath,
-            "render",
-            "--input", htmlFile.absolutePath,
-            "--output", outputMp4.absolutePath
+        // US-3 (S-018) — delegate the whole-document render to the shared-kernel
+        // adapter (`HyperFramesEngine : capsule.kernel.VideoEngine`). The task owns
+        // the Gradle-facing diagnostics; the engine owns the CLI invocation.
+        val engine = HyperFramesEngine(
+            HyperFramesEngineConfig(
+                nodeExecutable = nodeExe.absolutePath,
+                cliScript = cliScriptFile.absolutePath,
+                timeoutMillis = renderTimeoutMs.get(),
+                width = width.get(),
+                height = height.get(),
+            )
         )
-            .directory(outputDirFile)
-            .redirectErrorStream(true)
-            .start()
+        val request = VideoRenderRequest(
+            name = outputName.get(),
+            visual = FileVisualSource(htmlFile),
+            outputDir = outputDirFile,
+            timeoutMillis = renderTimeoutMs.get(),
+        )
+        val process = engine.renderDetailed(request).process
 
-        // Attendre avec timeout
-        val completed = process.waitFor(renderTimeoutMs.get(), TimeUnit.MILLISECONDS)
-
-        if (!completed) {
-            process.destroyForcibly()
+        if (process.timedOut) {
             throw HyperframesException(
                 "HyperFrames CLI timed out after ${renderTimeoutMs.get()}ms. " +
                     "Increase renderTimeoutMs in the hyperframes extension."
             )
         }
 
-        val exitCode = process.exitValue()
-        val output = process.inputStream.bufferedReader().readText()
-
-        if (exitCode != 0) {
+        if (process.exitCode != 0) {
             throw HyperframesException(
                 buildString {
-                    appendLine("HyperFrames CLI failed with exit code $exitCode.")
+                    appendLine("HyperFrames CLI failed with exit code ${process.exitCode}.")
                     appendLine("Command: ${nodeExe.absolutePath} ${cliScriptFile.name} render ...")
-                    if (output.isNotBlank()) {
+                    if (process.output.isNotBlank()) {
                         appendLine("Output:")
-                        appendLine(output)
+                        appendLine(process.output)
                     }
                 }
             )
@@ -133,8 +147,8 @@ abstract class RenderHyperframesTask : DefaultTask() {
         }
 
         logger.lifecycle("HyperFrames CLI completed: ${outputMp4.absolutePath} (${outputMp4.length()} bytes)")
-        if (output.isNotBlank()) {
-            logger.info(output)
+        if (process.output.isNotBlank()) {
+            logger.info(process.output)
         }
     }
 

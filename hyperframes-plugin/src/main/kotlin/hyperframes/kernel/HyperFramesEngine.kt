@@ -38,6 +38,18 @@ data class HyperFramesEngineConfig(
 )
 
 /**
+ * Detailed outcome of one engine render (adapter-level diagnostics).
+ *
+ * [result] is the neutral port result; [process] carries the raw CLI outcome
+ * (exit code / timeout / output) so a Gradle task can turn it into an actionable
+ * failure message while the shared port stays contract-pure.
+ */
+data class HyperFramesRenderOutcome(
+    val result: VideoRenderResult,
+    val process: HyperFramesProcessResult,
+)
+
+/**
  * SPIKE (video-kernel 0.0.2 falsification) — HyperFrames as the **2nd engine**
  * behind the shared [VideoEngine] port.
  *
@@ -46,8 +58,9 @@ data class HyperFramesEngineConfig(
  * CLI. It has **no** notion of segments, durations, viewport or parallelism —
  * exactly the capabilities the thinned kernel no longer imposes.
  *
- * Purpose of the spike: prove (or falsify) that the neutral port is sufficient
- * for a second, non-reveal engine.
+ * US-3 (S-018) — this adapter is now the **production** render path:
+ * `RenderHyperframesTask` delegates to [renderDetailed] instead of running the
+ * CLI itself (no duplicated CLI code).
  */
 open class HyperFramesEngine(
     private val config: HyperFramesEngineConfig,
@@ -59,7 +72,18 @@ open class HyperFramesEngine(
     override fun isAvailable(): Boolean =
         File(config.cliScript).exists() && File(config.nodeExecutable).exists()
 
-    override fun render(request: VideoRenderRequest): VideoRenderResult {
+    /**
+     * US-3 (S-018) — the shared port entry point. Delegates to [renderDetailed]
+     * and returns the neutral result.
+     */
+    override fun render(request: VideoRenderRequest): VideoRenderResult = renderDetailed(request).result
+
+    /**
+     * US-3 (S-018) — renders the whole document and keeps the raw CLI process
+     * outcome for adapter-level diagnostics (the Gradle task maps it to
+     * actionable messages: timeout, non-zero exit, output).
+     */
+    fun renderDetailed(request: VideoRenderRequest): HyperFramesRenderOutcome {
         val htmlFile = request.visual.file
         val outputDir = request.outputDir.apply { mkdirs() }
         val outputMp4 = outputDir.resolve("${request.name}.mp4")
@@ -72,8 +96,8 @@ open class HyperFramesEngine(
             "--input", htmlFile.absolutePath,
             "--output", outputMp4.absolutePath,
         )
-        val result = runner.run(argv, outputDir, timeout)
-        val produced = if (result.exitCode == 0 && outputMp4.exists() && outputMp4.length() > 0L) {
+        val process = runner.run(argv, outputDir, timeout)
+        val produced = if (process.exitCode == 0 && outputMp4.exists() && outputMp4.length() > 0L) {
             outputMp4
         } else {
             null
@@ -89,7 +113,10 @@ open class HyperFramesEngine(
                 codec = config.codec,
             )
         }
-        return VideoRenderResult(produced = produced, outcome = outcome)
+        return HyperFramesRenderOutcome(
+            result = VideoRenderResult(produced = produced, outcome = outcome),
+            process = process,
+        )
     }
 
     override fun close() {}

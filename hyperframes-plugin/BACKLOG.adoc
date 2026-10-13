@@ -132,11 +132,12 @@ pour que la CLI consomme le dictionnaire au rendu.
 _📖 Littérature : `.agents/CADRAGE_EPIC_HF_KERNEL_ADAPTER.adoc`._
 
 _Préparer hyperframes à devenir le **2ᵉ adaptateur** du **noyau vidéo partagé**
-(`video-kernel`) extrait de capsule (`CAP-ENGINE-DECOUPLING`). Littérature prête :
-ports à implémenter, défauts à corriger (D-A→D-F), contrat N3 à aligner. **Ne pas
-implémenter US-2→US-5 avant que le noyau capsule soit posé** ; **US-1 (defects)
-peut démarrer immédiatement**. Décision pilote : mutualisation anticipée (pas
-d'attente du seuil « factoriser à 3 »)._
+(`video-kernel`) extrait de capsule (`CAP-ENGINE-DECOUPLING`). **S-017** : défauts
+D-A→D-F corrigés. **S-018** : le rendu **délègue** au port `VideoEngine`
+(`HyperFramesEngine`) — plus de CLI dupliquée. Restent US-2 (contrat N3 neutre),
+US-4 (consommation complète du noyau : TTS/sous-titres/audio/config), US-5
+(BDD e2e + dogfooding). Décision pilote : mutualisation anticipée (pas d'attente
+du seuil « factoriser à 3 »)._
 
 [cols="1,3,1,1", options="header"]
 |===
@@ -144,7 +145,7 @@ d'attente du seuil « factoriser à 3 »)._
 | US-0 | Cadrage + roadmap/backlog/prompt-reprise | ✅ S-015 | —
 | US-1 | Corriger défauts D-A→D-F (annotation outputDir, `dependsOn`, `node-gradle` mort, probe durée, doc/code) | ✅ S-017 | M
 | US-2 | Aligner le contrat N3 sur le modèle neutre (`segments`/`durationSeconds` mesuré/`engine`) | 🟡 À FAIRE | M
-| US-3 | Implémenter le port `VideoEngine` (adapter HyperFrames CLI) | 🟡 À FAIRE | L
+| US-3 | Implémenter le port `VideoEngine` (adapter HyperFrames CLI) | ✅ S-018 | L
 | US-4 | Consommer le noyau partagé (TTS/sous-titres/audio/durée/config) | 🟡 À FAIRE | L
 | US-5 | BDD + dogfooding cccp.education | 🟡 À FAIRE | M
 |===
