@@ -68,10 +68,40 @@ val cucumberTest = tasks.register<Test>("cucumberTest") {
     useJUnitPlatform {
         excludeEngines("junit-jupiter")
     }
+    // HF-CR3 — restrict the hermetic run to the aggregate runner so the
+    // dedicated integration runner (Cr3RealRenderCucumberRunner) is never
+    // discovered here (a 0-scenario suite would fail with
+    // NoTestsDiscoveredException — same pitfall as capsule S-082).
+    filter {
+        includeTestsMatching("hyperframes.scenarios.CucumberRunner")
+    }
     systemProperty("cucumber.junit-platform.naming-strategy", "long")
     val cucumberTags = project.findProperty("cucumber.tags")?.toString()
         ?: "not @wip and not @integration"
     systemProperty("cucumber.filter.tags", cucumberTags)
+}
+
+// HF-CR3-3 — dedicated runner for the real-render acceptance feature.
+// Skip-guarded (`assumeTrue`) and *not* part of `check`: it needs Node.js, the
+// `hyperframes` npm package and `ffprobe`. The non-blocking
+// `.github/workflows/real-render-hyperframes.yml` drives it (HF-CR3-2).
+val cucumberTestCr3RealRender = tasks.register<Test>("cucumberTestCr3RealRender") {
+    description = "Runs the real HyperFrames CLI render acceptance (skip-guarded; needs Node + the hyperframes npm package)"
+    group = "verification"
+    testClassesDirs = sourceSets.test.get().output.classesDirs
+    classpath = configurations.testRuntimeClasspath.get() +
+            sourceSets.test.get().output +
+            sourceSets.main.get().output +
+            files(tasks.named("jar").get().outputs.files)
+    dependsOn(tasks.classes)
+    useJUnitPlatform {
+        excludeEngines("junit-jupiter")
+    }
+    filter {
+        includeTestsMatching("hyperframes.scenarios.Cr3RealRenderCucumberRunner")
+    }
+    systemProperty("cucumber.junit-platform.naming-strategy", "long")
+    systemProperty("cucumber.filter.tags", "@real-render and not @wip")
 }
 
 tasks.named("check") { dependsOn(cucumberTest) }

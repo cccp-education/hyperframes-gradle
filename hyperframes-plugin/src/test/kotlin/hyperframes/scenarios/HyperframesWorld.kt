@@ -21,6 +21,7 @@ class HyperframesWorld {
     var ffprobeExecutable: String? = null
     var strictMode: Boolean = false
     var cliScript: String? = null
+    var nodeExecutable: String? = null
 
     fun createProject() {
         if (::projectDir.isInitialized && projectDir.exists()) return
@@ -57,7 +58,7 @@ class HyperframesWorld {
                 ${if (pronunciationDomain != null) """pronunciationDomain.set("$pronunciationDomain")""" else ""}
                 ${if (ffprobeExecutable != null) """ffprobeExecutable.set("$ffprobeExecutable")""" else ""}
                 ${if (cliScript != null) """cliScript.set("$cliScript")""" else ""}
-                ${if (cliScript != null) """nodeExecutable.set("$cliScript")""" else ""}
+                ${if (nodeExecutable != null) """nodeExecutable.set("$nodeExecutable")""" else if (cliScript != null) """nodeExecutable.set("$cliScript")""" else ""}
                 strict.set($strictMode)
             }
             """.trimIndent()
@@ -326,6 +327,88 @@ class HyperframesWorld {
             appendLine("Le conteneur isole l'application.")
         }
         srcDir.resolve("index.adoc").writeText(doc)
+    }
+
+    /**
+     * HF-CR3-3 — wires the *real* HyperFrames CLI and Node executable into the
+     * consumer build (used by the skip-guarded real-render scenario).
+     */
+    fun useRealCli(cliPath: String, nodePath: String, ffprobePath: String? = null) {
+        cliScript = cliPath
+        nodeExecutable = nodePath
+        if (ffprobePath != null) ffprobeExecutable = ffprobePath
+        writeBuildScript()
+    }
+
+    /**
+     * HF-CR3-3 — writes a document exercising the title-card enrichment (one of
+     * the `enhance*` transforms) so the real render covers the enriched HTML, not
+     * a raw string.
+     */
+    fun writeRenderableAdoc() {
+        buildDir.deleteRecursively()
+        buildDir.mkdirs()
+        val srcDir = projectDir.resolve("src/docs")
+        srcDir.deleteRecursively()
+        srcDir.mkdirs()
+        val doc = buildString {
+            appendLine("= Real-render demo")
+            appendLine(":hyperframes-width: 1920")
+            appendLine(":hyperframes-height: 1080")
+            appendLine(":hyperframes-fps: 30")
+            appendLine()
+            appendLine("[.hyperframes-title-card#intro]")
+            appendLine("== Real render")
+            appendLine()
+            appendLine("HF-CR3-3")
+        }
+        srcDir.resolve("index.adoc").writeText(doc)
+    }
+
+    /** First rendered MP4 found in the consumer build directory, if any. */
+    fun renderedMp4(): File? =
+        buildDir.listFiles()?.firstOrNull { it.extension.equals("mp4", ignoreCase = true) }
+
+    /** Probes the MP4 duration with [ffprobePath] (seconds; 0.0 on any failure). */
+    fun probeDurationSeconds(ffprobePath: String): Double {
+        val mp4 = renderedMp4() ?: return 0.0
+        return try {
+            val process = ProcessBuilder(
+                ffprobePath, "-v", "error",
+                "-show_entries", "format=duration",
+                "-of", "default=nw=1:nk=1",
+                mp4.absolutePath
+            ).redirectErrorStream(true).start()
+            process.waitFor()
+            process.inputStream.bufferedReader().readText().trim().toDoubleOrNull() ?: 0.0
+        } catch (e: Exception) {
+            0.0
+        }
+    }
+
+    /** Probes the first video stream codec (blank when the file has no readable video stream). */
+    fun probeFirstVideoCodec(ffprobePath: String): String {
+        val mp4 = renderedMp4() ?: return ""
+        return try {
+            val process = ProcessBuilder(
+                ffprobePath, "-v", "error",
+                "-select_streams", "v:0",
+                "-show_entries", "stream=codec_name",
+                "-of", "default=nw=1:nk=1",
+                mp4.absolutePath
+            ).redirectErrorStream(true).start()
+            process.waitFor()
+            process.inputStream.bufferedReader().readText().trim()
+        } catch (e: Exception) {
+            ""
+        }
+    }
+
+    /** Copies the rendered MP4 into [targetDir] (CI artifact location), when present. */
+    fun publishRenderedMp4(targetDir: File) {
+        val mp4 = renderedMp4() ?: return
+        targetDir.mkdirs()
+        mp4.copyTo(targetDir.resolve(mp4.name), overwrite = true)
     }
 
     fun writePronunciationTwoEntriesAdoc() {
