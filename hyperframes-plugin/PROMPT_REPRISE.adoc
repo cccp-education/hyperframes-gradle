@@ -1,36 +1,42 @@
-= PROMPT_REPRISE — HyperFrames Gradle (Session 024 TERMINÉE → 025)
-:session: 024
+= PROMPT_REPRISE — HyperFrames Gradle (Session 025 TERMINÉE → 026)
+:session: 025
 :date: 2026-10-14
-:status: ✅ TERMINÉ — HF-KERNEL-ADAPTER US-4 : port partagé `VideoDurationProbe` adopté
+:status: ✅ TERMINÉ — EPIC HF-CR3 : GSAP vendored + CI rendu réel + test rendu réel
 :borough: Watts
 
 '''
 == État des lieux
 
 Plugin Gradle fonctionnel : AsciiDoc → AsciidoctorJ → HTML enrichi → CLI Node → MP4
-(via le noyau `VideoEngine`). EPICs HF-0→HF-7 ✅. **`HF-KERNEL-ADAPTER` ✅ TERMINÉ**
-(US-1→US-5 + US-4 clos S-024). **Version publiée `0.0.4`** (Maven Central,
-bundle `79a6f808`). Noyau **`education.cccp:video-kernel:0.3.0`** (port partagé
-`VideoDurationProbe`). Catalogue ws `0.0.90` / BOM plateforme `0.0.90`.
-**CI** `.github/workflows/test-hyperframes.yml`.
+(via le noyau `VideoEngine`). EPICs HF-0→HF-7 ✅. **`HF-KERNEL-ADAPTER` ✅ TERMINÉ**.
+**`HF-CR3` ✅ TERMINÉ 3/3** (S-025). **Version publiée `0.0.4`** (Maven Central,
+bundle `79a6f808`). Noyau **`education.cccp:video-kernel:0.3.0`**. Catalogue ws
+`0.0.90` / BOM plateforme `0.0.90`. **CI** `test-hyperframes.yml` + nouveau
+`real-render-hyperframes.yml` (rendu réel, non-bloquant).
 
-== Fait en session 024
+== Fait en session 025
 
-. **US-4 (clôture)** — le port de durée est promu au noyau partagé
-   (`video.kernel.VideoDurationProbe` + `video.kernel.FfprobeDurationParser`,
-   `video-kernel 0.3.0`, publié Central bundle `892b2756`).
-   - hyperframes : `video-kernel 0.2.0 → 0.3.0` (toml local) ;
-     port/parseur locaux **supprimés** → noyau ; `FfprobeDurationProbe` (N2)
-     implémente le port noyau ; `HyperFramesEngineConfig.durationProbe:
-     VideoDurationProbe`.
-   - Compiles VERTS (`compileKotlin compileTestKotlin compileFunctionalTestKotlin`).
-. Rapport `.agents/sessions/024-hf-kernel-adapter-us4-shared-probe.adoc`.
+. **HF-CR3-1** — GSAP **vendored** (`vendor/gsap-3.12.5.min.js` ressource du
+   plugin + `hyperframes.vendor.GsapLibrary`), inliné dans `<head>` ; le HTML
+   produit n'a plus aucune source de script externe. Bannière GreenSock
+   préservée.
+. **HF-CR3-3** — scénario BDD d'intégration réel (`cr3_real_render.feature`,
+   `@integration @real-render`) + runner dédié `Cr3RealRenderCucumberRunner` +
+   tâche `cucumberTestCr3RealRender` : la vraie CLI rend un document à
+   title-card, le MP4 est validé (non vide, durée ffprobe > 0, premier flux
+   vidéo lisible). Skip-gardé (`assumeTrue`), hors `check`.
+. **HF-CR3-2** — workflow `real-render-hyperframes.yml` (`workflow_dispatch` +
+   `schedule`, non-requis) : Node 22 + `npm install hyperframes@0.8.157` +
+   **ffmpeg** + `cucumberTestCr3RealRender` + sonde `ffprobe` indépendante.
+. Preuves : CI requise **`38581509190` ✅** ; rendu réel **`38581521692` ✅**
+   (MP4 16 705 octets, 1,0 s).
 
-== Mission Session 025 — au choix (pilote)
+== Mission Session 026 — au choix (pilote)
 
 * A) **Nouvelle demande pilote** (EPIC HF-*).
-* B) **EPIC HF-CR3** — rendu réel CI (vendoriser GSAP HF-CR3-1 ; job CI full
-  rendu + probe HF-CR3-2 ; test rendu réel HF-CR3-3).
+* B) **HF-CR3 suite / durcissement** : rendre le rendu réel plus riche
+  (animation GSAP, plusieurs compositions), ou rapatrier le job dans la CI
+  requise si la stabilité le permet.
 * C) Maintenance / dette résiduelle.
 
 == Points d'attention
@@ -41,21 +47,22 @@ bundle `79a6f808`). Noyau **`education.cccp:video-kernel:0.3.0`** (port partagé
   catalogue MEMPHIS (même valeur, garde `HyperframesPluginPublicationTest`).
 * Le noyau est consommé depuis **Maven Central** (propagation repo1 avant push —
   piège DAG R-1).
+* **Rendu réel** : ffprobe n'est pas préinstallé sur le runner GitHub → installer
+  `ffmpeg` (voir le workflow). Le scénario d'intégration est skip-gardé.
 
 == Rappels techniques
 
 - **Rendu** : `RenderHyperframesTask` → `HyperFramesEngine.renderDetailed` (port N1).
-- Noyau partagé `education.cccp:video-kernel:0.3.0` (`video.kernel.*`),
-  **incl. `VideoDurationProbe`**.
+- **GSAP** : `hyperframes.vendor.GsapLibrary.inlineScript()` (vendored, inliné).
+- Noyau partagé `education.cccp:video-kernel:0.3.0` (`video.kernel.*`).
 - Catalogue ws `education.cccp:workspace-catalog:0.0.90`.
 
 == Routes documents clés
 
 |===
 | Document | Chemin
-| Rapport S-024 | `.agents/sessions/024-hf-kernel-adapter-us4-shared-probe.adoc`
+| Rapport S-025 | `.agents/sessions/025-hf-cr3-vendor-gsap-real-render.adoc`
 | Cadrage kernel (amont) | `.agents/CADRAGE_EPIC_HF_KERNEL_ADAPTER.adoc`
-| Cadrage ports noyau | `../../video-kernel-gradle/video-kernel-plugin/.agents/CADRAGE_EPIC_VK_SHARED_PORTS.adoc`
 | Backlog | `BACKLOG.adoc`
 | Règles | `AGENT.adoc`
 |===

@@ -2,13 +2,13 @@
 :toc:
 
 _Règles absolues_ : voir `AGENT.adoc`
-_Derniere mise a jour_ : 2026-10-14 (Session 024 — **HF-KERNEL-ADAPTER US-4 clos** : port de durée promu au noyau partagé `video.kernel.VideoDurationProbe` (+ `FfprobeDurationParser`), `video-kernel 0.3.0` publié Central (bundle `892b2756`) ; hyperframes consomme le port, port/parseur locaux supprimés.)
+_Derniere mise a jour_ : 2026-10-14 (Session 025 — **EPIC HF-CR3 TERMINÉ 3/3** : GSAP vendoré (`vendor/gsap-3.12.5.min.js` + `GsapLibrary`, inliné, plus de CDN) ; test de rendu **réel** skip-gardé (`cr3_real_render.feature`) ; workflow `real-render-hyperframes.yml` non-bloquant + sonde durée ffprobe.)
 _DAG_ : N2 — Plugin Gradle de transformation documentaire AsciiDoc → vidéo MP4
 _Dépendance N2_ : codex-gradle (compileOnly, AsciidoctorJ partagé)
 _Bridge externe_ : HyperFrames CLI via le noyau `VideoEngine` (`node <cliScript> render <dir> --output <mp4>`)
 
-_Dernière session terminée_ : 024 — **HF-KERNEL-ADAPTER US-4** (port partagé `VideoDurationProbe`, `video-kernel 0.3.0`). Rapport `.agents/sessions/024-hf-kernel-adapter-us4-shared-probe.adoc`.
-_Prochaine session_ : 025 — au choix : A) EPIC HF-* / nouvelle demande pilote ; B) **EPIC HF-CR3** (rendu réel CI) ; C) maintenance.
+_Dernière session terminée_ : 025 — **EPIC HF-CR3** (vendorisation GSAP + CI rendu réel + test rendu réel). Rapport `.agents/sessions/025-hf-cr3-vendor-gsap-real-render.adoc`.
+_Prochaine session_ : 026 — au choix : A) nouvelle demande pilote (EPIC HF-*) ; B) durcissement rendu réel / rapatriement CI ; C) maintenance.
 _Version publiée_ : **0.0.4** (Maven Central, bundle `79a6f808`) + Gradle Plugin Portal (handle `cccp-education`)
 
 '''
@@ -52,7 +52,8 @@ _Version publiée_ : **0.0.4** (Maven Central, bundle `79a6f808`) + Gradle Plugi
 | HF-5 | Templates HyperFrames prêts à l'emploi (title-card, code-diff, data-chart, kinetic-captions) | ✅ TERMINÉ (4/4 — sessions 008-011) | P3
 | HF-6 | CI + publication Maven Central / Gradle Portal | ✅ TERMINÉ (Maven Central S005, CI S008, Portal S013) | P3
 | HF-7 | Pronunciation Control (TTS Phonetic Hints) — corriger la phonétique TTS depuis l'AsciiDoc | ✅ TERMINÉ (session 010) + câblé (session 012) | P1
-| HF-KERNEL-ADAPTER | 2ᵉ adaptateur du noyau vidéo partagé (`video-kernel`) — mutualisation avec capsule ; corriger défauts (D-A→D-F) + aligner contrat N3 + ports `VideoEngine`/`SegmentSource` + consommation du noyau. Cadrage `.agents/CADRAGE_EPIC_HF_KERNEL_ADAPTER.adoc`. | ✅ **TERMINÉ** — US-1 ✅ S-017 · US-2 ✅ S-019 · US-3 ✅ S-018 · US-4 ✅ S-021 (durée+config) + **S-024** (port partagé `VideoDurationProbe`, `video-kernel 0.3.0`) · US-5 ✅ S-021 + dogfooding réel S-022 ; dette D-F ✅ S-022 | P1
+| HF-KERNEL-ADAPTER | 2ᵉ adaptateur du noyau vidéo partagé (`video-kernel`) — mutualisation avec capsule ; corriger défauts (D-A→D-F) + aligner contrat N3 + ports `VideoEngine`/`SegmentSource` + consommation du noyau. Cadrage `.agents/CADRAGE_EPIC_HF_KERNEL_ADAPTER.adoc`. | ✅ **TERMINÉ** — US-0 ✅ S-015 · US-1 ✅ S-017 · US-2 ✅ S-019 · US-3 ✅ S-018 · US-4 ✅ S-021 (durée+config) + **S-024** (port partagé `VideoDurationProbe`, `video-kernel 0.3.0`) · US-5 ✅ S-021 + dogfooding réel S-022 ; dette D-F ✅ S-022 | P1
+| HF-CR3 | Revue CR-GLOBALE-003 (contenu solide) — le rendu était le maillon le moins couvert : vendoriser GSAP (sortir du CDN), job CI rendu réel + sonde de durée, test de rendu réel. | ✅ **TERMINÉ 3/3** — HF-CR3-1 ✅ S-025 (GSAP vendoré, inliné) · HF-CR3-2 ✅ S-025 (workflow `real-render-hyperframes.yml`) · HF-CR3-3 ✅ S-025 (`cr3_real_render.feature`, runner dédié) | P0
 |===
 
 '''
@@ -195,6 +196,7 @@ Le dictionnaire reste côté auteur (AsciiDoc), pas côté moteur (Node.js).
 
 |===
 | # | Date | Type | Sujet | Score
+| 025 | 2026-10-14 | feat+ci+test | **EPIC HF-CR3 TERMINÉ 3/3** — GSAP vendoré (`vendor/gsap-3.12.5.min.js` + `GsapLibrary`, inliné, plus de `cdnjs.cloudflare.com`) ; test de rendu **réel** skip-gardé (`cr3_real_render.feature` + `Cr3RealRenderCucumberRunner` + tâche `cucumberTestCr3RealRender`) ; workflow non-bloquant `real-render-hyperframes.yml` (Node + ffmpeg + sonde durée). CI requise `38581509190` ✅ ; rendu réel `38581521692` ✅ (MP4 16 705 o, 1,0 s). | ✅ TERMINÉ
 | 023 | 2026-10-14 | release | **Publication `hyperframes-plugin 0.0.4`** (Maven Central, bundle `79a6f808`, AUTOMATIC) — prérequis MEMPHIS `0.0.90` (catalogue `hyperframes-plugin 0.0.4`) ; pin catalogue `0.0.78 → 0.0.90` + plateforme BOM `0.0.90` + toml local `0.0.4`. Intègre HF-KERNEL-ADAPTER (US-1→US-5) + dette D-F + fixes dogfooding. | ✅ TERMINÉ
 | 022 | 2026-10-14 | refactor+ci+dogfooding | **Dette D-F + dogfooding CLI réel** — source set `functionalTest` (convention, 3 tests TestKit déplacés), CI séparée unit/functional, `@CacheableTask` sur generate ; dogfooding `hyperframes@0.8.155` → vrai MP4 ; **2 bugs corrigés** (bridge `render <dir> --output`, version N3 du plugin). | ✅ TERMINÉ
 | 021 | 2026-10-14 | feat+test | **HF-KERNEL-ADAPTER US-4 (durée) + US-5 (BDD e2e)** — `HyperFramesEngineConfig.durationProbe` remplit `VideoOutcome.durationSeconds` (parité 2 moteurs) ; `ffprobeExecutable` câblé au rendu ; e2e `hyperframesPipeline` (generate→render→collect, CLI+sonde stubbés). +2 unit + 1 scénario BDD. | ✅ TERMINÉ

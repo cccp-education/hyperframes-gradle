@@ -1,0 +1,132 @@
+= Session 025 — EPIC HF-CR3 : vendored GSAP + real-render CI + real-render test
+:session: 025
+:date: 2026-10-14
+:type: feat + ci + test
+:borough: Watts / hyperframes-gradle
+:statut: ✅ TERMINÉ — HF-CR3-1 / HF-CR3-2 / HF-CR3-3 livrés
+:toc:
+
+== Mission
+
+Exécuter l'**EPIC HF-CR3** (source `GLOBAL_CODE_REVIEW.adoc`, CR-GLOBALE-003) —
+le rendu hyperframes était « le maillon le moins couvert en intégration réelle »
+(réseau + regex + headless). Trois items, tous livrés. **Local = Build,
+Tests = CI.**
+
+== HF-CR3-1 (P0) — Vendoriser GSAP (sortir du CDN externe)
+
+Le processeur injectait `<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js">`
+dans chaque page → le rendu dépendait du **réseau**.
+
+Livré :
+- **`vendor/gsap-3.12.5.min.js`** (72 214 octets, SHA-256
+  `28033e449a31ebcc396e5be8b13b63152bf03094288fb5867034321927bce087`) embarqué
+  comme **ressource du plugin** (packagée dans le jar, vérifiée `unzip -l`).
+- **`hyperframes.vendor.GsapLibrary`** (objet pur) : charge la ressource du
+  classpath, expose `source` (bannière de licence GreenSock **préservée**,
+  inlinée verbatim) et `inlineScript()` (élément `<script>` inline). Garde
+  défensive : refuse un `</script>` non échappé ; ressource absente = erreur
+  explicite (bug de packaging, jamais de dégradation silencieuse).
+- **`HyperframesHtmlProcessor`** : `injectGaspCdn` → `injectGsap` (inliné depuis
+  `GsapLibrary`). Le HTML produit **ne référence plus `cdnjs.cloudflare.com`**
+  et n'a **aucune** source de script externe.
+
+Preuve : test unitaire `inject vendored GSAP runtime inline in head` (assère
+`GSAP 3.12.5`/`GreenSock`/`<script>`, interdit `cdnjs.cloudflare.com` et
+`src="http`) ; `GsapLibraryTest` (4 unit) ; tests fonctionnels mis à jour ;
+scénario BDD hermétique `hf_cr3_gsap_vendoring.feature`.
+
+== HF-CR3-3 (P1) — Test « rendu réel » (pas seulement sur chaînes)
+
+Le pipeline complet est désormais exercé contre la **vraie CLI HyperFrames** :
+`cr3_real_render.feature` (`@integration @real-render`) + `Cr3RealRenderSteps`
+(préfixés `real-render`, anti-collision S-088) + runner dédié
+`Cr3RealRenderCucumberRunner` (S-082). Le scénario écrit un document portant un
+bloc **`hyperframes-title-card`** (une des transformations `enhance*`), exécute
+`hyperframesPipeline` (generate → render → collect) avec la vraie CLI, puis
+valide le MP4 : existe, **non vide**, **durée > 0** (`ffprobe`), **premier flux
+vidéo lisible** (`ffprobe -select_streams v:0`). Il vérifie aussi que le HTML
+généré est bien **vendored** (pas de CDN).
+
+*Skip-gardé* : `assumeTrue` sur la disponibilité de Node.js + de la CLI
+`hyperframes` + `ffprobe` (variables `HF_HYPERFRAMES_CLI` / `HF_NODE` /
+`HF_FFPROBE`, sinon `which`). Indisponible → **scénario SKIPPED**, jamais un
+faux succès.
+
+Tâche Gradle dédiée `cucumberTestCr3RealRender` (`build.gradle.kts`), **hors
+`check`** — la CI hermétique reste rapide.
+
+== HF-CR3-2 (P0) — Job CI « rendu réel » + probe de durée
+
+Nouveau workflow **`.github/workflows/real-render-hyperframes.yml`** —
+`workflow_dispatch` + `schedule` hebdomadaire, **non requis** (ne bloque jamais
+la CI hermétique). Il installe Node 22, `npm install hyperframes@0.8.157`,
+**ffmpeg/ffprobe** (absent de l'image ubuntu — confirmé par `hyperframes
+doctor`), compile, exécute `cucumberTestCr3RealRender`, puis **sonde
+indépendamment** le MP4 produit (`ffprobe`, non-vide + durée > 0) et l'upload en
+artefact.
+
+*Choix documenté* : workflow séparé `workflow_dispatch`/`schedule` (et non un job
+de `test-hyperframes.yml`) car le rendu réel est lourd (Puppeteer/Chromium) et
+dépend du réseau ; il ne doit pas bloquer le vert hermétique. Sur le runner, le
+**premier run a révélé** l'absence de ffprobe (le scénario a été skippé, la sonde
+a échoué) → l'étape `Install ffmpeg` a été ajoutée ; le run suivant **rend
+réellement** le MP4.
+
+== Preuves
+
+- **Local = Build** : `compileKotlin compileTestKotlin compileFunctionalTestKotlin`
+  VERTS ; `assemble validatePlugins` VERTS ; ressource vendored présente dans le
+  jar.
+- **CI requise** (`Test`, `.github/workflows/test-hyperframes.yml`) — run
+  **`38581509190` ✅ success** (commit `98befb0`).
+- **CI rendu réel** — run **`38581521692` ✅ success** : scénario **non skippé**,
+  `Produced MP4: build/real-render/test-video.mp4 (16705 bytes, 1.000000s)` ;
+  durée > 0 et premier flux vidéo lisible validés. (Le `STANDARD_ERROR` du log
+  n'est que des avertissements SLF4J multi-providers.)
+- Premier run `38581036079` **rouge** (honnête) : ffprobe manquant sur le runner
+  → skip + sonde sans MP4.
+
+== Fichiers
+
+Créés :
+- `src/main/resources/vendor/gsap-3.12.5.min.js`
+- `src/main/kotlin/hyperframes/vendor/GsapLibrary.kt`
+- `src/test/kotlin/hyperframes/vendor/GsapLibraryTest.kt`
+- `src/test/kotlin/hyperframes/scenarios/Cr3GsapVendoringSteps.kt`
+- `src/test/resources/features/hf_cr3_gsap_vendoring.feature`
+- `src/test/kotlin/hyperframes/scenarios/Cr3RealRenderSteps.kt`
+- `src/test/kotlin/hyperframes/scenarios/Cr3RealRenderCucumberRunner.kt`
+- `src/test/resources/features/cr3_real_render.feature`
+- `.github/workflows/real-render-hyperframes.yml`
+
+Modifiés :
+- `src/main/kotlin/hyperframes/HyperframesHtmlProcessor.kt`
+- `src/test/kotlin/hyperframes/HyperframesHtmlProcessorTest.kt`
+- `src/functionalTest/kotlin/hyperframes/HyperframesPluginTest.kt`
+- `src/test/kotlin/hyperframes/scenarios/HyperframesWorld.kt`
+- `build.gradle.kts`
+
+== Décision de méthode
+
+Le projet suit un runner **agrégé** (`CucumberRunner` sélectionnant
+`features`) — convention locale établie (S-007). Le pattern S-082 « runner
+dédié par feature » est appliqué **là où l'isolation est nécessaire** : le
+runner dédié `Cr3RealRenderCucumberRunner` porte le scénario d'intégration lourd,
+et `cucumberTest` est **scopé** sur le runner agrégé (`filter { includeTestsMatching(...) }`,
+patron cross-borough capsule S-082) pour ne jamais découvrir le runner
+d'intégration (une suite à 0 scénario lèverait `NoTestsDiscoveredException`). Le
+scénario hermétique GSAP reste couvert par l'agrégé.
+
+== Effet
+
+EPIC HF-CR3 **TERMINÉ 3/3** : le rendu hyperframes ne dépend plus du réseau
+(GSAP vendored), et la CI dispose d'un test de rendu **réel** (skip-gardé) + d'un
+job dédié (non-bloquant) qui sonde la durée du MP4. Zéro secret. English only.
+
+== Commits
+
+- `0326b79` `feat(s025): HF-CR3-1 — vendor GSAP runtime (inline, no CDN)`
+- `9eecd57` `test(s025): HF-CR3-3 — real HyperFrames CLI render acceptance (skip-guarded)`
+- `b339c04` `ci(s025): HF-CR3-2 — non-blocking real-render workflow + MP4 duration probe`
+- `98befb0` `ci(s025): HF-CR3-2 — install ffmpeg (ffprobe) for the real-render job`

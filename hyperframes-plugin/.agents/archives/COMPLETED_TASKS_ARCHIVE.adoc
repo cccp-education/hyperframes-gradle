@@ -1,6 +1,18 @@
 = COMPLETED_TASKS_ARCHIVE — hyperframes-gradle
 :date: 2026-05-31
-:last-updated: 2026-10-14 (session 024)
+:last-updated: 2026-10-14 (session 025)
+
+== Session 025 (2026-10-14) — EPIC HF-CR3 : GSAP vendoré + CI rendu réel + test rendu réel ✅
+
+* HF-CR3-1 — GSAP 3.12.5 **vendoré** (`vendor/gsap-3.12.5.min.js` + `GsapLibrary`)
+  et **inliné** ; plus de dépendance CDN (`cdnjs.cloudflare.com`). Bannière
+  GreenSock préservée.
+* HF-CR3-2 — workflow `real-render-hyperframes.yml` (Node + ffmpeg + sonde durée
+  ffprobe, `workflow_dispatch`/`schedule`, non-bloquant). CI requise `38581509190` ✅ ;
+  rendu réel `38581521692` ✅ (MP4 16 705 o, 1,0 s).
+* HF-CR3-3 — scénario de rendu **réel** skip-gardé (`cr3_real_render.feature`),
+  runner dédié `Cr3RealRenderCucumberRunner`, tâche `cucumberTestCr3RealRender`.
+* Rapport `.agents/sessions/025-hf-cr3-vendor-gsap-real-render.adoc`.
 
 == Session 024 (2026-10-14) — HF-KERNEL-ADAPTER US-4 : port partagé `VideoDurationProbe` ✅
 

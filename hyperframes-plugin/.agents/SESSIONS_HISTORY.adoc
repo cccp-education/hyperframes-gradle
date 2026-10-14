@@ -1,5 +1,39 @@
 = SESSIONS_HISTORY — hyperframes-gradle
 
+== Session 025 (2026-10-14) — EPIC HF-CR3 (GSAP vendoré + CI rendu réel + test rendu réel)
+
+**HF-CR3-1 (P0)** — le rendu ne dépend plus du **réseau** : GSAP 3.12.5 est
+**vendoré** (`src/main/resources/vendor/gsap-3.12.5.min.js`, 72 214 o, SHA-256
+`28033e44…`) et **inliné** dans `<head>` par `hyperframes.vendor.GsapLibrary`
+(bannière de licence GreenSock préservée ; garde `</script>`). `injectGaspCdn`
+→ `injectGsap`. Le HTML produit ne contient plus `cdnjs.cloudflare.com`. Tests :
+`GsapLibraryTest` (4 unit) + `HyperframesHtmlProcessorTest`/`HyperframesPluginTest`
+mis à jour + BDD hermétique `hf_cr3_gsap_vendoring.feature`.
+
+**HF-CR3-3 (P1)** — test de **rendu réel** : `cr3_real_render.feature`
+(`@integration @real-render`) + `Cr3RealRenderSteps` + runner dédié
+`Cr3RealRenderCucumberRunner` (S-082) + tâche `cucumberTestCr3RealRender`
+(hors `check`). Le scénario rend un document à `hyperframes-title-card` avec la
+**vraie CLI** et valide le MP4 (existe, non vide, durée ffprobe > 0, premier flux
+vidéo lisible). Skip-gardé (`assumeTrue` sur Node/CLI/ffprobe) → jamais de faux
+succès.
+
+**HF-CR3-2 (P0)** — workflow **`.github/workflows/real-render-hyperframes.yml`**
+(`workflow_dispatch` + `schedule` hebdo, **non requis**) : Node 22 +
+`npm install hyperframes@0.8.157` + **ffmpeg** + `cucumberTestCr3RealRender` +
+sonde `ffprobe` indépendante + upload MP4. Le premier run `38581036079` a
+**honnêtement échoué** (ffprobe absent du runner → scénario skippé, sonde sans
+MP4) → étape `Install ffmpeg` ajoutée.
+
+**Preuves** : local = `compileKotlin compileTestKotlin compileFunctionalTestKotlin`
++ `assemble validatePlugins` VERTS (ressource vendored dans le jar) ; CI **requise**
+run **`38581509190` ✅** (commit `98befb0`) ; CI **rendu réel** run **`38581521692` ✅**
+(`test-video.mp4`, 16 705 o, 1,000000 s). `cucumberTest` scopé sur le runner agrégé
+(`filter { includeTestsMatching(...) }`) pour ne jamais découvrir le runner
+d'intégration (piège `NoTestsDiscoveredException`, capsule S-082). Zéro secret,
+English only. Commits `0326b79`, `9eecd57`, `b339c04`, `98befb0`. Rapport
+`.agents/sessions/025-hf-cr3-vendor-gsap-real-render.adoc`.
+
 == Session 024 (2026-10-14) — HF-KERNEL-ADAPTER US-4 : port partagé `VideoDurationProbe`
 
 Session **transverse** (video-kernel + hyperframes + capsule). Clôture de
