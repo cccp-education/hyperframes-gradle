@@ -125,3 +125,21 @@ CLI + sonde stubbées ; `hf_pipeline_e2e.feature`. Dogfooding réel (CLI npm) co
 à l'environnement/accord.
 
 _Reste_ : dette D-F (cache/incremental profond + source set `functionalTest`).
+
+== Mise à jour S-024 — US-4 clos (port partagé `VideoDurationProbe`)
+
+_Périmètre revu_ : le cadrage S-021 excluait TTS/audio/sous-titres du noyau en
+confondant **ports** et **implémentations**. Décision S-195/S-024 (cadrage
+`video-kernel/.agents/CADRAGE_EPIC_VK_SHARED_PORTS.adoc`) : le noyau N1 héberge
+les **ports** engine-neutres (fun interfaces pures) ; les implémentations
+(binaires externes) restent N2 (la garde `KernelBoundaryAudit` interdit
+`processbuilder` dans le noyau).
+
+**US-4a livrée (S-195)** : `video.kernel.VideoDurationProbe` (+ parseur pur
+`FfprobeDurationParser`) promu au noyau, `video-kernel 0.3.0` publié Central
+(bundle `892b2756`) ; hyperframes consomme le port (port/parseur locaux
+supprimés). **US-4b→d (TTS/audio/sous-titres) : différés** — aucun second
+consommateur (hyperframes délègue l'audio à la CLI) → pas d'abstraction
+spéculative (critère « second consommateur », cadrage D2).
+
+**HF-KERNEL-ADAPTER : ✅ TERMINÉ** (US-0→US-5).
