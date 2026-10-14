@@ -10,7 +10,8 @@ local `hyperframes 0.0.3 → 0.0.4` ; `version` résout **`0.0.4`**. Compiles VE
 VERT, **publication Central bundle `79a6f808-591b-43b3-91b4-1f6aa3cd9dd5`** (AUTOMATIC).
 Contenu depuis `0.0.3` : HF-KERNEL-ADAPTER (US-1→US-5), dette D-F, 2 fixes dogfooding
 (bridge `render <dir> --output` ; version N3 du plugin). Rapport
-`.agents/sessions/023-publication-0.0.4.adoc`. Zéro secret.
+`.agents/sessions/023-publication-0.0.4.adoc`. **CI verte run `38501238436`** ; prérequis
+MEMPHIS `runAllTests` run `38500988298` ✅. Zéro secret.
 
 == Session 022 (2026-10-14) — Dette D-F (functionalTest + cache) + dogfooding CLI réel
 

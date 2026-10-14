@@ -39,9 +39,11 @@ après le prérequis MEMPHIS.
 
 == Gates
 
-- **Local = Build** : compiles ✅ ; **Tests = CI** `test-hyperframes.yml`.
+- **Local = Build** : compiles ✅ ; **Tests = CI** `test-hyperframes.yml` —
+  **run `38501238436` ✅ success**.
 - **Propagation repo1 confirmée** : `hyperframes-plugin/0.0.4` (pom/jar/module) +
   marker `education.cccp.hyperframes` HTTP 200.
+- **Prérequis MEMPHIS** : `runAllTests` run `38500988298` ✅.
 
 == Suite
 

@@ -20,7 +20,9 @@ BOM plateforme `0.0.90`. **CI** `.github/workflows/test-hyperframes.yml`.
 . **hyperframes** : pin catalogue `workspace-catalog:0.0.78 → 0.0.90` ; plateforme
    `workspace-bom:0.0.78 → 0.0.90` ; toml local `hyperframes 0.0.3 → 0.0.4` ;
    `version` résout `0.0.4`. Compiles VERTS, `publishToMavenLocal` VERT.
-. **Publication Central** : bundle `79a6f808-591b-43b3-91b4-1f6aa3cd9dd5` (AUTOMATIC).
+. **Publication Central** : bundle `79a6f808-591b-43b3-91b4-1f6aa3cd9dd5` (AUTOMATIC),
+   propagation repo1 HTTP 200 ; **CI verte run `38501238436`** ; prérequis MEMPHIS
+   `runAllTests` run `38500988298` ✅.
 . Rapport `.agents/sessions/023-publication-0.0.4.adoc`.
 
 == Mission Session 024 — au choix (pilote)
