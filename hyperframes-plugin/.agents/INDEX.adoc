@@ -2,7 +2,7 @@
 :toc:
 
 _Règles absolues_ : voir `AGENT.adoc`
-_Derniere mise a jour_ : 2026-10-14 (Session 022 — **Dette D-F** (source set `functionalTest` + `@CacheableTask`) + **dogfooding CLI réel** (`hyperframes@0.8.155` → vrai MP4 ; 2 bugs corrigés : bridge `render <dir> --output`, version N3 du plugin).)
+_Derniere mise a jour_ : 2026-10-14 (Session 022 — **Dette D-F** (source set `functionalTest` + `@CacheableTask`) + **dogfooding CLI réel** (`hyperframes@0.8.155` → vrai MP4 ; 2 bugs corrigés : bridge `render <dir> --output`, version N3 du plugin). **CI verte** run `38499313471`.)
 _DAG_ : N2 — Plugin Gradle de transformation documentaire AsciiDoc → vidéo MP4
 _Dépendance N2_ : codex-gradle (compileOnly, AsciidoctorJ partagé)
 _Bridge externe_ : HyperFrames CLI via le noyau `VideoEngine` (`node <cliScript> render <dir> --output <mp4>`)

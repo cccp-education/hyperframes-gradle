@@ -55,7 +55,11 @@ CLI** produit un **vrai MP4** (`dogfood.mp4`, 21 604 octets, 1,0 s, encodage GPU
 == Tests / Gates
 
 - **Local = Build** : `compileKotlin compileTestKotlin compileFunctionalTestKotlin` ✅.
-- **Tests = CI** : `test-hyperframes.yml` (unit / functionalTest / cucumberTest / check).
+- **Tests = CI** : `test-hyperframes.yml` (**run `38499313471` ✅ success**) — étapes
+  `Run unit tests` (BUILD SUCCESSFUL 35s) / `Run functional tests (GradleTestKit)`
+  (`renderHyperframes invokes mock CLI and produces MP4` PASSED, 30s) /
+  `Run Cucumber BDD tests` (e2e PASSED, 32s) / `Full check` (`validatePlugins` valide
+  `@CacheableTask`).
 - **Dogfooding** : réel, hors CI (environnement local), documenté ci-dessus.
 - **Zéro secret** ; **English only** dans le code ajouté.
 

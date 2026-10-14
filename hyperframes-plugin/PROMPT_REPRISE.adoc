@@ -25,7 +25,8 @@ Plugin Gradle fonctionnel : AsciiDoc → AsciidoctorJ → HTML enrichi → CLI N
    * bridge : `render <projectDir> --output <mp4>` (`--input` inexistant dans la vraie CLI) ;
    * version N3 : `HyperframesVersion.value` (manifeste jar) au lieu de `target.version`
      (`unspecified` côté consommateur).
-. Rapport `.agents/sessions/022-df-functional-test-cache-dogfooding.adoc`.
+. Rapport `.agents/sessions/022-df-functional-test-cache-dogfooding.adoc`. **CI verte
+   run `38499313471`** (unit / functionalTest / cucumberTest / check).
 
 == Mission Session 023 — au choix (pilote)
 

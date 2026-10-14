@@ -17,7 +17,8 @@ un **vrai MP4** (21 604 octets, 1,0 s, GPU) et un `composite-context.json` compl
 `target.version` (`unspecified` côté consommateur) → `version=0.0.3`.
 
 **Local = Build** : `compileKotlin compileTestKotlin compileFunctionalTestKotlin` ✅.
-Rapport `.agents/sessions/022-df-functional-test-cache-dogfooding.adoc`. Zéro secret.
+Rapport `.agents/sessions/022-df-functional-test-cache-dogfooding.adoc`. **CI verte run
+`38499313471`** (unit / functionalTest / cucumberTest / check). Zéro secret.
 
 == Session 021 (2026-10-14) — HF-KERNEL-ADAPTER US-4 (durée) + US-5 (BDD e2e)
 
