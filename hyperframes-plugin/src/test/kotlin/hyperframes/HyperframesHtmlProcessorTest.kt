@@ -244,7 +244,7 @@ tl.from("#title", { opacity: 0, y: 40, duration: 0.8 }, 1);</pre>
     }
 
     @Test
-    fun `inject GSAP CDN script in head`() {
+    fun `inject vendored GSAP runtime inline in head`() {
         // Arrange
         val html = """<!DOCTYPE html>
 <html>
@@ -255,9 +255,12 @@ tl.from("#title", { opacity: 0, y: 40, duration: 0.8 }, 1);</pre>
         // Act
         val result = processor.enhance(html)
 
-        // Assert
-        assertContains(result, """gsap.min.js""")
-        assertContains(result, """cdnjs.cloudflare.com""")
+        // Assert — HF-CR3-1: vendored runtime inlined, no external CDN.
+        assertContains(result, """<script>""")
+        assertContains(result, """GSAP 3.12.5""")
+        assertContains(result, """GreenSock""")
+        assertFalse(result.contains("cdnjs.cloudflare.com"), "the CDN must no longer be referenced")
+        assertFalse(result.contains("""src="http"""), "no external script source")
     }
 
     // ──────────────────────────────────────────────

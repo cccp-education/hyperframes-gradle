@@ -255,7 +255,7 @@ class HyperframesPluginTest {
     }
 
     @Test
-    fun `generateHyperframesHtml injects GSAP CDN in head`() {
+    fun `generateHyperframesHtml injects vendored GSAP inline in head`() {
         // Arrange
         writeBuildFiles(projectDir)
         writeDocWithComposition(projectDir, compositionBody = buildString {
@@ -270,11 +270,11 @@ class HyperframesPluginTest {
             .withArguments("generateHyperframesHtml", "--info")
             .build()
 
-        // Assert
+        // Assert — HF-CR3-1: vendored GSAP inlined, no external CDN.
         assertTrue(result.task(":generateHyperframesHtml")?.outcome?.toString()?.contains("SUCCESS") == true)
         val html = projectDir.resolve("build/hyperframes/index.html").readText()
-        assertContains(html, """gsap.min.js""")
-        assertContains(html, """cdnjs.cloudflare.com""")
+        assertContains(html, """GSAP 3.12.5""")
+        assertFalse(html.contains("cdnjs.cloudflare.com"), "the CDN must no longer be referenceable")
     }
 
     @Test
@@ -305,8 +305,9 @@ class HyperframesPluginTest {
         assertContains(html, """data-track-index""")
         assertContains(html, """data-duration""")
 
-        // GSAP
-        assertContains(html, """gsap.min.js""")
+        // GSAP (vendored, inlined — HF-CR3-1)
+        assertContains(html, """GSAP 3.12.5""")
+        assertFalse(html.contains("cdnjs.cloudflare.com"), "the CDN must no longer be referenceable")
 
         // Animation script
         assertContains(html, """__timelines""")

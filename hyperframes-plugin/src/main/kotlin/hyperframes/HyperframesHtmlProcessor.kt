@@ -8,12 +8,13 @@ import hyperframes.template.DataChartTemplate
 import hyperframes.template.DataPoint
 import hyperframes.template.KineticCaptionsTemplate
 import hyperframes.template.TitleCardTemplate
+import hyperframes.vendor.GsapLibrary
 
 /**
  * Transforms the HTML produced by AsciidoctorJ into enriched HTML for HyperFrames.
  *
  * Pipeline:
- * 1. Inject GSAP CDN into `<head>`
+ * 1. Inject the vendored GSAP runtime (inlined, no CDN) into `<head>`
  * 2. Add `<div id="stage">` with data-* attributes (width, height, fps, output)
  * 3. HF-5a: Expand `hyperframes-title-card` blocks into animated title-card compositions
  * 4. HF-5b: Expand `hyperframes-code-diff` blocks into animated code-diff compositions
@@ -53,7 +54,7 @@ class HyperframesHtmlProcessor internal constructor(
         val inlineDictionary = extractInlineHints(html)
         val blockDictionary = PronunciationDictionary()
         return html
-            .let { injectGaspCdn(it) }
+            .let { injectGsap(it) }
             .let { expandTitleCardBlocks(it) }
             .let { expandCodeDiffBlocks(it) }
             .let { expandDataChartBlocks(it) }
@@ -178,12 +179,19 @@ class HyperframesHtmlProcessor internal constructor(
     }
 
     // ──────────────────────────────────────────────
-    // 1. GSAP CDN
+    // 1. GSAP (vendored, inlined)
     // ──────────────────────────────────────────────
 
-    private fun injectGaspCdn(html: String): String {
-        val gsapScript =
-            """<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>"""
+    /**
+     * HF-CR3-1 — injects the **vendored** GSAP runtime as an inline `<script>`
+     * element into `<head>`.
+     *
+     * Removes the runtime dependency on the external GSAP CDN: the exact runtime
+     * ships with the plugin ([GsapLibrary]) and the produced page has no external
+     * script source. The GreenSock license banner is preserved by [GsapLibrary].
+     */
+    private fun injectGsap(html: String): String {
+        val gsapScript = GsapLibrary.inlineScript()
 
         return when {
             "</head>" in html -> html.replace("</head>", "    $gsapScript\n</head>")
