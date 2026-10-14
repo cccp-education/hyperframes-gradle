@@ -10,7 +10,8 @@
 Plugin Gradle fonctionnel : AsciiDoc → AsciidoctorJ → HTML enrichi → CLI Node → MP4.
 EPICs HF-0→HF-7 ✅. `HF-KERNEL-ADAPTER` : **US-0 ✅ S-015, US-1 ✅ S-017, US-2 ✅ S-019,
 US-3 ✅ S-018** (US-4/US-5 À FAIRE). Version `0.0.3` (Maven Central). Catalogue ws
-`0.0.78` / BOM plateforme `0.0.78`. Noyau `education.cccp:video-kernel:0.0.3`.
+`0.0.78` / BOM plateforme `0.0.78`. Noyau **`education.cccp:video-kernel:0.1.0`**
+(gelé + publié S-193 ; pin aligné depuis `0.0.3`).
 **CI verte** (S-017/S-018).
 
 == Fait en session 019
@@ -27,6 +28,12 @@ US-3 ✅ S-018** (US-4/US-5 À FAIRE). Version `0.0.3` (Maven Central). Catalogu
 . **Local = Build** : `compileKotlin compileTestKotlin` ✅. **Tests = CI**
    (`test-hyperframes.yml`) — **run `38455083938` ✅ success** (2m46s) : +3 unit + 1 scénario
    BDD (US-2) PASSED. Rapport `.agents/sessions/019-hf-kernel-adapter-us2.adoc`.
+
+== Maintenance (2026-10-13) — pin `video-kernel 0.1.0`
+
+Le noyau a été gelé + publié `0.1.0` (Maven Central, bundle `ccbb1f82`, S-193).
+**hyperframes aligné** : `gradle/libs.versions.toml` `video-kernel 0.0.3 → 0.1.0`
+(résolution `0.1.0` vérifiée ; ABI inchangé). Aucun autre changement.
 
 == Mission Session 020 — au choix (pilote)
 
@@ -52,7 +59,7 @@ US-3 ✅ S-018** (US-4/US-5 À FAIRE). Version `0.0.3` (Maven Central). Catalogu
 - **Rendu** : `RenderHyperframesTask` → `HyperFramesEngine.renderDetailed` (port N1).
 - **Bridge Node** : `node <cliScript> render --input <html> --output <mp4>`.
 - `ffprobe` optionnel (`ffprobeExecutable`) — absent → `durationSeconds = 0.0`.
-- Noyau partagé `education.cccp:video-kernel:0.0.3` (`VisualSource` + `VideoEngine`
+- Noyau partagé `education.cccp:video-kernel:0.1.0` (`VisualSource` + `VideoEngine`
   + `VideoOutcome`/`VideoRenderResult` ; segment en `capsule.kernel.segment`).
 
 == Routes documents clés
