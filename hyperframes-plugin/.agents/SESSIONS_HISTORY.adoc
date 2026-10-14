@@ -18,8 +18,8 @@ le pipeline complet `hyperframesPipeline` (generate → render → collect), CLI
 
 Tests : +2 unit `HyperFramesEngineTest` (durée injectée / dégradée) + 1 scénario BDD.
 **Local = Build** : `compileKotlin compileTestKotlin` ✅. **Tests = CI**
-(`test-hyperframes.yml`). Rapport `.agents/sessions/021-hf-kernel-adapter-us4-us5.adoc`.
-Zéro secret.
+(`test-hyperframes.yml`) — **run `38497716543` ✅ success** (e2e + durée PASSED).
+Rapport `.agents/sessions/021-hf-kernel-adapter-us4-us5.adoc`. Zéro secret.
 
 == Session 020 (2026-10-14) — VK-2 adoption `video-kernel 0.2.0` (package neutre)
 

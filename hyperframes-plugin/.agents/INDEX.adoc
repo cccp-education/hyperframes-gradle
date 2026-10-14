@@ -2,7 +2,7 @@
 :toc:
 
 _Règles absolues_ : voir `AGENT.adoc`
-_Derniere mise a jour_ : 2026-10-14 (Session 021 — **HF-KERNEL-ADAPTER US-4 (durée partagée) + US-5 (BDD e2e)** : `VideoOutcome.durationSeconds` rempli par sonde injectable ; pipeline e2e `hyperframesPipeline` couvert.)
+_Derniere mise a jour_ : 2026-10-14 (Session 021 — **HF-KERNEL-ADAPTER US-4 (durée partagée) + US-5 (BDD e2e)** : `VideoOutcome.durationSeconds` rempli par sonde injectable ; pipeline e2e `hyperframesPipeline` couvert. **CI verte** run `38497716543`.)
 _DAG_ : N2 — Plugin Gradle de transformation documentaire AsciiDoc → vidéo MP4
 _Dépendance N2_ : codex-gradle (compileOnly, AsciidoctorJ partagé)
 _Bridge externe_ : HyperFrames CLI via le noyau `VideoEngine` (`node <cliScript> render`)

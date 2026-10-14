@@ -52,6 +52,10 @@ l'environnement/accord — non exercé ici.
 
 - **Local = Build** : `./gradlew compileKotlin compileTestKotlin` ✅ BUILD SUCCESSFUL.
 - **Tests = CI** : `.github/workflows/test-hyperframes.yml`.
+- **Preuve CI — run `38497716543` ✅ success** : `The full pipeline produces HTML, MP4 and
+  the N3 contract` PASSED ; `renderDetailed fills the outcome duration from the injected
+  probe` PASSED ; `renderDetailed reports zero duration when no probe is wired (degraded)`
+  PASSED ; `BUILD SUCCESSFUL`.
 - **Zéro secret** ; **English only** dans le code ajouté ; Gherkin EN.
 
 == Suite

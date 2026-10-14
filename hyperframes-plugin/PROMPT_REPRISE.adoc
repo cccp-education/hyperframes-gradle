@@ -24,7 +24,8 @@ Version plugin `0.0.3` (Maven Central). Noyau `education.cccp:video-kernel:0.2.0
    (generate → render → collect), CLI + sonde stubbées ; produit HTML + MP4 + N3
    (`durationSeconds=30.0`, `engine=hyperframes`).
 . Tests : +2 unit (`HyperFramesEngineTest`) + 1 scénario BDD.
-. **Local = Build** : `compileKotlin compileTestKotlin` ✅. **Tests = CI**.
+. **Local = Build** : `compileKotlin compileTestKotlin` ✅. **Tests = CI**
+   (`test-hyperframes.yml`) — **run `38497716543` ✅ success** (US-4 + US-5 PASSED).
    Rapport `.agents/sessions/021-hf-kernel-adapter-us4-us5.adoc`.
 
 == Mission Session 022 — au choix (pilote)
