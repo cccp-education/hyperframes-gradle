@@ -42,6 +42,9 @@ jobs:
         working-directory: hyperframes-plugin
         run: npm install hyperframes@0.8.157
 
+      - name: Install ffmpeg (provides ffprobe)
+        run: sudo apt-get update && sudo apt-get install -y ffmpeg
+
       - name: HyperFrames doctor (informational)
         working-directory: hyperframes-plugin
         run: npx hyperframes doctor
