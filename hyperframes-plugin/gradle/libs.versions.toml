@@ -1,5 +1,5 @@
 [versions]
-hyperframes = "0.0.3"
+hyperframes = "0.0.4"
 video-kernel = "0.2.0"
 kotlin = "2.4.10"
 asciidoctorj = "3.0.1"

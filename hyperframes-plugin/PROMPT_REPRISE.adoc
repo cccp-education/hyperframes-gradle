@@ -1,7 +1,7 @@
-= PROMPT_REPRISE — HyperFrames Gradle (Session 022 TERMINÉE → 023)
-:session: 022
+= PROMPT_REPRISE — HyperFrames Gradle (Session 023 TERMINÉE → 024)
+:session: 023
 :date: 2026-10-14
-:status: ✅ TERMINÉ — dette D-F (functionalTest + cache) + dogfooding CLI réel
+:status: ✅ TERMINÉ — publication `hyperframes-plugin 0.0.4` (Maven Central)
 :borough: Watts
 
 '''
@@ -9,50 +9,45 @@
 
 Plugin Gradle fonctionnel : AsciiDoc → AsciidoctorJ → HTML enrichi → CLI Node → MP4
 (via le noyau `VideoEngine`). EPICs HF-0→HF-7 ✅. **`HF-KERNEL-ADAPTER` ✅ TERMINÉ**
-(US-1→US-5 + dette D-F). Version plugin `0.0.3` (Maven Central). Noyau
-`education.cccp:video-kernel:0.2.0`. **CI** `.github/workflows/test-hyperframes.yml`
-(unit / functionalTest / cucumberTest / check).
+(US-1→US-5 + dette D-F + dogfooding réel). **Version publiée `0.0.4`** (Maven Central,
+bundle `79a6f808`). Noyau `education.cccp:video-kernel:0.2.0`. Catalogue ws `0.0.90` /
+BOM plateforme `0.0.90`. **CI** `.github/workflows/test-hyperframes.yml`.
 
-== Fait en session 022
+== Fait en session 023
 
-. **D-F — source set `functionalTest`** : convention `education.cccp.build.functional-test`
-   0.0.7 appliquée ; 3 tests TestKit déplacés `src/test` → `src/functionalTest` ;
-   CI séparée (unit / functional / cucumber / check).
-. **D-F — cache** : `GenerateHyperframesHtmlTask` → **`@CacheableTask`** (déterministe) ;
-   Render/Collect restent non-cacheables (process externe / dossier partagé).
-. **Dogfooding CLI réel** : vrai `hyperframes@0.8.155` → **vrai MP4** via le pipeline
-   `hyperframesPipeline`. **2 bugs corrigés** :
-   * bridge : `render <projectDir> --output <mp4>` (`--input` inexistant dans la vraie CLI) ;
-   * version N3 : `HyperframesVersion.value` (manifeste jar) au lieu de `target.version`
-     (`unspecified` côté consommateur).
-. Rapport `.agents/sessions/022-df-functional-test-cache-dogfooding.adoc`. **CI verte
-   run `38499313471`** (unit / functionalTest / cucumberTest / check).
+. **Prérequis MEMPHIS S-293** : catalogue `0.0.90` portant `hyperframes-plugin 0.0.4`
+   (bundle `bbaf36b3`, propagé repo1).
+. **hyperframes** : pin catalogue `workspace-catalog:0.0.78 → 0.0.90` ; plateforme
+   `workspace-bom:0.0.78 → 0.0.90` ; toml local `hyperframes 0.0.3 → 0.0.4` ;
+   `version` résout `0.0.4`. Compiles VERTS, `publishToMavenLocal` VERT.
+. **Publication Central** : bundle `79a6f808-591b-43b3-91b4-1f6aa3cd9dd5` (AUTOMATIC).
+. Rapport `.agents/sessions/023-publication-0.0.4.adoc`.
 
-== Mission Session 023 — au choix (pilote)
+== Mission Session 024 — au choix (pilote)
 
-* A) **Publication du plugin** : bump `0.0.3 → 0.0.4` (intègre S-018→S-022 + fixes dogfooding)
-  + Maven Central + MEMPHIS BOM/catalog.
-* B) **Nouvelle demande pilote** (EPIC HF-*).
-* C) Suite dogfooding / hardening CI.
+* A) **Nouvelle demande pilote** (EPIC HF-*).
+* B) **CI réelle dogfooding** (job qui installe la CLI + rend un MP4).
+* C) Maintenance / dette résiduelle.
 
 == Points d'attention
 
 * **Local = Build, Tests = CI** : ne jamais lancer `test`/`check` en local.
 * **Règle 2 — PUBLISH** : accord pilote (accordé). **Règle 6 — ZÉRO secret**.
-* **English only** dans le code ; Gherkin EN.
+* **Version dérivée** : bumper `gradle/libs.versions.toml` (`hyperframes`) ET le
+  catalogue MEMPHIS (même valeur, garde `HyperframesPluginPublicationTest`).
 * Bridge réel : `node <cliScript> render <projectDir> --output <mp4>`.
 
 == Rappels techniques
 
 - **Rendu** : `RenderHyperframesTask` → `HyperFramesEngine.renderDetailed` (port N1).
-- **Dogfooding** : `hyperframes@0.8.155` (npm), Node v22, Chrome/ffmpeg présents.
 - Noyau partagé `education.cccp:video-kernel:0.2.0` (`video.kernel.*`).
+- Catalogue ws `education.cccp:workspace-catalog:0.0.90`.
 
 == Routes documents clés
 
 |===
 | Document | Chemin
-| Rapport S-022 | `.agents/sessions/022-df-functional-test-cache-dogfooding.adoc`
+| Rapport S-023 | `.agents/sessions/023-publication-0.0.4.adoc`
 | Cadrage kernel | `.agents/CADRAGE_EPIC_HF_KERNEL_ADAPTER.adoc`
 | Backlog | `BACKLOG.adoc`
 | Règles | `AGENT.adoc`

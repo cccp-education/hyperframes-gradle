@@ -1,6 +1,6 @@
 = COMPLETED_TASKS_ARCHIVE — hyperframes-gradle
 :date: 2026-05-31
-:last-updated: 2026-10-14 (session 022)
+:last-updated: 2026-10-14 (session 023)
 
 == Session 020 (2026-10-14) — VK-2 adoption `video-kernel 0.2.0` ✅
 
@@ -223,6 +223,14 @@
 | D-F | Source set `functionalTest` (convention 0.0.7) + 3 tests TestKit déplacés + CI scindée | ✅
 | D-F | `GenerateHyperframesHtmlTask` → `@CacheableTask` (Render/Collect non-cacheables) | ✅
 | Dogfooding | CLI réelle `hyperframes@0.8.155` → vrai MP4 ; bridge corrigé (`render <dir> --output`) ; version N3 du plugin (`HyperframesVersion`) | ✅
+|===
+
+== Tâches terminées (session 023 — 2026-10-14)
+
+|===
+| EPIC | Tâche | Statut
+| PUB | `hyperframes-plugin 0.0.4` publié Maven Central (bundle `79a6f808`) ; prérequis MEMPHIS `0.0.90` (catalogue `hyperframes-plugin 0.0.4`) | ✅
+| PUB | Pin catalogue `0.0.78 → 0.0.90` + plateforme BOM `0.0.90` + toml local `0.0.4` | ✅
 |===
 
 == Dette ouverte

@@ -1,0 +1,50 @@
+= Session 023 — Publication `hyperframes-plugin 0.0.4` (Maven Central)
+:session: 023
+:date: 2026-10-14
+:type: release
+:borough: Watts / hyperframes-gradle
+:statut: ✅ TERMINÉ — `0.0.4` publié Central
+:toc:
+
+== Mission
+
+Publier `hyperframes-plugin 0.0.4` (intègre S-018→S-022 + les 2 fixes dogfooding),
+après le prérequis MEMPHIS.
+
+== DAG N0 → N2
+
+1. **MEMPHIS S-293** (prérequis) : catalogue `hyperframes-plugin 0.0.3 → 0.0.4`
+   (+ `workspace-bom 0.0.89 → 0.0.90`), publié Central (bundle `bbaf36b3`), propagé
+   repo1. → débloque la version dérivée du plugin.
+2. **hyperframes** :
+   - `settings.gradle.kts` : pin catalogue `workspace-catalog:0.0.78 → 0.0.90`.
+   - `build.gradle.kts` : plateforme `workspace-bom:0.0.78 → 0.0.90` ;
+     `version = ws.versions.hyperframes.plugin.get()` résout **`0.0.4`**.
+   - `gradle/libs.versions.toml` : alias local `hyperframes = "0.0.3" → "0.0.4"`
+     (garde d'hygiène `HyperframesPluginPublicationTest` : local == catalogue publié).
+   - Compiles locaux VERTS (**Local = Build**) :
+     `compileKotlin compileTestKotlin compileFunctionalTestKotlin` ✅.
+   - `publishToMavenLocal` ✅.
+   - **Publication Central** : bundle **`79a6f808-591b-43b3-91b4-1f6aa3cd9dd5`** (AUTOMATIC).
+
+== Contenu de `0.0.4` (depuis `0.0.3`)
+
+- **HF-KERNEL-ADAPTER** : US-1 (défauts D-A→D-F + CI), US-2 (contrat N3 neutre
+  `engine`/`segments`), US-3 (rendu délégué à `VideoEngine`), US-4 partiel
+  (`VideoOutcome.durationSeconds` par sonde injectable), US-5 (BDD e2e).
+- **Dette D-F** : source set `functionalTest` + `@CacheableTask`.
+- **Fixes dogfooding** : bridge CLI `render <projectDir> --output <mp4>` ; version N3
+  du plugin (`HyperframesVersion`, manifeste jar).
+- Noyau `video-kernel 0.2.0` (package neutre `video.kernel.*`).
+
+== Gates
+
+- **Local = Build** : compiles ✅ ; **Tests = CI** `test-hyperframes.yml`.
+- **Propagation repo1 confirmée** : `hyperframes-plugin/0.0.4` (pom/jar/module) +
+  marker `education.cccp.hyperframes` HTTP 200.
+
+== Suite
+
+- Aligner les consommateurs éventuels (aucun consommateur runtime connu de
+  `hyperframes-plugin` — l'entrée catalogue sert l'alignement cross-borough).
+- EPIC HF-* / nouvelle demande pilote.

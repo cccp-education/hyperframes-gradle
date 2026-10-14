@@ -1,5 +1,17 @@
 = SESSIONS_HISTORY — hyperframes-gradle
 
+== Session 023 (2026-10-14) — Publication `hyperframes-plugin 0.0.4` (Maven Central)
+
+DAG N0→N2 : **MEMPHIS S-293** a publié le catalogue `0.0.90` portant
+`hyperframes-plugin 0.0.4` (bundle `bbaf36b3`, propagé). Côté hyperframes : pin catalogue
+`workspace-catalog:0.0.78 → 0.0.90`, plateforme `workspace-bom:0.0.78 → 0.0.90`, toml
+local `hyperframes 0.0.3 → 0.0.4` ; `version` résout **`0.0.4`**. Compiles VERTS
+(`compileKotlin compileTestKotlin compileFunctionalTestKotlin`), `publishToMavenLocal`
+VERT, **publication Central bundle `79a6f808-591b-43b3-91b4-1f6aa3cd9dd5`** (AUTOMATIC).
+Contenu depuis `0.0.3` : HF-KERNEL-ADAPTER (US-1→US-5), dette D-F, 2 fixes dogfooding
+(bridge `render <dir> --output` ; version N3 du plugin). Rapport
+`.agents/sessions/023-publication-0.0.4.adoc`. Zéro secret.
+
 == Session 022 (2026-10-14) — Dette D-F (functionalTest + cache) + dogfooding CLI réel
 
 **D-F** — source set **`functionalTest`** via la convention `education.cccp.build.functional-test`
