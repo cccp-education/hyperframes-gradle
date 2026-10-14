@@ -2,13 +2,13 @@
 :toc:
 
 _Règles absolues_ : voir `AGENT.adoc`
-_Derniere mise a jour_ : 2026-10-13 (Session 019 — **HF-KERNEL-ADAPTER US-2 ✅** : contrat N3 aligné sur le modèle neutre (`engine`, `segments`, durée mesurée). **CI verte** run `38455083938`.)
+_Derniere mise a jour_ : 2026-10-14 (Session 020 — **VK-2 : adoption `video-kernel 0.2.0`** (package neutre `video.kernel.*`, breaking coordonné) : pin + bascule imports. Compiles VERTS.)
 _DAG_ : N2 — Plugin Gradle de transformation documentaire AsciiDoc → vidéo MP4
 _Dépendance N2_ : codex-gradle (compileOnly, AsciidoctorJ partagé)
 _Bridge externe_ : HyperFrames CLI via le noyau `VideoEngine` (`node <cliScript> render`)
 
-_Dernière session terminée_ : 019 — **HF-KERNEL-ADAPTER US-2** : `engine` + `segments` (modèle neutre) + durée mesurée ajoutés au contrat N3. Rapport `.agents/sessions/019-hf-kernel-adapter-us2.adoc`.
-_Prochaine session_ : 020 — au choix : A) HF-KERNEL-ADAPTER US-4 (consommation du noyau : TTS/sous-titres/audio/config) ; B) US-5 (BDD e2e + dogfooding) ; C) dette D-F (cache/incremental) ; D) video-kernel geler `0.1.0` ou VK-3 (BOM).
+_Dernière session terminée_ : 020 — **VK-2 adoption `video-kernel 0.2.0`** : pin `0.1.0 → 0.2.0` + imports `capsule.kernel` → `video.kernel`. Rapport `.agents/sessions/020-vk2-video-kernel-0.2.0-adoption.adoc`.
+_Prochaine session_ : 021 — au choix : A) HF-KERNEL-ADAPTER US-4 (consommation du noyau : TTS/sous-titres/audio/config) ; B) US-5 (BDD e2e + dogfooding) ; C) dette D-F (cache/incremental).
 _Version publiée_ : 0.0.3 (Maven Central, bundle `5d48222c`) + Gradle Plugin Portal (en attente d'approbation)
 
 '''

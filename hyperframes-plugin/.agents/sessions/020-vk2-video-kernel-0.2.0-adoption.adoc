@@ -1,0 +1,33 @@
+= Session 020 — VK-2 : adoption `video-kernel 0.2.0` (package neutre `video.kernel.*`)
+:session: 020
+:date: 2026-10-14
+:type: maintenance / breaking coordonné
+:statut: TERMINÉ
+:borough: Watts
+
+== Mission
+
+Breaking coordonné (VK-2) : le noyau `video-kernel` est promu du préfixe
+historique `capsule.kernel.*` au package neutre **`video.kernel.*`**.
+HyperFrames, 2ᵉ moteur consommateur, bascule ses imports et son pin.
+
+== Livré
+
+* `hyperframes-plugin/gradle/libs.versions.toml` : `video-kernel 0.1.0 → 0.2.0`.
+* Bascule imports/comments dans `hyperframes-plugin/src` :
+  `capsule.kernel` → `video.kernel` (`RenderHyperframesTask`, `HyperFramesEngine`,
+  tests `HyperFramesEngineTest`/`HfKernelAdapterUs3Steps`).
+* `compileKotlin` + `compileTestKotlin` VERTS.
+
+== Contexte / DAG
+
+* Prérequis : `education.cccp:video-kernel:0.2.0` publié Central (bundle
+  `da095e64`, video-kernel S-194) et **propagé repo1** avant le push hyperframes.
+* Le port `VideoEngine`/`VideoRenderResult`/`VideoOutcome` reste identique — seul
+  le package change (ABI-equivalent à la casse des types près).
+
+== Notes
+
+* Prose historique (`.agents/sessions/015-019`, `SESSIONS_HISTORY`, `archives`)
+  conservée telle quelle.
+* Zéro secret, zéro Python. Aucun test modifié fonctionnellement.

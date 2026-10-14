@@ -1,6 +1,12 @@
 = COMPLETED_TASKS_ARCHIVE — hyperframes-gradle
 :date: 2026-05-31
-:last-updated: 2026-10-13 (session 019)
+:last-updated: 2026-10-14 (session 020)
+
+== Session 020 (2026-10-14) — VK-2 adoption `video-kernel 0.2.0` ✅
+
+* Pin `video-kernel 0.1.0 → 0.2.0` + imports `capsule.kernel` → `video.kernel`.
+* `compileKotlin` + `compileTestKotlin` VERTS.
+* Rapport `.agents/sessions/020-vk2-video-kernel-0.2.0-adoption.adoc`.
 
 == Tâches terminées (session 000 — 2026-05-31)
 

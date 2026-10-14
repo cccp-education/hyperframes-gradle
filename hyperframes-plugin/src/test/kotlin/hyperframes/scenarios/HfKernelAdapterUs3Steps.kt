@@ -7,7 +7,7 @@ import org.assertj.core.api.Assertions.assertThat
 
 /**
  * HF-KERNEL-ADAPTER US-3 — Cucumber steps: `renderHyperframes` delegates the CLI
- * render to the shared `capsule.kernel.VideoEngine` adapter (`HyperFramesEngine`).
+ * render to the shared `video.kernel.VideoEngine` adapter (`HyperFramesEngine`).
  *
  * All steps are English (BDD Gherkin convention).
  */

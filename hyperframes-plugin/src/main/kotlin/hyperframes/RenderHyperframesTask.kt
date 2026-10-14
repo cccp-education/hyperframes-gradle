@@ -1,7 +1,7 @@
 package hyperframes
 
-import capsule.kernel.FileVisualSource
-import capsule.kernel.VideoRenderRequest
+import video.kernel.FileVisualSource
+import video.kernel.VideoRenderRequest
 import hyperframes.kernel.HyperFramesEngine
 import hyperframes.kernel.HyperFramesEngineConfig
 import org.gradle.api.DefaultTask
@@ -25,7 +25,7 @@ private class HyperframesException(message: String) : RuntimeException(message)
  * Tâche Gradle qui rend le HTML HyperFrames en MP4 via le **noyau partagé**.
  *
  * HF-2 : bridge CLI `node <cliScript> render`.
- * US-3 (S-018) : la tâche **délègue** au port `capsule.kernel.VideoEngine`
+ * US-3 (S-018) : la tâche **délègue** au port `video.kernel.VideoEngine`
  * (`HyperFramesEngine`) — plus de CLI dupliquée. La tâche porte les diagnostics
  * Gradle (timeout, code de sortie, sortie CLI, fichier manquant/vide).
  *
@@ -94,7 +94,7 @@ abstract class RenderHyperframesTask : DefaultTask() {
         logger.lifecycle("   Timeout         : ${renderTimeoutMs.get()}ms")
 
         // US-3 (S-018) — delegate the whole-document render to the shared-kernel
-        // adapter (`HyperFramesEngine : capsule.kernel.VideoEngine`). The task owns
+        // adapter (`HyperFramesEngine : video.kernel.VideoEngine`). The task owns
         // the Gradle-facing diagnostics; the engine owns the CLI invocation.
         val engine = HyperFramesEngine(
             HyperFramesEngineConfig(

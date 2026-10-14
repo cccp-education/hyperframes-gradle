@@ -13,7 +13,7 @@ via le moteur HyperFrames (HeyGen, Apache 2.0), sans post-production humaine.
 '''
 == Spike fitness noyau (S-016) ✅
 
-`HyperFramesEngine` implémente `capsule.kernel.VideoEngine` (`video-kernel:0.0.2`,
+`HyperFramesEngine` implémente `video.kernel.VideoEngine` (`video-kernel:0.0.2`,
 rendu document-entier). Port **valide** ; **gap confirmé** : `VideoOutcome` manquant
 (durée/dims/taille/codec) pour une orchestration uniforme. Doc
 `.agents/sessions/016-spike-fitness-noyau.adoc`.
@@ -135,9 +135,11 @@ _Préparer hyperframes à devenir le **2ᵉ adaptateur** du **noyau vidéo parta
 (`video-kernel`) extrait de capsule (`CAP-ENGINE-DECOUPLING`). **S-017** : défauts
 D-A→D-F corrigés. **S-018** : le rendu **délègue** au port `VideoEngine`
 (`HyperFramesEngine`) — plus de CLI dupliquée. **S-019** : contrat N3 aligné sur le
-modèle neutre (`engine`, `segments`, durée mesurée). Restent US-4 (consommation
-complète du noyau : TTS/sous-titres/audio/config) et US-5 (BDD e2e + dogfooding).
-Décision pilote : mutualisation anticipée (pas d'attente du seuil « factoriser à 3 »)._
+modèle neutre (`engine`, `segments`, durée mesurée). **S-020** : adoption `video-kernel
+0.2.0` (package neutre `video.kernel.*`, VK-2 breaking coordonné). Restent US-4
+(consommation complète du noyau : TTS/sous-titres/audio/config) et US-5 (BDD e2e +
+dogfooding). Décision pilote : mutualisation anticipée (pas d'attente du seuil
+« factoriser à 3 »)._
 
 [cols="1,3,1,1", options="header"]
 |===

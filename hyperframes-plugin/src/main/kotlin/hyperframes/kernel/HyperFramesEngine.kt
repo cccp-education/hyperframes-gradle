@@ -1,9 +1,9 @@
 package hyperframes.kernel
 
-import capsule.kernel.VideoEngine
-import capsule.kernel.VideoOutcome
-import capsule.kernel.VideoRenderRequest
-import capsule.kernel.VideoRenderResult
+import video.kernel.VideoEngine
+import video.kernel.VideoOutcome
+import video.kernel.VideoRenderRequest
+import video.kernel.VideoRenderResult
 import java.io.File
 import java.util.concurrent.TimeUnit
 

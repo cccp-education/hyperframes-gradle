@@ -1,7 +1,7 @@
 package hyperframes.kernel
 
-import capsule.kernel.FileVisualSource
-import capsule.kernel.VideoRenderRequest
+import video.kernel.FileVisualSource
+import video.kernel.VideoRenderRequest
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertNull
@@ -11,7 +11,7 @@ import org.junit.jupiter.api.io.TempDir
 import java.io.File
 
 /**
- * SPIKE — HyperFrames engine implements the shared `capsule.kernel.VideoEngine`
+ * SPIKE — HyperFrames engine implements the shared `video.kernel.VideoEngine`
  * port (video-kernel 0.0.2). Verifies the neutral contract fits a whole-document
  * engine with no segments/durations/viewport.
  */

@@ -1,6 +1,18 @@
 = Test Coverage Analysis — hyperframes-gradle
 
-_Dernière mise à jour_ : 2026-10-13 (Session 019 — HF-KERNEL-ADAPTER US-2 : contrat N3 neutre `engine`/`segments`)
+_Dernière mise à jour_ : 2026-10-14 (Session 020 — VK-2 adoption `video-kernel 0.2.0`)
+
+== Couverture — 14 octobre 2026 (après session 020)
+
+.VK-2 — adoption `video-kernel 0.2.0` (package neutre `video.kernel.*`)
+|===
+| Élément | Changement | Tests
+
+| `hyperframes/RenderHyperframesTask.kt`, `hyperframes/kernel/HyperFramesEngine.kt` | imports `capsule.kernel` → `video.kernel` (pin `0.1.0 → 0.2.0`) | suites existantes inchangées (compilent contre 0.2.0)
+| `hyperframes/kernel/HyperFramesEngineTest.kt`, `hyperframes/scenarios/HfKernelAdapterUs3Steps.kt` | imports basculés | inchangés
+|===
+
+Aucun test créé/supprimé — renommage de package uniquement.
 
 == Couverture — 13 octobre 2026 (après session 019)
 

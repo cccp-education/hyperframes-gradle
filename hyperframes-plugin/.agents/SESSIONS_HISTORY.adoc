@@ -1,5 +1,16 @@
 = SESSIONS_HISTORY — hyperframes-gradle
 
+== Session 020 (2026-10-14) — VK-2 adoption `video-kernel 0.2.0` (package neutre)
+
+Breaking coordonné : le noyau `video-kernel` est promu du préfixe historique
+`capsule.kernel.*` au package neutre **`video.kernel.*`** (video-kernel S-194).
+HyperFrames aligné : `gradle/libs.versions.toml` `video-kernel 0.1.0 → 0.2.0` +
+bascule imports `capsule.kernel` → `video.kernel` (`RenderHyperframesTask`,
+`HyperFramesEngine`, `HyperFramesEngineTest`, `HfKernelAdapterUs3Steps`). Port
+`VideoEngine`/`VideoRenderResult`/`VideoOutcome` inchangé (ABI-equivalent).
+`compileKotlin` + `compileTestKotlin` VERTS. Rapport
+`.agents/sessions/020-vk2-video-kernel-0.2.0-adoption.adoc`.
+
 == Session 019 (2026-10-13) — HF-KERNEL-ADAPTER US-2 (contrat N3 aligné sur le modèle neutre)
 
 Contrat N3 (`composite-context.json`/`metadata.json`) enrichi **additivement** :
