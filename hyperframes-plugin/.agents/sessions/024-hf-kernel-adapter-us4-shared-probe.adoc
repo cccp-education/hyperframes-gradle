@@ -1,0 +1,50 @@
+= Session 024 — HF-KERNEL-ADAPTER US-4 : consommation du noyau partagé (probe de durée)
+:session: 024
+:date: 2026-10-14
+:type: refactor
+:borough: Watts / hyperframes-gradle
+:statut: ✅ TERMINÉ — port `VideoDurationProbe` partagé adopté
+:toc:
+
+== Mission
+
+Session transverse S-195/S-024 (video-kernel + hyperframes + capsule). Clore
+`HF-KERNEL-ADAPTER US-4` (« consommer le noyau partagé : TTS/sous-titres/audio/
+durée/config »), laissé **partiel** par le cadrage S-021.
+
+== Décision d'architecture
+
+Le cadrage S-021 excluait TTS/audio/sous-titres du noyau en confondant **ports**
+et **implémentations**. Le cadrage `video-kernel/.agents/CADRAGE_EPIC_VK_SHARED_PORTS.adoc`
+tranche : le noyau N1 héberge les **ports** engine-neutres ; les implémentations
+(binaires externes) restent N2. La garde `video.ci.KernelBoundaryAudit` interdit
+`processbuilder` dans le noyau → seule l'interface + un parseur **pur** montent en N1.
+
+== Livré
+
+- **Noyau `video-kernel 0.3.0`** : `video.kernel.VideoDurationProbe` (fun interface)
+  + `video.kernel.FfprobeDurationParser` (objet pur). Publié Central (bundle
+  `892b2756`).
+- **hyperframes** :
+  - `video-kernel 0.2.0 → 0.3.0` (toml local).
+  - Le port local `hyperframes.contract.VideoDurationProbe` et le parseur local
+    sont **supprimés** au profit du noyau.
+  - `hyperframes.contract.FfprobeDurationProbe` (N2, `ProcessBuilder`) implémente
+    désormais `video.kernel.VideoDurationProbe` et réutilise
+    `video.kernel.FfprobeDurationParser` ; le seam `ProbeRunner` est conservé ici.
+  - `HyperFramesEngineConfig.durationProbe` typé `VideoDurationProbe` (défaut
+    `VideoDurationProbe { 0.0 }`).
+  - `RenderHyperframesTask` / `CollectHyperframesRetrieveTask` / `HyperFramesEngineTest`
+    adaptés (SAM).
+
+== Gates
+
+- **Local = Build** : `compileKotlin` + `compileTestKotlin` + `compileFunctionalTestKotlin`
+  VERTS.
+- **Tests = CI** : `test-hyperframes.yml` après push (suite unit + functional + cucumber).
+
+== Suite
+
+- US-4b→d **conditionnels** : ports audio-post / sous-titres / TTS — aucun second
+  consommateur (hyperframes délègue l'audio à la CLI) → non démarrés (cadrage D2).
+- MEMPHIS BOM/catalog `video-kernel 0.3.0` (prochain amont, non bloquant).

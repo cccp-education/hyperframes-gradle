@@ -2,6 +2,7 @@ package hyperframes.contract
 
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
+import video.kernel.FfprobeDurationParser
 import java.io.File
 import java.nio.file.Path
 import kotlin.test.assertEquals

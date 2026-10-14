@@ -1,7 +1,17 @@
 package hyperframes.contract
 
+import video.kernel.FfprobeDurationParser
+import video.kernel.VideoDurationProbe
 import java.io.File
 import java.util.concurrent.TimeUnit
+
+/**
+ * Seam (D-C, S-017) over the `ffprobe` process — test-injectable.
+ * Returns the captured standard output, or an empty string on failure.
+ */
+fun interface ProbeRunner {
+    fun run(argv: List<String>, timeoutMillis: Long): String
+}
 
 /**
  * Default [ProbeRunner] — spawns `ffprobe` via [ProcessBuilder].
@@ -31,6 +41,12 @@ class ProcessBuilderProbeRunner : ProbeRunner {
 
 /**
  * `ffprobe`-backed [VideoDurationProbe] (D-C, S-017).
+ *
+ * VK-4 US-4a — this N2 adapter now **implements the shared N1 port**
+ * ([video.kernel.VideoDurationProbe]) and reuses the kernel's pure
+ * [FfprobeDurationParser], so hyperframes and capsule parse ffprobe output
+ * identically. The kernel forbids `ProcessBuilder`
+ * (`video.ci.KernelBoundaryAudit`), so the external-process coupling stays here.
  *
  * Degrades to `0.0` when `ffprobe` is missing, fails, or returns an unparsable
  * value — a build must never fail because an optional prober is unavailable.

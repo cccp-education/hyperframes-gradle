@@ -1,7 +1,7 @@
-= PROMPT_REPRISE — HyperFrames Gradle (Session 023 TERMINÉE → 024)
-:session: 023
+= PROMPT_REPRISE — HyperFrames Gradle (Session 024 TERMINÉE → 025)
+:session: 024
 :date: 2026-10-14
-:status: ✅ TERMINÉ — publication `hyperframes-plugin 0.0.4` (Maven Central)
+:status: ✅ TERMINÉ — HF-KERNEL-ADAPTER US-4 : port partagé `VideoDurationProbe` adopté
 :borough: Watts
 
 '''
@@ -9,48 +9,53 @@
 
 Plugin Gradle fonctionnel : AsciiDoc → AsciidoctorJ → HTML enrichi → CLI Node → MP4
 (via le noyau `VideoEngine`). EPICs HF-0→HF-7 ✅. **`HF-KERNEL-ADAPTER` ✅ TERMINÉ**
-(US-1→US-5 + dette D-F + dogfooding réel). **Version publiée `0.0.4`** (Maven Central,
-bundle `79a6f808`). Noyau `education.cccp:video-kernel:0.2.0`. Catalogue ws `0.0.90` /
-BOM plateforme `0.0.90`. **CI** `.github/workflows/test-hyperframes.yml`.
+(US-1→US-5 + US-4 clos S-024). **Version publiée `0.0.4`** (Maven Central,
+bundle `79a6f808`). Noyau **`education.cccp:video-kernel:0.3.0`** (port partagé
+`VideoDurationProbe`). Catalogue ws `0.0.90` / BOM plateforme `0.0.90`.
+**CI** `.github/workflows/test-hyperframes.yml`.
 
-== Fait en session 023
+== Fait en session 024
 
-. **Prérequis MEMPHIS S-293** : catalogue `0.0.90` portant `hyperframes-plugin 0.0.4`
-   (bundle `bbaf36b3`, propagé repo1).
-. **hyperframes** : pin catalogue `workspace-catalog:0.0.78 → 0.0.90` ; plateforme
-   `workspace-bom:0.0.78 → 0.0.90` ; toml local `hyperframes 0.0.3 → 0.0.4` ;
-   `version` résout `0.0.4`. Compiles VERTS, `publishToMavenLocal` VERT.
-. **Publication Central** : bundle `79a6f808-591b-43b3-91b4-1f6aa3cd9dd5` (AUTOMATIC),
-   propagation repo1 HTTP 200 ; **CI verte run `38501238436`** ; prérequis MEMPHIS
-   `runAllTests` run `38500988298` ✅.
-. Rapport `.agents/sessions/023-publication-0.0.4.adoc`.
+. **US-4 (clôture)** — le port de durée est promu au noyau partagé
+   (`video.kernel.VideoDurationProbe` + `video.kernel.FfprobeDurationParser`,
+   `video-kernel 0.3.0`, publié Central bundle `892b2756`).
+   - hyperframes : `video-kernel 0.2.0 → 0.3.0` (toml local) ;
+     port/parseur locaux **supprimés** → noyau ; `FfprobeDurationProbe` (N2)
+     implémente le port noyau ; `HyperFramesEngineConfig.durationProbe:
+     VideoDurationProbe`.
+   - Compiles VERTS (`compileKotlin compileTestKotlin compileFunctionalTestKotlin`).
+. Rapport `.agents/sessions/024-hf-kernel-adapter-us4-shared-probe.adoc`.
 
-== Mission Session 024 — au choix (pilote)
+== Mission Session 025 — au choix (pilote)
 
 * A) **Nouvelle demande pilote** (EPIC HF-*).
-* B) **CI réelle dogfooding** (job qui installe la CLI + rend un MP4).
+* B) **EPIC HF-CR3** — rendu réel CI (vendoriser GSAP HF-CR3-1 ; job CI full
+  rendu + probe HF-CR3-2 ; test rendu réel HF-CR3-3).
 * C) Maintenance / dette résiduelle.
 
 == Points d'attention
 
 * **Local = Build, Tests = CI** : ne jamais lancer `test`/`check` en local.
-* **Règle 2 — PUBLISH** : accord pilote (accordé). **Règle 6 — ZÉRO secret**.
+* **Règle 2 — PUBLISH** : accord pilote. **Règle 6 — ZÉRO secret**.
 * **Version dérivée** : bumper `gradle/libs.versions.toml` (`hyperframes`) ET le
   catalogue MEMPHIS (même valeur, garde `HyperframesPluginPublicationTest`).
-* Bridge réel : `node <cliScript> render <projectDir> --output <mp4>`.
+* Le noyau est consommé depuis **Maven Central** (propagation repo1 avant push —
+  piège DAG R-1).
 
 == Rappels techniques
 
 - **Rendu** : `RenderHyperframesTask` → `HyperFramesEngine.renderDetailed` (port N1).
-- Noyau partagé `education.cccp:video-kernel:0.2.0` (`video.kernel.*`).
+- Noyau partagé `education.cccp:video-kernel:0.3.0` (`video.kernel.*`),
+  **incl. `VideoDurationProbe`**.
 - Catalogue ws `education.cccp:workspace-catalog:0.0.90`.
 
 == Routes documents clés
 
 |===
 | Document | Chemin
-| Rapport S-023 | `.agents/sessions/023-publication-0.0.4.adoc`
-| Cadrage kernel | `.agents/CADRAGE_EPIC_HF_KERNEL_ADAPTER.adoc`
+| Rapport S-024 | `.agents/sessions/024-hf-kernel-adapter-us4-shared-probe.adoc`
+| Cadrage kernel (amont) | `.agents/CADRAGE_EPIC_HF_KERNEL_ADAPTER.adoc`
+| Cadrage ports noyau | `../../video-kernel-gradle/video-kernel-plugin/.agents/CADRAGE_EPIC_VK_SHARED_PORTS.adoc`
 | Backlog | `BACKLOG.adoc`
 | Règles | `AGENT.adoc`
 |===

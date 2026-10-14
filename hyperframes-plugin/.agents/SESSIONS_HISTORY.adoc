@@ -1,5 +1,23 @@
 = SESSIONS_HISTORY — hyperframes-gradle
 
+== Session 024 (2026-10-14) — HF-KERNEL-ADAPTER US-4 : port partagé `VideoDurationProbe`
+
+Session **transverse** (video-kernel + hyperframes + capsule). Clôture de
+`HF-KERNEL-ADAPTER US-4`, laissé **partiel** par S-021. Décision d'architecture
+(cadrage `video-kernel/.agents/CADRAGE_EPIC_VK_SHARED_PORTS.adoc`) : le noyau N1
+héberge les **ports** engine-neutres, pas les implémentations (garde
+`KernelBoundaryAudit` interdit `processbuilder`).
+
+Livré : **noyau `video-kernel 0.3.0`** — `video.kernel.VideoDurationProbe`
+(fun interface) + `video.kernel.FfprobeDurationParser` (pur) ; manifeste d'API
+14 types ; publication Central bundle `892b2756` (AUTOMATIC), propagation repo1
+confirmée. **hyperframes** : `video-kernel 0.2.0 → 0.3.0` (toml local) ; port et
+parseur locaux supprimés → noyau ; `FfprobeDurationProbe` (N2, `ProcessBuilder`)
+implémente le port noyau ; `HyperFramesEngineConfig.durationProbe: VideoDurationProbe`.
+**capsule** : `capsule.validation.FfprobeDurationProbe` + `MediaProbeUtil` délègue.
+Compiles VERTS (`compileKotlin compileTestKotlin compileFunctionalTestKotlin`).
+Rapport `.agents/sessions/024-hf-kernel-adapter-us4-shared-probe.adoc`. Zéro secret.
+
 == Session 023 (2026-10-14) — Publication `hyperframes-plugin 0.0.4` (Maven Central)
 
 DAG N0→N2 : **MEMPHIS S-293** a publié le catalogue `0.0.90` portant

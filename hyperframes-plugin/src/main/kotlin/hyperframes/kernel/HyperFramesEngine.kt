@@ -1,5 +1,6 @@
 package hyperframes.kernel
 
+import video.kernel.VideoDurationProbe
 import video.kernel.VideoEngine
 import video.kernel.VideoOutcome
 import video.kernel.VideoRenderRequest
@@ -27,9 +28,11 @@ data class HyperFramesProcessResult(
  * @property nodeExecutable resolved `node` binary.
  * @property cliScript      the HyperFrames CLI script (npm package).
  * @property timeoutMillis  default CLI timeout.
- * @property durationProbe  US-4 (S-021) — measures the produced video duration in
- *                          seconds so [VideoOutcome.durationSeconds] is filled (the
- *                          CLI does not report it). Defaults to unknown (`0.0`).
+ * @property durationProbe  US-4 (S-021/S-195) — measures the produced video
+ *                          duration in seconds so [VideoOutcome.durationSeconds]
+ *                          is filled (the CLI does not report it). Shared N1
+ *                          port ([VideoDurationProbe]); defaults to unknown
+ *                          (`0.0`).
  */
 data class HyperFramesEngineConfig(
     val nodeExecutable: String,
@@ -38,7 +41,7 @@ data class HyperFramesEngineConfig(
     val width: Int = 0,
     val height: Int = 0,
     val codec: String = "h264",
-    val durationProbe: (File) -> Double = { 0.0 },
+    val durationProbe: VideoDurationProbe = VideoDurationProbe { 0.0 },
 )
 
 /**
@@ -114,7 +117,7 @@ open class HyperFramesEngine(
             // probe measures it so the neutral outcome is complete for a generic
             // orchestrator (parity with capsule's reveal adapter).
             VideoOutcome(
-                durationSeconds = config.durationProbe(it),
+                durationSeconds = config.durationProbe.probeSeconds(it),
                 width = config.width,
                 height = config.height,
                 sizeBytes = it.length(),

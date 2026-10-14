@@ -1,6 +1,14 @@
 = COMPLETED_TASKS_ARCHIVE — hyperframes-gradle
 :date: 2026-05-31
-:last-updated: 2026-10-14 (session 023)
+:last-updated: 2026-10-14 (session 024)
+
+== Session 024 (2026-10-14) — HF-KERNEL-ADAPTER US-4 : port partagé `VideoDurationProbe` ✅
+
+* Noyau `video-kernel 0.3.0` : `VideoDurationProbe` (port) + `FfprobeDurationParser` (pur).
+* hyperframes : `video-kernel 0.3.0` ; port/parseur locaux supprimés → noyau ;
+  `FfprobeDurationProbe` (N2) implémente le port noyau.
+* `HyperFramesEngineConfig.durationProbe: VideoDurationProbe` ; compiles VERTS.
+* Rapport `.agents/sessions/024-hf-kernel-adapter-us4-shared-probe.adoc`.
 
 == Session 020 (2026-10-14) — VK-2 adoption `video-kernel 0.2.0` ✅
 
