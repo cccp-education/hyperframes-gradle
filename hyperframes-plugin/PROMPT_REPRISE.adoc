@@ -33,7 +33,7 @@ US-3 ✅ S-018** (US-4/US-5 À FAIRE). Version `0.0.3` (Maven Central). Catalogu
 
 Le noyau a été gelé + publié `0.1.0` (Maven Central, bundle `ccbb1f82`, S-193).
 **hyperframes aligné** : `gradle/libs.versions.toml` `video-kernel 0.0.3 → 0.1.0`
-(résolution `0.1.0` vérifiée ; ABI inchangé). Aucun autre changement.
+(résolution `0.1.0` vérifiée ; ABI inchangé). Aucun autre changement. CI ✅ (run `38489719814`).
 
 == Mission Session 020 — au choix (pilote)
 
