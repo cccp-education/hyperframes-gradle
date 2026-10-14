@@ -2,6 +2,7 @@ package hyperframes
 
 import video.kernel.FileVisualSource
 import video.kernel.VideoRenderRequest
+import hyperframes.contract.FfprobeDurationProbe
 import hyperframes.kernel.HyperFramesEngine
 import hyperframes.kernel.HyperFramesEngineConfig
 import org.gradle.api.DefaultTask
@@ -67,6 +68,15 @@ abstract class RenderHyperframesTask : DefaultTask() {
     @get:Input
     abstract val height: Property<Int>
 
+    /**
+     * US-4 (S-021) — optional `ffprobe` executable used to fill the neutral
+     * outcome duration (`VideoOutcome.durationSeconds`). Absent → `ffprobe` on the
+     * PATH; unavailable → degraded `0.0` (never a build failure).
+     */
+    @get:Input
+    @get:Optional
+    abstract val ffprobeExecutable: Property<String>
+
     @TaskAction
     fun render() {
         val outputDirFile = outputDir.asFile.get()
@@ -103,6 +113,9 @@ abstract class RenderHyperframesTask : DefaultTask() {
                 timeoutMillis = renderTimeoutMs.get(),
                 width = width.get(),
                 height = height.get(),
+                durationProbe = { file ->
+                    FfprobeDurationProbe(ffprobeExecutable.orNull ?: "ffprobe").probeSeconds(file)
+                },
             )
         )
         val request = VideoRenderRequest(

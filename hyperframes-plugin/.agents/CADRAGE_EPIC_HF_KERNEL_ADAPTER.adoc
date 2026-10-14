@@ -101,3 +101,27 @@ démarrer immédiatement** (autonome).
 * Review code des deux boroughs (S-184, inventaire 16 vs 190 fichiers).
 * `hyperframes-plugin/.agents/INDEX.adoc`, `BACKLOG.adoc`.
 * Côté Détroit : `capsule-plugin/.agents/CADRAGE_EPIC_CAP_ENGINE_DECOUPLING.adoc`.
+
+== Mise à jour S-021 — périmètre de US-4 (durée/config ; TTS/audio/sous-titres hors noyau)
+
+_Statut EPIC (S-021)_ : US-0 ✅ S-015 · US-1 ✅ S-017 · US-2 ✅ S-019 · US-3 ✅ S-018 ·
+US-4 **partiel** (périmètre noyau) · US-5 ✅ S-021. Le noyau est gelé + publié
+`video-kernel:0.2.0` (package neutre `video.kernel.*`, S-194).
+
+**Décision S-021** — le noyau `video-kernel` est un **contrat pur** (modèle + ports,
+garde `video.ci.KernelBoundaryTest`), sans dépendance Gradle ni moteur. Les facettes
+**TTS / sous-titres / audio** sont des **N2** (moteurs concrets) : les porter dans le
+noyau violerait la doctrine « N0/N1 = contrats purs » et le précédent LLM-RESILIENCE N0
+CADUQUE (S-162). Elles sont donc **HORS SCOPE du noyau** — hyperframes ne peut les
+consommer que via un EPIC N2→N2 (interdit par le DAG).
+
+**Facettes noyau-compatibles livrées (US-4, S-021)** :
+- **durée** — `HyperFramesEngineConfig.durationProbe` (sonde injectable) → l'adapter
+  remplit `VideoOutcome.durationSeconds` (parité avec l'adapter reveal de capsule) ;
+- **config** — `ffprobeExecutable` câblé à la tâche de rendu ; dégradation `0.0`.
+
+**US-5 (S-021)** — BDD e2e via `hyperframesPipeline` (generate → render → collect),
+CLI + sonde stubbées ; `hf_pipeline_e2e.feature`. Dogfooding réel (CLI npm) conditionné
+à l'environnement/accord.
+
+_Reste_ : dette D-F (cache/incremental profond + source set `functionalTest`).

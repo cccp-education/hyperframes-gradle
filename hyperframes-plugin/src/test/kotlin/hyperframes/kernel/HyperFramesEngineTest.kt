@@ -135,4 +135,33 @@ class HyperFramesEngineTest {
         assertEquals(direct.produced?.name, detailed.produced?.name)
         assertEquals(direct.outcome?.width, detailed.outcome?.width)
     }
+
+    // ──────────────────────────────────────────────
+    // US-4 (S-021) — neutral outcome duration via the injected probe
+    // ──────────────────────────────────────────────
+
+    @Test
+    fun `renderDetailed fills the outcome duration from the injected probe`() {
+        val engine = HyperFramesEngine(
+            config().copy(durationProbe = { 42.5 }),
+            runner = { argv, _, _ ->
+                val outputPath = argv[argv.indexOf("--output") + 1]
+                File(outputPath).apply { parentFile?.mkdirs(); writeText("fake-mp4") }
+                HyperFramesProcessResult(exitCode = 0)
+            },
+        )
+
+        assertEquals(42.5, engine.renderDetailed(request()).result.outcome?.durationSeconds)
+    }
+
+    @Test
+    fun `renderDetailed reports zero duration when no probe is wired (degraded)`() {
+        val engine = HyperFramesEngine(config(), runner = { argv, _, _ ->
+            val outputPath = argv[argv.indexOf("--output") + 1]
+            File(outputPath).apply { parentFile?.mkdirs(); writeText("fake-mp4") }
+            HyperFramesProcessResult(exitCode = 0)
+        })
+
+        assertEquals(0.0, engine.renderDetailed(request()).result.outcome?.durationSeconds)
+    }
 }

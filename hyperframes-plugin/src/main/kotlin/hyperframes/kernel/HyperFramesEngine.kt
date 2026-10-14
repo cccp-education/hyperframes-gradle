@@ -27,6 +27,9 @@ data class HyperFramesProcessResult(
  * @property nodeExecutable resolved `node` binary.
  * @property cliScript      the HyperFrames CLI script (npm package).
  * @property timeoutMillis  default CLI timeout.
+ * @property durationProbe  US-4 (S-021) — measures the produced video duration in
+ *                          seconds so [VideoOutcome.durationSeconds] is filled (the
+ *                          CLI does not report it). Defaults to unknown (`0.0`).
  */
 data class HyperFramesEngineConfig(
     val nodeExecutable: String,
@@ -35,6 +38,7 @@ data class HyperFramesEngineConfig(
     val width: Int = 0,
     val height: Int = 0,
     val codec: String = "h264",
+    val durationProbe: (File) -> Double = { 0.0 },
 )
 
 /**
@@ -103,10 +107,11 @@ open class HyperFramesEngine(
             null
         }
         val outcome = produced?.let {
-            // duration is unknown here (the CLI does not report it); a consumer
-            // that needs it probes the file or reads the N3 parse context.
+            // US-4 (S-021) — the CLI does not report the duration; the injected
+            // probe measures it so the neutral outcome is complete for a generic
+            // orchestrator (parity with capsule's reveal adapter).
             VideoOutcome(
-                durationSeconds = 0.0,
+                durationSeconds = config.durationProbe(it),
                 width = config.width,
                 height = config.height,
                 sizeBytes = it.length(),

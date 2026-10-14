@@ -1,0 +1,61 @@
+= Session 021 — HF-KERNEL-ADAPTER US-4 (durée partagée) + US-5 (BDD e2e)
+:session: 021
+:date: 2026-10-14
+:type: feat + test
+:borough: Watts / hyperframes-gradle
+:epic: HF-KERNEL-ADAPTER
+:us: US-4 (partiel — périmètre noyau) + US-5
+:statut: ✅ US-5 TERMINÉ ; 🟡 US-4 partiel (durée+config ; TTS/audio/sous-titres hors noyau)
+:toc:
+
+== Mission
+
+US-4 « consommer le noyau partagé (TTS/sous-titres/audio/durée/config) » et US-5
+« BDD e2e + dogfooding ». Méthode baby-step DDD/TDD/BDD. **Local = Build, Tests = CI**.
+
+== US-4 — périmètre réel (cadrage)
+
+Le noyau `video-kernel` est un **contrat pur** (modèle + ports), sans dépendance
+Gradle ni moteur (garde `video.ci.KernelBoundaryTest`). Les capacités **TTS,
+sous-titres et audio** sont des **N2** (moteurs concrets) — les faire porter par le
+noyau violerait la doctrine (« N0/N1 = contrats purs ») et le précédent LLM-RESILIENCE
+N0 CADUQUE (S-162). **Décision** : ces facettes sont **HORS SCOPE du noyau** ; elles
+restent des capacités de capsule (N2) et ne peuvent être « consommées » par
+hyperframes que via un EPIC N2→N2 interdit par le DAG.
+
+**Facettes réellement noyau-compatibles** — livrées ici :
+- **durée** : l'adapter `HyperFramesEngine` remplit désormais
+  `VideoOutcome.durationSeconds` via une sonde **injectable** (`HyperFramesEngineConfig.durationProbe`)
+  → parité avec l'adapter reveal de capsule (un orchestrateur générique lit une
+  `VideoOutcome` **complète**, quelle que soit la source).
+- **config** : `ffprobeExecutable` câblé à la tâche de rendu (comme la collecte) ;
+  dégradation `0.0` si `ffprobe` absent (jamais d'échec).
+
+== US-5 — BDD e2e
+
+Scénario acceptation de bout en bout via la tâche de cycle de vie `hyperframesPipeline`
+(generate → render → collect), CLI et sonde **stubbées** :
+`hf_pipeline_e2e.feature` (1 scénario) + `HfKernelAdapterUs5Steps` + `HyperframesWorld` :
+le pipeline produit `index.html`, `<name>.mp4` et `composite-context.json` ; le contrat
+N3 porte `durationSeconds = 30.0` (sonde stub) et `engine = "hyperframes"`.
+Le **dogfooding réel** (CLI HyperFrames npm + réseau) reste conditionné à
+l'environnement/accord — non exercé ici.
+
+== Livrables
+
+.Production* — `HyperFramesEngineConfig.durationProbe` + `renderDetailed` (durée) ;
+`RenderHyperframesTask.ffprobeExecutable` + wiring `HyperframesPlugin`.
+.Tests* — `HyperFramesEngineTest` (+2 unit : durée injectée / dégradée) ;
+`hf_pipeline_e2e.feature` (1 scénario) + `HfKernelAdapterUs5Steps`.
+
+== Gates
+
+- **Local = Build** : `./gradlew compileKotlin compileTestKotlin` ✅ BUILD SUCCESSFUL.
+- **Tests = CI** : `.github/workflows/test-hyperframes.yml`.
+- **Zéro secret** ; **English only** dans le code ajouté ; Gherkin EN.
+
+== Suite
+
+- **Dette D-F** : cache/incremental réel + source set `functionalTest`.
+- **Dogfooding** US-5 (CLI réel) — accord/environnement.
+- HF-KERNEL-ADAPTER : US-0→US-3 ✅, US-4 partiel (périmètre noyau), US-5 ✅.

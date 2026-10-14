@@ -1,5 +1,26 @@
 = SESSIONS_HISTORY — hyperframes-gradle
 
+== Session 021 (2026-10-14) — HF-KERNEL-ADAPTER US-4 (durée) + US-5 (BDD e2e)
+
+**US-4 (périmètre noyau)** — l'adapter `HyperFramesEngine` remplit désormais
+`VideoOutcome.durationSeconds` via une sonde **injectable**
+(`HyperFramesEngineConfig.durationProbe`), donnant la **parité** avec l'adapter reveal
+de capsule (un orchestrateur générique lit une `VideoOutcome` complète, quelle que soit
+la source). `ffprobeExecutable` câblé à `RenderHyperframesTask` (dégradation `0.0` si
+absent). **TTS / sous-titres / audio** sont des **N2** (moteurs concrets) et restent
+**hors scope du noyau** (contrat pur — doctrine ; précédent LLM-RESILIENCE N0 CADUQUE
+S-162). Décision consignée dans le cadrage.
+
+**US-5 (BDD e2e)** — `hf_pipeline_e2e.feature` (1 scénario) + `HfKernelAdapterUs5Steps` :
+le pipeline complet `hyperframesPipeline` (generate → render → collect), CLI et sonde
+**stubbées**, produit `index.html`, `<name>.mp4`, `composite-context.json` avec
+`durationSeconds = 30.0` et `engine = "hyperframes"`. Dogfooding CLI réel à faire.
+
+Tests : +2 unit `HyperFramesEngineTest` (durée injectée / dégradée) + 1 scénario BDD.
+**Local = Build** : `compileKotlin compileTestKotlin` ✅. **Tests = CI**
+(`test-hyperframes.yml`). Rapport `.agents/sessions/021-hf-kernel-adapter-us4-us5.adoc`.
+Zéro secret.
+
 == Session 020 (2026-10-14) — VK-2 adoption `video-kernel 0.2.0` (package neutre)
 
 Breaking coordonné : le noyau `video-kernel` est promu du préfixe historique

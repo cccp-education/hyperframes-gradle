@@ -1,33 +1,37 @@
-= PROMPT_REPRISE — HyperFrames Gradle (Session 020 TERMINÉE → 021)
-:session: 020
+= PROMPT_REPRISE — HyperFrames Gradle (Session 021 TERMINÉE → 022)
+:session: 021
 :date: 2026-10-14
-:status: ✅ TERMINÉ — VK-2 adoption `video-kernel 0.2.0` (package neutre)
+:status: ✅ TERMINÉ — HF-KERNEL-ADAPTER US-4 (durée) + US-5 (BDD e2e)
 :borough: Watts
 
 '''
 == État des lieux
 
-Plugin Gradle fonctionnel : AsciiDoc → AsciidoctorJ → HTML enrichi → CLI Node → MP4.
-EPICs HF-0→HF-7 ✅. `HF-KERNEL-ADAPTER` : **US-0 ✅ S-015, US-1 ✅ S-017, US-2 ✅ S-019,
-US-3 ✅ S-018** (US-4/US-5 À FAIRE). Version `0.0.3` (Maven Central). Noyau
-**`education.cccp:video-kernel:0.2.0`** (package neutre `video.kernel.*`, publié S-194).
-**CI** `.github/workflows/test-hyperframes.yml`.
+Plugin Gradle fonctionnel : AsciiDoc → AsciidoctorJ → HTML enrichi → CLI Node → MP4
+(via le noyau `VideoEngine`). EPICs HF-0→HF-7 ✅. `HF-KERNEL-ADAPTER` : **US-0 ✅ S-015,
+US-1 ✅ S-017, US-2 ✅ S-019, US-3 ✅ S-018, US-4 partiel ✅ S-021 (durée+config ;
+TTS/audio/sous-titres HORS noyau), US-5 ✅ S-021** (dogfooding CLI réel à faire).
+Version plugin `0.0.3` (Maven Central). Noyau `education.cccp:video-kernel:0.2.0`
+(package neutre `video.kernel.*`). **CI** `.github/workflows/test-hyperframes.yml`.
 
-== Fait en session 020
+== Fait en session 021
 
-* **VK-2 (breaking coordonné)** : pin `gradle/libs.versions.toml`
-  `video-kernel 0.1.0 → 0.2.0` + bascule imports `capsule.kernel` → `video.kernel`
-  (4 fichiers : `RenderHyperframesTask`, `HyperFramesEngine`, `HyperFramesEngineTest`,
-  `HfKernelAdapterUs3Steps`).
-* `compileKotlin` + `compileTestKotlin` VERTS.
-* Rapport `.agents/sessions/020-vk2-video-kernel-0.2.0-adoption.adoc`.
+. **US-4 (périmètre noyau)** — `HyperFramesEngineConfig.durationProbe` (sonde
+   injectable) → `VideoOutcome.durationSeconds` rempli (parité 2 moteurs) ;
+   `ffprobeExecutable` câblé au rendu ; dégradation `0.0`. TTS/audio/sous-titres =
+   **N2, hors scope du noyau** (doctrine ; décision dans le cadrage).
+. **US-5** — `hf_pipeline_e2e.feature` : pipeline complet `hyperframesPipeline`
+   (generate → render → collect), CLI + sonde stubbées ; produit HTML + MP4 + N3
+   (`durationSeconds=30.0`, `engine=hyperframes`).
+. Tests : +2 unit (`HyperFramesEngineTest`) + 1 scénario BDD.
+. **Local = Build** : `compileKotlin compileTestKotlin` ✅. **Tests = CI**.
+   Rapport `.agents/sessions/021-hf-kernel-adapter-us4-us5.adoc`.
 
-== Mission Session 021 — au choix (pilote)
+== Mission Session 022 — au choix (pilote)
 
-* A) **HF-KERNEL-ADAPTER US-4** : consommer le noyau partagé (TTS/sous-titres/audio/config).
-* B) **HF-KERNEL-ADAPTER US-5** : BDD e2e + dogfooding cccp.education.
-* C) **Dette D-F** : cache/incremental réel des tâches + source set `functionalTest`.
-* D) Nouvelle demande pilote.
+* A) **Dette D-F** : cache/incremental réel des tâches + source set `functionalTest`.
+* B) **US-5 dogfooding** (CLI HyperFrames npm + réseau) — environnement/accord.
+* C) Nouvelle demande pilote.
 
 == Points d'attention
 
@@ -51,7 +55,7 @@ US-3 ✅ S-018** (US-4/US-5 À FAIRE). Version `0.0.3` (Maven Central). Noyau
 
 |===
 | Document | Chemin
-| Rapport S-020 | `.agents/sessions/020-vk2-video-kernel-0.2.0-adoption.adoc`
+| Rapport S-021 | `.agents/sessions/021-hf-kernel-adapter-us4-us5.adoc`
 | Cadrage kernel | `.agents/CADRAGE_EPIC_HF_KERNEL_ADAPTER.adoc`
 | Backlog | `BACKLOG.adoc`
 | Règles | `AGENT.adoc`

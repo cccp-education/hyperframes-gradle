@@ -1,6 +1,17 @@
 = Test Coverage Analysis — hyperframes-gradle
 
-_Dernière mise à jour_ : 2026-10-14 (Session 020 — VK-2 adoption `video-kernel 0.2.0`)
+_Dernière mise à jour_ : 2026-10-14 (Session 021 — US-4 durée + US-5 BDD e2e)
+
+== Couverture — 14 octobre 2026 (après session 021)
+
+.HF-KERNEL-ADAPTER US-4 (durée) + US-5 (BDD e2e)
+|===
+| Élément | Changement | Tests
+
+| `kernel/HyperFramesEngine.kt` | `HyperFramesEngineConfig.durationProbe` ; `renderDetailed` remplit `VideoOutcome.durationSeconds` | `HyperFramesEngineTest` (+2 unit)
+| `RenderHyperframesTask.kt` | `ffprobeExecutable` → sonde durée du descripteur d'issue | (couvert via engine + fonctionnels render)
+| BDD | `hf_pipeline_e2e.feature` (pipeline complet) | +1 scénario ; `HfKernelAdapterUs5Steps`
+|===
 
 == Couverture — 14 octobre 2026 (après session 020)
 

@@ -1,6 +1,6 @@
 = COMPLETED_TASKS_ARCHIVE — hyperframes-gradle
 :date: 2026-05-31
-:last-updated: 2026-10-14 (session 020)
+:last-updated: 2026-10-14 (session 021)
 
 == Session 020 (2026-10-14) — VK-2 adoption `video-kernel 0.2.0` ✅
 
@@ -198,6 +198,22 @@
 | HF-KERNEL-ADAPTER | US-2 — `HyperframesParseContext.engine` (identité neutre `VideoEngine`) + `segments` (`HyperframesSegment(index, id)`) | ✅
 | HF-KERNEL-ADAPTER | `HyperframesContextExtractor` mappe compositions → segments ordonnés ; durée mesurée (D-C) | ✅
 | HF-KERNEL-ADAPTER | Tests : +3 unit + assertions fonctionnelles + 1 scénario BDD (`n3_contract.feature`) | ✅
+|===
+
+== Tâches terminées (session 020 — 2026-10-14)
+
+|===
+| EPIC | Tâche | Statut
+| VK-2 | Adoption `video-kernel 0.2.0` (package neutre `video.kernel.*`, breaking coordonné) : pin `0.1.0 → 0.2.0` + bascule imports | ✅
+|===
+
+== Tâches terminées (session 021 — 2026-10-14)
+
+|===
+| EPIC | Tâche | Statut
+| HF-KERNEL-ADAPTER | US-4 (périmètre noyau) — `HyperFramesEngineConfig.durationProbe` → `VideoOutcome.durationSeconds` ; `ffprobeExecutable` câblé au rendu ; TTS/audio/sous-titres HORS noyau | ✅
+| HF-KERNEL-ADAPTER | US-5 — BDD e2e `hf_pipeline_e2e.feature` (pipeline complet `hyperframesPipeline`, CLI+sonde stubbés) | ✅
+| HF-KERNEL-ADAPTER | Tests : +2 unit `HyperFramesEngineTest` + 1 scénario BDD | ✅
 |===
 
 == Dette ouverte

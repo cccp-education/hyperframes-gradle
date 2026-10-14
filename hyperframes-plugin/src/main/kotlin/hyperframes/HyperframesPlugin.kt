@@ -48,6 +48,7 @@ class HyperframesPlugin : Plugin<Project> {
             task.renderTimeoutMs.set(extension.renderTimeoutMs)
             task.width.set(extension.width)
             task.height.set(extension.height)
+            task.ffprobeExecutable.set(extension.ffprobeExecutable)
             extension.cliScript.finalizeValueOnRead()
             task.cliScript.set(extension.cliScript)
             extension.nodeExecutable.finalizeValueOnRead()

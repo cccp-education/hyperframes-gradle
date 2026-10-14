@@ -2,13 +2,13 @@
 :toc:
 
 _Règles absolues_ : voir `AGENT.adoc`
-_Derniere mise a jour_ : 2026-10-14 (Session 020 — **VK-2 : adoption `video-kernel 0.2.0`** (package neutre `video.kernel.*`, breaking coordonné) : pin + bascule imports. Compiles VERTS.)
+_Derniere mise a jour_ : 2026-10-14 (Session 021 — **HF-KERNEL-ADAPTER US-4 (durée partagée) + US-5 (BDD e2e)** : `VideoOutcome.durationSeconds` rempli par sonde injectable ; pipeline e2e `hyperframesPipeline` couvert.)
 _DAG_ : N2 — Plugin Gradle de transformation documentaire AsciiDoc → vidéo MP4
 _Dépendance N2_ : codex-gradle (compileOnly, AsciidoctorJ partagé)
 _Bridge externe_ : HyperFrames CLI via le noyau `VideoEngine` (`node <cliScript> render`)
 
-_Dernière session terminée_ : 020 — **VK-2 adoption `video-kernel 0.2.0`** : pin `0.1.0 → 0.2.0` + imports `capsule.kernel` → `video.kernel`. Rapport `.agents/sessions/020-vk2-video-kernel-0.2.0-adoption.adoc`.
-_Prochaine session_ : 021 — au choix : A) HF-KERNEL-ADAPTER US-4 (consommation du noyau : TTS/sous-titres/audio/config) ; B) US-5 (BDD e2e + dogfooding) ; C) dette D-F (cache/incremental).
+_Dernière session terminée_ : 021 — **US-4 (durée+config) + US-5 (BDD e2e)**. Rapport `.agents/sessions/021-hf-kernel-adapter-us4-us5.adoc`.
+_Prochaine session_ : 022 — au choix : A) dette D-F (cache/incremental + `functionalTest`) ; B) dogfooding US-5 (CLI réel) ; C) nouvelle demande pilote.
 _Version publiée_ : 0.0.3 (Maven Central, bundle `5d48222c`) + Gradle Plugin Portal (en attente d'approbation)
 
 '''
@@ -52,7 +52,7 @@ _Version publiée_ : 0.0.3 (Maven Central, bundle `5d48222c`) + Gradle Plugin Po
 | HF-5 | Templates HyperFrames prêts à l'emploi (title-card, code-diff, data-chart, kinetic-captions) | ✅ TERMINÉ (4/4 — sessions 008-011) | P3
 | HF-6 | CI + publication Maven Central / Gradle Portal | ✅ TERMINÉ (Maven Central S005, CI S008, Portal S013) | P3
 | HF-7 | Pronunciation Control (TTS Phonetic Hints) — corriger la phonétique TTS depuis l'AsciiDoc | ✅ TERMINÉ (session 010) + câblé (session 012) | P1
-| HF-KERNEL-ADAPTER | 2ᵉ adaptateur du noyau vidéo partagé (`video-kernel`) — mutualisation avec capsule ; corriger défauts (D-A→D-F) + aligner contrat N3 + ports `VideoEngine`/`SegmentSource` + consommation du noyau. Cadrage `.agents/CADRAGE_EPIC_HF_KERNEL_ADAPTER.adoc`. | 🟡 EN COURS — US-1 ✅ S-017 · **US-2 ✅ S-019** · US-3 ✅ S-018 ; US-4/US-5 À FAIRE | P1
+| HF-KERNEL-ADAPTER | 2ᵉ adaptateur du noyau vidéo partagé (`video-kernel`) — mutualisation avec capsule ; corriger défauts (D-A→D-F) + aligner contrat N3 + ports `VideoEngine`/`SegmentSource` + consommation du noyau. Cadrage `.agents/CADRAGE_EPIC_HF_KERNEL_ADAPTER.adoc`. | 🟡 EN COURS — US-1 ✅ S-017 · US-2 ✅ S-019 · US-3 ✅ S-018 · **US-4 partiel (durée+config) ✅ S-021** · US-5 ✅ S-021 ; reste dette D-F | P1
 |===
 
 '''
@@ -67,8 +67,9 @@ _Portée_ : hyperframes devient le **moteur de rendu visuel** (motion HTML conti
 d'un **noyau vidéo engine-agnostique** (`video-kernel`, N1) qui porte TTS, audio-post,
 sous-titres, durée, config. Le parser AsciiDoc→HTML + bridge CLI = l'**adapter**.
 
-_US_ : US-0 cadrage ✅ S-015 · US-1 défauts (D-A→D-F) ✅ **S-017** · US-2 contrat N3
-neutre ✅ **S-019** · US-3 port `VideoEngine` ✅ **S-018** · US-4 consommation noyau 🟡 · US-5 BDD/dogfooding 🟡.
+_US_ : US-0 cadrage ✅ S-015 · US-1 défauts (D-A→D-F) ✅ S-017 · US-2 contrat N3
+neutre ✅ S-019 · US-3 port `VideoEngine` ✅ S-018 · US-4 durée+config (noyau) ✅ S-021
+(TTS/audio/sous-titres HORS noyau) · US-5 BDD e2e ✅ S-021 (dogfooding réel à faire).
 
 _Prérequis CI_ : la CI était rouge sur 100 % des runs (configuration nmcp + gardes de
 publication racy). **Soldé S-017** (tolérance nmcp + injection des versions du catalogue
@@ -190,6 +191,8 @@ Le dictionnaire reste côté auteur (AsciiDoc), pas côté moteur (Node.js).
 
 |===
 | # | Date | Type | Sujet | Score
+| 021 | 2026-10-14 | feat+test | **HF-KERNEL-ADAPTER US-4 (durée) + US-5 (BDD e2e)** — `HyperFramesEngineConfig.durationProbe` remplit `VideoOutcome.durationSeconds` (parité 2 moteurs) ; `ffprobeExecutable` câblé au rendu ; e2e `hyperframesPipeline` (generate→render→collect, CLI+sonde stubbés). +2 unit + 1 scénario BDD. | ✅ TERMINÉ
+| 020 | 2026-10-14 | build | **VK-2 : adoption `video-kernel 0.2.0`** (package neutre `video.kernel.*`, breaking coordonné) — pin `0.1.0 → 0.2.0` + bascule imports. | ✅ TERMINÉ
 | 019 | 2026-10-13 | feat | **HF-KERNEL-ADAPTER US-2 ✅** — contrat N3 aligné sur le modèle neutre : `engine` (identité `VideoEngine`) + `segments` (bornes de compositions) + durée **mesurée** (D-C). +3 unit + 1 BDD. Additif, backward-compat. | ✅ TERMINÉ
 | 018 | 2026-10-13 | refactor | **HF-KERNEL-ADAPTER US-3 ✅** — `RenderHyperframesTask` **délègue** au noyau `VideoEngine` (`HyperFramesEngine.renderDetailed`, `HyperFramesRenderOutcome`), diagnostics Gradle préservés, +3 unit + 2 BDD. Plus de CLI dupliquée. | ✅ TERMINÉ
 | 017 | 2026-10-13 | impl + ci | **HF-KERNEL-ADAPTER US-1 ✅** — défauts D-A→D-F corrigés (outputDir, node-gradle mort retiré, durée mesurée ffprobe, doc/code, domaine N3, strict + `hyperframesPipeline`) + **CI débloquée** (tolérance nmcp + gardes racy soldées par injection des versions du catalogue publié). 16 unit + 4 fonctionnels + 3 BDD. | ✅ TERMINÉ
