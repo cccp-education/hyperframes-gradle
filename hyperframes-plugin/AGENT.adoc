@@ -14,7 +14,9 @@ customs et attributs docinfo définissent les compositions,
 les tracks, les animations et les médias.
 
 Le bridge Node.js est géré via `ProcessBuilder` + la CLI HyperFrames : le plugin
-exécute `node <cliScript> render` (équivalent utilisateur : `npx hyperframes render`).
+exécute `node <cliScript> render <projectDir> --output <mp4>` (le `projectDir`
+contient `index.html` ; `render` prend un `DIR` positionnel — corrigé S-022 par
+dogfooding contre `hyperframes@0.8.155`).
 L'exécutable Node est résolu depuis `nodeExecutable` (tests/CI), puis un cache Node
 géré par Gradle, puis le `PATH` système. Le plugin Gradle Node (`com.github.node-gradle`)
 n'est **pas** appliqué (dépendance morte retirée S-017, défaut D-B).
@@ -42,7 +44,7 @@ https://github.com/heygen-com/hyperframes (Apache 2.0, 22.7k ⭐)
 == Tâches Principales
 
   ./gradlew generateHyperframesHtml     → AsciiDoc → HTML HyperFrames (AsciidoctorJ)
-  ./gradlew renderHyperframes           → HTML → MP4 (CLI HyperFrames Node.js)
+  ./gradlew renderHyperframes           → HTML → MP4 (CLI HyperFrames Node.js : `render <dir> --output <mp4>`)
   ./gradlew transformHyperframesContent → parse metadata + enrichir contexte
   ./gradlew deployHyperframes           → copier MP4 vers output/
   ./gradlew check                       → tous les tests (unitaire + fonctionnel + Cucumber)

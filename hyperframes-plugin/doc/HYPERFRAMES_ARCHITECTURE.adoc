@@ -23,7 +23,7 @@ Le bridge Node.js est isolé derrière ProcessBuilder.
 | AsciidoctorJ | Parse l'AsciiDoc source, extrait les blocs customs et les docinfo attributes
 | codex-gradle | Dépendance compileOnly — partage AsciidoctorJ
 | HyperFrames CLI | Moteur de rendu HTML → MP4 (Puppeteer + FFmpeg, Node.js)
-| gradle-node-plugin | Gère l'installation de Node.js et du package npm hyperframes (pinné, reproductible)
+| ProcessBuilder + CLI hyperframes (npm) | Node résolu (`nodeExecutable`/cache/PATH) ; CLI npm fournie par l'utilisateur (`cliScript`)
 | ProcessBuilder | Bridge JVM → CLI géré par le plugin Gradle Node (pas de couplage code)
 |===
 
@@ -70,7 +70,7 @@ rectangle "AsciiDoc\nsource" as adoc #LightYellow
 rectangle "hyperframes-gradle\n(HyperframesPlugin)" as plugin #LightCoral
 rectangle "AsciidoctorJ\nparse + extract" as asciidoctorj #LightBlue
 rectangle "HTML HyperFrames\n(data-* attrs)" as html #LightGreen
-rectangle "HyperFrames CLI\n(Node.js via\ngradle-node-plugin)" as cli #Lavender
+rectangle "HyperFrames CLI\n(Node.js via\nProcessBuilder)" as cli #Lavender
 rectangle "Puppeteer\nheadless Chrome" as puppeteer #LightSalmon
 rectangle "FFmpeg\nencode" as ffmpeg #Gray
 rectangle "video.mp4\nlivrable" as livrable #Gold
@@ -115,7 +115,7 @@ package "hyperframes-gradle (nouveau)" #LightCoral {
 }
 
 package "Externes" #LightGrey {
-  component "HyperFrames CLI\n(Node.js via\ngradle-node-plugin)" as hfCli
+  component "HyperFrames CLI\n(Node.js via\nProcessBuilder)" as hfCli
   component "Puppeteer\n(headless Chrome)" as puppeteer
   component "FFmpeg" as ffmpeg
 }
@@ -126,7 +126,7 @@ cloud "Livrable" {
 
 asciidoctorj --> genHtmlTask : compileOnly\ncontrat par API JVM
 genHtmlTask --> renderTask : fichier HTML\nintermédiaire
-renderTask --> hfCli : ProcessBuilder\nnode hyperframes-cli (via gradle-node-plugin)
+renderTask --> hfCli : ProcessBuilder\nnode <cliScript> render <dir>
 hfCli --> puppeteer : pilote
 hfCli --> ffmpeg : encode
 puppeteer --> ffmpeg : frames brutes
@@ -165,7 +165,7 @@ author --> source : écrit
 source --> genHtml : parse AsciidoctorJ
 dsl --> genHtml : configuration\n(width, height, fps, ...)
 genHtml --> html : génère HTML\navec data-* attrs
-html --> render : ProcessBuilder\n→ node hyperframes (via gradle-node-plugin)
+html --> render : ProcessBuilder\n→ node <cliScript> render <dir>
 render --> mp4 : MP4 h264 + AAC
 mp4 --> collect : parse metadata
 collect --> metadata : export JSON
@@ -241,7 +241,7 @@ audio::assets/narration-comparison.mp3[]
 == Bridge Node.js — ProcessBuilder
 
 Le bridge entre la JVM (Gradle/Kotlin) et le CLI HyperFrames (Node.js/TypeScript)
-est géré par `ProcessBuilder` : le plugin exécute `node <cliScript> render`.
+est géré par `ProcessBuilder` : le plugin exécute `node <cliScript> render <projectDir> --output <mp4>` (S-022 ; `render` prend un `DIR` positionnel).
 L'exécutable Node est résolu depuis `nodeExecutable` (tests/CI), puis un cache Node
 géré par Gradle, puis le `PATH`. Le plugin `com.github.node-gradle:gradle-node-plugin`
 n'est pas appliqué (dépendance morte retirée S-017, défaut D-B).
@@ -293,7 +293,7 @@ class RenderHyperframesTask : DefaultTask() {
 
 === Gestion d'erreurs
 
-- Node.js pas encore download → le plugin Gradle Node le télécharge automatiquement à la config. Si download échoue, message clair : "gradle-node-plugin: Node.js download failed. Check network / proxy settings"
+- Node.js absent → le plugin résout `nodeExecutable`, puis un cache Node Gradle, puis le `PATH`. Si introuvable : "Node.js executable not found. Install node on the PATH or set nodeExecutable in the hyperframes extension."
 - Package npm hyperframes pas installé → le plugin Gradle Node installe via `npm install` en tâche Gradle. Si échec, message : "npm package hyperframes installation failed. Check package name / version"
 - Timeout → configurable via extension (`renderTimeoutMs`, défaut 300 secondes)
 - Crash → exception Gradle avec le stderr capturé

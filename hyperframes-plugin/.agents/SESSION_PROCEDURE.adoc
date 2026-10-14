@@ -72,5 +72,5 @@ grep -r "TOKEN\|SECRET\|PASSWORD\|API_KEY\|gho_\|ghp_" --include="*.kts" --inclu
 * HyperFrames CLI : le plugin exécute `node <cliScript> render` via ProcessBuilder (pas de plugin Gradle Node ; dépendance morte retirée S-017)
 * AsciidoctorJ en implementation (HF-1) → passera en compileOnly en HF-4 (partagé avec codex-gradle)
 * Contrat par fichiers : AsciiDoc → HTML HyperFrames → MP4
-* Bridge Node.js : `node <cliScript> render` via ProcessBuilder, `nodeExecutable` résolu (tests/CI) puis cache Gradle puis `PATH`
+* Bridge Node.js : `node <cliScript> render <projectDir> --output <mp4>` via ProcessBuilder (S-022), `nodeExecutable` résolu (tests/CI) puis cache Gradle puis `PATH`
 * Commit/push/merge autorisés (décision pilote 2026-09-17). Ne JAMAIS commiter de secret.

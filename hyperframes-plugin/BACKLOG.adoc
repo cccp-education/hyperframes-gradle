@@ -169,7 +169,7 @@ dogfooding). Décision pilote : mutualisation anticipée (pas d'attente du seuil
 | D-C | `durationSeconds` codé en dur `0.0` (pas de ffprobe → pas de validation durée) | ✅ S-017 — port `VideoDurationProbe` + `FfprobeDurationProbe` + parser pur, dégradé `0.0`
 | D-D | Commande `node <script> render` vs description `npx hyperframes render` | ✅ S-017 — description/KDoc réalignés sur `node <cliScript> render`
 | D-E | `pronunciation domain` perdu dans le contrat N3 (toujours `null`) | ✅ S-017 — domaine configuré propagé dans `pronunciation.domain`
-| D-F | Aucun cache/incremental ; pas de `functionalTest` ; pas de NoOp/strict | 🟡 PARTIEL S-017 — `mustRunAfter` ordonné + tâche `hyperframesPipeline` + mode `strict` (NoOp→échec) ; cache/incremental profond + source set `functionalTest` DIFFÉRÉS
+| D-F | Aucun cache/incremental ; pas de `functionalTest` ; pas de NoOp/strict | ✅ S-022 — `strict` + `mustRunAfter` + `hyperframesPipeline` (S-017) ; source set **`functionalTest`** (convention) + CI séparée + **`@CacheableTask`** sur generate (S-022)
 |===
 
 [NOTE]

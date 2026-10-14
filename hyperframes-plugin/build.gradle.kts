@@ -4,6 +4,7 @@ plugins {
     alias(libs.plugins.plugin.publish)
     id("education.cccp.build.gradle-plugin") version "0.0.7"
     id("education.cccp.build.publishing") version "0.0.7"
+    id("education.cccp.build.functional-test") version "0.0.7"
 }
 
 group = "education.cccp"
@@ -74,6 +75,14 @@ val cucumberTest = tasks.register<Test>("cucumberTest") {
 }
 
 tasks.named("check") { dependsOn(cucumberTest) }
+
+// S-022 (dogfooding) — expose the plugin artefact version in the jar manifest so the
+// N3 contract reports the plugin version, not the consumer project's `version`.
+tasks.named<Jar>("jar") {
+    manifest {
+        attributes["Implementation-Version"] = project.version
+    }
+}
 
 gradlePlugin {
     plugins {

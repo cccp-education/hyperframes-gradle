@@ -3,12 +3,12 @@ package hyperframes
 import org.gradle.api.DefaultTask
 import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.provider.Property
+import org.gradle.api.tasks.CacheableTask
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputDirectory
 import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.OutputDirectory
 import org.gradle.api.tasks.TaskAction
-import org.gradle.work.DisableCachingByDefault
 import org.gradle.api.tasks.PathSensitive
 import org.gradle.api.tasks.PathSensitivity
 import org.asciidoctor.Asciidoctor
@@ -25,8 +25,14 @@ import java.io.File
  *
  * HF-1: AsciiDoc -> standard HTML conversion.
  * HF-3: Post-processing -> stage div, data-composition-id, data-track-*, animations.
+ *
+ * D-F (S-022) — `@CacheableTask`: the AsciiDoc -> HTML transform is deterministic
+ * for a given source + configuration, so Gradle can cache it (build cache) and
+ * mark it UP-TO-DATE. `RenderHyperframesTask` (external CLI process) and
+ * `CollectHyperframesRetrieveTask` (reads the shared artifacts directory) stay
+ * `@DisableCachingByDefault`.
  */
-@DisableCachingByDefault(because = "Filesystem-bound: reads AsciiDoc and writes HTML")
+@CacheableTask
 abstract class GenerateHyperframesHtmlTask : DefaultTask() {
 
     @get:InputDirectory

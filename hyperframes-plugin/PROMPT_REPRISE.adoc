@@ -1,62 +1,57 @@
-= PROMPT_REPRISE — HyperFrames Gradle (Session 021 TERMINÉE → 022)
-:session: 021
+= PROMPT_REPRISE — HyperFrames Gradle (Session 022 TERMINÉE → 023)
+:session: 022
 :date: 2026-10-14
-:status: ✅ TERMINÉ — HF-KERNEL-ADAPTER US-4 (durée) + US-5 (BDD e2e)
+:status: ✅ TERMINÉ — dette D-F (functionalTest + cache) + dogfooding CLI réel
 :borough: Watts
 
 '''
 == État des lieux
 
 Plugin Gradle fonctionnel : AsciiDoc → AsciidoctorJ → HTML enrichi → CLI Node → MP4
-(via le noyau `VideoEngine`). EPICs HF-0→HF-7 ✅. `HF-KERNEL-ADAPTER` : **US-0 ✅ S-015,
-US-1 ✅ S-017, US-2 ✅ S-019, US-3 ✅ S-018, US-4 partiel ✅ S-021 (durée+config ;
-TTS/audio/sous-titres HORS noyau), US-5 ✅ S-021** (dogfooding CLI réel à faire).
-Version plugin `0.0.3` (Maven Central). Noyau `education.cccp:video-kernel:0.2.0`
-(package neutre `video.kernel.*`). **CI** `.github/workflows/test-hyperframes.yml`.
+(via le noyau `VideoEngine`). EPICs HF-0→HF-7 ✅. **`HF-KERNEL-ADAPTER` ✅ TERMINÉ**
+(US-1→US-5 + dette D-F). Version plugin `0.0.3` (Maven Central). Noyau
+`education.cccp:video-kernel:0.2.0`. **CI** `.github/workflows/test-hyperframes.yml`
+(unit / functionalTest / cucumberTest / check).
 
-== Fait en session 021
+== Fait en session 022
 
-. **US-4 (périmètre noyau)** — `HyperFramesEngineConfig.durationProbe` (sonde
-   injectable) → `VideoOutcome.durationSeconds` rempli (parité 2 moteurs) ;
-   `ffprobeExecutable` câblé au rendu ; dégradation `0.0`. TTS/audio/sous-titres =
-   **N2, hors scope du noyau** (doctrine ; décision dans le cadrage).
-. **US-5** — `hf_pipeline_e2e.feature` : pipeline complet `hyperframesPipeline`
-   (generate → render → collect), CLI + sonde stubbées ; produit HTML + MP4 + N3
-   (`durationSeconds=30.0`, `engine=hyperframes`).
-. Tests : +2 unit (`HyperFramesEngineTest`) + 1 scénario BDD.
-. **Local = Build** : `compileKotlin compileTestKotlin` ✅. **Tests = CI**
-   (`test-hyperframes.yml`) — **run `38497716543` ✅ success** (US-4 + US-5 PASSED).
-   Rapport `.agents/sessions/021-hf-kernel-adapter-us4-us5.adoc`.
+. **D-F — source set `functionalTest`** : convention `education.cccp.build.functional-test`
+   0.0.7 appliquée ; 3 tests TestKit déplacés `src/test` → `src/functionalTest` ;
+   CI séparée (unit / functional / cucumber / check).
+. **D-F — cache** : `GenerateHyperframesHtmlTask` → **`@CacheableTask`** (déterministe) ;
+   Render/Collect restent non-cacheables (process externe / dossier partagé).
+. **Dogfooding CLI réel** : vrai `hyperframes@0.8.155` → **vrai MP4** via le pipeline
+   `hyperframesPipeline`. **2 bugs corrigés** :
+   * bridge : `render <projectDir> --output <mp4>` (`--input` inexistant dans la vraie CLI) ;
+   * version N3 : `HyperframesVersion.value` (manifeste jar) au lieu de `target.version`
+     (`unspecified` côté consommateur).
+. Rapport `.agents/sessions/022-df-functional-test-cache-dogfooding.adoc`.
 
-== Mission Session 022 — au choix (pilote)
+== Mission Session 023 — au choix (pilote)
 
-* A) **Dette D-F** : cache/incremental réel des tâches + source set `functionalTest`.
-* B) **US-5 dogfooding** (CLI HyperFrames npm + réseau) — environnement/accord.
-* C) Nouvelle demande pilote.
+* A) **Publication du plugin** : bump `0.0.3 → 0.0.4` (intègre S-018→S-022 + fixes dogfooding)
+  + Maven Central + MEMPHIS BOM/catalog.
+* B) **Nouvelle demande pilote** (EPIC HF-*).
+* C) Suite dogfooding / hardening CI.
 
 == Points d'attention
 
 * **Local = Build, Tests = CI** : ne jamais lancer `test`/`check` en local.
-* **Règle 2 — PUBLISH** : accord pilote requis. **Règle 6 — ZÉRO secret**.
-* **English only** dans le code ; Gherkin EN ; runner/glue dédiés par feature.
-* Ne jamais relire un working tree de repo voisin dans un test (racy) : injecter par
-  `systemProperty` (patron D5-RACE).
-* La CI hyperframes résout `video-kernel` **depuis Maven Central**.
+* **Règle 2 — PUBLISH** : accord pilote (accordé). **Règle 6 — ZÉRO secret**.
+* **English only** dans le code ; Gherkin EN.
+* Bridge réel : `node <cliScript> render <projectDir> --output <mp4>`.
 
 == Rappels techniques
 
 - **Rendu** : `RenderHyperframesTask` → `HyperFramesEngine.renderDetailed` (port N1).
-- **Bridge Node** : `node <cliScript> render --input <html> --output <mp4>`.
-- `ffprobe` optionnel (`ffprobeExecutable`) — absent → `durationSeconds = 0.0`.
-- Noyau partagé `education.cccp:video-kernel:0.2.0` (`video.kernel.VisualSource` +
-  `video.kernel.VideoEngine` + `VideoOutcome`/`VideoRenderResult` ; segment en
-  `video.kernel.segment`).
+- **Dogfooding** : `hyperframes@0.8.155` (npm), Node v22, Chrome/ffmpeg présents.
+- Noyau partagé `education.cccp:video-kernel:0.2.0` (`video.kernel.*`).
 
 == Routes documents clés
 
 |===
 | Document | Chemin
-| Rapport S-021 | `.agents/sessions/021-hf-kernel-adapter-us4-us5.adoc`
+| Rapport S-022 | `.agents/sessions/022-df-functional-test-cache-dogfooding.adoc`
 | Cadrage kernel | `.agents/CADRAGE_EPIC_HF_KERNEL_ADAPTER.adoc`
 | Backlog | `BACKLOG.adoc`
 | Règles | `AGENT.adoc`

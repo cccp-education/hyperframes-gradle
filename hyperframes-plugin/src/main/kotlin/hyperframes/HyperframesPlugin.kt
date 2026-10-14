@@ -60,7 +60,9 @@ class HyperframesPlugin : Plugin<Project> {
             task.description = "Collect HyperFrames rendered video metadata for N3 runner integration"
             task.group = "collect"
             task.outputFile.set(target.layout.buildDirectory.file("hyperframes/composite-context.json"))
-            task.pluginVersion.set(target.version.toString())
+            // S-022 (dogfooding) — report the *plugin* version (jar manifest), not the
+            // consumer project's version (which is `unspecified` on a typical consumer).
+            task.pluginVersion.set(HyperframesVersion.value)
             task.pronunciationDomain.set(extension.pronunciationDomain)
             task.ffprobeExecutable.set(extension.ffprobeExecutable)
             task.strict.set(extension.strict)

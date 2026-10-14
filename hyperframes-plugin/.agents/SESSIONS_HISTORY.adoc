@@ -1,5 +1,24 @@
 = SESSIONS_HISTORY — hyperframes-gradle
 
+== Session 022 (2026-10-14) — Dette D-F (functionalTest + cache) + dogfooding CLI réel
+
+**D-F** — source set **`functionalTest`** via la convention `education.cccp.build.functional-test`
+0.0.7 (3 tests TestKit déplacés `src/test` → `src/functionalTest` par `git mv`) ; CI
+`test-hyperframes.yml` scindée (unit / functionalTest / cucumberTest / check) ;
+`GenerateHyperframesHtmlTask` → **`@CacheableTask`** (Render/Collect restent
+non-cacheables : process externe / dossier partagé).
+
+**Dogfooding CLI réel** — `hyperframes@0.8.155` (npm, doctor ✓ Chrome/ffmpeg/GPU),
+consommateur transitoire `/tmp` + `publishToMavenLocal` : `hyperframesPipeline` produit
+un **vrai MP4** (21 604 octets, 1,0 s, GPU) et un `composite-context.json` complet.
+**2 bugs corrigés** : (1) bridge — la vraie CLI est `render [DIR] -o <out>` (pas de
+`--input`) → `HyperFramesEngine` passe désormais le `DIR` positionnel ; (2) version N3
+— `HyperframesVersion.value` (manifeste jar `Implementation-Version`) remplace
+`target.version` (`unspecified` côté consommateur) → `version=0.0.3`.
+
+**Local = Build** : `compileKotlin compileTestKotlin compileFunctionalTestKotlin` ✅.
+Rapport `.agents/sessions/022-df-functional-test-cache-dogfooding.adoc`. Zéro secret.
+
 == Session 021 (2026-10-14) — HF-KERNEL-ADAPTER US-4 (durée) + US-5 (BDD e2e)
 
 **US-4 (périmètre noyau)** — l'adapter `HyperFramesEngine` remplit désormais

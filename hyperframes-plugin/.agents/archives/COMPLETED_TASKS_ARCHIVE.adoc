@@ -1,6 +1,6 @@
 = COMPLETED_TASKS_ARCHIVE — hyperframes-gradle
 :date: 2026-05-31
-:last-updated: 2026-10-14 (session 021)
+:last-updated: 2026-10-14 (session 022)
 
 == Session 020 (2026-10-14) — VK-2 adoption `video-kernel 0.2.0` ✅
 
@@ -214,6 +214,15 @@
 | HF-KERNEL-ADAPTER | US-4 (périmètre noyau) — `HyperFramesEngineConfig.durationProbe` → `VideoOutcome.durationSeconds` ; `ffprobeExecutable` câblé au rendu ; TTS/audio/sous-titres HORS noyau | ✅
 | HF-KERNEL-ADAPTER | US-5 — BDD e2e `hf_pipeline_e2e.feature` (pipeline complet `hyperframesPipeline`, CLI+sonde stubbés) | ✅
 | HF-KERNEL-ADAPTER | Tests : +2 unit `HyperFramesEngineTest` + 1 scénario BDD | ✅
+|===
+
+== Tâches terminées (session 022 — 2026-10-14)
+
+|===
+| EPIC | Tâche | Statut
+| D-F | Source set `functionalTest` (convention 0.0.7) + 3 tests TestKit déplacés + CI scindée | ✅
+| D-F | `GenerateHyperframesHtmlTask` → `@CacheableTask` (Render/Collect non-cacheables) | ✅
+| Dogfooding | CLI réelle `hyperframes@0.8.155` → vrai MP4 ; bridge corrigé (`render <dir> --output`) ; version N3 du plugin (`HyperframesVersion`) | ✅
 |===
 
 == Dette ouverte

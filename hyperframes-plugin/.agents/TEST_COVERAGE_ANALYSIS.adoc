@@ -1,6 +1,18 @@
 = Test Coverage Analysis — hyperframes-gradle
 
-_Dernière mise à jour_ : 2026-10-14 (Session 021 — US-4 durée + US-5 BDD e2e)
+_Dernière mise à jour_ : 2026-10-14 (Session 022 — dette D-F : source set `functionalTest` + cache ; dogfooding réel)
+
+== Couverture — 14 octobre 2026 (après session 022)
+
+.Dette D-F — restructuration des tests + cache
+|===
+| Élément | Changement | Tests
+
+| `src/functionalTest/kotlin/hyperframes/` (nouveau) | `HyperframesPluginTest`, `CollectHyperframesRetrieveTaskTest`, `SimpleCollectHyperframesTest` (TestKit) déplacés | `test` = unit + Cucumber ; `functionalTest` = TestKit
+| `build.gradle.kts` | convention `functional-test` 0.0.7 ; `jar` manifest `Implementation-Version` ; `@CacheableTask` sur generate | —
+| `.github/workflows/test-hyperframes.yml` | étapes unit / functional / cucumber / check | —
+| `HyperframesVersion.kt` (nouveau) | version du plugin (manifeste) pour le N3 | couvert par dogfooding réel
+|===
 
 == Couverture — 14 octobre 2026 (après session 021)
 

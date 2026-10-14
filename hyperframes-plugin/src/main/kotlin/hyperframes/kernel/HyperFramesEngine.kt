@@ -93,11 +93,14 @@ open class HyperFramesEngine(
         val outputMp4 = outputDir.resolve("${request.name}.mp4")
         val timeout = if (request.timeoutMillis > 0) request.timeoutMillis else config.timeoutMillis
 
+        // S-022 (dogfooding) — the real CLI is `hyperframes render [DIR] -o <out>`:
+        // DIR is the project directory containing `index.html` (no `--input` flag).
+        val projectDir = htmlFile.parentFile ?: outputDir
         val argv = listOf(
             config.nodeExecutable,
             config.cliScript,
             "render",
-            "--input", htmlFile.absolutePath,
+            projectDir.absolutePath,
             "--output", outputMp4.absolutePath,
         )
         val process = runner.run(argv, outputDir, timeout)

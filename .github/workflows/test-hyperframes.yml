@@ -28,8 +28,12 @@ jobs:
         run: ./gradlew compileKotlin
         working-directory: hyperframes-plugin
 
-      - name: Run unit and functional tests
+      - name: Run unit tests
         run: ./gradlew test
+        working-directory: hyperframes-plugin
+
+      - name: Run functional tests (GradleTestKit)
+        run: ./gradlew functionalTest
         working-directory: hyperframes-plugin
 
       - name: Run Cucumber BDD tests

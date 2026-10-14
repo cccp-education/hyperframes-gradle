@@ -1,0 +1,66 @@
+= Session 022 — Dette D-F (functionalTest + cache) + dogfooding CLI réel
+:session: 022
+:date: 2026-10-14
+:type: refactor + ci + dogfooding
+:borough: Watts / hyperframes-gradle
+:statut: ✅ TERMINÉ — D-F (source set + cache) ; dogfooding réel (2 bugs corrigés)
+:toc:
+
+== Mission
+
+Traiter la **dette D-F** (source set `functionalTest` + cache/incremental) et le
+**dogfooding CLI réel** (US-5), autorisation pilote complète. **Local = Build,
+Tests = CI**.
+
+== D-F — source set `functionalTest` + cache
+
+- Plugin de convention **`education.cccp.build.functional-test` 0.0.7** appliqué →
+  crée le source set `functionalTest` (`src/functionalTest/{kotlin,resources}`),
+  enregistre la tâche `functionalTest`, câble `check.dependsOn(functionalTest)`,
+  étend `functionalTestImplementation` de `testImplementation`, ajoute GradleTestKit
+  + JUnit + AssertJ + BOM, et enregistre le source set comme `gradlePlugin.testSourceSet`
+  (donc `withPluginClasspath()` fonctionne).
+- **Tests TestKit déplacés** `src/test` → `src/functionalTest` (`git mv`, historique
+  préservé) : `HyperframesPluginTest`, `CollectHyperframesRetrieveTaskTest`,
+  `SimpleCollectHyperframesTest`. `test` = unit + Cucumber (rapide) ; `functionalTest`
+  = TestKit (lent).
+- **CI** `test-hyperframes.yml` : étapes séparées `Run unit tests` / `Run functional
+  tests (GradleTestKit)` / `Run Cucumber BDD tests` / `check`.
+- **Cache** : `GenerateHyperframesHtmlTask` passe de `@DisableCachingByDefault` à
+  **`@CacheableTask`** (transform AsciiDoc→HTML déterministe, inputs/outputs déclarés).
+  `RenderHyperframesTask` (process externe) et `CollectHyperframesRetrieveTask`
+  (lit le dossier d'artefacts partagé) restent non-cacheables.
+
+== Dogfooding CLI réel (US-5)
+
+Environnement : Node v22 / npm 11 ; paquet npm **`hyperframes@0.8.155`** installé ;
+`hyperframes doctor` ✓ (Chrome, ffmpeg/ffprobe, GPU). Consommateur transitoire
+`/tmp/opencode/hf-dogfood` (Règle 2), plugin publié en local (`publishToMavenLocal`).
+
+**Résultat** : `hyperframesPipeline` (generate → render → collect) avec la **vraie
+CLI** produit un **vrai MP4** (`dogfood.mp4`, 21 604 octets, 1,0 s, encodage GPU) et un
+`composite-context.json` complet (`engine=hyperframes`, `durationSeconds=1.0`,
+`version=0.0.3`, `segments`).
+
+**2 bugs révélés et corrigés** :
+1. **Bridge CLI faux** — la vraie CLI est `hyperframes render [DIR] -o <out>` ; la
+   commande du plugin passait `--input <html>` (option **inexistante** →
+   échec). Corrigé : `render <projectDir> --output <mp4>` (`HyperFramesEngine`).
+   Les stubs CLI des tests ignorent l'argument positionnel → suites inchangées.
+2. **`version: "unspecified"` dans le N3** — le plugin rapportait `target.version`
+   (version du projet **consommateur**). Corrigé : version du plugin lue depuis le
+   manifeste du jar (`Implementation-Version`, posé par `tasks.jar`) via
+   `HyperframesVersion.value` → `version=0.0.3`.
+
+== Tests / Gates
+
+- **Local = Build** : `compileKotlin compileTestKotlin compileFunctionalTestKotlin` ✅.
+- **Tests = CI** : `test-hyperframes.yml` (unit / functionalTest / cucumberTest / check).
+- **Dogfooding** : réel, hors CI (environnement local), documenté ci-dessus.
+- **Zéro secret** ; **English only** dans le code ajouté.
+
+== Effet
+
+- Dette D-F **résorbée** (source set + cache).
+- US-5 : dogfooding réel **effectué** (2 bugs produits corrigés). HF-KERNEL-ADAPTER :
+  tous les US traités (US-4 partiel = périmètre noyau).
