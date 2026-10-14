@@ -9,7 +9,7 @@ _Bridge externe_ : HyperFrames CLI via le noyau `VideoEngine` (`node <cliScript>
 
 _Dernière session terminée_ : 024 — **HF-KERNEL-ADAPTER US-4** (port partagé `VideoDurationProbe`, `video-kernel 0.3.0`). Rapport `.agents/sessions/024-hf-kernel-adapter-us4-shared-probe.adoc`.
 _Prochaine session_ : 025 — au choix : A) EPIC HF-* / nouvelle demande pilote ; B) **EPIC HF-CR3** (rendu réel CI) ; C) maintenance.
-_Version publiée_ : **0.0.4** (Maven Central, bundle `79a6f808`) + Gradle Plugin Portal (0.0.3 en attente d'approbation)
+_Version publiée_ : **0.0.4** (Maven Central, bundle `79a6f808`) + Gradle Plugin Portal (handle `cccp-education`)
 
 '''
 == RÈGLES ABSOLUES (résumé)

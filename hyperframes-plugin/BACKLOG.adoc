@@ -2,7 +2,7 @@
 :toc:
 
 _Date création_ : 2026-05-31
-_Version_ : 0.1.0-SNAPSHOT
+_Version_ : 0.0.4
 
 '''
 == Vision Produit
