@@ -25,9 +25,10 @@ class PostProductionCommandsTest {
     }
 
     @Test
-    fun `audio filter graph is loudnorm only without a bed`() {
-        assertThat(HyperframesAudioPostCommand.buildFilterGraph(AudioPostSettings(), hasBgmInput = false))
-            .isEqualTo("loudnorm=I=-16.0:TP=-1.5:LRA=11")
+    fun `audio filter graph is loudnorm plus resample without a bed`() {
+        val graph = HyperframesAudioPostCommand.buildFilterGraph(AudioPostSettings(), hasBgmInput = false)
+
+        assertThat(graph).contains("loudnorm=I=-16.0:TP=-1.5:LRA=11", "aresample=48000")
     }
 
     @Test
@@ -36,7 +37,7 @@ class PostProductionCommandsTest {
             AudioPostSettings(bgmEnabled = true, bgmLevelDb = -20.0), hasBgmInput = true,
         )
 
-        assertThat(graph).contains("loudnorm=", "volume=-20.0dB", "amix=inputs=2")
+        assertThat(graph).contains("loudnorm=", "aresample=48000", "volume=-20.0dB", "amix=inputs=2")
         assertThat(graph).doesNotContain("sidechaincompress")
     }
 
@@ -46,7 +47,8 @@ class PostProductionCommandsTest {
             AudioPostSettings(bgmEnabled = true, duckingEnabled = true), hasBgmInput = true,
         )
 
-        assertThat(graph).contains("sidechaincompress")
+        // S-028 — the voice must be asplit before both sidechaincompress and amix.
+        assertThat(graph).contains("sidechaincompress", "asplit=2")
     }
 
     @Test
@@ -55,7 +57,8 @@ class PostProductionCommandsTest {
             AudioPostSettings(bgmEnabled = true, duckingEnabled = true), hasBgmInput = false,
         )
 
-        assertThat(graph).isEqualTo("loudnorm=I=-16.0:TP=-1.5:LRA=11")
+        assertThat(graph).contains("loudnorm=I=-16.0:TP=-1.5:LRA=11", "aresample=48000")
+        assertThat(graph).doesNotContain("sidechaincompress", "asplit")
     }
 
     @Test

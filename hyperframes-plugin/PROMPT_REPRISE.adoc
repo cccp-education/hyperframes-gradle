@@ -1,7 +1,7 @@
-= PROMPT_REPRISE — HyperFrames Gradle (Session 027 TERMINÉE → 028)
-:session: 027
+= PROMPT_REPRISE — HyperFrames Gradle (Session 028 TERMINÉE → 029)
+:session: 028
 :date: 2026-10-15
-:status: ✅ TERMINÉ — release `hyperframes-plugin 0.0.5` (Maven Central)
+:status: ✅ TERMINÉ — dogfooding réel des adaptateurs post-production + fix bug ffmpeg (BGM/ducking)
 :borough: Watts
 
 '''
@@ -10,43 +10,39 @@
 Plugin Gradle fonctionnel : AsciiDoc → AsciidoctorJ → HTML enrichi → CLI Node → MP4
 (via le noyau `VideoEngine`). EPICs HF-0→HF-7 ✅. **`HF-KERNEL-ADAPTER` ✅ TERMINÉ**.
 **`HF-CR3` ✅ TERMINÉ 3/3** (S-025) + durci S-026. **Version publiée `0.0.5`**
-(Maven Central, bundle `dbdfa6fb`, S-027). Noyau **`education.cccp:video-kernel:0.4.0`**.
-Catalogue ws `0.0.95` / BOM plateforme `0.0.95`.
+(Maven Central, bundle `dbdfa6fb`, S-027) — **contient le bug BGM (voir S-028)**.
+Noyau **`education.cccp:video-kernel:0.4.0`**. Catalogue ws `0.0.95` / BOM `0.0.95`.
+
+== Fait en session 028 — Dogfooding réel + fix bug audio-post
+
+Dogfooding des adaptateurs S-026 avec **vrais binaires** (ffmpeg 6.1.1, espeak) :
+burn-in ✅, loudnorm seul ✅, narration espeak ✅ ; **BGM sans ducking et ducking ❌**
+(durée tronquée 0,118 s / `Invalid stream specifier: voice`). **2 causes** :
+`loudnorm` sort à 192 kHz (amix tronque) ; label `[voice]` mono-usage réutilisé.
+**Correctif** : `…,aresample=48000` + `asplit=2` pour le ducking. Tests unit
+renforcés (`aresample=48000`, `asplit=2`) + **nouveau garde d'intégration réel**
+`FfmpegAudioPostProductionIntegrationTest` (skip-gardé, câblé `real-render-hyperframes.yml`).
+Rapport `.agents/sessions/028-dogfooding-audio-post-fix.adoc`.
 
 == Fait en session 027 — Release `hyperframes-plugin 0.0.5`
 
-Release DAG N0→N1→N2 (accord pilote) : MEMPHIS catalogue/BOM `0.0.95`
-(`hyperframes-plugin = "0.0.5"`, bundle `bf6e4b33`) → hyperframes re-pin
-`workspace-catalog 0.0.90 → 0.0.95` + platform `workspace-bom 0.0.90 → 0.0.95`
-+ toml local `hyperframes 0.0.4 → 0.0.5` → **publication Central `0.0.5`**
-(bundle `dbdfa6fb-df33-4086-9a4c-06a6b70b7eb8`, AUTOMATIC). Contenu depuis 0.0.4 :
-consommation des ports vidéo partagés (2ᵉ consommateur, S-026) + durcissement du
-rendu réel + correctif contrat Gradle de l'extension. Rapport
-`.agents/sessions/027-release-0.0.5.adoc`.
+Release DAG N0→N1→N2 : MEMPHIS catalogue/BOM `0.0.95` → hyperframes re-pin
+`workspace-catalog/BOM 0.0.90 → 0.0.95` + toml local `0.0.5` → **Central `0.0.5`**
+(bundle `dbdfa6fb`). Rapport `.agents/sessions/027-release-0.0.5.adoc`.
 
-== Fait en session 026 (transverse — A puis B)
+== Mission Session 029 — au choix (pilote)
 
-. **A — 2ᵉ consommateur des ports vidéo partagés** (`video-kernel 0.3.0 → 0.4.0`) :
-   domaine `hyperframes.post` + tâches `postProcessHyperframes` (burn-in + audio post)
-   et `generateHyperframesNarration` (TTS) + 9 properties d'extension.
-. **B — durcissement du rendu réel** : 2 compositions + timeline GSAP, assertions
-   réelles, couverture hermétique `HyperframesRenderEnrichmentTest`.
-
-== Mission Session 028 — au choix (pilote)
-
-* A) **HF-CR3 suite** : rapatrier le job de rendu réel dans la CI requise si la
-  stabilité le permet (Node+npm+ffmpeg), ou enrichir davantage (Manim/Remotion).
-* B) Nouvelle demande pilote (EPIC HF-*).
-* C) Maintenance / dette résiduelle.
+* A) **Release corrective `hyperframes-plugin 0.0.6`** (accord pilote) — propage le
+  fix audio-post BGM/ducking (DAG : MEMPHIS catalogue/BOM `0.0.96` → hyperframes `0.0.6`).
+* B) **HF-CR3 suite** : rapatrier le rendu réel dans la CI requise / enrichir (Manim/Remotion).
+* C) Maintenance / nouvelle demande pilote.
 
 == Points d'attention
 
 * **Local = Build, Tests = CI** : ne jamais lancer `test`/`check` en local.
 * **Règle 2 — PUBLISH** : accord pilote. **Règle 6 — ZÉRO secret**.
-* **Version dérivée** : la version du plugin vient du **catalogue MEMPHIS**
-  (`ws.versions.hyperframes.plugin`, pin `settings.gradle.kts`) ; tout bump de
-  version exige de bumper le catalogue MEMPHIS (`hyperframes-plugin`) ET le toml
-  local (`hyperframes`), même valeur (garde `HyperframesPluginPublicationTest`).
+* **Version dérivée** : bumper le **catalogue MEMPHIS** (`hyperframes-plugin`) ET le
+  toml local (`hyperframes`), même valeur (garde `HyperframesPluginPublicationTest`).
 
 == Rappels techniques
 

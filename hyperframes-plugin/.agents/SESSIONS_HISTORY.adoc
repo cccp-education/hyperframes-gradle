@@ -1,5 +1,19 @@
 = SESSIONS_HISTORY — hyperframes-gradle
 
+== Session 028 (2026-10-15) — Dogfooding réel audio-post + fix bug ffmpeg (BGM/ducking)
+
+Option de pilotage « dogfooding » : les adaptateurs post-production (S-026) n'avaient
+jamais tourné avec de vrais binaires. Vrais ffmpeg 6.1.1 + espeak : burn-in ✅,
+loudnorm seul ✅, narration ✅ ; **BGM sans ducking et ducking ❌** (sortie tronquée
+0,118 s ; `Invalid stream specifier: voice`). **2 causes** : `loudnorm` sort à 192 kHz
+(amix tronque) ; label `[voice]` mono-usage réutilisé (sidechaincompress + amix).
+**Correctif** `HyperframesAudioPostCommand.buildFilterGraph` : `…,aresample=48000` +
+`[voice]asplit=2[vsc][vmix]`. Tests unit renforcés (`aresample=48000`, `asplit=2`) +
+garde d'intégration **réel** `FfmpegAudioPostProductionIntegrationTest` (skip-gardé,
+câblé `real-render-hyperframes.yml`). **Bug identique** dans le noyau capsule
+`AudioPostCommand` (S-203). Rapport `.agents/sessions/028-dogfooding-audio-post-fix.adoc`.
+Dette : release corrective `hyperframes-plugin 0.0.6` (accord pilote).
+
 == Session 027 (2026-10-15) — Release `hyperframes-plugin 0.0.5` (Maven Central)
 
 Release DAG N0→N1→N2 (accord pilote). `video-kernel 0.4.0` (Central) →

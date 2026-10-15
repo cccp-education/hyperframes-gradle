@@ -2,14 +2,14 @@
 :toc:
 
 _Règles absolues_ : voir `AGENT.adoc`
-_Derniere mise a jour_ : 2026-10-15 (Session 027 — **Release `hyperframes-plugin 0.0.5`** (Maven Central, bundle `dbdfa6fb`) — intègre la consommation des ports vidéo partagés + le durcissement du rendu réel.)
+_Derniere mise a jour_ : 2026-10-15 (Session 028 — **Dogfooding réel des adaptateurs post-production + fix bug ffmpeg** : burn-in/BGM/ducking réels ; `loudnorm…,aresample=48000` + `asplit=2`, garde d'intégration réel `FfmpegAudioPostProductionIntegrationTest`.)
 _DAG_ : N2 — Plugin Gradle de transformation documentaire AsciiDoc → vidéo MP4
 _Dépendance N2_ : codex-gradle (compileOnly, AsciidoctorJ partagé)
 _Bridge externe_ : HyperFrames CLI via le noyau `VideoEngine` (`node <cliScript> render <dir> --output <mp4>`)
 
-_Dernière session terminée_ : 027 — **Release `hyperframes-plugin 0.0.5`**. Rapport `.agents/sessions/027-release-0.0.5.adoc`.
-_Prochaine session_ : 028 — au choix : A) HF-CR3 suite (rapatriement CI requise / enrichissement) ; B) nouvelle demande pilote ; C) maintenance.
-_Version publiée_ : **0.0.5** (Maven Central, bundle `dbdfa6fb`) + Gradle Plugin Portal (handle `cccp-education`)
+_Dernière session terminée_ : 028 — **Dogfooding réel + fix bug audio-post (BGM/ducking)**. Rapport `.agents/sessions/028-dogfooding-audio-post-fix.adoc`.
+_Prochaine session_ : 029 — au choix : A) release corrective `0.0.6` (fix audio-post) ; B) HF-CR3 suite ; C) maintenance.
+_Version publiée_ : **0.0.5** (Maven Central, bundle `dbdfa6fb`) + Gradle Plugin Portal (handle `cccp-education`) — ⚠️ contient le bug BGM (corrigé dans la source, cf. S-028)
 
 '''
 == RÈGLES ABSOLUES (résumé)
@@ -197,6 +197,7 @@ Le dictionnaire reste côté auteur (AsciiDoc), pas côté moteur (Node.js).
 
 |===
 | # | Date | Type | Sujet | Score
+| 028 | 2026-10-15 | dogfooding+fix | **Dogfooding réel des adaptateurs post-production + fix bug ffmpeg.** Vrais binaires (ffmpeg 6.1.1, espeak) : burn-in ✅, loudnorm seul ✅, narration ✅ ; **BGM/ducking ❌** (durée tronquée 0,118 s / `Invalid stream specifier: voice`). **2 causes** : `loudnorm` sort à 192 kHz (amix tronque) ; label `[voice]` mono-usage réutilisé. **Fix** : `…,aresample=48000` + `asplit=2`. Tests unit renforcés + **garde d'intégration réel** `FfmpegAudioPostProductionIntegrationTest` (skip-gardé, câblé `real-render-hyperframes.yml`). | ✅ TERMINÉ
 | 027 | 2026-10-15 | release | **Publication `hyperframes-plugin 0.0.5`** (Maven Central, bundle `dbdfa6fb`, AUTOMATIC). Release DAG N0→N1→N2 : MEMPHIS catalogue/BOM `0.0.95` (`hyperframes-plugin = "0.0.5"`) → re-pin catalogue `0.0.90 → 0.0.95` + platform `workspace-bom 0.0.90 → 0.0.95` + toml local `0.0.4 → 0.0.5`. Contenu depuis 0.0.4 : consommation des ports vidéo partagés (`video-kernel 0.4.0`) + durcissement du rendu réel + correctif contrat Gradle de l'extension. | ✅ TERMINÉ
 | 026 | 2026-10-15 | feat+test | **Ports vidéo partagés (2ᵉ consommateur) + durcissement du rendu réel** (transverse, « A puis B »). Domaine `hyperframes.post` (`CommandRunner`, builders purs, `FfmpegSubtitleBurnIn`, `FfmpegAudioPostProduction`, `EspeakTextToSpeech`, `NarrationTrackExtractor`) ; tâches `postProcessHyperframes` (burn-in + audio post) et `generateHyperframesNarration` (TTS) ; 9 properties d'extension ; `video-kernel 0.3.0 → 0.4.0`. Rendu réel enrichi (2 compositions + timeline GSAP) + couverture hermétique `HyperframesRenderEnrichmentTest`. 20 unit + 7 BDD + 5 functional. Compiles VERTS. | ✅ TERMINÉ
 | 025 | 2026-10-14 | feat+ci+test | **EPIC HF-CR3 TERMINÉ 3/3** — GSAP vendoré (`vendor/gsap-3.12.5.min.js` + `GsapLibrary`, inliné, plus de `cdnjs.cloudflare.com`) ; test de rendu **réel** skip-gardé (`cr3_real_render.feature` + `Cr3RealRenderCucumberRunner` + tâche `cucumberTestCr3RealRender`) ; workflow non-bloquant `real-render-hyperframes.yml` (Node + ffmpeg + sonde durée). CI requise `38581509190` ✅ ; rendu réel `38581521692` ✅ (MP4 16 705 o, 1,0 s). | ✅ TERMINÉ

@@ -1,0 +1,53 @@
+= Session 028 — Dogfooding réel des adaptateurs post-production + fix bug ffmpeg (BGM/ducking)
+:toc:
+
+== Contexte
+
+Option de pilotage « dogfooding » : les adaptateurs N2 ajoutés en S-026
+(`postProcessHyperframes` : `FfmpegSubtitleBurnIn` + `FfmpegAudioPostProduction` ;
+`generateHyperframesNarration` : `EspeakTextToSpeech`) n'avaient **jamais tourné
+avec de vrais binaires** — les tests sont hermétiques (faux `CommandRunner`).
+Binaires locaux : ffmpeg 6.1.1, espeak, node/npm présents.
+
+== Dogfooding — résultats
+
+| Chemin | Résultat
+| burn-in sous-titres (VTT réel) | ✅ MP4 h264+aac, 3,0 s
+| audio-post **loudnorm seul** | ✅ MP4 3,0 s
+| narration TTS (espeak réel) | ✅ `narration-1.wav` (122 Ko, 2,78 s)
+| audio-post **BGM sans ducking** | ❌ sortie tronquée (**0,118 s** au lieu de 3,0 s)
+| audio-post **BGM + ducking** | ❌ ffmpeg échoue (`Invalid stream specifier: voice`) → dégradation
+
+== Bug réel (2 causes)
+
+Reproduit en ffmpeg natif :
+. **`loudnorm` sort à 192 kHz** ; chaîné dans un `amix` (mix BGM), la sortie est
+  tronquée à ~0,12 s (incohérence de fréquence d'échantillonnage).
+. **label `[voice]` réutilisé** — dans la branche ducking, `[voice]` alimentait à
+  la fois `sidechaincompress` **et** `amix` ; un pad de sortie de filtre est
+  **mono-usage** → `Invalid stream specifier: voice`.
+
+Preuve de la correction (ffmpeg réel) : `loudnorm=...,aresample=48000` + `asplit=2`
+→ 3,018 s, branche ducking comprise.
+
+== Correctif
+
+`HyperframesAudioPostCommand.buildFilterGraph` : `loudnorm=...,aresample=48000` ;
+branche ducking = `[voice]asplit=2[vsc][vmix];[vsc][bgm]sidechaincompress…[ducked];[vmix][ducked]amix…`.
+**Bug identique** dans le noyau capsule `AudioPostCommand` (voir capsule S-203).
+
+== Tests
+
+* Unit renforcés (`PostProductionCommandsTest`) : `aresample=48000` (sans bed) et
+  `asplit=2` (ducking) verrouillés.
+* **Nouveau garde d'intégration réel** `FfmpegAudioPostProductionIntegrationTest`
+  (skip-gardé `assumeTrue` ffmpeg/ffprobe) : génère un MP4 + BGM, applique
+  l'audio-post réel, asserte que la **durée** de sortie ≈ entrée (loudness-only et
+  BGM+ducking). Câblé au workflow `.github/workflows/real-render-hyperframes.yml`
+  (qui installe déjà ffmpeg).
+
+== Suite — décision pilote
+
+* `hyperframes-plugin 0.0.5` (Central) **contient ce bug** dans le chemin BGM
+  (opt-in `audioPostEnabled`, défaut `false`). Une **release correctif `0.0.6`**
+  (MEMPHIS catalogue + bump) est requise pour le propager — accord pilote.

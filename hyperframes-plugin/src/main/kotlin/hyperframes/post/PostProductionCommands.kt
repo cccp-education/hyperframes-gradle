@@ -41,7 +41,11 @@ object HyperframesAudioPostCommand {
      * meaningless and ignored).
      */
     fun buildFilterGraph(settings: AudioPostSettings, hasBgmInput: Boolean): String {
-        val loudness = "loudnorm=I=${settings.loudnessTargetLufs}:TP=-1.5:LRA=11"
+        // S-028 (dogfooding réel) — two real-ffmpeg fixes (mirrored in capsule
+        // `AudioPostCommand`, S-203): loudnorm outputs 192 kHz so a resample is
+        // required before a following amix, and the ducking branch must `asplit`
+        // the voice (a filter output pad is single-use).
+        val loudness = "loudnorm=I=${settings.loudnessTargetLufs}:TP=-1.5:LRA=11,aresample=48000"
         if (!(settings.bgmEnabled && hasBgmInput)) return loudness
 
         val bgmVolume = "volume=${settings.bgmLevelDb}dB"
@@ -51,7 +55,7 @@ object HyperframesAudioPostCommand {
         }
         val ducking = "sidechaincompress=threshold=0.1:ratio=4:attack=5:release=300"
         return "[0:a]${loudness}[voice];[1:a]${bgmVolume}[bgm];" +
-            "[voice][bgm]${ducking}[ducked];[voice][ducked]${amix}[aout]"
+            "[voice]asplit=2[vsc][vmix];[vsc][bgm]${ducking}[ducked];[vmix][ducked]${amix}[aout]"
     }
 
     /** Full argv; the background bed is a second `-i` when enabled. */

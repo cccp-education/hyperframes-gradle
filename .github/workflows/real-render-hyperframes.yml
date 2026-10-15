@@ -64,6 +64,10 @@ jobs:
           HF_REAL_RENDER_OUTPUT: ${{ github.workspace }}/hyperframes-plugin/build/real-render
         run: ./gradlew cucumberTestCr3RealRender --info
 
+      - name: Audio post real-FFmpeg guard (skip-guarded)
+        working-directory: hyperframes-plugin
+        run: ./gradlew test --tests "hyperframes.post.FfmpegAudioPostProductionIntegrationTest" --info
+
       - name: Probe the produced MP4 duration (ffprobe)
         working-directory: hyperframes-plugin
         run: |

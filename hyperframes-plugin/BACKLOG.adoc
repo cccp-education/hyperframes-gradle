@@ -16,6 +16,17 @@ Contenu depuis 0.0.4 : consommation des ports vidéo partagés (2ᵉ consommateu
 de l'extension. Rapport `.agents/sessions/027-release-0.0.5.adoc`.
 
 '''
+== ✅ Dogfooding réel audio-post + fix bug ffmpeg (S-028)
+
+Dogfooding des adaptateurs post-production (S-026) avec vrais binaires : le chemin
+**BGM / ducking** était cassé (durée tronquée 0,118 s / `Invalid stream specifier: voice`).
+Causes : `loudnorm` sort à 192 kHz (amix tronque) ; label `[voice]` mono-usage réutilisé.
+Fix : `loudnorm=…,aresample=48000` + `asplit=2` (branche ducking). Garde d'intégration
+réel `FfmpegAudioPostProductionIntegrationTest` (skip-gardé) câblé au workflow rendu
+réel. Rapport `.agents/sessions/028-dogfooding-audio-post-fix.adoc`. **Dette** : release
+corrective `0.0.6` (accord pilote).
+
+'''
 == ✅ VK-4-SHARED-PORTS — 2ᵉ consommateur des ports vidéo partagés (S-026)
 
 _📖 Littérature : `video-kernel/.agents/CADRAGE_EPIC_VK_SHARED_PORTS.adoc` (✅ clos)._
