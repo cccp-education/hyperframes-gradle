@@ -74,6 +74,36 @@ class HyperframesPlugin : Plugin<Project> {
         target.tasks.named("renderHyperframes") { it.mustRunAfter("generateHyperframesHtml") }
         target.tasks.named("collectHyperframesRetrieve") { it.mustRunAfter("renderHyperframes") }
 
+        // VK-4 US-4d — narration synthesis through the shared N1 TextToSpeech
+        // port (second consumer of the engine-neutral narration contract).
+        target.tasks.register("generateHyperframesNarration", GenerateHyperframesNarrationTask::class.java) { task ->
+            task.description = "Synthesize narration audio from the enriched HTML via the shared TextToSpeech port"
+            task.group = "hyperframes"
+            task.htmlDir.set(extension.outputDir)
+            task.outputDir.set(target.layout.buildDirectory.dir("hyperframes/narration"))
+            task.ttsExecutable.set(extension.ttsExecutable)
+            task.ttsVoice.set(extension.ttsVoice)
+        }
+        target.tasks.named("generateHyperframesNarration") { it.mustRunAfter("generateHyperframesHtml") }
+
+        // VK-4 US-4b→c — post-production (burn-in + audio post) on the rendered
+        // MP4 through the shared SubtitleBurnIn / AudioPostProduction ports.
+        target.tasks.register("postProcessHyperframes", PostProcessHyperframesTask::class.java) { task ->
+            task.description = "Apply subtitle burn-in and audio post-production to the rendered MP4 (shared N1 ports)"
+            task.group = "hyperframes"
+            task.renderDir.set(extension.outputDir)
+            task.outputDir.set(target.layout.buildDirectory.dir("hyperframes/post"))
+            task.outputName.set(extension.outputName)
+            task.subtitleFile.set(extension.subtitleFile)
+            task.audioPostEnabled.set(extension.audioPostEnabled)
+            task.bgmFile.set(extension.bgmFile)
+            task.bgmLevelDb.set(extension.bgmLevelDb)
+            task.loudnessTargetLufs.set(extension.loudnessTargetLufs)
+            task.duckingEnabled.set(extension.duckingEnabled)
+            task.ffmpegExecutable.set(extension.ffmpegExecutable)
+        }
+        target.tasks.named("postProcessHyperframes") { it.mustRunAfter("renderHyperframes") }
+
         // D-F (S-017) — lifecycle task running the whole pipeline in order.
         target.tasks.register("hyperframesPipeline") { task ->
             task.description = "Run the full HyperFrames pipeline: AsciiDoc → HTML → MP4 → N3 metadata"

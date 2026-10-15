@@ -341,9 +341,9 @@ class HyperframesWorld {
     }
 
     /**
-     * HF-CR3-3 — writes a document exercising the title-card enrichment (one of
-     * the `enhance*` transforms) so the real render covers the enriched HTML, not
-     * a raw string.
+     * HF-CR3-3 / HF-CR3 suite (B) — writes a document exercising several
+     * enrichments at once (two compositions + an inlined GSAP timeline), so the
+     * real render covers a *rich* enriched HTML — not a single raw string.
      */
     fun writeRenderableAdoc() {
         buildDir.deleteRecursively()
@@ -357,10 +357,23 @@ class HyperframesWorld {
             appendLine(":hyperframes-height: 1080")
             appendLine(":hyperframes-fps: 30")
             appendLine()
-            appendLine("[.hyperframes-title-card#intro]")
+            appendLine("[.hyperframes-composition#intro]")
             appendLine("== Real render")
             appendLine()
-            appendLine("HF-CR3-3")
+            appendLine("HF-CR3-3 real render.")
+            appendLine()
+            appendLine("[.hyperframes-animation, type=gsap]")
+            appendLine("----")
+            appendLine("window.__timelines = window.__timelines || {};")
+            appendLine("const tl = gsap.timeline({ paused: true });")
+            appendLine("tl.from(\"#intro\", { opacity: 0, duration: 0.5 }, 0);")
+            appendLine("window.__timelines[\"intro\"] = tl;")
+            appendLine("----")
+            appendLine()
+            appendLine("[.hyperframes-composition#outro]")
+            appendLine("== Outro")
+            appendLine()
+            appendLine("Merci.")
         }
         srcDir.resolve("index.adoc").writeText(doc)
     }

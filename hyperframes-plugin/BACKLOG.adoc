@@ -5,6 +5,33 @@ _Date création_ : 2026-05-31
 _Version_ : 0.0.4
 
 '''
+== ✅ VK-4-SHARED-PORTS — 2ᵉ consommateur des ports vidéo partagés (S-026)
+
+_📖 Littérature : `video-kernel/.agents/CADRAGE_EPIC_VK_SHARED_PORTS.adoc` (✅ clos)._
+
+Le noyau `video-kernel 0.4.0` expose trois ports engine-neutres ; hyperframes les
+**consomme réellement** (au-delà du port `VideoDurationProbe` de S-195/S-024) :
+
+[cols="1,3", options="header"]
+|===
+| Port | Consommation hyperframes
+| `SubtitleBurnIn` | tâche `postProcessHyperframes` — burn-in du MP4 via `FfmpegSubtitleBurnIn`
+| `AudioPostProduction` | tâche `postProcessHyperframes` — loudness/BGM/ducking via `FfmpegAudioPostProduction`
+| `TextToSpeech` | tâche `generateHyperframesNarration` — narration des tracks via `EspeakTextToSpeech`
+|===
+
+Domaine `hyperframes.post` (seam `CommandRunner` test-injectable, builders purs,
+adaptateurs N2, `NarrationTrackExtractor`) ; 9 properties d'extension. Pin
+`video-kernel 0.3.0 → 0.4.0`. Tests : 20 unit + 7 BDD `@post-production` +
+5 functional. Rapport `.agents/sessions/026-shared-ports-and-real-render-hardening.adoc`.
+
+=== ✅ HF-CR3 — durcissement du rendu réel (S-026)
+
+Le rendu réel (`cr3_real_render.feature`) couvre désormais un HTML **riche**
+(deux compositions + timeline GSAP inlinée) ; couverture hermétique ajoutée en
+CI requise (`HyperframesRenderEnrichmentTest`).
+
+'''
 == Vision Produit
 
 Un plugin Gradle N2 qui transforme un document AsciiDoc annoté en vidéo MP4

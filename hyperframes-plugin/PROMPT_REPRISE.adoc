@@ -1,7 +1,7 @@
-= PROMPT_REPRISE — HyperFrames Gradle (Session 025 TERMINÉE → 026)
-:session: 025
-:date: 2026-10-14
-:status: ✅ TERMINÉ — EPIC HF-CR3 : GSAP vendored + CI rendu réel + test rendu réel
+= PROMPT_REPRISE — HyperFrames Gradle (Session 026 TERMINÉE → 027)
+:session: 026
+:date: 2026-10-15
+:status: ✅ TERMINÉ — consommation des ports vidéo partagés (2ᵉ consommateur) + durcissement du rendu réel
 :borough: Watts
 
 '''
@@ -9,59 +9,52 @@
 
 Plugin Gradle fonctionnel : AsciiDoc → AsciidoctorJ → HTML enrichi → CLI Node → MP4
 (via le noyau `VideoEngine`). EPICs HF-0→HF-7 ✅. **`HF-KERNEL-ADAPTER` ✅ TERMINÉ**.
-**`HF-CR3` ✅ TERMINÉ 3/3** (S-025). **Version publiée `0.0.4`** (Maven Central,
-bundle `79a6f808`). Noyau **`education.cccp:video-kernel:0.3.0`**. Catalogue ws
-`0.0.90` / BOM plateforme `0.0.90`. **CI** `test-hyperframes.yml` + nouveau
-`real-render-hyperframes.yml` (rendu réel, non-bloquant).
+**`HF-CR3` ✅ TERMINÉ 3/3** (S-025) puis **durci S-026**. **Version publiée `0.0.4`**
+(Maven Central, bundle `79a6f808`). Noyau **`education.cccp:video-kernel:0.4.0`**.
+Catalogue ws `0.0.90` / BOM plateforme `0.0.90`.
 
-== Fait en session 025
+== Fait en session 026 (transverse — A puis B)
 
-. **HF-CR3-1** — GSAP **vendored** (`vendor/gsap-3.12.5.min.js` ressource du
-   plugin + `hyperframes.vendor.GsapLibrary`), inliné dans `<head>` ; le HTML
-   produit n'a plus aucune source de script externe. Bannière GreenSock
-   préservée.
-. **HF-CR3-3** — scénario BDD d'intégration réel (`cr3_real_render.feature`,
-   `@integration @real-render`) + runner dédié `Cr3RealRenderCucumberRunner` +
-   tâche `cucumberTestCr3RealRender` : la vraie CLI rend un document à
-   title-card, le MP4 est validé (non vide, durée ffprobe > 0, premier flux
-   vidéo lisible). Skip-gardé (`assumeTrue`), hors `check`.
-. **HF-CR3-2** — workflow `real-render-hyperframes.yml` (`workflow_dispatch` +
-   `schedule`, non-requis) : Node 22 + `npm install hyperframes@0.8.157` +
-   **ffmpeg** + `cucumberTestCr3RealRender` + sonde `ffprobe` indépendante.
-. Preuves : CI requise **`38581509190` ✅** ; rendu réel **`38581521692` ✅**
-   (MP4 16 705 octets, 1,0 s).
+. **A — 2ᵉ consommateur des ports vidéo partagés** (`video-kernel 0.3.0 → 0.4.0`) :
+   domaine `hyperframes.post` (`CommandRunner`, builders purs, `FfmpegSubtitleBurnIn`,
+   `FfmpegAudioPostProduction`, `EspeakTextToSpeech`, `NarrationTrackExtractor`) +
+   tâches **`postProcessHyperframes`** (burn-in + audio post) et
+   **`generateHyperframesNarration`** (TTS) + 9 properties d'extension.
+. **B — durcissement du rendu réel** : `writeRenderableAdoc` = 2 compositions +
+   timeline GSAP ; `cr3_real_render.feature` +2 assertions ; couverture hermétique
+   `HyperframesRenderEnrichmentTest`.
+. Tests : 20 unit + 7 BDD `@post-production` + 5 functional. Compiles VERTS.
 
-== Mission Session 026 — au choix (pilote)
+== Mission Session 027 — au choix (pilote)
 
-* A) **Nouvelle demande pilote** (EPIC HF-*).
-* B) **HF-CR3 suite / durcissement** : rendre le rendu réel plus riche
-  (animation GSAP, plusieurs compositions), ou rapatrier le job dans la CI
-  requise si la stabilité le permet.
-* C) Maintenance / dette résiduelle.
+* A) **Publication `hyperframes-plugin 0.0.5`** (Règle 2, accord pilote) — intègre
+  la consommation des ports vidéo partagés + le durcissement du rendu réel.
+* B) **HF-CR3 suite** : rapatrier le job de rendu réel dans la CI requise si la
+  stabilité le permet (Node+npm+ffmpeg), ou enrichir davantage (Manim/Remotion).
+* C) Maintenance / nouvelle demande pilote.
 
 == Points d'attention
 
+* **Prérequis** : publication Central `video-kernel 0.4.0` (accord pilote) — la CI
+  hyperframes résout le noyau depuis Central (mavenLocal vide en CI).
 * **Local = Build, Tests = CI** : ne jamais lancer `test`/`check` en local.
 * **Règle 2 — PUBLISH** : accord pilote. **Règle 6 — ZÉRO secret**.
 * **Version dérivée** : bumper `gradle/libs.versions.toml` (`hyperframes`) ET le
   catalogue MEMPHIS (même valeur, garde `HyperframesPluginPublicationTest`).
-* Le noyau est consommé depuis **Maven Central** (propagation repo1 avant push —
-  piège DAG R-1).
-* **Rendu réel** : ffprobe n'est pas préinstallé sur le runner GitHub → installer
-  `ffmpeg` (voir le workflow). Le scénario d'intégration est skip-gardé.
 
 == Rappels techniques
 
 - **Rendu** : `RenderHyperframesTask` → `HyperFramesEngine.renderDetailed` (port N1).
-- **GSAP** : `hyperframes.vendor.GsapLibrary.inlineScript()` (vendored, inliné).
-- Noyau partagé `education.cccp:video-kernel:0.3.0` (`video.kernel.*`).
+- **Post-production** : `postProcessHyperframes` (ports `SubtitleBurnIn` + `AudioPostProduction`).
+- **Narration** : `generateHyperframesNarration` (port `TextToSpeech`).
+- Noyau partagé `education.cccp:video-kernel:0.4.0` (`video.kernel.*`).
 - Catalogue ws `education.cccp:workspace-catalog:0.0.90`.
 
 == Routes documents clés
 
 |===
 | Document | Chemin
-| Rapport S-025 | `.agents/sessions/025-hf-cr3-vendor-gsap-real-render.adoc`
+| Rapport S-026 | `.agents/sessions/026-shared-ports-and-real-render-hardening.adoc`
 | Cadrage kernel (amont) | `.agents/CADRAGE_EPIC_HF_KERNEL_ADAPTER.adoc`
 | Backlog | `BACKLOG.adoc`
 | Règles | `AGENT.adoc`

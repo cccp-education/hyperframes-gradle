@@ -1,0 +1,75 @@
+= Session 026 — Consommation des ports vidéo partagés + durcissement du rendu réel
+:toc:
+
+== Contexte
+
+Session **transverse** (video-kernel + capsule + hyperframes), mission pilote
+« enchaine sur A puis B ».
+
+* **A** — promotion des ports `VK-4 US-4b→d` au noyau, hyperframes déclaré
+  **2ᵉ consommateur** (cadrage `video-kernel/.agents/CADRAGE_EPIC_VK_SHARED_PORTS.adoc`).
+* **B** — durcissement du rendu réel (HF-CR3 suite) : document plus riche
+  (multi-compositions + animation GSAP).
+
+== A — Consommation réelle des ports partagés (2ᵉ consommateur)
+
+Le noyau `video-kernel 0.4.0` expose `TextToSpeech`, `AudioPostProduction`
+(+ `AudioPostSettings`), `SubtitleBurnIn` (fun-interfaces pures, jamais d'exception).
+hyperframes les consomme via un nouveau domaine `hyperframes.post` :
+
+[cols="1,3", options="header"]
+|===
+| Artefact | Rôle
+| `CommandRunner` (+ `ProcessBuilderCommandRunner`) | seam process test-injectable
+| `HyperframesSubtitleCommand` / `HyperframesAudioPostCommand` / `HyperframesTtsCommand` | builders purs
+| `FfmpegSubtitleBurnIn` / `FfmpegAudioPostProduction` | impls N2 des ports (dégradation `false`)
+| `EspeakTextToSpeech` | impl N2 du port TTS
+| `NarrationTrackExtractor` | extraction pure de la narration du HTML enrichi
+|===
+
+Tâches :
+
+* **`postProcessHyperframes`** — burn-in (si `subtitleFile`) puis audio post (si
+  `audioPostEnabled`) sur le MP4 rendu ; dégradation **pass-through** (toujours
+  écrit `<name>.mp4` dans `build/hyperframes/post`).
+* **`generateHyperframesNarration`** — narration des `[hyperframes-track]` →
+  `narration-<n>.wav` (skip économie d'encre, dégradation non fatale).
+
+Extension : `subtitleFile`, `audioPostEnabled`, `bgmFile`, `bgmLevelDb`
+(-18.0), `loudnessTargetLufs` (-16.0), `duckingEnabled`, `ffmpegExecutable`,
+`ttsExecutable`, `ttsVoice` (conventions rétro-compatibles).
+
+Pin : `gradle/libs.versions.toml` `video-kernel 0.3.0 → 0.4.0`.
+
+== B — Durcissement du rendu réel
+
+* `HyperframesWorld.writeRenderableAdoc` enrichi : **deux compositions**
+  (`intro`/`outro`) + **timeline GSAP inlinée** (`window.__timelines`,
+  `gsap.timeline`).
+* `cr3_real_render.feature` : +2 assertions (`multiple compositions`,
+  `inlined GSAP timeline`) — le rendu **réel** couvre un HTML riche, pas une
+  chaîne minimale.
+* Couverture **hermétique** ajoutée (CI requise) :
+  `HyperframesRenderEnrichmentTest` (functional TestKit) génère le document
+  enrichi et vérifie multi-compositions + timeline + GSAP vendoré (zéro CDN).
+
+== Tests
+
+* Unit : `PostProductionCommandsTest` (7), `PostProductionAdaptersTest` (9, fake
+  runner), `NarrationTrackExtractorTest` (4).
+* BDD : `post_production.feature` (7 scénarios `@post-production`) via la glue
+  `hyperframes.scenarios` (runner agrégé).
+* Functional : `HyperframesPostProcessTest` (4 — enregistrement, pass-through,
+  échec sans MP4, narration no-op) + `HyperframesRenderEnrichmentTest` (1).
+
+== Gates (Local = Build)
+
+Compiles ×3 (`compileKotlin`/`compileTestKotlin`/`compileFunctionalTestKotlin`)
+**VERTS**. **Tests = CI** (règle EAGER).
+
+== Dette / suite
+
+* **Publication Central `video-kernel 0.4.0`** — prérequis dur CI (hyperframes
+  résout le noyau depuis Central) — accord pilote requis (Règle 2).
+* Rendu réel = workflow **non bloquant** conservé (`real-render-hyperframes.yml`) :
+  le rapatriement en CI requise reste conditionné à la stabilité (Node+npm+ffmpeg).

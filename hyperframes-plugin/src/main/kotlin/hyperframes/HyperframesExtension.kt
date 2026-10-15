@@ -103,6 +103,50 @@ abstract class HyperframesExtension {
     @get:Input
     abstract val strict: Property<Boolean>
 
+    /**
+     * VK-4 US-4c — optional subtitle file (SRT/VTT) burned into the rendered MP4
+     * by `postProcessHyperframes` through the shared `SubtitleBurnIn` port.
+     */
+    @get:Input
+    @get:Optional
+    abstract val subtitleFile: Property<String>
+
+    /** VK-4 US-4b — enable audio post-production in `postProcessHyperframes`. */
+    @get:Input
+    abstract val audioPostEnabled: Property<Boolean>
+
+    /** Optional background-music file mixed under the voice track. */
+    @get:Input
+    @get:Optional
+    abstract val bgmFile: Property<String>
+
+    /** Background-music level under the voice, in dB (default `-18.0`). */
+    @get:Input
+    abstract val bgmLevelDb: Property<Double>
+
+    /** Target loudness for normalization, in LUFS (default `-16.0`). */
+    @get:Input
+    abstract val loudnessTargetLufs: Property<Double>
+
+    /** Lower the background bed while the voice speaks. */
+    @get:Input
+    abstract val duckingEnabled: Property<Boolean>
+
+    /** Optional `ffmpeg` executable for post-production (default: PATH). */
+    @get:Input
+    @get:Optional
+    abstract val ffmpegExecutable: Property<String>
+
+    /** VK-4 US-4d — optional TTS executable for narration (default: `espeak`). */
+    @get:Input
+    @get:Optional
+    abstract val ttsExecutable: Property<String>
+
+    /** Optional narration voice (e.g. `fr`, `en`); blank = engine default. */
+    @get:Input
+    @get:Optional
+    abstract val ttsVoice: Property<String>
+
     init {
         width.convention(1920)
         height.convention(1080)
@@ -110,5 +154,9 @@ abstract class HyperframesExtension {
         outputName.convention("output")
         renderTimeoutMs.convention(300_000L)
         strict.convention(false)
+        audioPostEnabled.convention(false)
+        bgmLevelDb.convention(-18.0)
+        loudnessTargetLufs.convention(-16.0)
+        duckingEnabled.convention(false)
     }
 }

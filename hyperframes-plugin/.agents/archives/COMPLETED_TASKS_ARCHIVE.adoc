@@ -1,6 +1,17 @@
 = COMPLETED_TASKS_ARCHIVE — hyperframes-gradle
 :date: 2026-05-31
-:last-updated: 2026-10-14 (session 025)
+:last-updated: 2026-10-15 (session 026)
+
+== Session 026 (2026-10-15) — Ports vidéo partagés (2ᵉ consommateur) + durcissement du rendu réel ✅
+
+* **A** — consommation réelle des ports `video-kernel 0.4.0` : domaine
+  `hyperframes.post` (`CommandRunner`, builders purs, `FfmpegSubtitleBurnIn`,
+  `FfmpegAudioPostProduction`, `EspeakTextToSpeech`, `NarrationTrackExtractor`) ;
+  tâches `postProcessHyperframes` (burn-in + audio post) et
+  `generateHyperframesNarration` (TTS) ; 9 properties d'extension.
+* **B** — rendu réel enrichi (2 compositions + timeline GSAP) + couverture
+  hermétique `HyperframesRenderEnrichmentTest`.
+* 20 unit + 7 BDD `@post-production` + 5 functional. Compiles VERTS.
 
 == Session 025 (2026-10-14) — EPIC HF-CR3 : GSAP vendoré + CI rendu réel + test rendu réel ✅
 

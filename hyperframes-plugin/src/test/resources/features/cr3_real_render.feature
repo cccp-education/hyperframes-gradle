@@ -10,6 +10,8 @@ Feature: HF-CR3-3 — real HyperFrames CLI render
     When I run the hyperframesPipeline task with the real CLI
     Then the real-render HTML embeds the vendored GSAP runtime
     And the real-render HTML does not reference the GSAP CDN
+    And the real-render HTML contains multiple compositions
+    And the real-render HTML embeds an inlined GSAP timeline
     And the rendered MP4 file exists and is not empty
     And the rendered MP4 reports a positive duration
     And the rendered MP4 exposes a readable first video stream

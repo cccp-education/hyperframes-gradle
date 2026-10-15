@@ -1,6 +1,20 @@
 = Test Coverage Analysis — hyperframes-gradle
 
-_Dernière mise à jour_ : 2026-10-14 (Session 022 — dette D-F : source set `functionalTest` + cache ; dogfooding réel)
+_Dernière mise à jour_ : 2026-10-15 (Session 026 — consommation des ports vidéo partagés + durcissement du rendu réel)
+
+== Couverture — 15 octobre 2026 (après session 026)
+
+.Ports vidéo partagés (2ᵉ consommateur) + rendu réel enrichi
+|===
+| Élément | Nature | Tests
+
+| `hyperframes/post/CommandRunner.kt` | seam process test-injectable | (couverts via adapters)
+| `hyperframes/post/PostProductionCommands.kt` | builders purs (subtitle/audio-post/tts) | +7 `PostProductionCommandsTest`
+| `hyperframes/post/PostProductionAdapters.kt` | adapters N2 (`FfmpegSubtitleBurnIn`, `FfmpegAudioPostProduction`, `EspeakTextToSpeech`) | +9 `PostProductionAdaptersTest` (fake runner)
+| `hyperframes/post/NarrationTrackExtractor.kt` | extracteur pur | +4 `NarrationTrackExtractorTest`
+| `PostProcessHyperframesTask.kt` / `GenerateHyperframesNarrationTask.kt` | tâches | +4 `HyperframesPostProcessTest` (functional TestKit) + 7 BDD `@post-production`
+| `cr3_real_render.feature` / `writeRenderableAdoc` | rendu réel enrichi (2 compositions + GSAP) | +2 assertions + 1 `HyperframesRenderEnrichmentTest` (hermétique)
+|===
 
 == Couverture — 14 octobre 2026 (après session 022)
 

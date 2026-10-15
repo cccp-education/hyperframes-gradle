@@ -60,6 +60,19 @@ class Cr3RealRenderSteps(private val world: HyperframesWorld) {
         assertThat(world.generatedHtml()).doesNotContain("cdnjs.cloudflare.com")
     }
 
+    @Then("the real-render HTML contains multiple compositions")
+    fun htmlMultipleCompositions() {
+        val count = Regex("""data-composition-id="""").findAll(world.generatedHtml()).count()
+        assertThat(count).`as`("the enriched HTML must expose several compositions").isGreaterThanOrEqualTo(2)
+    }
+
+    @Then("the real-render HTML embeds an inlined GSAP timeline")
+    fun htmlEmbedsTimeline() {
+        val html = world.generatedHtml()
+        assertThat(html).contains("window.__timelines")
+        assertThat(html).contains("gsap.timeline")
+    }
+
     @Then("the rendered MP4 file exists and is not empty")
     fun mp4ExistsNotEmpty() {
         val mp4 = world.renderedMp4()
