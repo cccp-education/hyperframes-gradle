@@ -1,0 +1,41 @@
+= Session 027 — Release `hyperframes-plugin 0.0.5` (Maven Central)
+:toc:
+
+== Contexte
+
+Release DAG N0→N1→N2 (accord pilote), demandée en clôture de la session transverse
+vidéo (« enchaine »). Intègre la **consommation des ports vidéo partagés** (S-026,
+2ᵉ consommateur de `video-kernel 0.4.0`) et le **durcissement du rendu réel**.
+
+== Ordre DAG respecté
+
+. `video-kernel 0.4.0` publié Central (S-196, bundle `695c4ccd`).
+. **MEMPHIS** catalogue/BOM `0.0.95` (`hyperframes-plugin = "0.0.5"`, bundle `bf6e4b33`).
+. **hyperframes** : re-pin `workspace-catalog 0.0.90 → 0.0.95` + platform
+   `workspace-bom 0.0.90 → 0.0.95` + toml local `hyperframes 0.0.4 → 0.0.5`
+   (version dérivée `ws.versions.hyperframes.plugin` = 0.0.5).
+. Publication Central `hyperframes-plugin 0.0.5` (ce document).
+
+== Contenu depuis 0.0.4
+
+* **A — 2ᵉ consommateur des ports vidéo partagés** (`video-kernel 0.4.0`) : domaine
+  `hyperframes.post` (`CommandRunner`, builders purs, `FfmpegSubtitleBurnIn`,
+  `FfmpegAudioPostProduction`, `EspeakTextToSpeech`, `NarrationTrackExtractor`) ;
+  tâches `postProcessHyperframes` (burn-in + audio post) et
+  `generateHyperframesNarration` (TTS) ; 9 properties d'extension.
+* **B — durcissement du rendu réel** : document enrichi (2 compositions + timeline
+  GSAP), assertions réelles supplémentaires, couverture hermétique
+  `HyperframesRenderEnrichmentTest`.
+* **Correctif contrat Gradle** : `@OutputDirectory` retiré de l'extension
+  (l'anti-pattern S-017 faisait échouer toute tâche le consommant en entrée).
+
+== Gates (Local = Build)
+
+Compiles ×3 VERTS. `publishToMavenLocal` VERT — POM `0.0.5` importe
+`workspace-bom:0.0.95`. Publication Central bundle
+`dbdfa6fb-df33-4086-9a4c-06a6b70b7eb8` (AUTOMATIC).
+
+== Suite
+
+* Propagation repo1 `hyperframes-plugin/0.0.5` à confirmer.
+* Aucune action MEMPHIS supplémentaire (catalogue `0.0.95` déjà publié).

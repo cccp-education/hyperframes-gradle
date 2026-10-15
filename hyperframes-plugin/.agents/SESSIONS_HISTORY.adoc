@@ -1,5 +1,17 @@
 = SESSIONS_HISTORY — hyperframes-gradle
 
+== Session 027 (2026-10-15) — Release `hyperframes-plugin 0.0.5` (Maven Central)
+
+Release DAG N0→N1→N2 (accord pilote). `video-kernel 0.4.0` (Central) →
+MEMPHIS catalogue/BOM `0.0.95` (`hyperframes-plugin = "0.0.5"`, bundle `bf6e4b33`) →
+hyperframes re-pin `workspace-catalog 0.0.90 → 0.0.95` + platform
+`workspace-bom 0.0.90 → 0.0.95` + toml local `hyperframes 0.0.4 → 0.0.5` →
+**publication Central `0.0.5`** (bundle `dbdfa6fb-df33-4086-9a4c-06a6b70b7eb8`,
+AUTOMATIC). `publishToMavenLocal` VERT (POM `0.0.5` importe `workspace-bom:0.0.95`).
+Contenu depuis 0.0.4 : consommation des ports vidéo partagés (S-026, 2ᵉ consommateur)
++ durcissement du rendu réel + correctif contrat Gradle de l'extension. Rapport
+`.agents/sessions/027-release-0.0.5.adoc`.
+
 == Session 026 (2026-10-15) — Ports vidéo partagés (2ᵉ consommateur) + durcissement du rendu réel (transverse)
 
 Session **transverse** (video-kernel + capsule + hyperframes), mission pilote

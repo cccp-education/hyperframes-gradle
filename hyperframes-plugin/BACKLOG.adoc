@@ -2,7 +2,18 @@
 :toc:
 
 _Date création_ : 2026-05-31
-_Version_ : 0.0.4
+_Version_ : 0.0.5
+
+'''
+== ✅ Release `hyperframes-plugin 0.0.5` — Maven Central (S-027)
+
+Release DAG N0→N1→N2 (accord pilote) : MEMPHIS catalogue/BOM `0.0.95`
+(`hyperframes-plugin = "0.0.5"`, bundle `bf6e4b33`) → re-pin hyperframes
+`workspace-catalog 0.0.90 → 0.0.95` + platform `workspace-bom 0.0.90 → 0.0.95`
++ toml local `0.0.4 → 0.0.5` → **Central `0.0.5`** (bundle `dbdfa6fb`, AUTOMATIC).
+Contenu depuis 0.0.4 : consommation des ports vidéo partagés (2ᵉ consommateur,
+`video-kernel 0.4.0`) + durcissement du rendu réel + correctif contrat Gradle
+de l'extension. Rapport `.agents/sessions/027-release-0.0.5.adoc`.
 
 '''
 == ✅ VK-4-SHARED-PORTS — 2ᵉ consommateur des ports vidéo partagés (S-026)
