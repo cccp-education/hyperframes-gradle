@@ -75,7 +75,9 @@ class PostProductionSteps {
     @Given("a post production fake command runner that writes the output")
     fun fakeRunner() {
         runner = CommandRunner { argv, _, _ ->
-            File(argv.last()).apply { parentFile?.mkdirs() }.writeText("produced")
+            val w = argv.indexOf("-w")
+            val out = if (w >= 0) argv[w + 1] else argv.last()
+            File(out).apply { parentFile?.mkdirs() }.writeText("produced")
             CommandResult(exitCode = 0)
         }
     }

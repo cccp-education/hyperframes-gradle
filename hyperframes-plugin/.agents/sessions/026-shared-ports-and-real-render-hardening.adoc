@@ -73,3 +73,14 @@ Compiles ×3 (`compileKotlin`/`compileTestKotlin`/`compileFunctionalTestKotlin`)
   résout le noyau depuis Central) — accord pilote requis (Règle 2).
 * Rendu réel = workflow **non bloquant** conservé (`real-render-hyperframes.yml`) :
   le rapatriement en CI requise reste conditionné à la stabilité (Node+npm+ffmpeg).
+
+== Correctif post-CI (run `38791275997`)
+
+La 1re CI `Test` a révélé 2 échecs, **même cause racine** :
+`PostProductionAdaptersTest > tts synthesizes non-blank text` et le scénario BDD
+« Narration is synthesized through the shared TTS adapter ». Le **faux `CommandRunner`**
+des tests écrivait dans `argv.last()` (supposant la sortie en dernier) — vrai pour
+les commandes subtitle/audio-post, **faux** pour la commande TTS dont le dernier
+argument est le **texte**, la sortie suivant `-w`. Correctif **test-only** : le faux
+runner résout la sortie par `-w` (fallback `last`). Aucun code de production modifié.
+

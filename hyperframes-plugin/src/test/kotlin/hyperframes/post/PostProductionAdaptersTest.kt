@@ -16,10 +16,16 @@ class PostProductionAdaptersTest {
     @TempDir
     lateinit var tmp: Path
 
-    /** Fake runner that writes the output file (last argv item) and returns exit 0. */
+    /** Fake runner that writes the intended output file and returns exit 0. */
     private fun writingRunner(): CommandRunner = CommandRunner { argv, _, _ ->
-        File(argv.last()).apply { parentFile?.mkdirs() }.writeText("produced")
+        File(outputOf(argv)).apply { parentFile?.mkdirs() }.writeText("produced")
         CommandResult(exitCode = 0)
+    }
+
+    /** The output path of an adapter command: after `-w` (TTS), else the last argv item. */
+    private fun outputOf(argv: List<String>): String {
+        val w = argv.indexOf("-w")
+        return if (w >= 0) argv[w + 1] else argv.last()
     }
 
     private fun failingRunner(): CommandRunner = CommandRunner { _, _, _ -> CommandResult(exitCode = 1, output = "boom") }
