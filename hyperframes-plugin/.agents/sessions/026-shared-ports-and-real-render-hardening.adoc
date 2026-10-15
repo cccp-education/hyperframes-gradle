@@ -74,13 +74,25 @@ Compiles ×3 (`compileKotlin`/`compileTestKotlin`/`compileFunctionalTestKotlin`)
 * Rendu réel = workflow **non bloquant** conservé (`real-render-hyperframes.yml`) :
   le rapatriement en CI requise reste conditionné à la stabilité (Node+npm+ffmpeg).
 
-== Correctif post-CI (run `38791275997`)
+== Correctifs post-CI (runs `38791275997`, `38792202056`)
 
-La 1re CI `Test` a révélé 2 échecs, **même cause racine** :
-`PostProductionAdaptersTest > tts synthesizes non-blank text` et le scénario BDD
-« Narration is synthesized through the shared TTS adapter ». Le **faux `CommandRunner`**
-des tests écrivait dans `argv.last()` (supposant la sortie en dernier) — vrai pour
-les commandes subtitle/audio-post, **faux** pour la commande TTS dont le dernier
-argument est le **texte**, la sortie suivant `-w`. Correctif **test-only** : le faux
-runner résout la sortie par `-w` (fallback `last`). Aucun code de production modifié.
+La 1re CI `Test` (`38791275997`) a révélé **2 échecs unit/BDD**, même cause racine :
+le **faux `CommandRunner`** des tests écrivait dans `argv.last()` (supposant la
+sortie en dernier) — vrai pour subtitle/audio-post, **faux** pour TTS dont le
+dernier argument est le **texte** (sortie après `-w`). Correctif **test-only**
+(résolution par `-w`, fallback `last`).
+
+La 2e CI (`38792202056`) a révélé **3 échecs functional** — un **bug réel** de
+contrat Gradle : `HyperframesExtension.outputDir` portait `@OutputDirectory`
+(anti-pattern historique S-017/D-A). La consommer comme **entrée** d'une nouvelle
+tâche fait échouer Gradle : « property … declared as an output property of
+extension … but does not have a task associated with it ». **Correctif
+architectural** : les annotations d'entrée/sortie de tâche appartiennent aux
+**tâches**, pas à l'extension → `@OutputDirectory` retiré de l'extension
+(l'intention reste en KDoc) ; garde `HyperframesExtensionContractTest` mise à jour
+(assertion : `outputDir` n'est ni `@InputDirectory` ni `@OutputDirectory`). Un
+test fonctionnel adapté (le répertoire de rendu doit exister pour la validation
+d'entrée de Gradle). Diagnostic établi depuis un consommateur jetable local
+(build, pas de suite de tests), puis re-push.
+
 

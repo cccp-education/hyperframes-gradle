@@ -51,6 +51,9 @@ class HyperframesPostProcessTest {
 
     @Test
     fun `postProcessHyperframes fails without a rendered MP4`() {
+        // The render dir must exist (input-directory validation); it is empty.
+        projectDir.resolve("build/hyperframes").mkdirs()
+
         val result = GradleRunner.create()
             .withProjectDir(projectDir)
             .withPluginClasspath()

@@ -5,7 +5,6 @@ import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputDirectory
 import org.gradle.api.tasks.Optional
-import org.gradle.api.tasks.OutputDirectory
 
 /**
  * DSL d'extension [hyperframes] pour configure le pipeline HyperFrames.
@@ -19,13 +18,17 @@ abstract class HyperframesExtension {
     abstract val inputDir: DirectoryProperty
 
     /**
-     * Répertoire de sortie pour le HTML intermédiaire et le MP4 final.
+     * Répertoire de sortie pour le HTML intermédiaire, le MP4 final et les
+     * artefacts de post-production.
      *
-     * D-A (S-017) — cette propriété était annotée `@InputDirectory` par erreur :
-     * elle décrit une **sortie**. Le noyau du plugin porte déjà l'annotation
-     * `@OutputDirectory` sur les tâches ; l'annotation ici exprime l'intention DSL.
+     * D-A (S-017) — cette propriété était annotée `@InputDirectory` par erreur
+     * (elle décrit une **sortie**). Les annotations Gradle d'entrée/sortie de
+     * tâche appartiennent aux **tâches**, jamais à l'extension : S-026 retire
+     * l'annotation `@OutputDirectory` posée en S-017, car la consommer comme
+     * entrée d'une tâche provoque l'erreur « property … declared as an output
+     * property of extension … but does not have a task associated with it ».
+     * L'intention (ce chemin est une sortie de pipeline) reste documentée ici.
      */
-    @get:OutputDirectory
     abstract val outputDir: DirectoryProperty
 
     /** Largeur de la vidéo en pixels (défaut : 1920) */
