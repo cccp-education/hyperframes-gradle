@@ -1,6 +1,14 @@
 = COMPLETED_TASKS_ARCHIVE — hyperframes-gradle
 :date: 2026-05-31
-:last-updated: 2026-10-15 (session 028)
+:last-updated: 2026-10-15 (session 029)
+
+== Session 029 (2026-10-15) — Release corrective `hyperframes-plugin 0.0.6` (Maven Central) ✅
+
+* Release DAG (accord pilote) : MEMPHIS catalogue/BOM `0.0.96` → re-pin hyperframes
+  `workspace-catalog/BOM 0.0.95 → 0.0.96` + toml local `0.0.5 → 0.0.6` → Central `0.0.6`
+  (bundle `71616cda`, AUTOMATIC).
+* Contenu : fix bug audio-post BGM/ducking (S-028) + garde d'intégration réel.
+* `publishToMavenLocal` VERT (POM 0.0.6 importe `workspace-bom:0.0.96`).
 
 == Session 028 (2026-10-15) — Dogfooding réel audio-post + fix bug ffmpeg (BGM/ducking) ✅
 

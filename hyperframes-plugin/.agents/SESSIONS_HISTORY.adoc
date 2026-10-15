@@ -1,5 +1,13 @@
 = SESSIONS_HISTORY — hyperframes-gradle
 
+== Session 029 (2026-10-15) — Release corrective `hyperframes-plugin 0.0.6` (Maven Central)
+
+Release DAG N0→N1→N2 (accord pilote) : MEMPHIS catalogue/BOM `0.0.96`
+(`hyperframes-plugin = "0.0.6"` + `capsule-plugin = "0.0.12"`, bundle `df0ac9c6`) →
+re-pin `workspace-catalog/BOM 0.0.95 → 0.0.96` + toml local `hyperframes 0.0.5 → 0.0.6`
+→ **Central `0.0.6`** (bundle `71616cda`, AUTOMATIC). Contenu : fix bug audio-post
+BGM/ducking (S-028) + garde d'intégration réel. Rapport `.agents/sessions/029-release-0.0.6.adoc`.
+
 == Session 028 (2026-10-15) — Dogfooding réel audio-post + fix bug ffmpeg (BGM/ducking)
 
 Option de pilotage « dogfooding » : les adaptateurs post-production (S-026) n'avaient

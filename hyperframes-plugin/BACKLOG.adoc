@@ -2,7 +2,15 @@
 :toc:
 
 _Date création_ : 2026-05-31
-_Version_ : 0.0.5
+_Version_ : 0.0.6
+
+'''
+== ✅ Release corrective `hyperframes-plugin 0.0.6` — Maven Central (S-029)
+
+Release DAG (accord pilote) : MEMPHIS catalogue/BOM `0.0.96` → re-pin hyperframes
+`workspace-catalog/BOM 0.0.95 → 0.0.96` + toml local `0.0.5 → 0.0.6` → Central `0.0.6`
+(bundle `71616cda`). Contenu : fix bug audio-post BGM/ducking (S-028) + garde
+d'intégration réel. Rapport `.agents/sessions/029-release-0.0.6.adoc`.
 
 '''
 == ✅ Release `hyperframes-plugin 0.0.5` — Maven Central (S-027)

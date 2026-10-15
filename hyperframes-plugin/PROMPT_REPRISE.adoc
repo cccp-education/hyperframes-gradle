@@ -1,7 +1,7 @@
-= PROMPT_REPRISE — HyperFrames Gradle (Session 028 TERMINÉE → 029)
-:session: 028
+= PROMPT_REPRISE — HyperFrames Gradle (Session 029 TERMINÉE → 030)
+:session: 029
 :date: 2026-10-15
-:status: ✅ TERMINÉ — dogfooding réel des adaptateurs post-production + fix bug ffmpeg (BGM/ducking)
+:status: ✅ TERMINÉ — release corrective `hyperframes-plugin 0.0.6` (Maven Central)
 :borough: Watts
 
 '''
@@ -9,9 +9,16 @@
 
 Plugin Gradle fonctionnel : AsciiDoc → AsciidoctorJ → HTML enrichi → CLI Node → MP4
 (via le noyau `VideoEngine`). EPICs HF-0→HF-7 ✅. **`HF-KERNEL-ADAPTER` ✅ TERMINÉ**.
-**`HF-CR3` ✅ TERMINÉ 3/3** (S-025) + durci S-026. **Version publiée `0.0.5`**
-(Maven Central, bundle `dbdfa6fb`, S-027) — **contient le bug BGM (voir S-028)**.
-Noyau **`education.cccp:video-kernel:0.4.0`**. Catalogue ws `0.0.95` / BOM `0.0.95`.
+**`HF-CR3` ✅ TERMINÉ 3/3** (S-025) + durci S-026. **Version publiée `0.0.6`**
+(Maven Central, bundle `71616cda`, S-029). Noyau **`education.cccp:video-kernel:0.4.0`**.
+Catalogue ws `0.0.96` / BOM `0.0.96`.
+
+== Fait en session 029 — Release corrective `hyperframes-plugin 0.0.6`
+
+Release DAG N0→N1→N2 (accord pilote) : MEMPHIS catalogue/BOM `0.0.96` →
+hyperframes re-pin `workspace-catalog/BOM 0.0.95 → 0.0.96` + toml local `0.0.6` →
+**Central `0.0.6`** (bundle `71616cda`). Contenu : fix bug audio-post BGM/ducking
+(S-028) + garde d'intégration réel. Rapport `.agents/sessions/029-release-0.0.6.adoc`.
 
 == Fait en session 028 — Dogfooding réel + fix bug audio-post
 
@@ -20,22 +27,14 @@ burn-in ✅, loudnorm seul ✅, narration espeak ✅ ; **BGM sans ducking et duc
 (durée tronquée 0,118 s / `Invalid stream specifier: voice`). **2 causes** :
 `loudnorm` sort à 192 kHz (amix tronque) ; label `[voice]` mono-usage réutilisé.
 **Correctif** : `…,aresample=48000` + `asplit=2` pour le ducking. Tests unit
-renforcés (`aresample=48000`, `asplit=2`) + **nouveau garde d'intégration réel**
-`FfmpegAudioPostProductionIntegrationTest` (skip-gardé, câblé `real-render-hyperframes.yml`).
+renforcés + **garde d'intégration réel** `FfmpegAudioPostProductionIntegrationTest`.
 Rapport `.agents/sessions/028-dogfooding-audio-post-fix.adoc`.
 
-== Fait en session 027 — Release `hyperframes-plugin 0.0.5`
+== Mission Session 030 — au choix (pilote)
 
-Release DAG N0→N1→N2 : MEMPHIS catalogue/BOM `0.0.95` → hyperframes re-pin
-`workspace-catalog/BOM 0.0.90 → 0.0.95` + toml local `0.0.5` → **Central `0.0.5`**
-(bundle `dbdfa6fb`). Rapport `.agents/sessions/027-release-0.0.5.adoc`.
-
-== Mission Session 029 — au choix (pilote)
-
-* A) **Release corrective `hyperframes-plugin 0.0.6`** (accord pilote) — propage le
-  fix audio-post BGM/ducking (DAG : MEMPHIS catalogue/BOM `0.0.96` → hyperframes `0.0.6`).
-* B) **HF-CR3 suite** : rapatrier le rendu réel dans la CI requise / enrichir (Manim/Remotion).
-* C) Maintenance / nouvelle demande pilote.
+* **Backlog hyperframes** : tous EPICs clos ; releases `0.0.6` publiée.
+* A) **HF-CR3 suite** : rapatrier le rendu réel dans la CI requise / enrichir (Manim/Remotion).
+* B) Maintenance / nouvelle demande pilote.
 
 == Points d'attention
 
@@ -50,14 +49,14 @@ Release DAG N0→N1→N2 : MEMPHIS catalogue/BOM `0.0.95` → hyperframes re-pin
 - **Post-production** : `postProcessHyperframes` (ports `SubtitleBurnIn` + `AudioPostProduction`).
 - **Narration** : `generateHyperframesNarration` (port `TextToSpeech`).
 - Noyau partagé `education.cccp:video-kernel:0.4.0` (`video.kernel.*`).
-- Catalogue ws `education.cccp:workspace-catalog:0.0.95`.
+- Catalogue ws `education.cccp:workspace-catalog:0.0.96`.
 
 == Routes documents clés
 
 |===
 | Document | Chemin
-| Rapport S-027 | `.agents/sessions/027-release-0.0.5.adoc`
-| Rapport S-026 | `.agents/sessions/026-shared-ports-and-real-render-hardening.adoc`
+| Rapport S-029 | `.agents/sessions/029-release-0.0.6.adoc`
+| Rapport S-028 | `.agents/sessions/028-dogfooding-audio-post-fix.adoc`
 | Cadrage kernel (amont) | `.agents/CADRAGE_EPIC_HF_KERNEL_ADAPTER.adoc`
 | Backlog | `BACKLOG.adoc`
 | Règles | `AGENT.adoc`

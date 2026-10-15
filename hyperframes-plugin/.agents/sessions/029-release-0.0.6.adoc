@@ -1,0 +1,33 @@
+= Session 029 — Release corrective `hyperframes-plugin 0.0.6` (Maven Central)
+:toc:
+
+== Contexte
+
+Release corrective (accord pilote), demandée en clôture du dogfooding S-028 qui a
+révélé un bug réel du chemin audio-post **BGM / ducking** (publié tel quel dans 0.0.5).
+
+== Ordre DAG
+
+. **MEMPHIS** catalogue/BOM `0.0.96` (`hyperframes-plugin = "0.0.6"` + `capsule-plugin = "0.0.12"`,
+   bundle `df0ac9c6`).
+. **hyperframes** : re-pin `workspace-catalog 0.0.95 → 0.0.96` + platform
+   `workspace-bom 0.0.95 → 0.0.96` + toml local `hyperframes 0.0.5 → 0.0.6`
+   (version dérivée `ws.versions.hyperframes.plugin` = 0.0.6).
+. Publication Central `hyperframes-plugin 0.0.6` (ce document).
+
+== Contenu depuis 0.0.5
+
+* **Fix bug réel audio-post** (`HyperframesAudioPostCommand.buildFilterGraph`) :
+  `loudnorm=…,aresample=48000` (sortie 192 kHz tronquée par `amix`) +
+  `[voice]asplit=2[vsc][vmix]` (ducking : label `[voice]` mono-usage réutilisé → erreur ffmpeg).
+* Tests unit renforcés + garde d'intégration réel `FfmpegAudioPostProductionIntegrationTest`
+  (skip-gardé, câblé `real-render-hyperframes.yml`).
+
+== Gates (Local = Build)
+
+Compiles VERTS ; `publishToMavenLocal` VERT — POM `0.0.6` importe `workspace-bom:0.0.96`.
+Publication Central bundle `71616cda-20d3-4347-8917-ca4d6066b58a` (AUTOMATIC).
+
+== Suite
+
+* Propagation repo1 `hyperframes-plugin/0.0.6` à confirmer.
