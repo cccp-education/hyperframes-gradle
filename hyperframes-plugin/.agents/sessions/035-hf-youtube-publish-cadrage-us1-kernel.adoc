@@ -1,0 +1,96 @@
+= Session 035 — Cadrage EPIC YOUTUBE-PUBLISH + noyau US-1 (transverse)
+:session: 035
+:date: 2026-10-16
+:borough: Watts (hyperframes) · transverse video-kernel + capsule
+:type: cadrage + feat (noyau)
+:score: 9/10
+
+== Mission
+
+Reprise de hyperframes (prompt de reprise S-034 + BACKLOG) : intégrer le
+**déploiement YouTube industrialisé automatique** d'une vidéo produite sur la
+chaîne `@cccp.education`, avec miniature, description, timeline (chapitres),
+hashtags, liens (cccp.education / talaria.school / cheroliv.com) et navigation
+(vidéo suivante/précédente). Session **transverse** hyperframes + video-kernel +
+capsule. Guidage pilote demandé sur la génération de la « clé API » YouTube.
+
+== Livré
+
+=== US-0 — Cadrage EPIC `HF-YOUTUBE-PUBLISH` (gouvernance pure)
+
+Doc `.agents/CADRAGE_EPIC_HF_YOUTUBE_PUBLISH.adoc` :
+
+* **Audit** 7 zones (capsule `VideoDescriptionBuilder`/`YouTubeChaptersFormatter`/
+  `ViralThumbnailPlanner`, hyperframes rendu/post, `video-kernel` **sans port de
+  publication**, patron secret `fish.yaml`/`FishAudioKey`).
+* **Constat clé [C5]** : YouTube **upload = OAuth 2.0** (clientId/secret/refresh
+  token), **pas** une clé API simple (lecture seule). Guide §2.2 (Cloud Console →
+  YouTube Data API v3 → consent screen → client OAuth Desktop → Playground →
+  refresh token ; piège du mode *Testing* 7 jours ; quota ≈6 uploads/jour).
+* **Architecture** : N1 `video.kernel.publish` (modèle + port + validation +
+  composition de description) ↔ N2 adaptateurs (`hyperframes.publish`,
+  `capsule.adapter.youtube`). Frontière noyau respectée (pas de HTTP).
+* **12 décisions** (D1→D12) : placement N1, port unique, **pas de SDK Google**
+  (JDK `HttpClient` + Jackson), modèle neutre, validation pure, description
+  partagée, résultat sealed non-jetable, secret `youtube.yaml` gitignoré,
+  précédente/suivante optionnelle, miniature best-effort, tests sans réseau,
+  ordre contraint par la publication du noyau.
+* **6 US** (US-0→US-5) + configuration visée + 6 risques.
+
+=== US-1 — Noyau `video-kernel.publish` (DDD baby-step, code)
+
+Nouveau sous-package `video.kernel.publish` (contrat pur, additive) :
+
+[cols="1,3", options="header"]
+|===
+| Type | Rôle
+| `VideoPublication` | modèle neutre (videoFile, title, description, tags, hashtags, chapters, links, visibility, categoryId, languageCode, madeForKids, thumbnailFile, publishAt)
+| `VideoChapter` | marqueur `(startSeconds, title)` + invariants
+| `VideoLink` / `VideoLinks` | liens d'identité + navigation suivante/précédente
+| `VideoVisibility` | enum `PRIVATE` / `UNLISTED` / `PUBLIC`
+| `VideoPublicationLimits` | bornes éditoriales neutres (titre 100, desc 5000, tags 500, 3 chapitres min, 10 s min)
+| `VideoPublicationValidation` + `VideoPublicationValidator` | validation pure **avant** réseau
+| `VideoDescriptionComposer` | composition pure (titre + chapitres + liens + hashtags, retire `<`/`>`)
+| `VideoPublisher` (port fun interface) + `VideoPublicationResult` (sealed `Published`/`Degraded`/`Failed`) | contrat « ne jette jamais »
+|===
+
+* `version 0.4.0 → 0.5.0` (additif), manifeste `KernelApiSurface` **+14 types**,
+  `KernelApiStabilityTest` ré-alignée (type set + port `publish` + getters
+  modèle + enum).
+* Tests unit : `VideoPublicationValidatorTest` (15) + `VideoDescriptionComposerTest`
+  (9) + `VideoPublicationModelTest` (7).
+* **Factorisation doctrine** (seuil « à 2 », amendement S-195) : la description +
+  les chapitres, déjà présents dans `capsule.publish`/`capsule.chapters`,
+  rejoignent le noyau commun (adoption capsule = US-3).
+* **Local = Build** : `compileKotlin` + `compileTestKotlin` **VERTS** (aucun test
+  lancé localement). Garde de frontière vérifiée (aucun token interdit hors
+  commentaire).
+
+== Non livré (baby-step suivant, dépendant de la publication du noyau)
+
+* **US-1b** — publication `video-kernel 0.5.0` Central (accord pilote) : prérequis
+  dur de US-2 (hyperframes résout le noyau depuis Central → 0.5.0 doit être publié).
+* **US-2** — adaptateur `hyperframes.publish` (OAuth + resumable upload +
+  `thumbnails.set`) + tâche `publishHyperframesToYouTube` + loader `youtube.yaml`.
+* **US-3** — adoption capsule + tâche `publishCapsuleToYouTube`.
+* **US-4** — BDD `@publish` (fake) + dogfooding réel skip-gardé (accord pilote).
+* **US-5** — release `hyperframes-plugin 0.0.9` (+ capsule) + BOM MEMPHIS.
+
+== Décisions / points d'attention
+
+* Le pilote parle de « clé API » : **corrigé** dans la configuration — il faut un
+  **jeu d'identifiants OAuth 2.0** (clientId/clientSecret/refreshToken). La clé
+  API simple reste optionnelle (lecture pour résoudre précédente/suivante).
+* Les tests **ne publient jamais réellement** (fake `VideoPublisher` en unit/BDD ;
+  dogfooding réel = gardé).
+* Ordre cross-borough : **noyau d'abord** (US-1 → publication → US-2 hyperframes →
+  US-3 capsule), conforme à la discipline DAG N1→N2.
+
+== Fichiers
+
+* `.agents/CADRAGE_EPIC_HF_YOUTUBE_PUBLISH.adoc` (nouveau, pilote)
+* `video-kernel-plugin/src/main/kotlin/video/kernel/publish/*` (9 fichiers)
+* `video-kernel-plugin/src/test/kotlin/video/kernel/publish/*` (3 fichiers)
+* `video-kernel-plugin/src/test/kotlin/video/ci/KernelApiSurface.kt` +
+  `KernelApiStabilityTest.kt` (manifeste + garde)
+* `video-kernel-plugin/build.gradle.kts` (`version 0.5.0`)

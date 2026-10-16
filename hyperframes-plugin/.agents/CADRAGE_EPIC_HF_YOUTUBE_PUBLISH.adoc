@@ -1,0 +1,311 @@
+= CADRAGE EPIC — Déploiement YouTube industrialisé (session transverse)
+:toc:
+:_session_: S-035
+:_date_: 2026-10-16
+:_pilote_: hyperframes (Watts) · transverse video-kernel (N1) + capsule (Détroit)
+:_statut_: 🟡 CADRÉ — US-0 terminé, US-1 amorcé (noyau)
+
+'''
+== 1. Objectif
+
+Industrialiser le **déploiement automatique d'une vidéo produite vers YouTube**
+sur la chaîne https://www.youtube.com/@cccp.education, depuis le pipeline Gradle,
+**sans post-production ni clic humain** au-delà de l'upload.
+
+Le livrable n'est pas « un MP4 rendu » mais une **publication YouTube complète** :
+
+* la vidéo (MP4) ;
+* la **miniature** (thumbnail) ;
+* le **titre** (≤ 100 caractères) ;
+* la **description** : accroche + chapitres (timeline) + liens + hashtags ;
+* la **timeline** (chapitres YouTube `M:SS Titre`, ≥ 3 ou aucun) ;
+* les **hashtags** (`#cccp #formation #...`, max 15 dans la description) ;
+* les **liens** vers https://cccp.education/, https://talaria.school/, https://cheroliv.com/ ;
+* la **navigation** : lien vers la vidéo **précédente** et la vidéo **suivante** (série) ;
+* la **visibilité** (privée / non répertoriée / publique) et la **planification**.
+
+'''
+== 2. Réalité technique de l'API YouTube (⚠️ guidage pilote)
+
+=== 2.1 « Clé API » ≠ upload — OAuth 2.0 obligatoire
+
+. *API key* (clé simple `AIza…`) : ne permet QUE la lecture de données
+  publiques (search, lectures de métadonnées). Elle **ne peut pas publier**
+  (`videos.insert` refuse une simple API key).
+. *Publier une vidéo* (et poser la miniature) exige **OAuth 2.0** :
+  `client_id` + `client_secret` + un **refresh token** obtenu par une
+  autorisation unique du compte propriétaire de la chaîne, avec le scope
+  `https://www.googleapis.com/auth/youtube.upload`.
+
+⇒ Le secret à stocker n'est **pas** une clé API mais un triplet
+**OAuth 2.0 (clientId / clientSecret / refreshToken)**. La « clé API » simple
+reste utile (optionnelle) pour **lister** les vidéos de la chaîne (résolution
+précédente/suivante), jamais pour publier.
+
+=== 2.2 Procédure de génération (une seule fois) — compte `@cccp.education`
+
+. *Google Cloud Console* — https://console.cloud.google.com/ → créer un projet
+  (ex. `cccp-education-youtube`).
+. *Activer l'API* : APIs & Services → Library → **YouTube Data API v3** → Enable.
+. *Écran de consentement OAuth* : APIs & Services → OAuth consent screen →
+  type **External**, renseigner app name + e-mail support. Ajouter le scope
+  `.../auth/youtube.upload` (et éventuellement `.../auth/youtube.readonly`).
+   *⚠️ Piège du mode « Testing »* : tant que l'app est en *Testing*, le
+   refresh token **expire au bout de 7 jours**. Pour un usage durable,
+   publier l'app en *Production* (les scopes YouTube sont « sensibles » :
+   Google peut demander une vérification si l'app est utilisée par d'autres ;
+   pour un usage strictement personnel sur sa propre chaîne, le passage en
+   Production avec son propre compte suffit dans la majorité des cas).
+. *Client OAuth* : APIs & Services → Credentials → Create Credentials →
+   **OAuth client ID** → type **Desktop app**. Récupérer
+   `client_id` et `client_secret`.
+. *Obtenir le refresh token* (une fois) — voie la plus rapide :
+   **OAuth 2.0 Playground** https://developers.google.com/oauthplayground →
+   ⚙️ (Use your own OAuth credentials → coller client_id/secret) →
+   authoriser le scope `youtube.upload` → *Exchange authorization code for tokens*
+   → copier le **refresh_token**.
+. *Vérifier la chaîne* : récupérer l'`channelId` (`UC…`) sur
+   https://www.youtube.com/@cccp.education (ou via l'API `channels.list`).
+
+=== 2.3 Où stocker le secret (Règle 6 — ZERO secret en dur)
+
+Fichier **gitignoré** `youtube.yaml` à la racine du projet consommateur (même
+patron que `fish.yaml` de capsule, `capsule/FishAudioKey`) :
+
+[source,yaml]
+----
+youtube:
+  clientId: "…apps.googleusercontent.com"
+  clientSecret: "…"
+  refreshToken: "…"
+  channelId: "UC…"
+  # optionnel — lecture publique (résolution précédente/suivante)
+  apiKey: "AIza…"
+----
+
+Un `youtube_example.yaml` (valeurs bidon) est versionné pour documenter le
+format. Le loader rédige les valeurs dans les logs (patron `FishAudioKey`).
+
+=== 2.4 Quotas (contrainte « industrialisée »)
+
+[cols="3,1,3"]
+|===
+| Opération | Coût (unités) | Conséquence
+| `videos.insert` (upload) | 1600 | ~6 uploads/jour au quota par défaut (10 000)
+| `thumbnails.set` | 50 | négligeable
+| `videos.list` / `search.list` | 1 / 100 | résolution précédente/suivante
+|===
+
+⇒ Le quota par défaut **borne la cadence** : ~6 publications/jour. Une
+demande d'augmentation est possible (formulaire Google), hors périmètre
+de cette session.
+
+'''
+== 3. Audit de l'existant
+
+[cols="1,3,3", options="header"]
+|===
+| Zone | Ce qui existe | Verdict
+
+| capsule — description
+| `capsule.publish.VideoDescriptionBuilder` (PRT-10) : assemble titre +
+  chapitres + tags, **retire `<`/`>`** (rejet YouTube), compte les retirés.
+| 🟢 Réutilisable — mais **capsule-scoped** (`capsule.publish`).
+
+| capsule — chapitres
+| `capsule.chapters.YouTubeChaptersFormatter` (format `M:SS Titre`) +
+  `ChapterEntry` + `GenerateCapsuleChaptersTask` (JSON/MKV) + `CardRenderer`
+  (intro/outro PNG).
+| 🟢 Réutilisable — **capsule-scoped**, aucune notion de *publication*.
+
+| capsule — viral
+| `capsule.viral.ViralThumbnailPlanner` / `ViralThumbnailBuilder` (HTML portrait
+  → PNG), `CampaignBundle` (manifeste multi-plateformes).
+| 🟢 Inspiration miniature ; périmètre viral (format vertical), distinct.
+
+| hyperframes — rendu
+| `RenderHyperframesTask` → `HyperFramesEngine` (noyau) → MP4 1920×1080.
+  `deployHyperframes` **n'existe plus** comme tâche ; `collectHyperframesRetrieve`
+  produit un `metadata.json` N3 (durée, dims, segments, pronunciation).
+| 🟢 Point d'ancrage : le MP4 + `metadata.json` sont les entrées du publish.
+
+| hyperframes — post
+| `postProcessHyperframes` (burn-in + audio post), `generateHyperframesNarration`
+  (TTS) — ports partagés `video-kernel 0.4.0`.
+| 🟢 La vidéo est « finie » côté hyperframes avant publish.
+
+| video-kernel — noyau
+| `VideoEngine`, `SegmentSource`, `VideoDurationProbe`, `TextToSpeech`,
+  `AudioPostProduction`, `SubtitleBurnIn`, `VideoProductionPlan`, `VideoOutcome`.
+| 🔴 **Aucun port de distribution/publication.** Aucun modèle de métadonnées
+  de publication (titre/description/chapitres/liens/thumbnail).
+
+| capsule — config secret
+| `CapsuleConfig.fishAudio` + `CapsuleConfigLoader.loadFishAudio` +
+  `FishAudioKey` (rédaction des logs) ; `fish.yaml` gitignoré.
+| 🟢 Patron de référence à reproduire pour `youtube.yaml`.
+
+|===
+
+'''Constats===
+. [C1] Deux moteurs produisent des vidéos publiables (`capsule`, `hyperframes`) :
+  le **seuil de factorisation « à 2 »** (amendement S-195) est **atteint** pour
+  le modèle de publication (description + chapitres + liens).
+. [C2] Le noyau `video-kernel` **ignore la distribution** : pas de port, pas de
+  modèle de métadonnées.
+. [C3] `capsule.publish` / `capsule.chapters` implémentent déjà 2 briques de la
+  publication (description, chapitres) mais **aucun upload** — jamais exécuté
+  contre l'API réelle.
+. [C4] Le patron secret (`fish.yaml` + `FishAudioKey`) est **éprouvé** : il faut
+  le répliquer pour YouTube (clientId/secret/refreshToken/channelId).
+. [C5] L'upload exige **OAuth 2.0** (pas une API key) — l'appel « clé api » est
+  un abus de langage du pilote, à corriger dans la configuration.
+. [C6] L'upload est un **effet de bord réseau non déterministe** : les tests
+  locaux/CI ne doivent **jamais** publier réellement (stub/fake + skip-gardé
+  pour un dogfooding manuel).
+
+'''
+== 4. Architecture cible
+
+----
+ video-kernel (N1)                hyperframes (N2)                 capsule (N2)
+ ┌──────────────────────┐        ┌───────────────────────┐        (us. suivante)
+ │ video.kernel.publish │        │ hyperframes.publish    │
+ │  VideoPublication    │◀───────│  YouTubeDataApiPublisher│
+ │  VideoChapter        │  port  │  (JDK HttpClient+OAuth) │
+ │  VideoLinks/Link     │        │  buildPublication()     │
+ │  VideoVisibility     │        │  HyperframesPublisher   │──▶ capsule.adapter...
+ │  VideoPublisher ◀────┼────────│  Resolver               │
+ │  VideoPublication…   │        │  PublishHyperframesTo…  │
+ │  Validator           │        │  YouTubeTask            │
+ │  DescriptionComposer │        │  youtube.yaml (gitign.) │
+ └──────────────────────┘        └───────────────────────┘
+       contrats purs                    adaptateur réseau
+----
+
+*Le noyau porte le **contrat neutre** (modèle + port + validation + composition
+de description) ; l'**adaptateur HTTP/OAuth** reste N2 (frontière noyau : pas de
+`ProcessBuilder`, pas de réseau — garde `KernelBoundaryTest`).*
+
+'''
+== 5. Décisions (D1→D12)
+
+. *D1 — Placement N1.* Le modèle de publication + le port vivent dans
+  `video.kernel.publish` (noyau partagé), pas en N0 `contracts` : la publication
+  n'est pas un contrat métier i18n mais une capacité **vidéo** partagée par les
+  moteurs (même logique que les ports VK-4).
+. *D2 — Port unique, adaptateurs N2.* Un seul `fun interface VideoPublisher` ;
+  chaque borough fournit son adaptateur (`hyperframes`, puis `capsule`). Le
+  noyau ne connaît ni HTTP ni YouTube.
+. *D3 — Pas de SDK Google.* L'adaptateur utilise `java.net.http.HttpClient` +
+  Jackson (déjà présents) : **zéro nouvelle dépendance lourde**, zéro dérive de
+  version. OAuth par refresh-token, upload **resumable**.
+. *D4 — Modèle neutre (pas « YouTube »).* `VideoPublication`, `VideoChapter`,
+  `VideoLinks`, `VideoVisibility` — vocabulaire neutre ; `categoryId`,
+  `madeForKids`, `publishAt` sont des champs `String`/`Boolean` sans couplage API.
+. *D5 — Validation pure.* `VideoPublicationValidator` encode les contraintes
+  réelles de l'API (titre ≤ 100, description ≤ 5000, tags ≤ 500 cumulés,
+  chapitres : premier à 0, ≥ 3 si présents, croissants, ≥ 10 s) : échec **avant**
+  l'appel réseau, message actionnable.
+. *D6 — Composition de description partagée.* `VideoDescriptionComposer` (pur)
+  assemble titre + chapitres + liens + hashtags et **retire `<`/`>`** (facteur
+  commun `capsule.VideoDescriptionBuilder`).
+. *D7 — Résultat non-jetable.* `VideoPublicationResult` sealed
+  (`Published(videoId,url)` / `Degraded(reason)` / `Failed(reason)`) : contrat
+  « ne jette jamais », aligné sur les ports VK-4 (dégradation propre).
+. *D8 — Secret `youtube.yaml` gitignoré* + `youtube_example.yaml` versionné ;
+  loader avec **rédaction des logs** (patron `FishAudioKey`).
+. *D9 — Résolution précédente/suivante.* Fournie par configuration
+  (liens explicites) **ou** optionnelle par `videos.list` de la chaîne (via la
+  clé API simple) ; jamais bloquante (dégradé).
+. *D10 — Miniature.* Générée par le consommateur (HTML → PNG) et passée au
+  port ; `hyperframes` fournit un `ThumbnailPlanner` minimal (titre + hook +
+  identité) ; `capsule` réutilise `ViralThumbnailPlanner`. L'upload de la
+  miniature (`thumbnails.set`) est best-effort — un échec ne perd pas la vidéo.
+. *D11 — Tests sans réseau.* Unit (fake `VideoPublisher`) + BDD (`@publish`,
+  fake) ; **jamais** d'appel YouTube réel en CI. Dogfooding réel = tâche
+  skip-gardée/manuelle, accord pilote.
+. *D12 — Ordre de livraison contraint par la publication du noyau.* US-1
+  (noyau) → publication `video-kernel 0.5.0` (accord pilote) → US-2 (adaptateur
+  hyperframes) → US-3 (adoption capsule) → US-4 (BDD+dogfooding) → US-5 (release).
+
+'''
+== 6. User Stories
+
+[cols="1,3,1,1", options="header"]
+|===
+| US | Livrable | Statut | Effort
+
+| US-0 | Cadrage EPIC (ce document) + guide OAuth | ✅ S-035 | —
+| US-1 | **Noyau** : `video.kernel.publish` — `VideoPublication`, `VideoChapter`,
+  `VideoLink`/`VideoLinks`, `VideoVisibility`, `VideoPublicationLimits`,
+  `VideoPublicationValidator`, `VideoDescriptionComposer`, `VideoPublisher`
+  (port), `VideoPublicationResult` + tests unit + manifeste d'API. Version
+  `0.4.0 → 0.5.0`. | ✅ S-035 (code) | M
+| US-1b | **Publication `video-kernel 0.5.0`** (Central, accord pilote) + BOM/catalog. | 🟡 À FAIRE | S
+| US-2 | **hyperframes** : `hyperframes.publish` — `YouTubeDataApiPublisher`
+  (OAuth refresh-token + resumable upload + `thumbnails.set`), `PublicationBuilder`,
+  `HyperframesPublisherResolver`, `youtube.yaml` loader (`YouTubeCredentials`,
+  logs rédigés), tâche `publishHyperframesToYouTube` (groupe `deploy`), 9–12
+  properties d'extension, `youtube_example.yaml`. | 🟡 À FAIRE | L
+| US-3 | **capsule** : `capsule.adapter.youtube.YouTubePublisher` + tâche
+  `publishCapsuleToYouTube` ; **adoption** du modèle neutre
+  (`VideoDescriptionBuilder`/`YouTubeChaptersFormatter` délégués au noyau). | 🟡 À FAIRE | M
+| US-4 | **BDD + dogfooding** : features `@publish` (fake publisher) sur
+  hyperframes + capsule ; dogfooding réel skip-gardé (accord pilote). | 🟡 À FAIRE | M
+| US-5 | **Release** `hyperframes-plugin 0.0.9` + `capsule-plugin` (contenu
+  publish) + MEMPHIS BOM/catalog. | 🟡 À FAIRE | S
+|===
+
+'''
+== 7. Configuration visée (hyperframes)
+
+[source,kotlin]
+----
+hyperframes {
+    // … existant …
+    publish {
+        enabled.set(false)                 // opt-in (backward compat)
+        platform.set("youtube")
+        credentialsFile.set("youtube.yaml") // gitignoré
+        title.set("…")
+        descriptionHeader.set("…")
+        tags.set(listOf("formation", "cccp"))
+        hashtags.set(listOf("#cccp", "#formation"))
+        links.set(mapOf(
+            "Site" to "https://cccp.education/",
+            "Formations" to "https://talaria.school/",
+            "Auteur" to "https://cheroliv.com/",
+        ))
+        nextVideoUrl.set("…")              // optionnel
+        previousVideoUrl.set("…")          // optionnel
+        thumbnailFile.set("…")             // optionnel
+        visibility.set("private")          // private | unlisted | public
+        categoryId.set("27")               // 27 = Education
+        publishAt.set("")                  // ISO-8601, optionnel
+        strict.set(false)                  // dégradé par défaut
+    }
+}
+----
+
+'''
+== 8. Risques
+
+[cols="1,3,2,2", options="header"]
+|===
+| ID | Risque | Impact | Probabilité
+| R-01 | Refresh token expire (app en *Testing*, 7 j) | Bloquant | Moyenne — procédure §2.2
+| R-02 | Quota 10 000/jour (≈6 uploads) | Cadence | Certaine — demande d'augmentation si besoin
+| R-03 | Scope sensible → vérification Google | Bloquant app publique | Faible (usage personnel)
+| R-04 | Upload réseau en CI (non déterministe) | Faux positifs | Levé — D11 (fake + skip)
+| R-05 | Rupture de contrat noyau | Cross-borough | Gardé — `KernelApiStabilityTest`
+| R-06 | Secret commité par erreur | Sécurité | Levé — `youtube.yaml` gitignoré + garde secrets
+|===
+
+'''
+== 9. Portée de cette session (S-035)
+
+* ✅ US-0 — ce cadrage (gouvernance pure).
+* ✅ US-1 — noyau `video.kernel.publish` (code + tests unit + manifeste).
+* 🟡 US-1b→US-5 — sessions suivantes (dépendent de la publication du noyau).
+* Zéro publication, zéro secret. `Local = Build, Tests = CI`.

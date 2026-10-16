@@ -1,6 +1,19 @@
 = COMPLETED_TASKS_ARCHIVE — hyperframes-gradle
 :date: 2026-05-31
-:last-updated: 2026-10-15 (session 030)
+:last-updated: 2026-10-16 (session 035)
+
+== Session 035 (2026-10-16) — Cadrage `HF-YOUTUBE-PUBLISH` + noyau US-1 ✅
+
+* Cadrage EPIC déploiement YouTube industrialisé (transverse hyperframes/video-kernel/
+  capsule) : `.agents/CADRAGE_EPIC_HF_YOUTUBE_PUBLISH.adoc` — guide OAuth 2.0
+  (upload ≠ clé API), 12 décisions, 6 US.
+* US-1 noyau `video.kernel.publish` : `VideoPublication`, `VideoChapter`,
+  `VideoLink`/`VideoLinks`, `VideoVisibility`, `VideoPublicationLimits`,
+  `VideoPublicationValidator`+`VideoPublicationValidation`, `VideoDescriptionComposer`,
+  `VideoPublisher`+`VideoPublicationResult` ; `video-kernel 0.4.0 → 0.5.0` ;
+  manifeste d'API +14 types ; 31 unit. Compiles VERTS.
+* **Reste** : US-1b (publication noyau 0.5.0), US-2 (adaptateur hyperframes),
+  US-3 (adoption capsule), US-4 (BDD + dogfooding), US-5 (release).
 
 == Session 030 (2026-10-15) — Cache CI du rendu réel (npm + Puppeteer Chromium) ✅
 

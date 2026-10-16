@@ -1,5 +1,18 @@
 = SESSIONS_HISTORY — hyperframes-gradle
 
+== Session 035 (2026-10-16) — Cadrage EPIC `HF-YOUTUBE-PUBLISH` + noyau US-1 (transverse)
+
+Déploiement YouTube industrialisé (upload **OAuth 2.0** `videos.insert` + `thumbnails.set`,
+miniature, description, chapitres, hashtags, liens cccp.education/talaria.school/cheroliv.com,
+navigation suivante/précédente). Cadrage `.agents/CADRAGE_EPIC_HF_YOUTUBE_PUBLISH.adoc`
+(guide OAuth — upload ≠ clé API, 12 décisions, 6 US). **US-1 noyau** : sous-package
+`video.kernel.publish` (`VideoPublication`/`VideoChapter`/`VideoLink(s)`/`VideoVisibility`/
+`VideoPublicationLimits`/`VideoPublicationValidator`+`VideoPublicationValidation`/
+`VideoDescriptionComposer`/`VideoPublisher`+`VideoPublicationResult`), `video-kernel 0.4.0
+→ 0.5.0`, manifeste d'API +14 types, 31 unit. Compiles VERTS (Local = Build, zéro test
+local). US-1b→US-5 déférées (dépendent de la publication du noyau). Rapport
+`.agents/sessions/035-hf-youtube-publish-cadrage-us1-kernel.adoc`.
+
 == Session 030 (2026-10-15) — Cache CI du rendu réel (npm + Puppeteer Chromium)
 
 Maintenance CI (cache cross-borough). Le workflow non bloquant `real-render-hyperframes.yml`
