@@ -2,7 +2,17 @@
 :toc:
 
 _Date création_ : 2026-05-31
-_Version_ : 0.0.7
+_Version_ : 0.0.8
+
+'''
+== ✅ Release `hyperframes-plugin 0.0.8` — Maven Central (S-034)
+
+Release DAG N0→N2 (accord pilote) : **MEMPHIS** `workspace-bom`/catalog
+`0.0.97 → 0.0.98` (`hyperframes-plugin = "0.0.8"`, bundle `59a780ce`, PUBLISHED,
+repo1 200) → hyperframes re-pin `workspace-catalog/BOM 0.0.98` + toml local `0.0.8`
+→ **Central `0.0.8`** (bundle `a34abddf`, AUTOMATIC). Contenu : HF-CR4 suite
+(scènes en sous-compositions, lint 0/0). CI `Test` verte `25a957e`.
+Rapport `.agents/sessions/034-release-0.0.8.adoc`.
 
 '''
 == ✅ HF-CR4 suite — scènes en sous-compositions (S-033)

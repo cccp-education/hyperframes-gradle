@@ -1,7 +1,7 @@
-= PROMPT_REPRISE — HyperFrames Gradle (Session 033 TERMINÉE → 034)
-:session: 033
+= PROMPT_REPRISE — HyperFrames Gradle (Session 034 TERMINÉE → 035)
+:session: 034
 :date: 2026-10-16
-:status: ✅ TERMINÉ — HF-CR4 suite : scènes en sous-compositions (lint 0/0)
+:status: ✅ TERMINÉ — Release `hyperframes-plugin 0.0.8` (Maven Central)
 :borough: Watts
 
 '''
@@ -32,11 +32,19 @@ scènes blanches). **Preuve** : `hyperframes lint` **0 erreur / 0 warning** ;
 `hyperframes check` **passed** (layout 0, 12/12 WCAG AA) ; rendu **1920×1080 / 26 s**
 iso-comportement. Rapport `.agents/sessions/033-hf-cr4-suite-subcompositions.adoc`.
 
-== Mission Session 034 — au choix (pilote)
+== Fait en session 034 — Release `0.0.8`
 
-* A) Release `0.0.8` (DAG MEMPHIS `0.0.98` → hyperframes).
-* B) **HF-CR3 suite** : rapatrier le rendu réel dans la CI requise / enrichir (Manim/Remotion).
-* C) Maintenance / nouvelle demande pilote.
+Release DAG N0→N2 (accord pilote) : MEMPHIS catalogue/BOM `0.0.97 → 0.0.98`
+(`hyperframes-plugin = "0.0.8"`, bundle `59a780ce`, PUBLISHED, repo1 200) →
+hyperframes re-pin `workspace-catalog/BOM 0.0.98` + toml local `0.0.8` →
+**Central `0.0.8`** (bundle `a34abddf`). Contenu : HF-CR4 suite (scènes en
+sous-compositions, lint 0/0). CI `Test` verte `25a957e`.
+Rapport `.agents/sessions/034-release-0.0.8.adoc`.
+
+== Mission Session 035 — au choix (pilote)
+
+* A) **HF-CR3 suite** : rapatrier le rendu réel dans la CI requise / enrichir (Manim/Remotion).
+* B) Maintenance / nouvelle demande pilote.
 
 == Points d'attention
 

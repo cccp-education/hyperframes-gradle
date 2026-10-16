@@ -1,0 +1,40 @@
+= Session 034 — Release `hyperframes-plugin 0.0.8` (Maven Central)
+:session: 034
+:date: 2026-10-16
+:type: release DAG N0→N2 (accord pilote)
+:borough: Watts (hyperframes-gradle) — pilotage cross-borough MEMPHIS
+:score: 9/10
+
+== Contexte
+
+Suite de HF-CR4 suite (S-033, scènes en sous-compositions — `hyperframes lint` 0/0).
+La version publiée était `0.0.7` (Central, bundle `1e5c734d`) ; le gain de qualité
+(0 warning) exige `0.0.8`.
+
+== Ordre DAG N0 → N2
+
+. **N0 — MEMPHIS** `workspace-bom`/`workspace-catalog` `0.0.97 → 0.0.98`
+  (`hyperframes-plugin = "0.0.8"`, garde `PlatformCatalogAlignmentTest` ré-alignée).
+  Publication Central bundle **`59a780ce-292e-4003-978d-edd5f74f4826`** (AUTOMATIC),
+  propagation repo1 HTTP 200. Rapport
+  `workspace-bom/.agents/sessions/304-bom-0.0.98-hyperframes-0.0.8.adoc`.
+. **N2 — hyperframes** re-pin `workspace-catalog/BOM 0.0.97 → 0.0.98` +
+  toml local `0.0.7 → 0.0.8` → **Central `0.0.8`** bundle
+  **`a34abddf-68d9-47f8-9bc6-413daf96b45e`** (AUTOMATIC).
+
+== Contenu depuis 0.0.7
+
+**HF-CR4 suite** (S-033) — scènes en sous-compositions : `data-composition-id` par
+scène + une piste par scène + timeline propre ré-enregistrée → `hyperframes lint`
+**0 erreur / 0 warning**. Voir `.agents/sessions/033-hf-cr4-suite-subcompositions.adoc`.
+
+== Gates
+
+|===
+| Gate | Résultat
+| hyperframes `compileKotlin` (catalogue 0.0.98) | ✅ VERT
+| hyperframes `publishToMavenLocal` (0.0.8 signé) | ✅ VERT
+| POM 0.0.8 importe `workspace-bom 0.0.98` | ✅ vérifié
+| CI `Test` du commit S-033 (`25a957e`) | ✅ unit + functional + Cucumber + check VERT
+| zéro secret | ✅
+|===

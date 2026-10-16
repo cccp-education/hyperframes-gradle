@@ -2,14 +2,14 @@
 :toc:
 
 _Règles absolues_ : voir `AGENT.adoc`
-_Derniere mise a jour_ : 2026-10-16 (Session 033 — **HF-CR4 suite : scènes en sous-compositions** — suppression des 7 warnings `nested_structure_needs_subcomposition` + `timeline_track_too_dense` ; `hyperframes lint` **0/0**, `check` passed, rendu 1920×1080 / 26 s iso-comportement. Bug dogfooding corrigé (timeline de scène non ré-enregistrée → 45 s de polling + scènes blanches). Cf. `.agents/sessions/033-hf-cr4-suite-subcompositions.adoc`.)
+_Derniere mise a jour_ : 2026-10-16 (Session 034 — **Release `hyperframes-plugin 0.0.8`** (Maven Central, bundle `a34abddf`), DAG MEMPHIS `0.0.98` → hyperframes. Contenu : HF-CR4 suite (scènes en sous-compositions, lint 0/0). Cf. `.agents/sessions/034-release-0.0.8.adoc`.)
 _DAG_ : N2 — Plugin Gradle de transformation documentaire AsciiDoc → vidéo MP4
 _Dépendance N2_ : codex-gradle (compileOnly, AsciidoctorJ partagé)
 _Bridge externe_ : HyperFrames CLI via le noyau `VideoEngine` (`node <cliScript> render <dir> --output <mp4>`)
 
-_Dernière session terminée_ : 033 — **HF-CR4 suite : scènes en sous-compositions (lint 0/0)**. Rapport `.agents/sessions/033-hf-cr4-suite-subcompositions.adoc`.
-_Prochaine session_ : 034 — au choix : A) release `0.0.8` (DAG MEMPHIS `0.0.98`) ; B) HF-CR3 suite (rendu réel en CI requise) ; C) maintenance.
-_Version publiée_ : **0.0.7** (Maven Central, bundle `1e5c734d`) + Gradle Plugin Portal (handle `cccp-education`) — `0.0.8` à publier
+_Dernière session terminée_ : 034 — **Release `hyperframes-plugin 0.0.8`**. Rapport `.agents/sessions/034-release-0.0.8.adoc`.
+_Prochaine session_ : 035 — au choix : A) HF-CR3 suite (rendu réel en CI requise) ; B) maintenance.
+_Version publiée_ : **0.0.8** (Maven Central, bundle `a34abddf`) + Gradle Plugin Portal (handle `cccp-education`)
 
 '''
 == RÈGLES ABSOLUES (résumé)
@@ -58,6 +58,7 @@ _Version publiée_ : **0.0.7** (Maven Central, bundle `1e5c734d`) + Gradle Plugi
 | HF-CR4 | **Rendu de publication** — le rendu réel produisait un clip 1080×1920 / 1 s (4 erreurs lint) : composition racine `#stage`, une scène `clip` par section, **timeline racine unique**, assainissement des attributs de timing imbriqués (cause du « frame blank »), GSAP hors-ligne externe, **design system embarqué**. | ✅ **TERMINÉ (S-031)** — `hyperframes check` passed, vidéo 1920×1080 / 26 s | P0
 | HF-CR4-REL | **Release `hyperframes-plugin 0.0.7`** (Central) — DAG MEMPHIS `workspace-bom/catalog 0.0.97` (bundle `5bb28984`) → hyperframes (bundle `1e5c734d`). | ✅ **TERMINÉ (S-032)** | P0
 | HF-CR4-SUB | **Scènes en sous-compositions** — `data-composition-id` par scène + une piste par scène + timeline propre ré-enregistrée : supprime les 7 warnings `nested_structure_needs_subcomposition` + `timeline_track_too_dense`. | ✅ **TERMINÉ (S-033)** — lint **0/0**, check passed | P2
+| HF-CR4-REL2 | **Release `hyperframes-plugin 0.0.8`** (Central) — DAG MEMPHIS `0.0.98` (bundle `59a780ce`) → hyperframes (bundle `a34abddf`). Contenu : HF-CR4 suite. | ✅ **TERMINÉ (S-034)** | P0
 |===
 
 '''

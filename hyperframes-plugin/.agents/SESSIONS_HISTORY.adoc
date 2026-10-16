@@ -486,4 +486,15 @@ scènes blanches ; setup 47 s → 2,3 s). **Preuve** : `hyperframes lint` **0/0*
 `hyperframes check` **passed** (layout 0, 12/12 AA), rendu **1920×1080 / 26 s**
 iso-comportement. Rapport `.agents/sessions/033-hf-cr4-suite-subcompositions.adoc`.
 
+== Session 034 (2026-10-16) — Release `hyperframes-plugin 0.0.8`
+
+Release DAG N0→N2 (accord pilote). **N0 — MEMPHIS** `workspace-bom`/catalog
+`0.0.97 → 0.0.98` (`hyperframes-plugin = "0.0.8"`, garde `PlatformCatalogAlignmentTest`
+ré-alignée) → Central bundle `59a780ce` (PUBLISHED), propagation repo1 200.
+**N2 — hyperframes** re-pin `workspace-catalog/BOM 0.0.98` + toml local `0.0.8` →
+**Central `0.0.8`** bundle `a34abddf`. Contenu : HF-CR4 suite (scènes en
+sous-compositions, lint 0/0). CI `Test` verte `25a957e`.
+Rapport `.agents/sessions/034-release-0.0.8.adoc`.
+
+
 
