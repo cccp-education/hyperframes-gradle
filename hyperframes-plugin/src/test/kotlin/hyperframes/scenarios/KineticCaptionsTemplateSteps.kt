@@ -28,19 +28,19 @@ class KineticCaptionsTemplateSteps(private val world: HyperframesWorld) {
         )
     }
 
-    @Then("the generated HTML contains a hf-kinetic-caption with start {string} and end {string} and text {string}")
-    fun htmlContainsCaptionWithStartEndText(start: String, end: String, text: String) {
+    @Then("the generated HTML contains a hf-kinetic-caption at {string} until {string} and text {string}")
+    fun htmlContainsCaptionWithAtUntilText(at: String, until: String, text: String) {
         val html = world.generatedHtml()
         assertThat(html).contains("class=\"hf-kinetic-caption\"")
-        assertThat(html).contains("data-start=\"$start\"")
-        assertThat(html).contains("data-end=\"$end\"")
+        assertThat(html).contains("data-at=\"$at\"")
+        assertThat(html).contains("data-until=\"$until\"")
         assertThat(html).contains(">$text<")
     }
 
-    @Then("the generated HTML contains display none captions")
-    fun htmlContainsDisplayNoneCaptions() {
+    @Then("the generated HTML contains captions hidden by inline opacity")
+    fun htmlContainsHiddenByOpacityCaptions() {
         val html = world.generatedHtml()
-        assertThat(html).contains("display:none")
+        assertThat(html).contains("opacity:0")
     }
 
     @Then("the generated HTML contains opacity one for show")

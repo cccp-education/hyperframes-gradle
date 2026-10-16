@@ -16,6 +16,7 @@ import org.asciidoctor.Attributes
 import org.asciidoctor.Options
 import org.asciidoctor.SafeMode
 import hyperframes.pronunciation.PronunciationDomainLoader
+import hyperframes.vendor.GsapLibrary
 import java.io.File
 
 /**
@@ -112,6 +113,12 @@ abstract class GenerateHyperframesHtmlTask : DefaultTask() {
             ).withDomainDictionary(domainDictionary)
             val enhancedHtml = processor.enhance(rawHtml)
             generatedHtml.writeText(enhancedHtml)
+
+            // HF-CR4 — write the vendored GSAP runtime next to the composition
+            // so the generated page loads it as an external, offline sibling
+            // (the CLI lints an *inlined* third-party runtime as
+            // `non_deterministic_code`).
+            outputFile.resolve(GsapLibrary.FILE_NAME).writeText(GsapLibrary.source)
 
             logger.lifecycle("HyperFrames HTML generated: ${generatedHtml.absolutePath}")
             logger.info("   Enhanced with HyperFrames data-* attributes (HF-3)")

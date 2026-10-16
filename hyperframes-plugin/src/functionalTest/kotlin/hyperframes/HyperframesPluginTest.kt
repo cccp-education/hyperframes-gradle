@@ -207,7 +207,7 @@ class HyperframesPluginTest {
     }
 
     @Test
-    fun `generateHyperframesHtml adds data-composition-id from heading id`() {
+    fun `generateHyperframesHtml turns the heading id into a scene clip id`() {
         // Arrange
         writeBuildFiles(projectDir)
         writeDocWithComposition(projectDir, compositionBody = buildString {
@@ -227,14 +227,16 @@ class HyperframesPluginTest {
         // Assert
         assertTrue(result.task(":generateHyperframesHtml")?.outcome?.toString()?.contains("SUCCESS") == true)
         val html = projectDir.resolve("build/hyperframes/index.html").readText()
-        assertContains(html, """data-composition-id="intro"""")
+        assertContains(html, """class="scene clip" id="intro"""")
     }
 
     @Test
-    fun `generateHyperframesHtml adds data-track-attributes to track blocks`() {
+    fun `generateHyperframesHtml keeps track content in a scene and strips reserved timing attributes`() {
         // Arrange
         writeBuildFiles(projectDir)
         writeDocWithComposition(projectDir, compositionBody = buildString {
+            appendLine("== Tracked")
+            appendLine()
             appendLine("[.hyperframes-track]")
             append("Track content here.")
         })
@@ -249,13 +251,16 @@ class HyperframesPluginTest {
         // Assert
         assertTrue(result.task(":generateHyperframesHtml")?.outcome?.toString()?.contains("SUCCESS") == true)
         val html = projectDir.resolve("build/hyperframes/index.html").readText()
-        assertContains(html, """data-track-index""")
-        assertContains(html, """data-start""")
-        assertContains(html, """data-duration""")
+        assertContains(html, "Track content here.")
+        assertContains(html, """class="scene clip" id="tracked"""")
+        assertTrue(
+            !html.contains("hyperframes-track\" data-track-index"),
+            "the nested legacy track wrapper must not keep the reserved timing attributes"
+        )
     }
 
     @Test
-    fun `generateHyperframesHtml injects vendored GSAP inline in head`() {
+    fun `generateHyperframesHtml loads the vendored GSAP as an offline external script`() {
         // Arrange
         writeBuildFiles(projectDir)
         writeDocWithComposition(projectDir, compositionBody = buildString {
@@ -270,10 +275,14 @@ class HyperframesPluginTest {
             .withArguments("generateHyperframesHtml", "--info")
             .build()
 
-        // Assert — HF-CR3-1: vendored GSAP inlined, no external CDN.
+        // Assert — HF-CR4: vendored GSAP written beside the page, loaded offline, no CDN.
         assertTrue(result.task(":generateHyperframesHtml")?.outcome?.toString()?.contains("SUCCESS") == true)
         val html = projectDir.resolve("build/hyperframes/index.html").readText()
-        assertContains(html, """GSAP 3.12.5""")
+        assertContains(html, """<script src="gsap-3.12.5.min.js"></script>""")
+        assertTrue(
+            projectDir.resolve("build/hyperframes/gsap-3.12.5.min.js").exists(),
+            "the vendored GSAP runtime must be written next to the composition"
+        )
         assertFalse(html.contains("cdnjs.cloudflare.com"), "the CDN must no longer be referenceable")
     }
 
@@ -299,14 +308,14 @@ class HyperframesPluginTest {
         assertContains(html, """data-output="test-video.mp4"""")
 
         // Composition
-        assertContains(html, """data-composition-id="intro"""")
+        assertContains(html, """class="scene clip" id="intro"""")
 
         // Tracks
         assertContains(html, """data-track-index""")
         assertContains(html, """data-duration""")
 
-        // GSAP (vendored, inlined — HF-CR3-1)
-        assertContains(html, """GSAP 3.12.5""")
+        // GSAP (vendored, external offline sibling — HF-CR4)
+        assertContains(html, """gsap-3.12.5.min.js""")
         assertFalse(html.contains("cdnjs.cloudflare.com"), "the CDN must no longer be referenceable")
 
         // Animation script
@@ -345,7 +354,7 @@ class HyperframesPluginTest {
         // Assert
         assertTrue(result.task(":generateHyperframesHtml")?.outcome?.toString()?.contains("SUCCESS") == true)
         val html = projectDir.resolve("build/hyperframes/index.html").readText()
-        assertContains(html, "data-composition-id=\"intro\"")
+        assertContains(html, "class=\"scene clip\" id=\"intro\"")
         assertContains(html, "hf-title-card-title\">My Presentation</span>")
         assertContains(html, "hf-title-card-subtitle\">Module 01</span>")
         assertContains(html, "gsap.timeline")

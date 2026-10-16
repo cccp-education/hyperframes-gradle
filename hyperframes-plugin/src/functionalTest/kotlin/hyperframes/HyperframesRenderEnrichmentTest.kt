@@ -43,11 +43,11 @@ class HyperframesRenderEnrichmentTest {
         )
 
         val html = projectDir.resolve("build/hyperframes/index.html").readText()
-        assertContains(html, """data-composition-id="intro"""")
-        assertContains(html, """data-composition-id="outro"""")
+        assertContains(html, """class="scene clip" id="intro"""")
+        assertContains(html, """class="scene clip" id="outro"""")
         assertContains(html, "window.__timelines")
         assertContains(html, "gsap.timeline")
-        assertContains(html, "GSAP 3.12.5")
+        assertContains(html, "gsap-3.12.5.min.js")
         assertTrue(!html.contains("cdnjs.cloudflare.com"), "no external GSAP CDN reference")
     }
 

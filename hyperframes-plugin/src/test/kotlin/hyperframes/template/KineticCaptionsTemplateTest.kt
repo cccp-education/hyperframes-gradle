@@ -68,7 +68,7 @@ class KineticCaptionsTemplateTest {
     }
 
     @Test
-    fun `render contains one caption div per caption with data-start and data-end`() {
+    fun `render contains one caption div per caption with data-at and data-until`() {
         val template = KineticCaptionsTemplate(
             id = "demo",
             captions = listOf(
@@ -80,10 +80,10 @@ class KineticCaptionsTemplateTest {
         val html = template.render()
 
         assertContains(html, "class=\"hf-kinetic-caption\"")
-        assertContains(html, "data-start=\"0.0\"")
-        assertContains(html, "data-end=\"2.0\"")
-        assertContains(html, "data-start=\"2.5\"")
-        assertContains(html, "data-end=\"4.5\"")
+        assertContains(html, "data-at=\"0.0\"")
+        assertContains(html, "data-until=\"2.0\"")
+        assertContains(html, "data-at=\"2.5\"")
+        assertContains(html, "data-until=\"4.5\"")
     }
 
     @Test
@@ -99,7 +99,7 @@ class KineticCaptionsTemplateTest {
     }
 
     @Test
-    fun `captions are hidden by default via inline style display none`() {
+    fun `captions are hidden by default via inline opacity zero`() {
         val template = KineticCaptionsTemplate(
             id = "demo",
             captions = listOf(Caption(0.0, 2.0, "A"))
@@ -107,7 +107,7 @@ class KineticCaptionsTemplateTest {
 
         val html = template.render()
 
-        assertContains(html, "display:none")
+        assertContains(html, "opacity:0")
     }
 
     @Test

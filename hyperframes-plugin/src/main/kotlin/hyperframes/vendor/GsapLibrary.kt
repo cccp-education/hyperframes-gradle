@@ -22,6 +22,9 @@ object GsapLibrary {
     /** The vendored GSAP version. */
     const val VERSION = "3.12.5"
 
+    /** File name the runtime is written to inside the composition directory. */
+    const val FILE_NAME = "gsap-3.12.5.min.js"
+
     /** Classpath location of the vendored minified build. */
     private const val RESOURCE_PATH = "/vendor/gsap-3.12.5.min.js"
 
@@ -46,6 +49,19 @@ object GsapLibrary {
         }
         return "<script>\n$js\n</script>"
     }
+
+    /**
+     * Returns a `<script>` element that loads the vendored runtime from the
+     * composition directory as an **external** file ([FILE_NAME]).
+     *
+     * HF-CR4 — the HyperFrames CLI lints the composition before rendering and
+     * flags any inlined third-party runtime as `non_deterministic_code`
+     * (GSAP's ticker uses `Date.now()`/`Math.random()` internally). Loading it
+     * as a sibling file keeps the deterministic authoring surface clean while
+     * remaining fully offline (no CDN): the producer task writes [source] next
+     * to the generated HTML.
+     */
+    fun externalScript(): String = "<script src=\"$FILE_NAME\"></script>"
 
     private fun loadSource(): String =
         GsapLibrary::class.java.getResourceAsStream(RESOURCE_PATH)

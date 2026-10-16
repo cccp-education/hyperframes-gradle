@@ -51,8 +51,9 @@ class Cr3RealRenderSteps(private val world: HyperframesWorld) {
     @Then("the real-render HTML embeds the vendored GSAP runtime")
     fun htmlEmbedsVendoredGsap() {
         val html = world.generatedHtml()
-        assertThat(html).contains("GSAP 3.12.5")
-        assertThat(html).contains("<script>")
+        // HF-CR4 — external offline sibling, never an inlined runtime nor a CDN.
+        assertThat(html).contains("gsap-3.12.5.min.js")
+        assertThat(html).contains("<script")
     }
 
     @Then("the real-render HTML does not reference the GSAP CDN")
@@ -62,8 +63,8 @@ class Cr3RealRenderSteps(private val world: HyperframesWorld) {
 
     @Then("the real-render HTML contains multiple compositions")
     fun htmlMultipleCompositions() {
-        val count = Regex("""data-composition-id="""").findAll(world.generatedHtml()).count()
-        assertThat(count).`as`("the enriched HTML must expose several compositions").isGreaterThanOrEqualTo(2)
+        val count = Regex("""class="scene clip"""").findAll(world.generatedHtml()).count()
+        assertThat(count).`as`("the enriched HTML must expose several scene clips").isGreaterThanOrEqualTo(2)
     }
 
     @Then("the real-render HTML embeds an inlined GSAP timeline")

@@ -1,48 +1,39 @@
-= PROMPT_REPRISE — HyperFrames Gradle (Session 030 TERMINÉE → 031)
-:session: 030
-:date: 2026-10-15
-:status: ✅ TERMINÉ — cache CI du rendu réel (npm + Puppeteer Chromium)
+= PROMPT_REPRISE — HyperFrames Gradle (Session 031 TERMINÉE → 032)
+:session: 031
+:date: 2026-10-16
+:status: ✅ TERMINÉ — HF-CR4 rendu de publication (compositions conformes)
 :borough: Watts
 
 '''
 == État des lieux
 
-Plugin Gradle fonctionnel : AsciiDoc → AsciidoctorJ → HTML enrichi → CLI Node → MP4
-(via le noyau `VideoEngine`). EPICs HF-0→HF-7 ✅. **`HF-KERNEL-ADAPTER` ✅ TERMINÉ**.
-**`HF-CR3` ✅ TERMINÉ 3/3** (S-025) + durci S-026. **Version publiée `0.0.6`**
-(Maven Central, bundle `71616cda`, S-029). Noyau **`education.cccp:video-kernel:0.4.0`**.
-Catalogue ws `0.0.96` / BOM `0.0.96`.
+Plugin Gradle fonctionnel : AsciiDoc → AsciidoctorJ → HTML HyperFrames → CLI Node → MP4
+(via le noyau `VideoEngine`). EPICs HF-0→HF-7 ✅, `HF-KERNEL-ADAPTER` ✅, `HF-CR3` ✅,
+`VK-4-SHARED-PORTS` ✅. **Version publiée `0.0.6`** (Maven Central, bundle `71616cda`).
+Noyau **`education.cccp:video-kernel:0.4.0`**. Catalogue ws `0.0.96` / BOM `0.0.96`.
 
-== Fait en session 030 — Cache CI du rendu réel
+== Fait en session 031 — HF-CR4 : rendu de publication
 
-Maintenance CI (cache cross-borough, `workspace-bom/.agents/CADRAGE_CI_CACHE.adoc`).
-`real-render-hyperframes.yml` : cache `actions/cache@v4` sur `~/.npm` +
-`~/.cache/puppeteer` (clé `hyperframes-cli-<os>-0.8.157`) → plus de re-téléchargement
-npm/Chromium sur cache chaud. Rapport `.agents/sessions/030-ci-cache-real-render.adoc`.
+Demande pilote : le rendu était **inutilisable** (1080×1920 portrait, 1 s) et
+`hyperframes lint` remontait 4 erreurs. **Réécriture** de `HyperframesHtmlProcessor`
+en générateur de **composition HyperFrames conforme** : composition racine `#stage`,
+une scène `class="scene clip"` par section, **un unique timeline racine** fusionnant
+les timelines de scène, assainissement des attributs de timing **réservés** imbriqués
+(cause du « frame blank »), GSAP **hors-ligne externe**, **design system embarqué**.
+Templates `DataChartTemplate` (label sous la barre) et `KineticCaptionsTemplate`
+(`data-at`/`data-until` + opacité) mis au contrat. Tests unit/fonctionnels/Cucumber
+migrés. **Preuve** : `hyperframes check` **passed** (0 err, 0 layout, 12/12 WCAG AA) ;
+vidéo **1920×1080 / 26 s**. Rapport `.agents/sessions/031-hf-cr4-publication-composition.adoc`.
 
-== Fait en session 029 — Release corrective `hyperframes-plugin 0.0.6`
+== Mission Session 032 — au choix (pilote)
 
-Release DAG N0→N1→N2 (accord pilote) : MEMPHIS catalogue/BOM `0.0.96` →
-hyperframes re-pin `workspace-catalog/BOM 0.0.95 → 0.0.96` + toml local `0.0.6` →
-**Central `0.0.6`** (bundle `71616cda`). Contenu : fix bug audio-post BGM/ducking
-(S-028) + garde d'intégration réel. Rapport `.agents/sessions/029-release-0.0.6.adoc`.
-
-== Fait en session 028 — Dogfooding réel + fix bug audio-post
-
-Dogfooding des adaptateurs S-026 avec **vrais binaires** (ffmpeg 6.1.1, espeak) :
-burn-in ✅, loudnorm seul ✅, narration espeak ✅ ; **BGM sans ducking et ducking ❌**
-(durée tronquée 0,118 s / `Invalid stream specifier: voice`). **2 causes** :
-`loudnorm` sort à 192 kHz (amix tronque) ; label `[voice]` mono-usage réutilisé.
-**Correctif** : `…,aresample=48000` + `asplit=2` pour le ducking. Tests unit
-renforcés + **garde d'intégration réel** `FfmpegAudioPostProductionIntegrationTest`.
-Rapport `.agents/sessions/028-dogfooding-audio-post-fix.adoc`.
-
-== Mission Session 031 — au choix (pilote)
-
-* **Backlog hyperframes** : tous EPICs clos ; release `0.0.6` publiée ; cache CI posé.
-* A) **HF-CR3 suite** : rapatrier le rendu réel dans la CI requise / enrichir
-  (Manim/Remotion) — au prix d'un CI plus lourd (cf. `CADRAGE_CI_CACHE.adoc`).
-* B) Maintenance / nouvelle demande pilote.
+* A) **CI** : pousser + vérifier le run `Test` du commit (suite migrée au nouveau
+  contrat). Corriger tout rouge révélé par la CI.
+* B) **Release `0.0.7`** (accord pilote) : ordre DAG — MEMPHIS catalogue/BOM
+  `0.0.96 → 0.0.97` (déclare `hyperframes-plugin = "0.0.7"`) → hyperframes re-pin
+  `workspace-catalog/BOM 0.0.96 → 0.0.97` + toml local `0.0.6 → 0.0.7` → **Central `0.0.7`**.
+* C) **HF-CR4 suite** : réduire les 7 warnings lint (`nested_structure_needs_subcomposition`)
+  en découpant les scènes en sous-compositions (`data-composition-src`).
 
 == Points d'attention
 
@@ -53,9 +44,12 @@ Rapport `.agents/sessions/028-dogfooding-audio-post-fix.adoc`.
 
 == Rappels techniques
 
+- **Composition** : racine `#stage` (`data-composition-id="root"`), scènes
+  `div.scene.clip`, timeline `window.__timelines["root"]`, registre privé
+  `window.__hfSceneTimelines` pour les timelines fusionnées.
+- **GSAP** : `GsapLibrary.externalScript()` → fichier `gsap-3.12.5.min.js` écrit par
+  `generateHyperframesHtml` à côté du HTML (jamais inliné, jamais CDN).
 - **Rendu** : `RenderHyperframesTask` → `HyperFramesEngine.renderDetailed` (port N1).
-- **Post-production** : `postProcessHyperframes` (ports `SubtitleBurnIn` + `AudioPostProduction`).
-- **Narration** : `generateHyperframesNarration` (port `TextToSpeech`).
 - Noyau partagé `education.cccp:video-kernel:0.4.0` (`video.kernel.*`).
 - Catalogue ws `education.cccp:workspace-catalog:0.0.96`.
 
@@ -63,8 +57,8 @@ Rapport `.agents/sessions/028-dogfooding-audio-post-fix.adoc`.
 
 |===
 | Document | Chemin
+| Rapport S-031 | `.agents/sessions/031-hf-cr4-publication-composition.adoc`
 | Rapport S-029 | `.agents/sessions/029-release-0.0.6.adoc`
-| Rapport S-028 | `.agents/sessions/028-dogfooding-audio-post-fix.adoc`
 | Cadrage kernel (amont) | `.agents/CADRAGE_EPIC_HF_KERNEL_ADAPTER.adoc`
 | Backlog | `BACKLOG.adoc`
 | Règles | `AGENT.adoc`

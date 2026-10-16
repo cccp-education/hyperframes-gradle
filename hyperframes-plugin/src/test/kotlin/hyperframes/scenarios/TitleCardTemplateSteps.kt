@@ -36,16 +36,16 @@ class TitleCardTemplateSteps(private val world: HyperframesWorld) {
         world.runTask("generateHyperframesHtml")
     }
 
-    @Then("the generated HTML contains a hyperframes-composition div")
-    fun htmlContainsCompositionDiv() {
+    @Then("the generated HTML contains a scene clip")
+    fun htmlContainsSceneClip() {
         val html = world.generatedHtml()
-        assertTrue(html.contains("hyperframes-composition"), "HTML should contain a composition div")
+        assertTrue(html.contains("class=\"scene clip\""), "HTML should contain a scene clip")
     }
 
-    @Then("the composition div has data-composition-id {string}")
-    fun compositionIdIs(id: String) {
+    @Then("the scene clip has id {string}")
+    fun sceneClipIdIs(id: String) {
         val html = world.generatedHtml()
-        assertThat(html).contains("data-composition-id=\"$id\"")
+        assertThat(html).contains("class=\"scene clip\" id=\"$id\"")
     }
 
     @Then("the HTML contains a GSAP timeline")

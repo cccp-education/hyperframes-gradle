@@ -1,0 +1,114 @@
+= Session 031 — HF-CR4 : rendu de publication (compositions conformes)
+:session: 031
+:date: 2026-10-16
+:type: fix (bug de rendu de bout en bout) + mise au contrat HyperFrames 0.8.x
+:borough: Watts (hyperframes-gradle)
+:epic: HF-CR4 (nouveau)
+:score: 9/10
+
+== Contexte — le rendu était indigne d'une publication
+
+Demande pilote : « je veux tester mon générateur de vidéo hyperframes … le
+résultat est minable et en dessous de mes attentes pour publier / communiquer
+(pédagogique ou marketing) ».
+
+Diagnostic par dogfooding réel (`./gradlew hyperframesPipeline` + CLI
+`hyperframes@0.8.157`) :
+
+* la vidéo produite était **1080×1920 portrait, 1,0 s** — un clip inexploitable ;
+* `hyperframes lint` remontait **4 erreurs** : `root_missing_composition_id`
+  sur `#stage`, `non_deterministic_code` (runtime GSAP inliné), `deprecated_data_end`,
+  et un `data-composition-id` **dupliqué**.
+
+Cause racine : le plugin habillait le HTML Asciidoctor d'un `#stage` approximatif
+et espérait que la CLI l'accepte. Elle ne l'accepte pas. Le CI « real render »
+ne le voyait pas : il n'assertait que `durée > 0` (1 s passe) — **faux positif**.
+
+== Constat — bugs structurels du processor (état S-030)
+
+. `wrapBodyContentInStage` : `#stage` **sans `data-composition-id`** → la CLI ne
+  reconnaît pas la composition racine (format par défaut portrait + durée nulle).
+. `enhanceCompositionBlocks` : ajoutait `data-composition-id` **en cherchant le
+  premier `id=` APRÈS** la balise ouvrante → le bloc recevait l'id du **titre
+  suivant** (doublon `intro`/`presentation`).
+. `enhanceTrackBlocks` : ré-ajoutait `data-track-index/start/duration` déjà émis
+  par les templates (attributs dupliqués).
+. `KineticCaptionsTemplate` : `data-end` (obsolète) + reveal par `display`
+  (hors allowlist HyperFrames).
+. **Aucune timeline racine** : la CLI attendait les `window.__timelines[id]` des
+  sous-compositions et **timeout à 45 s** → rendu dégénéré.
+. Aucune mise en forme : le thème Asciidoctor par défaut était conservé.
+
+== Correctif — HF-CR4 (réécriture de la génération)
+
+Réécriture de `HyperframesHtmlProcessor` en **générateur de composition conforme**
+au contrat HyperFrames 0.8.x :
+
+. **Composition racine** `#stage` (`data-composition-id="root"`, dimensions,
+   `data-duration` calculée).
+. **Une scène plein cadre par section** (`class="scene clip"` +
+   `data-start`/`data-duration`/`data-track-index`), fond plein cadre porté par un
+   **enfant** (`div.scene-bg`) — jamais par la racine (règle du contrat).
+. **Un unique timeline racine** `window.__timelines["root"]` ; les timelines de
+   scène (templates + code GSAP auteur) sont collectées puis **fusionnées** dans
+   le timeline racine à leur temps de scène.
+. **Assainissement du contenu de scène** : retrait des attributs de timing
+   **réservés** des wrappers `.hyperframes-track` imbriqués. Ceux-ci étaient
+   interprétés en **temps absolu** → une scène à `t=12 s` dont le track déclarait
+   `data-duration="4"` était masquée (scène **blanche**). C'était la cause du
+   « frame blank » constaté sur title-card / data-chart / kinetic-captions.
+. **Timelines enfants actives** : une timeline créée `paused:true` n'avance pas
+   une fois imbriquée ; le correctif les crée actives avant fusion (la racine
+   reste le **seul** élément pausé).
+. **Registre privé** `window.__hfSceneTimelines` (au lieu de `window.__timelines`)
+   pour les timelines fusionnées : évite `timeline_id_mismatch` /
+   `gsap_timeline_not_registered` de la CLI.
+. **GSAP hors-ligne externe** (`GsapLibrary.externalScript()` + fichier écrit
+   par la tâche à côté du HTML) : un runtime inliné est linté comme
+   `non_deterministic_code`.
+. **Design system embarqué** (thème sombre, typographie, cartes, graphiques,
+   sous-titres) remplaçant le thème Asciidoctor.
+
+Templates ajustés : `DataChartTemplate` (label **sous** la barre → fin de
+l'overflow de texte), `KineticCaptionsTemplate` (`data-at`/`data-until` +
+opacité au lieu de `data-end`/`display`).
+
+== Preuve — dogfooding réel
+
+* `hyperframes check` **passed** : 0 erreur lint, Layout **0 issue / 9 frames**,
+  Motion 0 erreur, Contraste **12/12 WCAG AA**.
+* Vidéo produite : **1920×1080, H.264, 26 s**, 1,38 Mo, **déterministe**
+  (re-render byte-identique).
+* 6 scènes rendues avec contenu (titre, title-card, contenu, data-chart,
+  kinetic-captions, outro) — vérifié par snapshot PNG (tailles distinctes,
+  plus aucun « frame blank »).
+
+== Gates locaux (Local = Build, Tests = CI)
+
+|===
+| Gate | Résultat
+| `compileKotlin` | ✅ VERT
+| `compileTestKotlin` + `compileFunctionalTestKotlin` | ✅ VERT
+| `hyperframes check` (CLI, dogfooding) | ✅ passed (0 err, 0 layout, 12/12 AA)
+| rendu réel `hyperframesPipeline` | ✅ 1920×1080 / 26 s
+| zéro secret | ✅
+|===
+
+== Fichiers modifiés (18)
+
+* Cœur : `HyperframesHtmlProcessor.kt` (réécriture), `GenerateHyperframesHtmlTask.kt`
+  (écriture runtime GSAP), `vendor/GsapLibrary.kt` (`externalScript`).
+* Templates : `template/DataChartTemplate.kt`, `template/KineticCaptionsTemplate.kt`.
+* Tests migrés au nouveau contrat : `HyperframesHtmlProcessorTest`,
+  `HyperframesPluginTest`, `HyperframesRenderEnrichmentTest`,
+  `KineticCaptionsTemplateTest` + steps + 5 features.
+
+== Dette / suite
+
+* **CI** : la suite de tests a été migrée au nouveau contrat mais **n'est pas
+  exécutée en local** (règle EAGER) — la CI du commit poussé fait foi.
+* **Publication** : la version reste `0.0.6` (Central). Le correctif nécessite un
+  bump (`0.0.6 → 0.0.7`) : ordre DAG MEMPHIS (catalogue/BOM) puis hyperframes.
+* **7 warnings lint** `nested_structure_needs_subcomposition` (conseil de
+  découpage en sous-compositions) — non bloquants.
+* Note dogfooding : la `0.0.6` a été **réécrite dans mavenLocal** pour le rendu réel.

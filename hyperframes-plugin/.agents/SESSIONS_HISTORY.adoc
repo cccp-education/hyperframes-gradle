@@ -449,3 +449,19 @@ Cucumber 7.34.3 intégré (task `cucumberTest`, JUnit Platform Suite, glue
 | 000 | 2026-05-31 | bootstrap | HF-0 — Bootstrap gouvernance + cadrage architecture | ✅ TERMINÉ
 | 007 | 2026-10-11 | maintenance build | Re-pin catalog ws `0.0.30 → 0.0.78` (rollout MEMPHIS 0.0.78) + platform `workspace-bom 0.0.30 → 0.0.78`. `compileKotlin compileTestKotlin` VERT. | ✅
 |===
+
+== Session 031 (2026-10-16) — HF-CR4 : rendu de publication (compositions conformes)
+
+Demande pilote : le rendu réel était **inutilisable** (1080×1920 portrait, 1,0 s) ;
+`hyperframes lint` remontait 4 erreurs. **Réécriture** de `HyperframesHtmlProcessor`
+en générateur de composition HyperFrames conforme : composition racine `#stage`,
+une scène `class="scene clip"` par section, **un unique timeline racine** fusionnant
+les timelines de scène, retrait des attributs de timing **réservés** des wrappers
+imbriqués (cause du « frame blank »), GSAP **hors-ligne externe** (`GsapLibrary`),
+**design system embarqué**. Templates `DataChartTemplate` (label sous la barre) et
+`KineticCaptionsTemplate` (`data-at`/`data-until` + opacité) mis au contrat. Tests
+unit/fonctionnels/Cucumber migrés (18 fichiers). **Preuve** : `hyperframes check`
+**passed** (0 err, 0 layout issue, 12/12 WCAG AA) ; vidéo **1920×1080 / 26 s**
+déterministe. Gates locaux : compileKotlin / compileTestKotlin /
+compileFunctionalTestKotlin VERT (tests = CI). Suite : CI + release `0.0.7` (DAG).
+Rapport `.agents/sessions/031-hf-cr4-publication-composition.adoc`.

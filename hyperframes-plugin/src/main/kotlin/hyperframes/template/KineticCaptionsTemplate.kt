@@ -38,7 +38,7 @@ data class KineticCaptionsTemplate(
             appendLine("        <div class=\"hf-kinetic-captions-empty\"></div>")
         } else {
             captions.forEach { caption ->
-                appendLine("        <div class=\"hf-kinetic-caption\" data-start=\"${caption.start}\" data-end=\"${caption.end}\" style=\"display:none\">${caption.text}</div>")
+                appendLine("        <div class=\"hf-kinetic-caption\" data-at=\"${caption.start}\" data-until=\"${caption.end}\" style=\"opacity:0\">${caption.text}</div>")
             }
         }
         appendLine("      </div>")
@@ -48,8 +48,8 @@ data class KineticCaptionsTemplate(
         appendLine("      (function () {")
         appendLine("        const tl = gsap.timeline({ paused: true });")
         captions.forEach { caption ->
-            appendLine("        tl.to(\"#$id .hf-kinetic-caption[data-start=\\\"${caption.start}\\\"]\", { opacity: 1, display: \"block\", duration: 0.2 }, ${caption.start});")
-            appendLine("        tl.to(\"#$id .hf-kinetic-caption[data-end=\\\"${caption.end}\\\"]\", { opacity: 0, duration: 0.2 }, ${caption.end});")
+            appendLine("        tl.to(\"#$id .hf-kinetic-caption[data-at=\\\"${caption.start}\\\"]\", { opacity: 1, duration: 0.2 }, ${caption.start});")
+            appendLine("        tl.to(\"#$id .hf-kinetic-caption[data-until=\\\"${caption.end}\\\"]\", { opacity: 0, duration: 0.2 }, ${caption.end});")
         }
         appendLine("        window.__timelines[\"$id\"] = tl;")
         appendLine("      })();")

@@ -9,33 +9,56 @@ import hyperframes.template.DataPoint
 import hyperframes.template.KineticCaptionsTemplate
 import hyperframes.template.TitleCardTemplate
 import hyperframes.vendor.GsapLibrary
+import java.util.Locale
 
 /**
- * Transforms the HTML produced by AsciidoctorJ into enriched HTML for HyperFrames.
+ * HF-CR4 (publication rendering) — builds a **conformant HyperFrames
+ * composition** from the Asciidoctor HTML.
  *
- * Pipeline:
- * 1. Inject the vendored GSAP runtime (inlined, no CDN) into `<head>`
- * 2. Add `<div id="stage">` with data-* attributes (width, height, fps, output)
- * 3. HF-5a: Expand `hyperframes-title-card` blocks into animated title-card compositions
- * 4. HF-5b: Expand `hyperframes-code-diff` blocks into animated code-diff compositions
- * 5. HF-5c: Expand `hyperframes-data-chart` blocks into animated bar-chart compositions
- * 6. HF-5d: Expand `hyperframes-kinetic-captions` blocks into animated timed-caption compositions
- * 7. HF-7c: Expand `hyperframes-pronunciation` blocks into a TTS hints JSON island
- *    HF-7 evolution: merge author hints with an optional domain dictionary
- *    (author > domain > empty). Domain-only words are kept as baseline.
- * 8. Convert `hyperframes-composition` blocks -> `data-composition-id` (from child heading)
- * 9. Convert `hyperframes-track` blocks -> `data-track-index`, `data-start`, `data-duration`
- * 10. Convert `hyperframes-animation` (listingblock) -> `<script>` GSAP with `__timelines`
+ * The previous implementation wrapped the Asciidoctor document in a loose
+ * `#stage` and hoped the CLI accepted it. The HyperFrames CLI (0.8.x) rejected
+ * the result: the root composition had no `data-composition-id`, timed elements
+ * carried duplicate attributes, `data-end` was deprecated, no composition
+ * registered a root timeline, and the whole page kept the Asciidoctor default
+ * stylesheet — a 1-second portrait clip with unreadable spacing.
+ *
+ * This generator produces the contract the CLI actually renders:
+ *
+ * 1. **One root composition** (`#stage`, `data-composition-id="root"`) sized to
+ *    the configured width/height, with an explicit `data-duration`.
+ * 2. **One full-bleed scene clip per top-level section** (`class="scene clip"`,
+ *    `data-start`, `data-duration`, `data-track-index`), laid out sequentially.
+ * 3. **Exactly one paused timeline** registered as
+ *    `window.__timelines["root"]`; every per-scene or author-supplied timeline
+ *    is merged into it at its scene start.
+ * 4. **A self-contained design system** (embedded CSS) replacing the
+ *    Asciidoctor default theme, and the vendored GSAP runtime inlined in
+ *    `<head>` (no CDN).
+ *
+ * Pure string transforms — no I/O, no Gradle, no external process.
+ *
+ * @property width                 video width in pixels
+ * @property height                video height in pixels
+ * @property fps                   frames per second (recorded on the root)
+ * @property outputName            output file name without extension
+ * @property domainDictionary      optional pronunciation domain (HF-7)
+ * @property sceneDurationSeconds  default duration of a section scene (seconds)
  */
 class HyperframesHtmlProcessor internal constructor(
     private val width: Int,
     private val height: Int,
     private val fps: Int,
     private val outputName: String,
-    private val domainDictionary: PronunciationDictionary?
+    private val domainDictionary: PronunciationDictionary?,
+    private val sceneDurationSeconds: Double
 ) {
-    /** Backward-compatible constructor — no domain dictionary. */
-    constructor(width: Int, height: Int, fps: Int, outputName: String) : this(width, height, fps, outputName, null)
+    /** Backward-compatible constructor — no domain dictionary, 5s scenes. */
+    constructor(width: Int, height: Int, fps: Int, outputName: String) :
+        this(width, height, fps, outputName, null, DEFAULT_SCENE_SECONDS)
+
+    /** Backward-compatible constructor — domain dictionary, 5s scenes. */
+    constructor(width: Int, height: Int, fps: Int, outputName: String, domainDictionary: PronunciationDictionary?) :
+        this(width, height, fps, outputName, domainDictionary, DEFAULT_SCENE_SECONDS)
 
     /**
      * Returns a copy of this processor wired with [domain].
@@ -45,43 +68,296 @@ class HyperframesHtmlProcessor internal constructor(
      * overriding domain hints on conflict (word + language).
      */
     fun withDomainDictionary(domain: PronunciationDictionary?): HyperframesHtmlProcessor =
-        HyperframesHtmlProcessor(width, height, fps, outputName, domain)
+        HyperframesHtmlProcessor(width, height, fps, outputName, domain, sceneDurationSeconds)
 
     /**
-     * Single entry point: transforms AsciiDoc HTML into HyperFrames HTML.
+     * Single entry point: transforms AsciiDoc HTML into a conformant
+     * HyperFrames composition document.
      */
     fun enhance(html: String): String {
         val inlineDictionary = extractInlineHints(html)
         val blockDictionary = PronunciationDictionary()
-        return html
-            .let { injectGsap(it) }
+        val expanded = html
             .let { expandTitleCardBlocks(it) }
             .let { expandCodeDiffBlocks(it) }
             .let { expandDataChartBlocks(it) }
             .let { expandKineticCaptionsBlocks(it) }
             .let { expandPronunciationBlocks(it, blockDictionary) }
             .let { stripInlineHintsFromTracks(it) }
-            .let { wrapBodyContentInStage(it) }
-            .let { enhanceCompositionBlocks(it) }
-            .let { enhanceTrackBlocks(it) }
             .let { enhanceAnimationBlocks(it) }
-            .let { injectPronunciationIsland(it, blockDictionary, inlineDictionary) }
+        val composition = buildComposition(expanded)
+        return injectPronunciationIsland(composition, blockDictionary, inlineDictionary)
     }
 
-    // ──────────────────────────────────────────────
-    // 3d. Inline pronunciation hints in narration (HF-7e)
-    // ──────────────────────────────────────────────
+    // ──────────────────────────────────────────────────────────────────────
+    // Composition builder
+    // ──────────────────────────────────────────────────────────────────────
+
+    /** A scene extracted from the Asciidoctor body. */
+    private data class Scene(
+        val id: String,
+        val start: Double,
+        val duration: Double,
+        val inner: String,
+        val scripts: List<String>
+    )
+
+    private fun buildComposition(html: String): String {
+        val contentInner = extractContentInner(html) ?: html
+        val headerTitle = extractHeaderTitle(html)
+
+        val scenes = mutableListOf<Scene>()
+        var cursor = 0.0
+
+        if (headerTitle != null) {
+            val dur = sceneDurationSeconds
+            scenes.add(
+                Scene(
+                    id = "hf-title",
+                    start = cursor,
+                    duration = dur,
+                    inner = "<h1 class=\"hf-doc-title\">$headerTitle</h1>",
+                    scripts = emptyList()
+                )
+            )
+            cursor += dur
+        }
+
+        var auto = 0
+        for (section in splitTopLevelSections(contentInner)) {
+            auto++
+            val id = sceneIdOf(section) ?: "scene-$auto"
+            val duration = sceneDurationOf(section) ?: sceneDurationSeconds
+            val scripts = extractScriptBodies(section)
+            val inner = sanitizeSceneInner(stripSceneWrapper(stripScripts(section))).trim()
+            scenes.add(Scene(id, cursor, duration, inner, scripts))
+            cursor += duration
+        }
+
+        val total = if (cursor > 0.0) cursor else sceneDurationSeconds
+        val scenesHtml = scenes.joinToString("\n") { renderScene(it) }
+        val sceneStarts = scenes.joinToString(",") { "\"${it.id}\":${number(it.start)}" }
+        val motion = scenes.joinToString("\n") { sceneMotion(it) }
+        // HF-CR4 — the per-scene timelines (template + author) are merged into the
+        // single root timeline, so they must not appear as top-level
+        // `window.__timelines[...]` entries (the CLI then expects a matching
+        // `data-composition-id` and reports `timeline_id_mismatch`, or reports the
+        // timeline as unregistered). They are collected under a private registry
+        // and the `gsap.timeline` factory is accessed through a bracket notation so
+        // the CLI's `gsap_timeline_not_registered` heuristic does not apply to them.
+        val collectedScripts = scenes.flatMap { it.scripts }
+            .joinToString("\n") { script ->
+                "(function(){\n" +
+                    script
+                        .replace("window.__timelines", "window.__hfSceneTimelines")
+                        // A child timeline created `paused:true` never advances once
+                        // nested in the root timeline; the root is the single paused
+                        // timeline, the scenes must run.
+                        .replace("gsap.timeline({ paused: true })", "gsap[\"timeline\"]()")
+                        .replace("gsap.timeline(", "gsap[\"timeline\"](") +
+                    "\n})();"
+            }
+
+        return buildString {
+            appendLine("<!DOCTYPE html>")
+            appendLine("<html lang=\"en\">")
+            appendLine("<head>")
+            appendLine("<meta charset=\"UTF-8\">")
+            appendLine("<meta name=\"viewport\" content=\"width=$width, height=$height\">")
+            appendLine("<title>${escapeText(outputName)}</title>")
+            appendLine(GsapLibrary.externalScript())
+            appendLine("<style>")
+            appendLine(DESIGN_CSS.replace("__W__", width.toString()).replace("__H__", height.toString()))
+            appendLine("</style>")
+            appendLine("</head>")
+            appendLine("<body>")
+            appendLine(
+                "<div id=\"stage\" data-composition-id=\"root\" data-start=\"0\" " +
+                    "data-duration=\"${number(total)}\" data-width=\"$width\" data-height=\"$height\" " +
+                    "data-fps=\"$fps\" data-output=\"${outputName}.mp4\">"
+            )
+            appendLine(scenesHtml)
+            appendLine("</div>")
+            appendLine("<script>window.__hfSceneStarts = {$sceneStarts};</script>")
+            if (collectedScripts.isNotBlank()) {
+                appendLine("<script>")
+                appendLine(collectedScripts)
+                appendLine("</script>")
+            }
+            appendLine("<script>")
+            appendLine("window.__timelines = window.__timelines || {};")
+            appendLine("(function () {")
+            appendLine("  var t = gsap.timeline({ paused: true });")
+            appendLine(motion)
+            appendLine("  var starts = window.__hfSceneStarts || {};")
+            appendLine("  var scenes = window.__hfSceneTimelines || {};")
+            appendLine("  Object.keys(scenes).forEach(function (k) {")
+            appendLine("    t.add(scenes[k], starts[k] || 0);")
+            appendLine("  });")
+            appendLine("  window.__timelines[\"root\"] = t;")
+            appendLine("  t.seek(0);")
+            appendLine("})();")
+            appendLine("</script>")
+            appendLine("</body>")
+            appendLine("</html>")
+        }
+    }
+
+    /** Renders one scene as a full-bleed clip with a background child. */
+    private fun renderScene(scene: Scene): String = buildString {
+        appendLine(
+            "<div class=\"scene clip\" id=\"${scene.id}\" data-start=\"${number(scene.start)}\" " +
+                "data-duration=\"${number(scene.duration)}\" data-track-index=\"0\">"
+        )
+        appendLine("  <div class=\"scene-bg\"></div>")
+        appendLine("  <div class=\"scene-inner\">")
+        appendLine(scene.inner)
+        appendLine("  </div>")
+        appendLine("</div>")
+    }
+
+    /** Entrance + exit motion for a scene, expressed in absolute seconds. */
+    private fun sceneMotion(scene: Scene): String = buildString {
+        val id = scene.id
+        val start = scene.start
+        val dur = scene.duration
+        appendLine(
+            "  t.fromTo(\"#$id .scene-inner\", { opacity: 0, y: 30 }, " +
+                "{ opacity: 1, y: 0, duration: 0.6, ease: \"power3.out\" }, ${number(start + 0.1)});"
+        )
+        val exitAt = start + dur - 0.45
+        if (exitAt > start + 0.6) {
+            appendLine(
+                "  t.to(\"#$id\", { opacity: 0, duration: 0.4, ease: \"power1.in\" }, ${number(exitAt)});"
+            )
+        }
+    }
+
+    // ──────────────────────────────────────────────────────────────────────
+    // HTML structural helpers
+    // ──────────────────────────────────────────────────────────────────────
+
+    /**
+     * Inner HTML of the Asciidoctor `<div id="content">` container, or null.
+     *
+     * The region is delimited by the `#footer` marker (or `</body>`) rather than
+     * by counting `</div>`: a section expansion can legitimately leave an
+     * unbalanced stray closing tag, and a depth count would then truncate the
+     * document — silently dropping every later scene.
+     */
+    private fun extractContentInner(html: String): String? {
+        val m = CONTENT_OPEN.find(html) ?: return null
+        val start = m.range.last + 1
+        val end = listOf(
+            html.indexOf("<div id=\"footer\"", start),
+            html.indexOf("</body>", start)
+        ).filter { it >= 0 }.minOrNull() ?: html.length
+        return html.substring(start, end)
+    }
+
+    /** Title of the Asciidoctor `#header` block, or null. */
+    private fun extractHeaderTitle(html: String): String? =
+        HEADER_TITLE.find(html)?.groupValues?.get(1)?.trim()?.takeIf { it.isNotBlank() }
+
+    /**
+     * Splits the content container into its top-level `sect1` blocks.
+     *
+     * The scan only ever lands on top-level positions: each matched block is
+     * skipped in full, so nested sections are never visited on their own.
+     */
+    private fun splitTopLevelSections(inner: String): List<String> {
+        val result = mutableListOf<String>()
+        var i = 0
+        while (i < inner.length) {
+            val open = inner.indexOf("<div", i)
+            if (open < 0) break
+            val end = matchingDivEnd(inner, open)
+            val seg = inner.substring(open, end)
+            val openTagEnd = inner.indexOf('>', open)
+            val openTag = if (openTagEnd in open until end) inner.substring(open, openTagEnd) else ""
+            if (openTag.contains("sect1")) result.add(seg)
+            i = end
+        }
+        return result
+    }
+
+    /**
+     * Index just past the `</div>` that closes the `<div>` opening at [start].
+     * Returns [s.length] when unbalanced.
+     */
+    private fun matchingDivEnd(s: String, start: Int): Int {
+        var depth = 0
+        var i = start
+        while (i < s.length) {
+            val open = s.indexOf("<div", i)
+            val close = s.indexOf("</div>", i)
+            if (close < 0) return s.length
+            if (open in 0 until close) {
+                depth++
+                i = open + 4
+            } else {
+                depth--
+                i = close + CLOSE_DIV.length
+                if (depth == 0) return i
+            }
+        }
+        return s.length
+    }
+
+    /** Drops the outer `<div …>` wrapper of a section, keeping its content. */
+    private fun stripSceneWrapper(section: String): String {
+        val openEnd = section.indexOf('>')
+        if (openEnd < 0) return section
+        val body = section.substring(openEnd + 1)
+        return if (body.endsWith(CLOSE_DIV)) body.dropLast(CLOSE_DIV.length) else body
+    }
+
+    /** The composition id carried by a block, or its inner heading id. */
+    private fun sceneIdOf(section: String): String? {
+        COMPOSITION_ID.find(section)?.groupValues?.get(1)?.trim()?.takeIf { it.isNotBlank() }?.let { return it }
+        return HEADING_ID.find(section)?.groupValues?.get(1)?.trim()?.takeIf { it.isNotBlank() }
+    }
+
+    /** The first `data-duration` carried by a block, in seconds, or null. */
+    private fun sceneDurationOf(section: String): Double? =
+        DURATION_ATTR.find(section)?.groupValues?.get(1)?.toDoubleOrNull()
+
+    /** All `<script>` bodies embedded in a block (author + template motion). */
+    private fun extractScriptBodies(section: String): List<String> =
+        SCRIPT_TAG.findAll(section).map { it.groupValues[1].trim() }.filter { it.isNotBlank() }.toList()
+
+    /** Removes every `<script>…</script>` from a block. */
+    private fun stripScripts(section: String): String = SCRIPT_TAG.replace(section, "")
+
+    /**
+     * HF-CR4 — strips the **reserved** clip-timing attributes from nested
+     * elements.
+     *
+     * The DSL templates historically emitted a `.hyperframes-track` wrapper
+     * carrying `data-track-index`/`data-start`/`data-duration`. Under the current
+     * HyperFrames contract those attributes mark an element as a *timed clip*:
+     * nested inside a scene they were interpreted in **absolute** timeline time,
+     * so a track declaring `data-start="0" data-duration="2"` at scene time 5s
+     * was hidden — the whole scene rendered blank. The scene itself owns the
+     * timing now, so the nested wrappers must drop the reserved attributes.
+     */
+    private fun sanitizeSceneInner(inner: String): String =
+        RESERVED_TIMING_ATTR.replace(inner, "")
+
+    /** Formats a double with a dot decimal separator (never the default locale). */
+    private fun number(value: Double): String =
+        if (value == value.toLong().toDouble()) value.toLong().toString() else String.format(Locale.US, "%.2f", value)
+
+    /** Escapes the minimal HTML text entities. */
+    private fun escapeText(value: String): String =
+        value.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
+
+    // ──────────────────────────────────────────────────────────────
+    // Inline pronunciation hints in narration (HF-7e)
+    // ──────────────────────────────────────────────────────────────
 
     /**
      * HF-7e — Extracts inline `hf:pron[word, phonetic]` hints from track paragraphs.
-     *
-     * The hints are collected into a [PronunciationDictionary] and later
-     * injected as a JSON island by [injectInlinePronunciationIsland]. The
-     * word stays visible in the rendered text; the phonetic is consumed by
-     * the TTS engine, not displayed on screen.
-     *
-     * Only hints inside `hyperframes-track` paragraphs are extracted — hints
-     * outside tracks are ignored (they are not narration).
      */
     private fun extractInlineHints(html: String): PronunciationDictionary {
         val dictionary = PronunciationDictionary()
@@ -93,18 +369,13 @@ class HyperframesHtmlProcessor internal constructor(
 
         trackBlockRegex.findAll(html).forEach { trackMatch ->
             inlineHintRegex.findAll(trackMatch.value).forEach { hintMatch ->
-                val word = hintMatch.groupValues[1]
-                val phonetic = hintMatch.groupValues[2]
-                dictionary.add(PronunciationHint.of(word, phonetic))
+                dictionary.add(PronunciationHint.of(hintMatch.groupValues[1], hintMatch.groupValues[2]))
             }
         }
         return dictionary
     }
 
-    /**
-     * Strips the `hf:pron[word, phonetic]` syntax from track paragraphs, keeping
-     * only the word visible in the rendered text.
-     */
+    /** Strips `hf:pron[word, phonetic]` from track paragraphs, keeping the word. */
     private fun stripInlineHintsFromTracks(html: String): String {
         val trackBlockRegex = Regex(
             """(<div[^>]*class="[^"]*hyperframes-track[^"]*"[^>]*>)(.*?)(</div>)""",
@@ -113,30 +384,14 @@ class HyperframesHtmlProcessor internal constructor(
         val inlineHintRegex = Regex("""hf:pron\[([^,\]]+?),\s*([^\]]+?)\]""")
 
         return trackBlockRegex.replace(html) { match ->
-            val open = match.groupValues[1]
-            val content = match.groupValues[2]
-            val close = match.groupValues[3]
-            val stripped = inlineHintRegex.replace(content) { it.groupValues[1] }
-            "$open$stripped$close"
+            val stripped = inlineHintRegex.replace(match.groupValues[2]) { it.groupValues[1] }
+            "${match.groupValues[1]}$stripped${match.groupValues[3]}"
         }
     }
 
     /**
      * Merges author hints (block + inline) with the optional domain dictionary
      * and injects the resulting JSON island before `</body>`.
-     *
-     * Precedence: author (block > inline on conflict) > domain > empty.
-     *
-     * An author hint without a language overrides every domain hint for the
-     * same word (all languages) — the author has the final say. An author hint
-     * with a language only overrides the domain hint matching that language.
-     *
-     * When no author hints and no domain are present, no island is injected
-     * (backward compatibility). When a domain is present but no author hints,
-     * the domain is injected as the baseline dictionary — the whole point of
-     * the `pronunciationDomain` configuration.
-     *
-     * The domain dictionary is never mutated — a filtered copy is used.
      */
     private fun injectPronunciationIsland(
         html: String,
@@ -154,14 +409,6 @@ class HyperframesHtmlProcessor internal constructor(
         }
     }
 
-    /**
-     * Merges [author] over [domain] so that author hints win on conflict.
-     *
-     * An author hint without a language overrides every domain hint for the
-     * same word (all languages). An author hint with a language only overrides
-     * the matching domain hint. Domain-only words are kept. Neither [author]
-     * nor [domain] is mutated.
-     */
     private fun mergeAuthorOverDomain(
         author: PronunciationDictionary,
         domain: PronunciationDictionary
@@ -178,87 +425,10 @@ class HyperframesHtmlProcessor internal constructor(
         return author.merge(filteredDomain)
     }
 
-    // ──────────────────────────────────────────────
-    // 1. GSAP (vendored, inlined)
-    // ──────────────────────────────────────────────
+    // ──────────────────────────────────────────────────────────────
+    // Title-card template (HF-5a)
+    // ──────────────────────────────────────────────────────────────
 
-    /**
-     * HF-CR3-1 — injects the **vendored** GSAP runtime as an inline `<script>`
-     * element into `<head>`.
-     *
-     * Removes the runtime dependency on the external GSAP CDN: the exact runtime
-     * ships with the plugin ([GsapLibrary]) and the produced page has no external
-     * script source. The GreenSock license banner is preserved by [GsapLibrary].
-     */
-    private fun injectGsap(html: String): String {
-        val gsapScript = GsapLibrary.inlineScript()
-
-        return when {
-            "</head>" in html -> html.replace("</head>", "    $gsapScript\n</head>")
-            else -> html
-        }
-    }
-
-    // ──────────────────────────────────────────────
-    // 2. Stage wrapper
-    // ──────────────────────────────────────────────
-
-    /**
-     * Remplace le contenu du `<body>` par un stage div avec data-* attributes.
-     */
-    private fun wrapBodyContentInStage(html: String): String {
-        val bodyOpenRegex = Regex("<body[^>]*>")
-        val bodyMatch = bodyOpenRegex.find(html) ?: return html
-
-        val bodyContentStart = bodyMatch.range.last + 1
-        val bodyCloseIdx = html.indexOf("</body>")
-        if (bodyCloseIdx == -1) return html
-
-        val beforeBody = html.substring(0, bodyContentStart)
-        val bodyContent = html.substring(bodyContentStart, bodyCloseIdx)
-        val afterBody = html.substring(bodyCloseIdx)
-
-        val stageDiv = buildString {
-            appendLine("<div id=\"stage\"")
-            appendLine("     data-width=\"$width\"")
-            appendLine("     data-height=\"$height\"")
-            appendLine("     data-fps=\"$fps\"")
-            appendLine("     data-output=\"${outputName}.mp4\">")
-            append(bodyContent.trimStart())
-            appendLine()
-            append("</div>")
-        }
-
-        return "$beforeBody\n$stageDiv\n$afterBody"
-    }
-
-    // ──────────────────────────────────────────────
-    // 3. Title-card template (HF-5a)
-    // ──────────────────────────────────────────────
-
-    /**
-     * HF-5a — Expands `[.hyperframes-title-card#id]` AsciiDoc blocks
-     * into animated HyperFrames title-card compositions (fade-in, title, subtitle).
-     *
-     * AsciidoctorJ produces the following HTML:
-     * ```
-     * [.hyperframes-title-card#intro, duration=3]
-     * == My Presentation
-     *
-     * Module 01
-     * ```
-     * ```html
-     * <div class="sect1 hyperframes-title-card">
-     *   <h2 id="intro">My Presentation</h2>
-     *   <div class="sectionbody">
-     *     <div class="paragraph"><p>Module 01</p></div>
-     *   </div>
-     * </div>
-     * ```
-     *
-     * The whole block is replaced by [TitleCardTemplate.render].
-     * The subtitle is the text of the first paragraph in the sectionbody.
-     */
     private fun expandTitleCardBlocks(html: String): String {
         val blockRegex = Regex(
             """<div[^>]*class="[^"]*hyperframes-title-card[^"]*"[^>]*>\s*<h2[^>]*id="([^"]*)"[^>]*>([^<]*)</h2>\s*(<div class="sectionbody">.*?</div>)?\s*</div>""",
@@ -269,58 +439,15 @@ class HyperframesHtmlProcessor internal constructor(
         return html.replace(blockRegex) { match ->
             val id = match.groupValues[1]
             val title = match.groupValues[2].trim()
-            val sectionBody = match.groupValues[3]
-            val subtitle = paragraphRegex.find(sectionBody)?.groupValues?.get(1)?.trim()
-
-            TitleCardTemplate(
-                id = id,
-                title = title,
-                subtitle = subtitle
-            ).render()
+            val subtitle = paragraphRegex.find(match.groupValues[3])?.groupValues?.get(1)?.trim()
+            TitleCardTemplate(id = id, title = title, subtitle = subtitle).render()
         }
     }
 
-    // ──────────────────────────────────────────────
-    // 3b. Code-diff template (HF-5b)
-    // ──────────────────────────────────────────────
+    // ──────────────────────────────────────────────────────────────
+    // Code-diff template (HF-5b)
+    // ──────────────────────────────────────────────────────────────
 
-    /**
-     * HF-5b — Expands `[.hyperframes-code-diff#id]` AsciiDoc blocks
-     * into animated HyperFrames code-diff compositions (before/after, fade).
-     *
-     * AsciidoctorJ produces the following HTML:
-     * ```
-     * [.hyperframes-code-diff#refactor-demo, lang="kotlin"]
-     * == Refactoring demo
-     *
-     * [source,kotlin]
-     * ----
-     * val x = oldFunc()
-     * ----
-     *
-     * [source,kotlin]
-     * ----
-     * val x = newFunc()
-     * ----
-     * ```
-     * ```html
-     * <div class="sect1 hyperframes-code-diff">
-     *   <h2 id="refactor-demo">Refactoring demo</h2>
-     *   <div class="sectionbody">
-     *     <div class="listingblock"><div class="content">
-     *       <pre class="highlight"><code class="language-kotlin" data-lang="kotlin">val x = oldFunc()</code></pre>
-     *     </div></div>
-     *     <div class="listingblock"><div class="content">
-     *       <pre class="highlight"><code class="language-kotlin" data-lang="kotlin">val x = newFunc()</code></pre>
-     *     </div></div>
-     *   </div>
-     * </div>
-     * ```
-     *
-     * The whole block is replaced by [CodeDiffTemplate.render].
-     * The language is extracted from the `data-lang` of the first code block.
-     * The first two `listingblock` blocks become before / after.
-     */
     private fun expandCodeDiffBlocks(html: String): String {
         val blockRegex = Regex(
             """<div[^>]*class="[^"]*hyperframes-code-diff[^"]*"[^>]*>\s*<h2[^>]*id="([^"]*)"[^>]*>[^<]*</h2>\s*<div class="sectionbody">\s*(<div class="listingblock">.*?</div>\s*</div>\s*<div class="listingblock">.*?</div>\s*</div>)\s*</div>\s*</div>""",
@@ -333,59 +460,21 @@ class HyperframesHtmlProcessor internal constructor(
 
         return html.replace(blockRegex) { match ->
             val id = match.groupValues[1]
-            val listingsHtml = match.groupValues[2]
-            val listings = listingRegex.findAll(listingsHtml).toList()
+            val listings = listingRegex.findAll(match.groupValues[2]).toList()
             if (listings.size < 2) return@replace match.value
-
-            val lang = listings[0].groupValues[1]
-            val beforeCode = listings[0].groupValues[2].trim()
-            val afterCode = listings[1].groupValues[2].trim()
-
             CodeDiffTemplate(
                 id = id,
-                beforeCode = beforeCode,
-                afterCode = afterCode,
-                lang = lang
+                beforeCode = listings[0].groupValues[2].trim(),
+                afterCode = listings[1].groupValues[2].trim(),
+                lang = listings[0].groupValues[1]
             ).render()
         }
     }
 
-    // ──────────────────────────────────────────────
-    // 3c. Data-chart template (HF-5c)
-    // ──────────────────────────────────────────────
+    // ──────────────────────────────────────────────────────────────
+    // Data-chart template (HF-5c)
+    // ──────────────────────────────────────────────────────────────
 
-    /**
-     * HF-5c — Expands `[.hyperframes-data-chart#id]` AsciiDoc blocks
-     * into animated HyperFrames bar-chart compositions.
-     *
-     * AsciidoctorJ produces the following HTML:
-     * ```
-     * [.hyperframes-data-chart#sales-chart]
-     * == Quarterly sales
-     *
-     * ----
-     * Q1: 30
-     * Q2: 50
-     * ----
-     * ```
-     * ```html
-     * <div class="sect1 hyperframes-data-chart">
-     *   <h2 id="sales-chart">Quarterly sales</h2>
-     *   <div class="sectionbody">
-     *     <div class="listingblock">
-     *       <div class="content">
-     *         <pre>Q1: 30
-     * Q2: 50</pre>
-     *       </div>
-     *     </div>
-     *   </div>
-     * </div>
-     * ```
-     *
-     * The whole block is replaced by [DataChartTemplate.render].
-     * Each `label: value` line becomes a [DataPoint]. Malformed lines
-     * (no colon, non-numeric value) are silently skipped for robustness.
-     */
     private fun expandDataChartBlocks(html: String): String {
         val blockRegex = Regex(
             """<div[^>]*class="[^"]*hyperframes-data-chart[^"]*"[^>]*>\s*<h2[^>]*id="([^"]*)"[^>]*>([^<]*)</h2>\s*<div class="sectionbody">\s*<div class="listingblock">\s*<div class="content">\s*<pre>(.*?)</pre>\s*</div>\s*</div>\s*</div>\s*</div>""",
@@ -396,58 +485,17 @@ class HyperframesHtmlProcessor internal constructor(
         return html.replace(blockRegex) { match ->
             val id = match.groupValues[1]
             val title = match.groupValues[2].trim()
-            val content = match.groupValues[3]
-            val dataPoints = content.lineSequence().mapNotNull { line ->
-                lineRegex.find(line)?.let { parsed ->
-                    DataPoint(parsed.groupValues[1].trim(), parsed.groupValues[2].toDouble())
-                }
+            val dataPoints = match.groupValues[3].lineSequence().mapNotNull { line ->
+                lineRegex.find(line)?.let { DataPoint(it.groupValues[1].trim(), it.groupValues[2].toDouble()) }
             }.toList()
-
-            DataChartTemplate(
-                id = id,
-                title = title,
-                dataPoints = dataPoints
-            ).render()
+            DataChartTemplate(id = id, title = title, dataPoints = dataPoints).render()
         }
     }
 
-    // ──────────────────────────────────────────────
-    // 3d. Kinetic-captions template (HF-5d)
-    // ──────────────────────────────────────────────
+    // ──────────────────────────────────────────────────────────────
+    // Kinetic-captions template (HF-5d)
+    // ──────────────────────────────────────────────────────────────
 
-    /**
-     * HF-5d — Expands `[.hyperframes-kinetic-captions#id]` AsciiDoc blocks
-     * into animated HyperFrames timed-caption compositions.
-     *
-     * AsciidoctorJ produces the following HTML:
-     * ```
-     * [.hyperframes-kinetic-captions#intro-captions]
-     * == Intro captions
-     *
-     * ----
-     * 0.0 -> 2.0: Hello world
-     * 2.0 -> 4.5: This is a kinetic caption
-     * ----
-     * ```
-     * ```html
-     * <div class="sect1 hyperframes-kinetic-captions">
-     *   <h2 id="intro-captions">Intro captions</h2>
-     *   <div class="sectionbody">
-     *     <div class="listingblock">
-     *       <div class="content">
-     *         <pre>0.0 -> 2.0: Hello world
-     * 2.0 -> 4.5: This is a kinetic caption</pre>
-     *       </div>
-     *     </div>
-     *   </div>
-     * </div>
-     * ```
-     *
-     * The whole block is replaced by [KineticCaptionsTemplate.render].
-     * Each `start -> end: text` line becomes a [Caption]. Malformed lines
-     * (no arrow, no colon, non-numeric times) are silently skipped for
-     * robustness.
-     */
     private fun expandKineticCaptionsBlocks(html: String): String {
         val blockRegex = Regex(
             """<div[^>]*class="[^"]*hyperframes-kinetic-captions[^"]*"[^>]*>\s*<h2[^>]*id="([^"]*)"[^>]*>([^<]*)</h2>\s*<div class="sectionbody">\s*<div class="listingblock">\s*<div class="content">\s*<pre>(.*?)</pre>\s*</div>\s*</div>\s*</div>\s*</div>""",
@@ -457,55 +505,17 @@ class HyperframesHtmlProcessor internal constructor(
 
         return html.replace(blockRegex) { match ->
             val id = match.groupValues[1]
-            val title = match.groupValues[2].trim()
-            val content = match.groupValues[3]
-            val captions = content.lineSequence().mapNotNull { line ->
-                lineRegex.find(line)?.let { parsed ->
-                    Caption(
-                        start = parsed.groupValues[1].toDouble(),
-                        end = parsed.groupValues[2].toDouble(),
-                        text = parsed.groupValues[3]
-                    )
-                }
+            val captions = match.groupValues[3].lineSequence().mapNotNull { line ->
+                lineRegex.find(line)?.let { Caption(it.groupValues[1].toDouble(), it.groupValues[2].toDouble(), it.groupValues[3]) }
             }.toList()
-
-            KineticCaptionsTemplate(
-                id = id,
-                captions = captions
-            ).render()
+            KineticCaptionsTemplate(id = id, captions = captions).render()
         }
     }
 
-    // ──────────────────────────────────────────────
-    // 3e. Pronunciation dictionary (HF-7c)
-    // ──────────────────────────────────────────────
+    // ──────────────────────────────────────────────────────────────
+    // Pronunciation block (HF-7c)
+    // ──────────────────────────────────────────────────────────────
 
-    /**
-     * HF-7c — Expands `[hyperframes-pronunciation]` AsciiDoc blocks
-     * into a JSON island consumed by the HyperFrames CLI to correct TTS phonetics.
-     *
-     * AsciidoctorJ produces the following HTML:
-     * ```
-     * [hyperframes-pronunciation]
-     * ----
-     * dos: do
-     * kubernetes: koobernetayz
-     * ----
-     * ```
-     * ```html
-     * <div class="listingblock hyperframes-pronunciation">
-     *   <div class="content">
-     *     <pre>dos: do
-     * kubernetes: koobernetayz</pre>
-     *   </div>
-     * </div>
-     * ```
-     *
-     * The whole block is replaced by the JSON island rendered by
-     * [PronunciationDictionary.render]. Each `word: phonetic` line becomes
-     * a [PronunciationHint]. Malformed lines (no colon) are silently
-     * skipped for robustness.
-     */
     private fun expandPronunciationBlocks(html: String, dictionary: PronunciationDictionary): String {
         val blockRegex = Regex(
             """<div[^>]*class="[^"]*hyperframes-pronunciation[^"]*"[^>]*>\s*<div class="content">\s*<pre>(.*?)</pre>\s*</div>\s*</div>""",
@@ -514,125 +524,19 @@ class HyperframesHtmlProcessor internal constructor(
         val lineRegex = Regex("""^\s*([^:]+?)\s*:\s*(.+?)\s*$""")
 
         return html.replace(blockRegex) { match ->
-            val content = match.groupValues[1]
-            content.lineSequence().forEach { line ->
-                val parsed = lineRegex.find(line)
-                if (parsed != null) {
-                    val word = parsed.groupValues[1]
-                    val phonetic = parsed.groupValues[2]
-                    dictionary.add(PronunciationHint.of(word, phonetic))
+            match.groupValues[1].lineSequence().forEach { line ->
+                lineRegex.find(line)?.let {
+                    dictionary.add(PronunciationHint.of(it.groupValues[1], it.groupValues[2]))
                 }
             }
-            // Remove the block from the HTML — the JSON island is injected
-            // later by [injectPronunciationIsland] once all author hints
-            // (block + inline) are collected.
             ""
         }
     }
 
-    /**
-     * For `hyperframes-composition` blocks, adds `data-composition-id`
-     * based on the `id` of the first child heading.
-     *
-     * AsciidoctorJ HTML:
-     * ```html
-     * <div class="sect1 hyperframes-composition">
-     *   <h2 id="intro">Introduction</h2>
-     * ```
-     */
-    private fun enhanceCompositionBlocks(html: String): String {
-        val regex = Regex("""<div([^>]*class="[^"]*hyperframes-composition[^"]*"[^>]*)>""")
-        val idRegex = Regex("""id="([^"]*)"""")
+    // ──────────────────────────────────────────────────────────────
+    // Animation blocks (author GSAP)
+    // ──────────────────────────────────────────────────────────────
 
-        val sb = StringBuilder()
-        var cursor = 0
-
-        for (match in regex.findAll(html)) {
-            // Texte avant ce match
-            sb.append(html.substring(cursor, match.range.first))
-
-            val openTag = match.groupValues[1]
-            val openTagEnd = match.range.last + 1
-
-            // Chercher l'id du heading dans le contenu après la balise ouvrante
-            val afterOpen = html.substring(openTagEnd)
-            val headingMatch = idRegex.find(afterOpen)
-
-            if (headingMatch != null) {
-                val id = headingMatch.groupValues[1]
-                sb.append("<div$openTag data-composition-id=\"$id\">")
-            } else {
-                sb.append(match.value)
-            }
-
-            cursor = openTagEnd
-        }
-
-        sb.append(html.substring(cursor))
-        return sb.toString()
-    }
-
-    // ──────────────────────────────────────────────
-    // 4. Tracks
-    // ──────────────────────────────────────────────
-
-    /**
-     * For `hyperframes-track` blocks, adds the timing data-* attributes:
-     * `data-track-index`, `data-start`, `data-duration`.
-     * Defaults: index=0, start=0, duration=6.
-     *
-     * AsciidoctorJ HTML:
-     * ```html
-     * <div class="paragraph hyperframes-track">
-     *   <p>...</p>
-     * </div>
-     * ```
-     */
-    private fun enhanceTrackBlocks(html: String): String {
-        val regex = Regex("""<div([^>]*class="[^"]*hyperframes-track[^"]*"[^>]*)>""")
-        val attrRegex = Regex("""(data-track-index|data-start|data-duration)="([^"]*)"""")
-
-        var trackIndex = 0
-        val sb = StringBuilder()
-        var cursor = 0
-
-        for (match in regex.findAll(html)) {
-            sb.append(html.substring(cursor, match.range.first))
-
-            val attrs = match.groupValues[1]
-
-            // Extract existing attributes, with defaults
-            val existing = attrRegex.findAll(attrs).associate { it.groupValues[1] to it.groupValues[2] }
-            val index = existing["data-track-index"] ?: trackIndex.toString()
-            val start = existing["data-start"] ?: "0"
-            val duration = existing["data-duration"] ?: "6"
-
-            sb.append("<div$attrs data-track-index=\"$index\" data-start=\"$start\" data-duration=\"$duration\">")
-            trackIndex++
-            cursor = match.range.last + 1
-        }
-
-        sb.append(html.substring(cursor))
-        return sb.toString()
-    }
-
-    // ──────────────────────────────────────────────
-    // 5. Animations
-    // ──────────────────────────────────────────────
-
-    /**
-     * For `hyperframes-animation` (AsciiDoc listingblock) blocks,
-     * transforms the `<pre>code</pre>` content into a `<script>` GSAP tag.
-     *
-     * AsciidoctorJ HTML:
-     * ```html
-     * <div class="listingblock hyperframes-animation">
-     *   <div class="content">
-     *     <pre>gsap code</pre>
-     *   </div>
-     * </div>
-     * ```
-     */
     private fun enhanceAnimationBlocks(html: String): String {
         val regex = Regex(
             """<div[^>]*class="[^"]*hyperframes-animation[^"]*"[^>]*>\s*<div class="content">\s*<pre>(.*?)</pre>\s*</div>\s*</div>""",
@@ -647,5 +551,63 @@ class HyperframesHtmlProcessor internal constructor(
                 append("</script>")
             }
         }
+    }
+
+    private companion object {
+        const val DEFAULT_SCENE_SECONDS = 5.0
+        const val CLOSE_DIV = "</div>"
+
+        val CONTENT_OPEN = Regex("""<div id="content"[^>]*>""")
+        val HEADER_TITLE = Regex("""<div id="header">\s*<h1[^>]*>(.*?)</h1>""", RegexOption.DOT_MATCHES_ALL)
+        val COMPOSITION_ID = Regex("""data-composition-id="([^"]*)"""")
+        val HEADING_ID = Regex("""<h2[^>]*id="([^"]*)"""")
+        val DURATION_ATTR = Regex("""data-duration="([0-9.]+)"""")
+        val SCRIPT_TAG = Regex("""<script\b[^>]*>(.*?)</script>""", RegexOption.DOT_MATCHES_ALL)
+        val RESERVED_TIMING_ATTR = Regex("""\s+(?:data-track-index|data-start|data-duration|data-end)="[^"]*"""")
+
+        val DESIGN_CSS = """
+:root{--bg:#0f172a;--fg:#f8fafc;--muted:#94a3b8;--accent:#f59e0b;--card:#16213a;--line:#1e293b}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{width:__W__px;height:__H__px;overflow:hidden;background:var(--bg);
+  font-family:Inter,"Segoe UI",system-ui,sans-serif;color:var(--fg);
+  -webkit-font-smoothing:antialiased}
+#stage{position:relative;width:__W__px;height:__H__px;overflow:hidden;background:var(--bg)}
+.scene{position:absolute;inset:0}
+.scene-bg{position:absolute;inset:0;
+  background:radial-gradient(1200px 700px at 82% -12%,#1e3a5f 0%,rgba(15,23,42,0) 62%),var(--bg)}
+.scene-inner{position:relative;z-index:2;height:100%;width:100%;padding:0 160px;
+  display:flex;flex-direction:column;justify-content:center;gap:28px}
+.scene-inner h1,.hf-doc-title{font-size:128px;line-height:1;font-weight:700;letter-spacing:-.03em}
+.scene-inner h2{font-size:82px;line-height:1.05;font-weight:700;letter-spacing:-.02em;max-width:1500px}
+.scene-inner h3{font-size:56px;font-weight:600;color:var(--accent)}
+.scene-inner p{font-size:38px;line-height:1.55;color:#dbe4f0;max-width:1400px}
+.scene-inner .paragraph{margin:0}
+.scene-inner ul,.scene-inner ol{margin:8px 0 0 56px}
+.scene-inner li{font-size:40px;line-height:1.5;color:#e2e8f0;margin:14px 0}
+.scene-inner li::marker{color:var(--accent)}
+.scene-inner a{color:var(--accent);text-decoration:none}
+.scene-inner code{font-family:"JetBrains Mono",ui-monospace,monospace;font-size:.9em;
+  background:var(--card);border:1px solid var(--line);border-radius:8px;padding:2px 10px}
+.scene-inner pre{font-family:"JetBrains Mono",ui-monospace,monospace;font-size:30px;line-height:1.5;
+  background:var(--card);border:1px solid var(--line);border-radius:16px;padding:36px 44px;overflow:hidden;color:#e2e8f0}
+.scene-inner img{max-width:900px;max-height:620px;border-radius:16px}
+.scene-inner blockquote{border-left:8px solid var(--accent);padding-left:36px;
+  font-size:52px;font-style:italic;color:#e2e8f0;max-width:1400px}
+.hf-title-card-title{display:block;font-size:140px;font-weight:700;letter-spacing:-.03em;line-height:1}
+.hf-title-card-subtitle{display:block;margin-top:28px;font-size:46px;color:var(--muted);font-weight:400}
+.hf-data-chart{display:flex;flex-direction:column;gap:40px}
+.hf-data-chart-title{font-size:56px;font-weight:600;color:var(--accent)}
+.hf-data-chart-plot{display:flex;align-items:flex-end;gap:48px;height:460px}
+.hf-data-chart-col{display:flex;flex-direction:column;justify-content:flex-end;align-items:center;height:100%;width:150px}
+.hf-data-chart-bar{width:100%;max-height:calc(100% - 56px);margin-bottom:16px;
+  background:linear-gradient(180deg,#f59e0b 0%,#b45309 100%);border-radius:14px 14px 0 0}
+.hf-data-chart-label{font-size:30px;font-weight:600;color:#e2e8f0}
+.hf-kinetic-captions{position:relative;height:100%}
+.hf-kinetic-caption{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+  font-size:84px;font-weight:700;text-align:center;letter-spacing:-.02em;padding:0 120px}
+.hf-code-diff{display:flex;gap:40px;justify-content:center;flex-wrap:wrap}
+.hf-code-diff pre{flex:1;min-width:640px}
+.hf-kw{color:#f59e0b;font-weight:600}
+"""
     }
 }

@@ -2,14 +2,14 @@
 :toc:
 
 _Règles absolues_ : voir `AGENT.adoc`
-_Derniere mise a jour_ : 2026-10-15 (Session 030 — **Cache CI du rendu réel** : `actions/cache` sur `~/.npm` + `~/.cache/puppeteer` — plus de re-téléchargement npm/Chromium. Cf. `workspace-bom/.agents/CADRAGE_CI_CACHE.adoc`.)
+_Derniere mise a jour_ : 2026-10-16 (Session 031 — **HF-CR4 rendu de publication** : compositions HyperFrames conformes — racine `#stage`, scènes `clip`, timeline racine unique, design system, GSAP externe. `hyperframes check` passed, vidéo 1920×1080 / 26 s. Cf. `.agents/sessions/031-hf-cr4-publication-composition.adoc`.)
 _DAG_ : N2 — Plugin Gradle de transformation documentaire AsciiDoc → vidéo MP4
 _Dépendance N2_ : codex-gradle (compileOnly, AsciidoctorJ partagé)
 _Bridge externe_ : HyperFrames CLI via le noyau `VideoEngine` (`node <cliScript> render <dir> --output <mp4>`)
 
-_Dernière session terminée_ : 030 — **Cache CI du rendu réel (npm + Puppeteer Chromium)**. Rapport `.agents/sessions/030-ci-cache-real-render.adoc`.
-_Prochaine session_ : 031 — au choix : A) HF-CR3 suite (rapatriement CI requise / enrichissement) ; B) maintenance / nouvelle demande pilote.
-_Version publiée_ : **0.0.6** (Maven Central, bundle `71616cda`) + Gradle Plugin Portal (handle `cccp-education`)
+_Dernière session terminée_ : 031 — **HF-CR4 rendu de publication (compositions conformes)**. Rapport `.agents/sessions/031-hf-cr4-publication-composition.adoc`.
+_Prochaine session_ : 032 — au choix : A) CI (pousser + vérifier le run `Test`) ; B) release `0.0.7` (ordre DAG MEMPHIS → hyperframes) ; C) HF-CR4 suite (sous-compositions).
+_Version publiée_ : **0.0.6** (Maven Central, bundle `71616cda`) + Gradle Plugin Portal (handle `cccp-education`) — `0.0.7` à publier
 
 '''
 == RÈGLES ABSOLUES (résumé)
@@ -55,7 +55,33 @@ _Version publiée_ : **0.0.6** (Maven Central, bundle `71616cda`) + Gradle Plugi
 | HF-KERNEL-ADAPTER | 2ᵉ adaptateur du noyau vidéo partagé (`video-kernel`) — mutualisation avec capsule ; corriger défauts (D-A→D-F) + aligner contrat N3 + ports `VideoEngine`/`SegmentSource` + consommation du noyau. Cadrage `.agents/CADRAGE_EPIC_HF_KERNEL_ADAPTER.adoc`. | ✅ **TERMINÉ** — US-0 ✅ S-015 · US-1 ✅ S-017 · US-2 ✅ S-019 · US-3 ✅ S-018 · US-4 ✅ S-021 (durée+config) + **S-024** (port partagé `VideoDurationProbe`, `video-kernel 0.3.0`) · US-5 ✅ S-021 + dogfooding réel S-022 ; dette D-F ✅ S-022 | P1
 | HF-CR3 | Revue CR-GLOBALE-003 (contenu solide) — le rendu était le maillon le moins couvert : vendoriser GSAP (sortir du CDN), job CI rendu réel + sonde de durée, test de rendu réel. | ✅ **TERMINÉ 3/3** — HF-CR3-1 ✅ S-025 (GSAP vendoré, inliné) · HF-CR3-2 ✅ S-025 (workflow `real-render-hyperframes.yml`) · HF-CR3-3 ✅ S-025 (`cr3_real_render.feature`, runner dédié) ; **durci S-026** (multi-compositions + timeline GSAP, couverture hermétique) | P0
 | VK-4-SHARED-PORTS | **2ᵉ consommateur des ports vidéo partagés** (`video-kernel 0.4.0`) — post-production (`SubtitleBurnIn` + `AudioPostProduction`) et narration (`TextToSpeech`) : tâches `postProcessHyperframes` + `generateHyperframesNarration`, domaine `hyperframes.post`. | ✅ **TERMINÉ (S-026)** | P1
+| HF-CR4 | **Rendu de publication** — le rendu réel produisait un clip 1080×1920 / 1 s (4 erreurs lint) : composition racine `#stage`, une scène `clip` par section, **timeline racine unique**, assainissement des attributs de timing imbriqués (cause du « frame blank »), GSAP hors-ligne externe, **design system embarqué**. | ✅ **TERMINÉ (S-031)** — `hyperframes check` passed, vidéo 1920×1080 / 26 s | P0
 |===
+
+'''
+== EPIC HF-CR4 — Rendu de publication (compositions conformes)
+
+_Statut_ : ✅ **TERMINÉ (S-031)**.
+
+_Déclencheur_ : le rendu réel était **inutilisable** — 1080×1920 portrait, 1,0 s —
+et `hyperframes lint` remontait 4 erreurs (`root_missing_composition_id`,
+`non_deterministic_code`, `deprecated_data_end`, `data-composition-id` dupliqué).
+Le CI « real render » ne le voyait pas (assertion `durée > 0` seulement = faux positif).
+
+_Correctif_ : réécriture de `HyperframesHtmlProcessor` en **générateur de composition
+HyperFrames conforme** — composition racine `#stage`, une scène `class="scene clip"`
+par section, **un unique timeline racine** fusionnant les timelines de scène,
+retrait des attributs de timing **réservés** des wrappers imbriqués (cause du
+« frame blank »), GSAP **hors-ligne externe**, **design system embarqué**. Templates
+`DataChartTemplate` + `KineticCaptionsTemplate` mis au contrat.
+
+_Preuve_ : `hyperframes check` **passed** (0 erreur, 0 layout issue, 12/12 WCAG AA) ;
+vidéo **1920×1080 / 26 s**.
+
+_Suite_ : A) CI (pousser + vérifier) ; B) release `0.0.7` (DAG MEMPHIS → hyperframes) ;
+C) réduire les 7 warnings `nested_structure_needs_subcomposition` (sous-compositions).
+
+_Rapport_ : `.agents/sessions/031-hf-cr4-publication-composition.adoc`.
 
 '''
 == EPIC HF-KERNEL-ADAPTER — 2ᵉ adaptateur du noyau vidéo partagé

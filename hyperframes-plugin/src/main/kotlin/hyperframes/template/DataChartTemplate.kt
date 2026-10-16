@@ -46,7 +46,8 @@ data class DataChartTemplate(
             appendLine("        <div class=\"hf-data-chart-plot\">")
             dataPoints.forEach { point ->
                 val heightPercent = if (maxValue > 0) (point.value / maxValue * 100).toInt() else 0
-                appendLine("          <div class=\"hf-data-chart-bar\" data-label=\"${point.label}\" data-value=\"${point.value}\" style=\"height:${heightPercent}%\">")
+                appendLine("          <div class=\"hf-data-chart-col\">")
+                appendLine("            <div class=\"hf-data-chart-bar\" data-label=\"${point.label}\" data-value=\"${point.value}\" style=\"height:${heightPercent}%\"></div>")
                 appendLine("            <span class=\"hf-data-chart-label\">${point.label}</span>")
                 appendLine("          </div>")
             }

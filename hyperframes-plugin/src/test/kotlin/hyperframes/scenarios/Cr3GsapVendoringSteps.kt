@@ -30,9 +30,18 @@ class Cr3GsapVendoringSteps(private val world: HyperframesWorld) {
     @Then("the generated HTML embeds the vendored GSAP runtime")
     fun htmlEmbedsVendoredGsap() {
         val html = world.generatedHtml()
-        assertThat(html).contains("GSAP 3.12.5")
-        assertThat(html).contains("GreenSock")
-        assertThat(html).contains("<script>")
+        // HF-CR4 — the runtime is written next to the composition and loaded as an
+        // offline external sibling (an inlined runtime is linted as non-deterministic).
+        assertThat(html).contains("<script src=\"gsap-3.12.5.min.js\"></script>")
+        assertThat(html).doesNotContain("<script>\n")
+    }
+
+    @Then("the vendored GSAP runtime file exists next to the composition")
+    fun gsapRuntimeFileExists() {
+        val gsap = world.projectDir.resolve("build/hyperframes/gsap-3.12.5.min.js")
+        assertThat(gsap).exists()
+        assertThat(gsap.readText()).contains("GSAP 3.12.5")
+        assertThat(gsap.readText()).contains("GreenSock")
     }
 
     @Then("the generated HTML does not reference the GSAP CDN")

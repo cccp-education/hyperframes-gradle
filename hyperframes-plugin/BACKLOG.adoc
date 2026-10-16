@@ -5,6 +5,22 @@ _Date création_ : 2026-05-31
 _Version_ : 0.0.6
 
 '''
+== ✅ HF-CR4 — Rendu de publication (compositions conformes) (S-031)
+
+Le rendu réel produisait un clip **1080×1920 / 1,0 s** (inutilisable) et
+`hyperframes lint` remontait 4 erreurs. **Réécriture** de `HyperframesHtmlProcessor`
+en générateur de composition HyperFrames conforme : composition racine `#stage`,
+une scène `class="scene clip"` par section, **timeline racine unique**, retrait des
+attributs de timing **réservés** des wrappers imbriqués (cause du « frame blank »),
+GSAP **hors-ligne externe**, **design system embarqué**. Templates `DataChartTemplate`
++ `KineticCaptionsTemplate` mis au contrat. Tests migrés (18 fichiers).
+**Preuve** : `hyperframes check` **passed** (0 err, 0 layout, 12/12 WCAG AA) ;
+vidéo **1920×1080 / 26 s**. Rapport `.agents/sessions/031-hf-cr4-publication-composition.adoc`.
+
+*Reste* : (A) CI — pousser + vérifier le run `Test` ; (B) release `0.0.7` (DAG MEMPHIS
+→ hyperframes) ; (C) réduire les 7 warnings `nested_structure_needs_subcomposition`.
+
+'''
 == ✅ Release corrective `hyperframes-plugin 0.0.6` — Maven Central (S-029)
 
 Release DAG (accord pilote) : MEMPHIS catalogue/BOM `0.0.96` → re-pin hyperframes

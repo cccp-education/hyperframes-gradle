@@ -6,11 +6,11 @@ Feature: HF-5a — Title-card template expansion
   Background:
     Given a hyperframes-gradle plugin is applied to a project
 
-  Scenario: Expand title-card block into a composition with data-composition-id
+  Scenario: Expand title-card block into a scene clip
     Given the source directory contains an AsciiDoc document using the title-card template
     When I run the generateHyperframesHtml task
-    Then the generated HTML contains a hyperframes-composition div
-    And the composition div has data-composition-id "intro"
+    Then the generated HTML contains a scene clip
+    And the scene clip has id "intro"
     And the HTML contains a GSAP timeline
     And the HTML contains window.__timelines
 
