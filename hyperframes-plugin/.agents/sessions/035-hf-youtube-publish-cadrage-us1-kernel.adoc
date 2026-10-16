@@ -99,7 +99,9 @@ Nouveau domaine `hyperframes.publish` (N2, réseau) :
 * Tests : 5 unit (`YouTubeCredentialsLoaderTest` redaction, `ChapterLineParserTest`,
   `YouTubePublishCommandTest`, `YouTubeDataApiPublisherTest` via **fake transport**,
   `HyperframesPublisherResolverTest`) + BDD `youtube_publish.feature` `@publish`
-  (4 scénarios) + steps préfixés. **Aucun appel réseau** en test.
+  (4 scénarios) + steps préfixés + **`HyperframesPublishFunctionalTest`** (TestKit :
+  tâche enregistrée, no-op désactivé + rapport `publication.json`, dégradé sans
+  fichier de credentials — **hors réseau**). **Aucun appel réseau** en test.
 
 === US-1c + US-5 — Release `hyperframes-plugin 0.0.9` (Maven Central) ✅
 
