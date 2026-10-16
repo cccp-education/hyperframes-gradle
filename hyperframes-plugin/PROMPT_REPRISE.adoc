@@ -1,7 +1,7 @@
-= PROMPT_REPRISE — HyperFrames Gradle (Session 031 TERMINÉE → 032)
-:session: 031
+= PROMPT_REPRISE — HyperFrames Gradle (Session 032 TERMINÉE → 033)
+:session: 032
 :date: 2026-10-16
-:status: ✅ TERMINÉ — HF-CR4 rendu de publication (compositions conformes)
+:status: ✅ TERMINÉ — Release `hyperframes-plugin 0.0.7` (Maven Central)
 :borough: Watts
 
 '''
@@ -9,31 +9,24 @@
 
 Plugin Gradle fonctionnel : AsciiDoc → AsciidoctorJ → HTML HyperFrames → CLI Node → MP4
 (via le noyau `VideoEngine`). EPICs HF-0→HF-7 ✅, `HF-KERNEL-ADAPTER` ✅, `HF-CR3` ✅,
-`VK-4-SHARED-PORTS` ✅. **Version publiée `0.0.6`** (Maven Central, bundle `71616cda`).
-Noyau **`education.cccp:video-kernel:0.4.0`**. Catalogue ws `0.0.96` / BOM `0.0.96`.
+`VK-4-SHARED-PORTS` ✅, **`HF-CR4` ✅ (S-031)**. **Version publiée `0.0.7`**
+(Maven Central, bundle `1e5c734d`). Noyau **`education.cccp:video-kernel:0.4.0`**.
+Catalogue ws `0.0.97` / BOM `0.0.97`.
 
-== Fait en session 031 — HF-CR4 : rendu de publication
+== Fait en session 032 — Release `0.0.7`
 
-Demande pilote : le rendu était **inutilisable** (1080×1920 portrait, 1 s) et
-`hyperframes lint` remontait 4 erreurs. **Réécriture** de `HyperframesHtmlProcessor`
-en générateur de **composition HyperFrames conforme** : composition racine `#stage`,
-une scène `class="scene clip"` par section, **un unique timeline racine** fusionnant
-les timelines de scène, assainissement des attributs de timing **réservés** imbriqués
-(cause du « frame blank »), GSAP **hors-ligne externe**, **design system embarqué**.
-Templates `DataChartTemplate` (label sous la barre) et `KineticCaptionsTemplate`
-(`data-at`/`data-until` + opacité) mis au contrat. Tests unit/fonctionnels/Cucumber
-migrés. **Preuve** : `hyperframes check` **passed** (0 err, 0 layout, 12/12 WCAG AA) ;
-vidéo **1920×1080 / 26 s**. Rapport `.agents/sessions/031-hf-cr4-publication-composition.adoc`.
+Release DAG N0→N2 (accord pilote) : MEMPHIS catalogue/BOM `0.0.96 → 0.0.97`
+(`hyperframes-plugin = "0.0.7"`, bundle `5bb28984`) → hyperframes re-pin
+`workspace-catalog/BOM 0.0.96 → 0.0.97` + toml local `0.0.6 → 0.0.7` → **Central `0.0.7`**
+(bundle `1e5c734d`). Contenu : HF-CR4. CI `Test` verte sur le commit de code `03e44fd`.
+Rapport `.agents/sessions/032-release-0.0.7.adoc`.
 
-== Mission Session 032 — au choix (pilote)
+== Mission Session 033 — au choix (pilote)
 
-* A) **CI** : pousser + vérifier le run `Test` du commit (suite migrée au nouveau
-  contrat). Corriger tout rouge révélé par la CI.
-* B) **Release `0.0.7`** (accord pilote) : ordre DAG — MEMPHIS catalogue/BOM
-  `0.0.96 → 0.0.97` (déclare `hyperframes-plugin = "0.0.7"`) → hyperframes re-pin
-  `workspace-catalog/BOM 0.0.96 → 0.0.97` + toml local `0.0.6 → 0.0.7` → **Central `0.0.7`**.
-* C) **HF-CR4 suite** : réduire les 7 warnings lint (`nested_structure_needs_subcomposition`)
+* A) **HF-CR4 suite** : réduire les 7 warnings lint (`nested_structure_needs_subcomposition`)
   en découpant les scènes en sous-compositions (`data-composition-src`).
+* B) **HF-CR3 suite** : rapatrier le rendu réel dans la CI requise / enrichir (Manim/Remotion).
+* C) Maintenance / nouvelle demande pilote.
 
 == Points d'attention
 

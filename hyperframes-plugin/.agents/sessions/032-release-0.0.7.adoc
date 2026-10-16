@@ -1,0 +1,53 @@
+= Session 032 — Release `hyperframes-plugin 0.0.7` (Maven Central)
+:session: 032
+:date: 2026-10-16
+:type: release DAG N0→N2 (accord pilote)
+:borough: Watts (hyperframes-gradle) — pilotage cross-borough MEMPHIS
+:score: 9/10
+
+== Contexte
+
+Suite directe de HF-CR4 (S-031) : le correctif du rendu de publication devait
+être rendu disponible aux consommateurs. La version publiée était `0.0.6` (Central,
+bundle `71616cda`) ; le correctif exige `0.0.7`.
+
+== Ordre DAG N0 → N2 (règle D8 anti-ghost / MEM-CAT-ROLLOUT)
+
+La version du plugin est **dérivée du catalogue MEMPHIS** (`ws.versions.hyperframes.plugin`),
+et la garde `HyperframesPluginPublicationTest` exige que le toml local (`hyperframes`)
+égale la version du catalogue publié. Le catalogue doit donc déclarer `0.0.7`
+**avant** la publication du plugin.
+
+. **N0 — MEMPHIS** `workspace-bom`/`workspace-catalog` `0.0.96 → 0.0.97`
+  (déclare `hyperframes-plugin = "0.0.7"`, garde `PlatformCatalogAlignmentTest`
+  ré-alignée). Publication Central bundle **`5bb28984-1701-43d7-b86a-da11e1e80e94`**
+  (AUTOMATIC, état `PUBLISHED`), propagation repo1 HTTP 200.
+  Rapport `workspace-bom/.agents/sessions/303-bom-0.0.97-hyperframes-0.0.7.adoc`.
+. **N2 — hyperframes** re-pin `workspace-catalog/BOM 0.0.96 → 0.0.97` +
+  toml local `0.0.6 → 0.0.7` → **Central `0.0.7`** bundle
+  **`1e5c734d-b0cc-45d3-be02-d6c072bb4627`** (AUTOMATIC).
+
+== Contenu depuis 0.0.6
+
+**HF-CR4** (S-031) — rendu de publication : compositions HyperFrames conformes.
+Voir `.agents/sessions/031-hf-cr4-publication-composition.adoc`.
+`hyperframes check` **passed** ; vidéo **1920×1080 / 26 s**.
+
+== Gates
+
+|===
+| Gate | Résultat
+| hyperframes `compileKotlin` (catalogue 0.0.97) | ✅ VERT
+| hyperframes `publishToMavenLocal` (0.0.7 signé) | ✅ VERT
+| POM 0.0.7 importe `workspace-bom 0.0.97` | ✅ vérifié
+| MEMPHIS `publishToMavenLocal` + Central | ✅ `PUBLISHED`, propagation repo1 200
+| CI `Test` du commit S-031 (`03e44fd`) | ✅ unit + functional + Cucumber + check VERT
+| zéro secret | ✅
+|===
+
+== Notes
+
+* La CI `Test` du commit de code (`03e44fd`) est **verte** : la publication est
+  faite sur un code prouvé. Le bump de version n'altère pas le code source
+  (règle EAGER — pas de relance de tests).
+* Propagation repo1 de `hyperframes-plugin 0.0.7` à confirmer en clôture.

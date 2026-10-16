@@ -2,14 +2,14 @@
 :toc:
 
 _Règles absolues_ : voir `AGENT.adoc`
-_Derniere mise a jour_ : 2026-10-16 (Session 031 — **HF-CR4 rendu de publication** : compositions HyperFrames conformes — racine `#stage`, scènes `clip`, timeline racine unique, design system, GSAP externe. `hyperframes check` passed, vidéo 1920×1080 / 26 s. Cf. `.agents/sessions/031-hf-cr4-publication-composition.adoc`.)
+_Derniere mise a jour_ : 2026-10-16 (Session 032 — **Release `hyperframes-plugin 0.0.7`** (Maven Central, bundle `1e5c734d`), DAG MEMPHIS 0.0.97 → hyperframes. Contenu : HF-CR4 rendu de publication. Cf. `.agents/sessions/032-release-0.0.7.adoc`.)
 _DAG_ : N2 — Plugin Gradle de transformation documentaire AsciiDoc → vidéo MP4
 _Dépendance N2_ : codex-gradle (compileOnly, AsciidoctorJ partagé)
 _Bridge externe_ : HyperFrames CLI via le noyau `VideoEngine` (`node <cliScript> render <dir> --output <mp4>`)
 
-_Dernière session terminée_ : 031 — **HF-CR4 rendu de publication (compositions conformes)**. Rapport `.agents/sessions/031-hf-cr4-publication-composition.adoc`.
-_Prochaine session_ : 032 — au choix : A) CI (pousser + vérifier le run `Test`) ; B) release `0.0.7` (ordre DAG MEMPHIS → hyperframes) ; C) HF-CR4 suite (sous-compositions).
-_Version publiée_ : **0.0.6** (Maven Central, bundle `71616cda`) + Gradle Plugin Portal (handle `cccp-education`) — `0.0.7` à publier
+_Dernière session terminée_ : 032 — **Release `hyperframes-plugin 0.0.7`**. Rapport `.agents/sessions/032-release-0.0.7.adoc`.
+_Prochaine session_ : 033 — au choix : A) HF-CR4 suite (sous-compositions) ; B) HF-CR3 suite (rendu réel en CI requise) ; C) maintenance.
+_Version publiée_ : **0.0.7** (Maven Central, bundle `1e5c734d`) + Gradle Plugin Portal (handle `cccp-education`)
 
 '''
 == RÈGLES ABSOLUES (résumé)
@@ -56,6 +56,7 @@ _Version publiée_ : **0.0.6** (Maven Central, bundle `71616cda`) + Gradle Plugi
 | HF-CR3 | Revue CR-GLOBALE-003 (contenu solide) — le rendu était le maillon le moins couvert : vendoriser GSAP (sortir du CDN), job CI rendu réel + sonde de durée, test de rendu réel. | ✅ **TERMINÉ 3/3** — HF-CR3-1 ✅ S-025 (GSAP vendoré, inliné) · HF-CR3-2 ✅ S-025 (workflow `real-render-hyperframes.yml`) · HF-CR3-3 ✅ S-025 (`cr3_real_render.feature`, runner dédié) ; **durci S-026** (multi-compositions + timeline GSAP, couverture hermétique) | P0
 | VK-4-SHARED-PORTS | **2ᵉ consommateur des ports vidéo partagés** (`video-kernel 0.4.0`) — post-production (`SubtitleBurnIn` + `AudioPostProduction`) et narration (`TextToSpeech`) : tâches `postProcessHyperframes` + `generateHyperframesNarration`, domaine `hyperframes.post`. | ✅ **TERMINÉ (S-026)** | P1
 | HF-CR4 | **Rendu de publication** — le rendu réel produisait un clip 1080×1920 / 1 s (4 erreurs lint) : composition racine `#stage`, une scène `clip` par section, **timeline racine unique**, assainissement des attributs de timing imbriqués (cause du « frame blank »), GSAP hors-ligne externe, **design system embarqué**. | ✅ **TERMINÉ (S-031)** — `hyperframes check` passed, vidéo 1920×1080 / 26 s | P0
+| HF-CR4-REL | **Release `hyperframes-plugin 0.0.7`** (Central) — DAG MEMPHIS `workspace-bom/catalog 0.0.97` (bundle `5bb28984`) → hyperframes (bundle `1e5c734d`). | ✅ **TERMINÉ (S-032)** | P0
 |===
 
 '''

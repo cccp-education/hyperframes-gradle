@@ -465,3 +465,14 @@ unit/fonctionnels/Cucumber migrés (18 fichiers). **Preuve** : `hyperframes chec
 déterministe. Gates locaux : compileKotlin / compileTestKotlin /
 compileFunctionalTestKotlin VERT (tests = CI). Suite : CI + release `0.0.7` (DAG).
 Rapport `.agents/sessions/031-hf-cr4-publication-composition.adoc`.
+
+== Session 032 (2026-10-16) — Release `hyperframes-plugin 0.0.7`
+
+Release DAG N0→N2 (accord pilote). **N0 — MEMPHIS** `workspace-bom`/catalog
+`0.0.96 → 0.0.97` (`hyperframes-plugin = "0.0.7"`, garde `PlatformCatalogAlignmentTest`
+ré-alignée) → Central bundle `5bb28984` (PUBLISHED), propagation repo1 200.
+**N2 — hyperframes** re-pin `workspace-catalog/BOM 0.0.96 → 0.0.97` + toml local
+`0.0.6 → 0.0.7` → **Central `0.0.7`** bundle `1e5c734d`. Contenu : HF-CR4.
+CI `Test` verte sur le commit de code `03e44fd` (unit + functional + Cucumber + check).
+Rapport `.agents/sessions/032-release-0.0.7.adoc`.
+
