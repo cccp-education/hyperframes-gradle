@@ -38,6 +38,17 @@ jobs:
         with:
           node-version: '22'
 
+      # Cache the npm download cache + Puppeteer's Chromium. Without this, every
+      # run re-downloaded the `hyperframes` tarballs and Chromium (~150-300 MB).
+      # Key pinned to the CLI version so a bump refreshes the cache.
+      - name: Cache npm and Puppeteer (HyperFrames CLI)
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.npm
+            ~/.cache/puppeteer
+          key: hyperframes-cli-${{ runner.os }}-0.8.157
+
       - name: Install HyperFrames CLI
         working-directory: hyperframes-plugin
         run: npm install hyperframes@0.8.157
