@@ -1,7 +1,7 @@
 = PROMPT_REPRISE — HyperFrames Gradle (Session 035 TERMINÉE → 036)
 :session: 035
 :date: 2026-10-16
-:status: ✅ TERMINÉ — Cadrage EPIC `HF-YOUTUBE-PUBLISH` + noyau US-1
+:status: ✅ TERMINÉ — EPIC `HF-YOUTUBE-PUBLISH` : cadrage + US-1 + US-1b + US-2
 :borough: Watts
 
 '''
@@ -31,18 +31,30 @@ HF-CR4 suite. CI `Test` verte `25a957e`.
   `VideoPublicationLimits`, `VideoPublicationValidator` + `VideoPublicationValidation`,
   `VideoDescriptionComposer`, `VideoPublisher` (port) + `VideoPublicationResult`
   (sealed). `0.4.0 → 0.5.0`, manifeste d'API **+14 types**, 31 unit. Compiles VERTS.
-* **DAG contraint** : hyperframes (US-2) résout le noyau depuis **Central** → la
-  publication `video-kernel 0.5.0` (US-1b) est un **prérequis dur**.
+* **DAG contraint** : hyperframes (US-2) résout le noyau depuis **Central** →
+  la publication `video-kernel 0.5.0` (US-1b) est un **prérequis dur** (✅ fait).
 
-== Mission Session 036 — US-1b puis US-2
+== Fait en session 035 — US-1b + US-2 (accord pilote publish+git)
 
-* **US-1b** (accord pilote, Règle 2) : publier `video-kernel 0.5.0` sur Maven Central
-  + MEMPHIS BOM/catalog. **Prérequis** de US-2.
-* **US-2** : adaptateur `hyperframes.publish` (`YouTubeDataApiPublisher` — JDK
-  `HttpClient` + OAuth refresh-token + resumable upload + `thumbnails.set`),
-  `PublicationBuilder`, resolver, loader `youtube.yaml` (logs rédigés), tâche
-  `publishHyperframesToYouTube` (groupe `deploy`), `youtube_example.yaml`.
-  **Aucun SDK Google** (D3). Tests : fake `VideoPublisher` (jamais d'upload réel).
+* **US-1b** : `video-kernel 0.5.0` publié Central (bundle `85598927`, propagation
+  repo1 confirmée).
+* **US-2** domaine `hyperframes.publish` : `YouTubeCredentials` (rédigé),
+  `YouTubeCredentialsLoader`, `HttpTransport`+`JdkHttpTransport`, `YouTubePublishCommand`
+  (builders purs), `YouTubeDataApiPublisher`, `DisabledVideoPublisher`,
+  `HyperframesPublisherResolver`, `ChapterLineParser`, tâche
+  `publishHyperframesToYouTube` (groupe `deploy`, opt-in), extension (19 properties),
+  wiring, `youtube_example.yaml` + `.gitignore`. `video-kernel 0.4.0 → 0.5.0`.
+  5 unit + BDD `@publish` (fake transport — **aucun réseau**).
+
+== Mission Session 036 — US-3 (capsule)
+
+* **US-3** (capsule) : adopter le noyau — déléguer `VideoDescriptionBuilder` /
+  `YouTubeChaptersFormatter` à `VideoDescriptionComposer` + `ChapterLineParser` ;
+  adaptateur `capsule.adapter.youtube` + tâche `publishCapsuleToYouTube` ;
+  bump toml `video-kernel 0.5.0` ; rattacher la feature au **shard CI**.
+* Optionnel : **US-1c** alignement MEMPHIS (`video-kernel 0.5.0`) ; **US-4**
+  dogfooding réel (upload réel — nécessite un `youtube.yaml` généré par le pilote) ;
+  **US-5** release `hyperframes-plugin 0.0.9`.
 
 == Points d'attention
 

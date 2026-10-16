@@ -30,6 +30,9 @@ nmcpSettings {
 
 dependencyResolutionManagement {
     repositories {
+        // mavenLocal() lets a just-published N1 (video-kernel) be consumed while
+        // Central propagation is still in flight; CI falls through to Central.
+        mavenLocal()
         mavenCentral()
     }
 }

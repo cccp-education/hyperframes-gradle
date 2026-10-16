@@ -1,0 +1,16 @@
+# HF-YOUTUBE-PUBLISH — example YouTube OAuth 2.0 credentials.
+#
+# Copy to `youtube.yaml` (gitignored) and fill in your own values.
+# NEVER commit the real file.
+#
+# The YouTube Data API requires OAuth 2.0 (NOT a plain API key) to upload a
+# video or set its thumbnail. Obtain clientId/clientSecret from a Google Cloud
+# "OAuth client ID (Desktop app)", and the refreshToken once via the OAuth 2.0
+# Playground. Full procedure: hyperframes-plugin/.agents/CADRAGE_EPIC_HF_YOUTUBE_PUBLISH.adoc §2.2.
+youtube:
+  clientId: "000000000000-example.apps.googleusercontent.com"
+  clientSecret: "example-client-secret"
+  refreshToken: "example-refresh-token"
+  channelId: "UCxxxxxxxxxxxxxxxxxxxxxx"
+  # Optional — read-only queries only (e.g. resolving next/previous video).
+  apiKey: "AIzaSyExample"

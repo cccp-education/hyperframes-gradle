@@ -28,12 +28,13 @@ lecture publique. Guide de génération : cadrage §2.2.
   `VideoPublicationValidator` + `VideoPublicationValidation`,
   `VideoDescriptionComposer`, `VideoPublisher` (port) + `VideoPublicationResult`
   (sealed). `0.4.0 → 0.5.0`, manifeste +14 types, 31 unit. | video-kernel | ✅ S-035
-| US-1b | Publication `video-kernel 0.5.0` Central + BOM/catalog MEMPHIS (accord pilote) | video-kernel | 🟡 À FAIRE
+| US-1b | Publication `video-kernel 0.5.0` Central (bundle `85598927`) | video-kernel | ✅ S-035
 | US-2 | Adaptateur `hyperframes.publish` (`YouTubeDataApiPublisher` — JDK
   `HttpClient` + OAuth refresh-token + resumable upload + `thumbnails.set`),
-  `PublicationBuilder`, resolver, loader `youtube.yaml` (logs rédigés), tâche
-  `publishHyperframesToYouTube` (groupe `deploy`), `youtube_example.yaml`.
-  **Aucun SDK Google** (D3). | hyperframes | 🟡 À FAIRE
+  `HttpTransport` seam, `YouTubeCredentialsLoader`, resolver, `ChapterLineParser`,
+  tâche `publishHyperframesToYouTube` (groupe `deploy`, opt-in), `youtube_example.yaml`.
+  **Aucun SDK Google** (D3). 5 unit + BDD `@publish` (fake transport). | hyperframes | ✅ S-035
+| US-1c | Alignement MEMPHIS `workspace-bom`/`workspace-catalog` (`video-kernel 0.5.0`) | MEMPHIS | 🟡 À FAIRE (non bloquant)
 | US-3 | Adoption capsule (`VideoDescriptionBuilder`/`YouTubeChaptersFormatter`
   délégués au noyau) + adaptateur `capsule.adapter.youtube` + tâche
   `publishCapsuleToYouTube`. | capsule | 🟡 À FAIRE

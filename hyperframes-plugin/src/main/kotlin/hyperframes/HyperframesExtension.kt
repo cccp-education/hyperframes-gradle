@@ -1,6 +1,7 @@
 package hyperframes
 
 import org.gradle.api.file.DirectoryProperty
+import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputDirectory
@@ -150,6 +151,96 @@ abstract class HyperframesExtension {
     @get:Optional
     abstract val ttsVoice: Property<String>
 
+    // ── HF-YOUTUBE-PUBLISH US-2 — publish block (opt-in) ──────────────────────
+
+    /** Enable publication to the platform (default `false` — backward compatible). */
+    @get:Input
+    abstract val publishEnabled: Property<Boolean>
+
+    /** Target platform (default `youtube`). */
+    @get:Input
+    @get:Optional
+    abstract val publishPlatform: Property<String>
+
+    /** Credentials file, gitignored (default `youtube.yaml`). */
+    @get:Input
+    @get:Optional
+    abstract val publishCredentialsFile: Property<String>
+
+    /** Video title (≤ 100 characters). */
+    @get:Input
+    @get:Optional
+    abstract val publishTitle: Property<String>
+
+    /** Base description body (before chapters/links/hashtags are appended). */
+    @get:Input
+    @get:Optional
+    abstract val publishDescription: Property<String>
+
+    /** Description header line prepended by the composer. */
+    @get:Input
+    @get:Optional
+    abstract val publishDescriptionHeader: Property<String>
+
+    /** Keyword tags. */
+    @get:Input
+    abstract val publishTags: ListProperty<String>
+
+    /** Hashtags rendered in the description. */
+    @get:Input
+    abstract val publishHashtags: ListProperty<String>
+
+    /** Identity links as `Label=url` entries. */
+    @get:Input
+    abstract val publishLinks: ListProperty<String>
+
+    /** URL of the next video in the series. */
+    @get:Input
+    @get:Optional
+    abstract val publishNextVideo: Property<String>
+
+    /** URL of the previous video in the series. */
+    @get:Input
+    @get:Optional
+    abstract val publishPreviousVideo: Property<String>
+
+    /** Optional thumbnail image file path. */
+    @get:Input
+    @get:Optional
+    abstract val publishThumbnailFile: Property<String>
+
+    /** Visibility: `private` (default), `unlisted` or `public`. */
+    @get:Input
+    @get:Optional
+    abstract val publishVisibility: Property<String>
+
+    /** Platform category id (e.g. `27` = Education). */
+    @get:Input
+    @get:Optional
+    abstract val publishCategoryId: Property<String>
+
+    /** BCP-47 language tag (e.g. `fr`). */
+    @get:Input
+    @get:Optional
+    abstract val publishLanguageCode: Property<String>
+
+    /** Declared made-for-kids audience flag. */
+    @get:Input
+    abstract val publishMadeForKids: Property<Boolean>
+
+    /** Optional ISO-8601 instant to schedule the publication. */
+    @get:Input
+    @get:Optional
+    abstract val publishAt: Property<String>
+
+    /** Chapter lines (`M:SS Title`) rendered into the description timeline. */
+    @get:Input
+    abstract val publishChapters: ListProperty<String>
+
+    /** Promote a validation failure or API refusal to a build failure. */
+    @get:Input
+    abstract val publishStrict: Property<Boolean>
+
     init {
         width.convention(1920)
         height.convention(1080)
@@ -161,5 +252,10 @@ abstract class HyperframesExtension {
         bgmLevelDb.convention(-18.0)
         loudnessTargetLufs.convention(-16.0)
         duckingEnabled.convention(false)
+        publishEnabled.convention(false)
+        publishPlatform.convention("youtube")
+        publishCredentialsFile.convention("youtube.yaml")
+        publishMadeForKids.convention(false)
+        publishStrict.convention(false)
     }
 }

@@ -66,14 +66,50 @@ Nouveau sous-package `video.kernel.publish` (contrat pur, additive) :
   lancé localement). Garde de frontière vérifiée (aucun token interdit hors
   commentaire).
 
-== Non livré (baby-step suivant, dépendant de la publication du noyau)
+=== US-1b — Publication `video-kernel 0.5.0` (Maven Central) ✅
 
-* **US-1b** — publication `video-kernel 0.5.0` Central (accord pilote) : prérequis
-  dur de US-2 (hyperframes résout le noyau depuis Central → 0.5.0 doit être publié).
-* **US-2** — adaptateur `hyperframes.publish` (OAuth + resumable upload +
-  `thumbnails.set`) + tâche `publishHyperframesToYouTube` + loader `youtube.yaml`.
-* **US-3** — adoption capsule + tâche `publishCapsuleToYouTube`.
-* **US-4** — BDD `@publish` (fake) + dogfooding réel skip-gardé (accord pilote).
+Accord pilote explicite (`publish` + `git`). `publishToMavenLocal` puis
+`publishAggregationToCentralPortal --no-daemon` → bundle
+`85598927-1df1-49ea-a84b-0252d3e67aec` (AUTOMATIC). Propagation repo1
+`video-kernel/0.5.0` confirmée (pom HTTP 200).
+
+=== US-2 — Adaptateur `hyperframes.publish` + tâche `publishHyperframesToYouTube` ✅
+
+Nouveau domaine `hyperframes.publish` (N2, réseau) :
+
+[cols="1,3", options="header"]
+|===
+| Fichier | Rôle
+| `YouTubeCredentials` | identifiants OAuth 2.0 + `toString` **rédigé** (Règle 6)
+| `YouTubeCredentialsLoader` | parse minimal `youtube.yaml` (gitignoré, sans lib YAML)
+| `HttpTransport` (`PublishHttpRequest`/`PublishHttpResponse`) + `JdkHttpTransport` | seam HTTP (JDK `HttpClient`) — **injectable, aucun SDK Google** (D3)
+| `YouTubePublishCommand` | builders **purs** (token form, metadata JSON, init/content/thumbnail) + parseurs (`access_token`, `id`)
+| `YouTubeDataApiPublisher` | implémente `video.kernel.publish.VideoPublisher` — refresh-token → init resumable → `PUT` → `thumbnails.set` (best-effort)
+| `DisabledVideoPublisher` | publisher dégradé sans réseau (feature off / creds absentes)
+| `HyperframesPublisherResolver` | factory fail-soft (5 branches)
+| `ChapterLineParser` | parse `M:SS Title` → `VideoChapter`
+| `PublishHyperframesToYouTubeTask` | tâche `publishHyperframesToYouTube` (groupe `deploy`, opt-in `publish.enabled`), assemble la `VideoPublication`, valide **avant** réseau, écrit `publication.json`
+|===
+
+* Extension : bloc `publish` (19 properties) + conventions + wiring plugin.
+* `gradle/libs.versions.toml` : `video-kernel 0.4.0 → 0.5.0` ;
+  `settings.gradle.kts` : `mavenLocal()` ajouté à `dependencyResolutionManagement`
+  (consomme le noyau fraîchement publié pendant la propagation Central).
+* `youtube_example.yaml` versionné + `youtube.yaml` **gitignoré**.
+* Tests : 5 unit (`YouTubeCredentialsLoaderTest` redaction, `ChapterLineParserTest`,
+  `YouTubePublishCommandTest`, `YouTubeDataApiPublisherTest` via **fake transport**,
+  `HyperframesPublisherResolverTest`) + BDD `youtube_publish.feature` `@publish`
+  (4 scénarios) + steps préfixés. **Aucun appel réseau** en test.
+
+== Non livré (baby-step suivant)
+
+* **US-3** — adoption capsule (déléguer `VideoDescriptionBuilder`/
+  `YouTubeChaptersFormatter` au noyau, adaptateur + tâche `publishCapsuleToYouTube`,
+  bump toml `video-kernel 0.5.0`, shard CI).
+* **US-1c** — alignement MEMPHIS `workspace-bom`/`workspace-catalog` (`video-kernel 0.5.0`) —
+  non bloquant (le toml explicite l'emporte).
+* **US-4** — dogfooding réel skip-gardé (upload réel, accord pilote — nécessite
+  `youtube.yaml` généré par le pilote).
 * **US-5** — release `hyperframes-plugin 0.0.9` (+ capsule) + BOM MEMPHIS.
 
 == Décisions / points d'attention

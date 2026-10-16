@@ -1,5 +1,6 @@
 package hyperframes
 
+import hyperframes.publish.PublishHyperframesToYouTubeTask
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 
@@ -110,5 +111,35 @@ class HyperframesPlugin : Plugin<Project> {
             task.group = "hyperframes"
             task.dependsOn("generateHyperframesHtml", "renderHyperframes", "collectHyperframesRetrieve")
         }
+
+        // HF-YOUTUBE-PUBLISH US-2 — publish the rendered MP4 to the platform
+        // (YouTube) through the shared N1 VideoPublisher port. Opt-in: a no-op
+        // unless `publish.enabled = true`.
+        target.tasks.register("publishHyperframesToYouTube", PublishHyperframesToYouTubeTask::class.java) { task ->
+            task.description = "Publish the rendered MP4 to the configured platform (YouTube OAuth 2.0; opt-in)"
+            task.group = "deploy"
+            task.videoFiles.from(extension.outputDir.file(extension.outputName.map { "$it.mp4" }))
+            task.outputDir.set(target.layout.buildDirectory.dir("hyperframes/publish"))
+            task.publishEnabled.set(extension.publishEnabled)
+            task.platform.set(extension.publishPlatform)
+            task.credentialsFile.set(extension.publishCredentialsFile)
+            task.title.set(extension.publishTitle)
+            task.publishDescription.set(extension.publishDescription)
+            task.descriptionHeader.set(extension.publishDescriptionHeader)
+            task.tags.set(extension.publishTags)
+            task.hashtags.set(extension.publishHashtags)
+            task.links.set(extension.publishLinks)
+            task.nextVideo.set(extension.publishNextVideo)
+            task.previousVideo.set(extension.publishPreviousVideo)
+            task.thumbnailFile.set(extension.publishThumbnailFile)
+            task.visibility.set(extension.publishVisibility)
+            task.categoryId.set(extension.publishCategoryId)
+            task.languageCode.set(extension.publishLanguageCode)
+            task.madeForKids.set(extension.publishMadeForKids)
+            task.publishAt.set(extension.publishAt)
+            task.chapters.set(extension.publishChapters)
+            task.strict.set(extension.publishStrict)
+        }
+        target.tasks.named("publishHyperframesToYouTube") { it.mustRunAfter("renderHyperframes") }
     }
 }
