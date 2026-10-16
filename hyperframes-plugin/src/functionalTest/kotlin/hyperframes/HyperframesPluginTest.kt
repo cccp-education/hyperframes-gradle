@@ -235,6 +235,7 @@ class HyperframesPluginTest {
         // Arrange
         writeBuildFiles(projectDir)
         writeDocWithComposition(projectDir, compositionBody = buildString {
+            appendLine("[.hyperframes-composition#tracked]")
             appendLine("== Tracked")
             appendLine()
             appendLine("[.hyperframes-track]")
