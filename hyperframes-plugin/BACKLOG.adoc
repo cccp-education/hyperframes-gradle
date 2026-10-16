@@ -2,9 +2,20 @@
 :toc:
 
 _Date création_ : 2026-05-31
-_Version_ : 0.0.8
+_Version_ : 0.0.9
 
 '''
+== ✅ Release `hyperframes-plugin 0.0.9` — Maven Central (S-035)
+
+Release DAG N0→N2 (accord pilote) : **MEMPHIS** `workspace-bom`/catalog
+`0.0.98 → 0.0.99` (bundle `341922a4`, `hyperframes-plugin = "0.0.9"` +
+`video-kernel = "0.5.0"`) → hyperframes re-pin `workspace-catalog/BOM 0.0.99` +
+toml local `hyperframes 0.0.8 → 0.0.9` → **Central `hyperframes-plugin 0.0.9`**
+(AUTOMATIC ; propagation repo1 en cours). Contenu depuis 0.0.8 : **US-2**
+adaptateur `hyperframes.publish` (déploiement YouTube OAuth 2.0) + tâche
+`publishHyperframesToYouTube` + consommation `video-kernel 0.5.0`.
+Rapport `.agents/sessions/035-hf-youtube-publish-cadrage-us1-kernel.adoc`.
+
 == 🟡 EPIC HF-YOUTUBE-PUBLISH — Déploiement YouTube industrialisé (transverse, S-035)
 
 _Cadrage_ : `.agents/CADRAGE_EPIC_HF_YOUTUBE_PUBLISH.adoc`.
@@ -34,13 +45,13 @@ lecture publique. Guide de génération : cadrage §2.2.
   `HttpTransport` seam, `YouTubeCredentialsLoader`, resolver, `ChapterLineParser`,
   tâche `publishHyperframesToYouTube` (groupe `deploy`, opt-in), `youtube_example.yaml`.
   **Aucun SDK Google** (D3). 5 unit + BDD `@publish` (fake transport). | hyperframes | ✅ S-035
-| US-1c | Alignement MEMPHIS `workspace-bom`/`workspace-catalog` (`video-kernel 0.5.0`) | MEMPHIS | 🟡 À FAIRE (non bloquant)
-| US-3 | Adoption capsule (`VideoDescriptionBuilder`/`YouTubeChaptersFormatter`
-  délégués au noyau) + adaptateur `capsule.adapter.youtube` + tâche
-  `publishCapsuleToYouTube`. | capsule | 🟡 À FAIRE
-| US-4 | BDD `@publish` (fake `VideoPublisher`) + dogfooding réel skip-gardé
-  (accord pilote). | hyperframes + capsule | 🟡 À FAIRE
-| US-5 | Release `hyperframes-plugin 0.0.9` (+ capsule) + BOM MEMPHIS. | — | 🟡 À FAIRE
+| US-1c | Alignement MEMPHIS `workspace-bom`/`workspace-catalog` (`0.0.99` : `video-kernel 0.5.0`) | MEMPHIS | ✅ S-035
+| US-3a | Adoption capsule du modèle neutre (`YouTubeChaptersFormatter.formatTimestamp` +
+  `VideoDescriptionBuilder.FORBIDDEN_CHARS` délégués au noyau ; `video-kernel 0.5.0`). | capsule | ✅ S-035
+| US-3b | Tâche `publishCapsuleToYouTube` + adaptateur YouTube (décision
+  duplication verbatim N2 **ou** module partagé N1 `youtube-publish`). | capsule | 🟡 À FAIRE
+| US-4 | Dogfooding réel skip-gardé (upload réel — accord pilote + `youtube.yaml` généré). | hyperframes + capsule | 🟡 À FAIRE
+| US-5 | Release `hyperframes-plugin 0.0.9` (DAG MEMPHIS `0.0.99`). | — | ✅ S-035
 |===
 
 _Littérature de référence (patrons)_ : `capsule/publish/VideoDescriptionBuilder`,

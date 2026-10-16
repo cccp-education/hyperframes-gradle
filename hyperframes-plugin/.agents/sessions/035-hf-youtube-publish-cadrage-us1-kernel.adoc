@@ -101,16 +101,36 @@ Nouveau domaine `hyperframes.publish` (N2, réseau) :
   `HyperframesPublisherResolverTest`) + BDD `youtube_publish.feature` `@publish`
   (4 scénarios) + steps préfixés. **Aucun appel réseau** en test.
 
+=== US-1c + US-5 — Release `hyperframes-plugin 0.0.9` (Maven Central) ✅
+
+Réponse à « enchaine » (accord pilote publish+git). DAG N0→N2 :
+
+1. **MEMPHIS** `workspace-bom/catalog 0.0.98 → 0.0.99` — catalogue
+   `hyperframes-plugin 0.0.9` + `video-kernel 0.5.0` ; garde
+   `PlatformCatalogAlignmentTest` ré-alignée (`0.0.99`) ; `agent-contracts
+   compileTestKotlin` VERT ; publication Central **bundle `341922a4`**.
+2. **hyperframes** re-pin `workspace-catalog/BOM 0.0.99` + toml local
+   `hyperframes 0.0.8 → 0.0.9` ; `publishToMavenLocal` VERT (POM 0.0.9 importe
+   `workspace-bom:0.0.99`) ; publication Central **`hyperframes-plugin 0.0.9`**
+   (AUTOMATIC, propagation repo1 en cours à la clôture).
+
+**Piège rencontré (nouveau)** : le premier upload Central a été **rejeté**
+(« Dependency version information is missing for kotlin-stdlib-jdk8 /
+jackson-databind / jackson-module-kotlin ») parce que le POM importait
+`workspace-bom:0.0.99` **pas encore propagé** sur repo1. Correctif : publier
+MEMPHIS d'abord, attendre `repo1 …/0.0.99.pom` **HTTP 200**, puis republier
+hyperframes → succès. Leçon : dans un DAG N0→N2, la **propagation repo1** de
+l'amont est un prérequis *de fait* de la publication aval (le POM est validé par
+Central contre les artefacts déjà indexés).
+
 == Non livré (baby-step suivant)
 
-* **US-3** — adoption capsule (déléguer `VideoDescriptionBuilder`/
-  `YouTubeChaptersFormatter` au noyau, adaptateur + tâche `publishCapsuleToYouTube`,
-  bump toml `video-kernel 0.5.0`, shard CI).
-* **US-1c** — alignement MEMPHIS `workspace-bom`/`workspace-catalog` (`video-kernel 0.5.0`) —
-  non bloquant (le toml explicite l'emporte).
+* **US-3b** — tâche `publishCapsuleToYouTube` + adaptateur YouTube (capsule) :
+  **décision d'architecture** duplication verbatim N2 vs module partagé N1.
 * **US-4** — dogfooding réel skip-gardé (upload réel, accord pilote — nécessite
   `youtube.yaml` généré par le pilote).
-* **US-5** — release `hyperframes-plugin 0.0.9` (+ capsule) + BOM MEMPHIS.
+* **US-3a** ✅ livré (session capsule S-205, transverse) : adoption du modèle
+  neutre (délégations `chapterTimestamp` + `FORBIDDEN_CHARS`, `video-kernel 0.5.0`).
 
 == Décisions / points d'attention
 

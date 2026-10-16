@@ -9,9 +9,9 @@
 
 Plugin Gradle fonctionnel : AsciiDoc → AsciidoctorJ → HTML HyperFrames → CLI Node → MP4
 (via le noyau `VideoEngine`). EPICs HF-0→HF-7 ✅, `HF-KERNEL-ADAPTER` ✅, `HF-CR3` ✅,
-`VK-4-SHARED-PORTS` ✅, `HF-CR4` ✅. **Version publiée `0.0.8`** (Maven Central,
-bundle `a34abddf`). Noyau publié **`education.cccp:video-kernel:0.4.0`** ; le noyau
-local est passé à **`0.5.0`** (non publié). Catalogue ws `0.0.98` / BOM `0.0.98`.
+`VK-4-SHARED-PORTS` ✅, `HF-CR4` ✅, `HF-YOUTUBE-PUBLISH` ✅ (US-0→US-2, US-5).
+**Version publiée `0.0.9`** (Maven Central). Noyau publié
+**`education.cccp:video-kernel:0.5.0`**. Catalogue ws `0.0.99` / BOM `0.0.99`.
 
 == Fait en session 034 — Release `0.0.8`
 
@@ -45,16 +45,22 @@ HF-CR4 suite. CI `Test` verte `25a957e`.
   `publishHyperframesToYouTube` (groupe `deploy`, opt-in), extension (19 properties),
   wiring, `youtube_example.yaml` + `.gitignore`. `video-kernel 0.4.0 → 0.5.0`.
   5 unit + BDD `@publish` (fake transport — **aucun réseau**).
+* **US-1c + US-5 release** : MEMPHIS `workspace-bom/catalog 0.0.98 → 0.0.99`
+  (bundle `341922a4`, `hyperframes-plugin 0.0.9` + `video-kernel 0.5.0`) →
+  hyperframes re-pin `0.0.99` + toml `hyperframes 0.0.9` → **Central `0.0.9`**
+  (AUTOMATIC ; propagation repo1 en cours à la clôture). Piège : Central rejette le
+  POM si `workspace-bom:0.0.99` n'est pas **encore** propagé (dépendances sans
+  version) → publier MEMPHIS d'abord, attendre repo1 200, puis hyperframes.
+* **US-3a (capsule, session transverse)** : adoption du modèle neutre.
 
-== Mission Session 036 — US-3 (capsule)
+== Mission Session 036 — US-3b (capsule) ou US-4 (dogfooding)
 
-* **US-3** (capsule) : adopter le noyau — déléguer `VideoDescriptionBuilder` /
-  `YouTubeChaptersFormatter` à `VideoDescriptionComposer` + `ChapterLineParser` ;
-  adaptateur `capsule.adapter.youtube` + tâche `publishCapsuleToYouTube` ;
-  bump toml `video-kernel 0.5.0` ; rattacher la feature au **shard CI**.
-* Optionnel : **US-1c** alignement MEMPHIS (`video-kernel 0.5.0`) ; **US-4**
-  dogfooding réel (upload réel — nécessite un `youtube.yaml` généré par le pilote) ;
-  **US-5** release `hyperframes-plugin 0.0.9`.
+* **US-3b** (capsule) : tâche `publishCapsuleToYouTube` + adaptateur YouTube.
+  **Décision d'architecture requise** : le pipeline OAuth/HTTP (~520 lignes) vit en
+  N2 hyperframes → réutilisation par (a) **duplication verbatim N2** ou (b) **module
+  partagé N1 `youtube-publish`** (doctrine « seuil à 2 »). À arbitrer.
+* **US-4** (hyperframes) : dogfooding réel — upload sur la chaîne `@cccp.education`
+  (nécessite un `youtube.yaml` généré par le pilote, cadrage §2.2).
 
 == Points d'attention
 

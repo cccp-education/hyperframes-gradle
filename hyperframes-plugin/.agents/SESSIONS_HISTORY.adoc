@@ -16,7 +16,12 @@ Google**), seam `HttpTransport` injectable, `YouTubeCredentialsLoader` (logs ré
 `HyperframesPublisherResolver` (fail-soft), `ChapterLineParser`, tâche
 `publishHyperframesToYouTube` (groupe `deploy`, opt-in), extension (19 properties),
 `youtube.yaml` gitignoré ; 5 unit + BDD `@publish` (fake transport, **aucun réseau**).
-Compiles VERTS (Local = Build). US-3/4/5 déférées. Rapport
+**US-1c + US-5 release** : MEMPHIS `0.0.98 → 0.0.99` (bundle `341922a4`,
+`hyperframes-plugin 0.0.9` + `video-kernel 0.5.0`) → hyperframes re-pin `0.0.99` +
+toml `0.0.9` → **Central `hyperframes-plugin 0.0.9`**. Piège : Central rejette le POM
+si la BOM amont n'est pas encore propagée (dépendances sans version) → publier amont
+puis attendre repo1 200. Compiles VERTS (Local = Build). US-3a (capsule) livrée en
+transverse ; US-3b/4 restent. Rapport
 `.agents/sessions/035-hf-youtube-publish-cadrage-us1-kernel.adoc`.
 
 == Session 030 (2026-10-15) — Cache CI du rendu réel (npm + Puppeteer Chromium)

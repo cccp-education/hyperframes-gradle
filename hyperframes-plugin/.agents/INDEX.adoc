@@ -2,14 +2,14 @@
 :toc:
 
 _Règles absolues_ : voir `AGENT.adoc`
-_Derniere mise a jour_ : 2026-10-16 (Session 035 — **EPIC `HF-YOUTUBE-PUBLISH`** : cadrage + **US-1** noyau `video.kernel.publish` (`0.4.0 → 0.5.0`) + **US-1b** publication `video-kernel 0.5.0` Central (bundle `85598927`) + **US-2** adaptateur `hyperframes.publish` (OAuth 2.0 + resumable upload + `thumbnails.set`) + tâche `publishHyperframesToYouTube` + `youtube.yaml`). Cf. `.agents/sessions/035-hf-youtube-publish-cadrage-us1-kernel.adoc`.)
+_Derniere mise a jour_ : 2026-10-16 (Session 035 — **EPIC `HF-YOUTUBE-PUBLISH`** : cadrage + **US-1** noyau `video.kernel.publish` (`0.4.0 → 0.5.0`) + **US-1b** publication `video-kernel 0.5.0` Central (bundle `85598927`) + **US-2** adaptateur `hyperframes.publish` (OAuth 2.0 + resumable upload + `thumbnails.set`) + tâche `publishHyperframesToYouTube` + **US-1c/US-5 release `hyperframes-plugin 0.0.9`** (MEMPHIS `0.0.99`, catalogue `video-kernel 0.5.0`)). Cf. `.agents/sessions/035-hf-youtube-publish-cadrage-us1-kernel.adoc`.)
 _DAG_ : N2 — Plugin Gradle de transformation documentaire AsciiDoc → vidéo MP4
 _Dépendance N2_ : codex-gradle (compileOnly, AsciidoctorJ partagé)
 _Bridge externe_ : HyperFrames CLI via le noyau `VideoEngine` (`node <cliScript> render <dir> --output <mp4>`)
 
 _Dernière session terminée_ : 035 — **EPIC `HF-YOUTUBE-PUBLISH` : cadrage + US-1 + US-1b + US-2**. Rapport `.agents/sessions/035-hf-youtube-publish-cadrage-us1-kernel.adoc`.
-_Prochaine session_ : 036 — **US-3** : adoption capsule (déléguer description/chapitres au noyau, adaptateur + tâche `publishCapsuleToYouTube`, `video-kernel 0.5.0`, shard CI). Optionnel : US-1c (alignement MEMPHIS), US-4 (dogfooding réel), US-5 (release `0.0.9`).
-_Version publiée_ : **0.0.8** (Maven Central, bundle `a34abddf`) + Gradle Plugin Portal (handle `cccp-education`)
+_Prochaine session_ : 036 — **US-3b** (capsule `publishCapsuleToYouTube`, décision duplication N2 vs module N1) ou **US-4** (dogfooding réel, `youtube.yaml` pilote). US-1c (MEMPHIS `0.0.99`/`video-kernel 0.5.0`) ✅ livré.
+_Version publiée_ : **0.0.9** (Maven Central) + Gradle Plugin Portal (handle `cccp-education`). Catalogue ws **`0.0.99`** (BOM `0.0.99`), noyau **`video-kernel 0.5.0`**.
 
 '''
 == RÈGLES ABSOLUES (résumé)
@@ -59,7 +59,7 @@ _Version publiée_ : **0.0.8** (Maven Central, bundle `a34abddf`) + Gradle Plugi
 | HF-CR4-REL | **Release `hyperframes-plugin 0.0.7`** (Central) — DAG MEMPHIS `workspace-bom/catalog 0.0.97` (bundle `5bb28984`) → hyperframes (bundle `1e5c734d`). | ✅ **TERMINÉ (S-032)** | P0
 | HF-CR4-SUB | **Scènes en sous-compositions** — `data-composition-id` par scène + une piste par scène + timeline propre ré-enregistrée : supprime les 7 warnings `nested_structure_needs_subcomposition` + `timeline_track_too_dense`. | ✅ **TERMINÉ (S-033)** — lint **0/0**, check passed | P2
 | HF-CR4-REL2 | **Release `hyperframes-plugin 0.0.8`** (Central) — DAG MEMPHIS `0.0.98` (bundle `59a780ce`) → hyperframes (bundle `a34abddf`). Contenu : HF-CR4 suite. | ✅ **TERMINÉ (S-034)** | P0
-| HF-YOUTUBE-PUBLISH | **Déploiement YouTube industrialisé** (transverse hyperframes/video-kernel/capsule) — upload automatique OAuth 2.0 (`videos.insert` resumable + `thumbnails.set`) + titre/description/chapitres/hashtags/liens/navigation. N1 `video.kernel.publish` (modèle + port `VideoPublisher` + validation + composition) ↔ N2 adaptateurs. Cadrage `.agents/CADRAGE_EPIC_HF_YOUTUBE_PUBLISH.adoc`. | 🟡 **EN COURS** — US-0 ✅ + US-1 ✅ + US-1b ✅ (noyau publié) + US-2 ✅ (hyperframes) ; US-3 (capsule) + US-4 (dogfooding) + US-5 (release) 🟡 À FAIRE | P1
+| HF-YOUTUBE-PUBLISH | **Déploiement YouTube industrialisé** (transverse hyperframes/video-kernel/capsule) — upload automatique OAuth 2.0 (`videos.insert` resumable + `thumbnails.set`) + titre/description/chapitres/hashtags/liens/navigation. N1 `video.kernel.publish` (modèle + port `VideoPublisher` + validation + composition) ↔ N2 adaptateurs. Cadrage `.agents/CADRAGE_EPIC_HF_YOUTUBE_PUBLISH.adoc`. | 🟡 **EN COURS** — US-0 ✅ + US-1 ✅ + US-1b ✅ (noyau publié) + US-2 ✅ (hyperframes) + US-1c ✅ + US-5 ✅ (release `0.0.9`) ; US-3a ✅ (capsule) + reste US-3b (tâche capsule) + US-4 (dogfooding) 🟡 À FAIRE | P1
 |===
 
 '''
@@ -245,10 +245,11 @@ sert qu'à la lecture. Guide §2.2 du cadrage.
 | US-1 | Noyau `video.kernel.publish` (modèle + port + validation + composition) | hyperframes + capsule | ✅ S-035
 | US-1b | Publication `video-kernel 0.5.0` Central (bundle `85598927`) | — | ✅ S-035
 | US-2 | Adaptateur `hyperframes.publish` + tâche `publishHyperframesToYouTube` + `youtube.yaml` | hyperframes | ✅ S-035
-| US-1c | Alignement MEMPHIS `workspace-bom`/`workspace-catalog` (`video-kernel 0.5.0`) | MEMPHIS | 🟡 À FAIRE (non bloquant)
-| US-3 | Adoption capsule + tâche `publishCapsuleToYouTube` | capsule | 🟡 À FAIRE
-| US-4 | Dogfooding réel skip-gardé (upload réel, accord pilote) | hyperframes + capsule | 🟡 À FAIRE
-| US-5 | Release `hyperframes-plugin 0.0.9` (+ capsule) + BOM MEMPHIS | — | 🟡 À FAIRE
+| US-1c | Alignement MEMPHIS `workspace-bom`/`workspace-catalog` (`0.0.99` : `video-kernel 0.5.0`) | MEMPHIS | ✅ S-035
+| US-3a | Adoption capsule du modèle neutre (délégations + `video-kernel 0.5.0`) | capsule | ✅ S-035
+| US-3b | Tâche `publishCapsuleToYouTube` + adaptateur (décision duplication N2 vs module N1) | capsule | 🟡 À FAIRE
+| US-4 | Dogfooding réel skip-gardé (upload réel, accord pilote + `youtube.yaml`) | hyperframes + capsule | 🟡 À FAIRE
+| US-5 | Release `hyperframes-plugin 0.0.9` (DAG MEMPHIS `0.0.99`) | — | ✅ S-035
 |===
 
 '''
@@ -256,7 +257,7 @@ sert qu'à la lecture. Guide §2.2 du cadrage.
 
 |===
 | # | Date | Type | Sujet | Score
-| 035 | 2026-10-16 | cadrage+feat+release | **EPIC `HF-YOUTUBE-PUBLISH` : cadrage + US-1 + US-1b + US-2** (transverse hyperframes/video-kernel/capsule). Cadrage `.agents/CADRAGE_EPIC_HF_YOUTUBE_PUBLISH.adoc` (guide OAuth 2.0, 12 décisions, 6 US). **US-1** noyau `video.kernel.publish` (modèle + port `VideoPublisher` + validation + composition, `0.4.0 → 0.5.0`, +14 types, 31 unit). **US-1b** publication `video-kernel 0.5.0` Central (bundle `85598927`). **US-2** adaptateur `hyperframes.publish` (OAuth 2.0 refresh-token + resumable upload + `thumbnails.set`, JDK `HttpClient`, aucun SDK Google) + tâche `publishHyperframesToYouTube` (groupe `deploy`, opt-in, `youtube.yaml` gitignoré) + 5 unit + BDD `@publish` (fake transport). Compiles VERTS (Local = Build). | ✅ TERMINÉ
+| 035 | 2026-10-16 | cadrage+feat+release | **EPIC `HF-YOUTUBE-PUBLISH` : cadrage + US-1 + US-1b + US-2 + US-1c/US-5 release `0.0.9`** (transverse hyperframes/video-kernel/capsule/MEMPHIS). DAG MEMPHIS `workspace-bom/catalog 0.0.98 → 0.0.99` (bundle `341922a4`, `hyperframes-plugin 0.0.9` + `video-kernel 0.5.0`) → hyperframes re-pin `0.0.99` + toml `hyperframes 0.0.9` → **Central `hyperframes-plugin 0.0.9`** (propagation repo1 en cours). Cadrage `.agents/CADRAGE_EPIC_HF_YOUTUBE_PUBLISH.adoc` (guide OAuth 2.0, 12 décisions, 6 US). **US-1** noyau `video.kernel.publish` (modèle + port `VideoPublisher` + validation + composition, `0.4.0 → 0.5.0`, +14 types, 31 unit). **US-1b** publication `video-kernel 0.5.0` Central (bundle `85598927`). **US-2** adaptateur `hyperframes.publish` (OAuth 2.0 refresh-token + resumable upload + `thumbnails.set`, JDK `HttpClient`, aucun SDK Google) + tâche `publishHyperframesToYouTube` (groupe `deploy`, opt-in, `youtube.yaml` gitignoré) + 5 unit + BDD `@publish` (fake transport). Compiles VERTS (Local = Build). | ✅ TERMINÉ
 | 034 | 2026-10-16 | release | **Release `hyperframes-plugin 0.0.8`** (Maven Central, bundle `a34abddf`) — DAG MEMPHIS `0.0.97 → 0.0.98` (bundle `59a780ce`). Contenu : HF-CR4 suite (scènes en sous-compositions, lint 0/0). | ✅ TERMINÉ
 | 030 | 2026-10-15 | ci | **Cache CI du rendu réel.** `real-render-hyperframes.yml` re-téléchargeait npm + Chromium à chaque run ; ajout `actions/cache@v4` sur `~/.npm` + `~/.cache/puppeteer` (clé `hyperframes-cli-<os>-0.8.157`). Aucun code plugin modifié. | ✅ TERMINÉ
 | 029 | 2026-10-15 | release | **Publication corrective `hyperframes-plugin 0.0.6`** (Maven Central, bundle `71616cda`, AUTOMATIC). Release DAG N0→N1→N2 : MEMPHIS catalogue/BOM `0.0.96` → re-pin catalogue `0.0.95 → 0.0.96` + platform `workspace-bom 0.0.95 → 0.0.96` + toml local `0.0.5 → 0.0.6`. Contenu : fix bug audio-post BGM/ducking (S-028) + garde d'intégration réel. | ✅ TERMINÉ

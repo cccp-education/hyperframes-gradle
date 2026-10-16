@@ -17,8 +17,10 @@
   `YouTubeCredentialsLoader`, `HyperframesPublisherResolver`, `ChapterLineParser`, tâche
   `publishHyperframesToYouTube` opt-in, extension 19 properties, `youtube.yaml` gitignoré) ;
   5 unit + BDD `@publish` (fake transport). Compiles VERTS.
-* **Reste** : US-1c (alignement MEMPHIS), US-3 (adoption capsule), US-4 (dogfooding réel),
-  US-5 (release `0.0.9`).
+* US-1c + US-5 : MEMPHIS `0.0.98 → 0.0.99` (bundle `341922a4`, `hyperframes-plugin 0.0.9`
+  + `video-kernel 0.5.0`) → **Central `hyperframes-plugin 0.0.9`**.
+* **Reste** : US-3b (tâche capsule `publishCapsuleToYouTube`, décision N2/N1),
+  US-4 (dogfooding réel). US-3a (capsule adoption) livrée en transverse.
 
 == Session 030 (2026-10-15) — Cache CI du rendu réel (npm + Puppeteer Chromium) ✅
 
