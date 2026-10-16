@@ -30,7 +30,7 @@ class YouTubePublishSteps {
         }
     }
 
-    private lateinit var transport: RecordingTransport
+    private var transport: RecordingTransport = RecordingTransport(mutableListOf())
     private var credentials: YouTubeCredentials = YouTubeCredentials("cid", "secret", "refresh")
     private lateinit var publisher: video.kernel.publish.VideoPublisher
     private var result: VideoPublicationResult? = null

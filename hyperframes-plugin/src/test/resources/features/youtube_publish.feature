@@ -26,6 +26,5 @@ Feature: HF-YOUTUBE-PUBLISH US-2 — YouTube publication flow
 
   Scenario: Disabled publishing degrades
     Given a youtube publish publisher disabled
-    And a youtube publish credentials with a refresh token
     When I publish a youtube video from a temp file
     Then the youtube publish result is degraded
