@@ -1,0 +1,66 @@
+= Session 033 — HF-CR4 suite : scènes en sous-compositions (lint 0/0)
+:session: 033
+:date: 2026-10-16
+:type: qualité de rendu (zéro warning lint) + release `0.0.8`
+:borough: Watts (hyperframes-gradle)
+:epic: HF-CR4 (suite)
+:score: 10/10
+
+== Contexte
+
+Suite directe de HF-CR4 (S-031). Le rendu était conforme (0 erreur lint) mais
+`hyperframes check` laissait **7 warnings** `nested_structure_needs_subcomposition`
+(chaque scène `class="scene clip"` est un élément timeline contenant des `<div>`
+imbriqués — les scènes devraient être des **sous-compositions**) + 1 warning
+`timeline_track_too_dense` (6 clips sur la même piste).
+
+== Correctif — scènes en sous-compositions
+
+Lecture de la règle CLI (`hasNestedStructure` / `isSubCompositionHost`) : tout
+élément portant `data-composition-id` est **exempté**. Chaque scène devient donc
+une **sous-composition** :
+
+* `data-composition-id="<id>"` sur la scène (exempte du warning imbriqué) ;
+* **une piste par scène** (`data-track-index="<index>"`) → zéro
+  `timeline_track_too_dense` ;
+* chaque scène possède sa propre timeline `window.__timelines["<id>"]` (réutilise
+  celle du template/auteur, ou la crée), **ré-enregistrée** puis `seek(0)` ; le
+  runtime auto-neste la sous-composition ;
+* la racine `#stage` (`data-composition-id="root"`) enregistre une timeline pausée.
+
+**Bug attrapé par le dogfooding** : la première implémentation créait la timeline
+des scènes sans la **ré-enregistrer** (`var t = window.__timelines[id] || …` mais
+aucun `window.__timelines[id] = t`). Le producteur sondait alors 45 s ces
+compositions (setup de rendu **47 s**) et rendait les scènes **blanches**.
+Corrigé (ré-enregistrement) → setup **2,3 s**, toutes les scènes rendues.
+
+== Preuve — dogfooding réel
+
+* `hyperframes lint` : **0 erreur, 0 warning** (vs 7 warnings avant).
+* `hyperframes check` **passed** : Runtime 0, Layout **0 issue / 9 frames**,
+  Motion 0, Contraste **12/12 WCAG AA**.
+* Vidéo **1920×1080 / 26 s**, **1 376 948 o** (identique au rendu S-031 —
+  iso-comportement prouvé), déterministe.
+* Snapshots PNG (6 scènes) : écart-type de luminance 0,078–0,182 (aucune scène
+  blanche ; le bug 45 s produisait 0,014).
+
+== Gates
+
+|===
+| Gate | Résultat
+| `compileKotlin` / `compileTestKotlin` / `compileFunctionalTestKotlin` | ✅ VERT
+| `hyperframes lint` | ✅ 0/0
+| `hyperframes check` | ✅ passed (0 err, 0 layout, 12/12 AA)
+| rendu réel | ✅ 1920×1080 / 26 s (iso-comportement)
+| zéro secret | ✅
+|===
+
+== Fichiers modifiés
+
+`HyperframesHtmlProcessor.kt` (scènes en sous-compositions + ré-enregistrement),
+`HyperframesHtmlProcessorTest.kt` (contrat mis à jour).
+
+== Suite
+
+* CI `Test` du commit (unit + functional + Cucumber + check).
+* Release `0.0.8` (DAG MEMPHIS `0.0.98` → hyperframes).

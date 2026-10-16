@@ -1,7 +1,7 @@
-= PROMPT_REPRISE — HyperFrames Gradle (Session 032 TERMINÉE → 033)
-:session: 032
+= PROMPT_REPRISE — HyperFrames Gradle (Session 033 TERMINÉE → 034)
+:session: 033
 :date: 2026-10-16
-:status: ✅ TERMINÉ — Release `hyperframes-plugin 0.0.7` (Maven Central)
+:status: ✅ TERMINÉ — HF-CR4 suite : scènes en sous-compositions (lint 0/0)
 :borough: Watts
 
 '''
@@ -21,10 +21,20 @@ Release DAG N0→N2 (accord pilote) : MEMPHIS catalogue/BOM `0.0.96 → 0.0.97`
 (bundle `1e5c734d`). Contenu : HF-CR4. CI `Test` verte sur le commit de code `03e44fd`.
 Rapport `.agents/sessions/032-release-0.0.7.adoc`.
 
-== Mission Session 033 — au choix (pilote)
+== Fait en session 033 — HF-CR4 suite : scènes en sous-compositions
 
-* A) **HF-CR4 suite** : réduire les 7 warnings lint (`nested_structure_needs_subcomposition`)
-  en découpant les scènes en sous-compositions (`data-composition-src`).
+Suppression des 7 warnings `nested_structure_needs_subcomposition` + du warning
+`timeline_track_too_dense` : chaque scène devient une **sous-composition**
+(`data-composition-id`, une piste par scène, timeline propre
+`window.__timelines["<id>"]` **ré-enregistrée**, la racine enregistre une timeline
+pausée). Bug dogfooding corrigé (timeline non ré-enregistrée → 45 s de polling +
+scènes blanches). **Preuve** : `hyperframes lint` **0 erreur / 0 warning** ;
+`hyperframes check` **passed** (layout 0, 12/12 WCAG AA) ; rendu **1920×1080 / 26 s**
+iso-comportement. Rapport `.agents/sessions/033-hf-cr4-suite-subcompositions.adoc`.
+
+== Mission Session 034 — au choix (pilote)
+
+* A) Release `0.0.8` (DAG MEMPHIS `0.0.98` → hyperframes).
 * B) **HF-CR3 suite** : rapatrier le rendu réel dans la CI requise / enrichir (Manim/Remotion).
 * C) Maintenance / nouvelle demande pilote.
 

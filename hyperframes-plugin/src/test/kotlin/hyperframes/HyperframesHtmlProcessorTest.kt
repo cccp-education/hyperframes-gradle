@@ -88,7 +88,8 @@ class HyperframesHtmlProcessorTest {
         )
 
         assertContains(result, """class="scene clip" id="intro"""")
-        assertContains(result, """data-track-index="0"""")
+        assertContains(result, """data-composition-id="intro"""")
+        assertContains(result, """data-track-index=""")
         assertContains(result, """<h2 id="intro">Introduction</h2>""")
         assertContains(result, "<p>Content</p>")
     }
@@ -139,36 +140,31 @@ class HyperframesHtmlProcessorTest {
     }
 
     // ──────────────────────────────────────────────
-    // 3. Single root timeline
+    // 3. Sub-composition hosts + one timeline each
     // ──────────────────────────────────────────────
 
     @Test
-    fun `exactly one root timeline is registered and seeks to zero`() {
+    fun `every scene is a sub-composition host with its own registered timeline`() {
         val result = processor.enhance(asciidoctorDocument("""<div class="sect1"><h2 id="a">A</h2></div>"""))
 
-        assertContains(result, """window.__timelines["root"] = t;""")
-        assertContains(result, "gsap.timeline")
+        // HF-CR4-suite — a scene carrying data-composition-id is no longer a nested
+        // timeline element (no `nested_structure_needs_subcomposition`) and the
+        // runtime auto-nests its dedicated timeline.
+        assertContains(result, """data-composition-id="a"""")
+        assertContains(result, """var t = window.__timelines["a"] || gsap.timeline({ paused: true });""")
+        assertContains(result, """window.__timelines["a"] = t;""")
         assertContains(result, "t.seek(0);")
     }
 
     @Test
-    fun `the scene starts registry maps every scene id to its start`() {
-        val result = processor.enhance(
-            asciidoctorDocument(
-                """
-                <div class="sect1"><h2 id="a">A</h2></div>
-                <div class="sect1"><h2 id="b">B</h2></div>
-                """.trimIndent()
-            )
-        )
+    fun `the root composition also registers a paused timeline`() {
+        val result = processor.enhance(asciidoctorDocument("""<div class="sect1"><h2 id="a">A</h2></div>"""))
 
-        assertContains(result, "window.__hfSceneStarts = {")
-        assertContains(result, """"a":""")
-        assertContains(result, """"b":""")
+        assertContains(result, """window.__timelines["root"] = gsap.timeline({ paused: true });""")
     }
 
     @Test
-    fun `author animation code is collected and merged, never registered as a stray timeline`() {
+    fun `author animation code is collected and reused by the scene timeline`() {
         val result = processor.enhance(
             asciidoctorDocument(
                 """
@@ -182,9 +178,10 @@ class HyperframesHtmlProcessorTest {
             )
         )
 
-        assertContains(result, "window.__hfSceneTimelines")
-        assertContains(result, """gsap["timeline"]()""")
+        // Author motion registered first, then reused (not recreated) by the scene.
         assertContains(result, """tl.from("#anim"""")
+        assertContains(result, """window.__timelines["anim"] = tl;""")
+        assertContains(result, """var t = window.__timelines["anim"] || gsap.timeline({ paused: true });""")
     }
 
     // ──────────────────────────────────────────────

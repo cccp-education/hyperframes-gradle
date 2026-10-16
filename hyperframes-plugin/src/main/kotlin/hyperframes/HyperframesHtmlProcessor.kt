@@ -99,7 +99,8 @@ class HyperframesHtmlProcessor internal constructor(
         val start: Double,
         val duration: Double,
         val inner: String,
-        val scripts: List<String>
+        val scripts: List<String>,
+        val trackIndex: Int
     )
 
     private fun buildComposition(html: String): String {
@@ -117,7 +118,8 @@ class HyperframesHtmlProcessor internal constructor(
                     start = cursor,
                     duration = dur,
                     inner = "<h1 class=\"hf-doc-title\">$headerTitle</h1>",
-                    scripts = emptyList()
+                    scripts = emptyList(),
+                    trackIndex = scenes.size
                 )
             )
             cursor += dur
@@ -130,33 +132,20 @@ class HyperframesHtmlProcessor internal constructor(
             val duration = sceneDurationOf(section) ?: sceneDurationSeconds
             val scripts = extractScriptBodies(section)
             val inner = sanitizeSceneInner(stripSceneWrapper(stripScripts(section))).trim()
-            scenes.add(Scene(id, cursor, duration, inner, scripts))
+            scenes.add(Scene(id, cursor, duration, inner, scripts, scenes.size))
             cursor += duration
         }
 
         val total = if (cursor > 0.0) cursor else sceneDurationSeconds
         val scenesHtml = scenes.joinToString("\n") { renderScene(it) }
-        val sceneStarts = scenes.joinToString(",") { "\"${it.id}\":${number(it.start)}" }
-        val motion = scenes.joinToString("\n") { sceneMotion(it) }
-        // HF-CR4 — the per-scene timelines (template + author) are merged into the
-        // single root timeline, so they must not appear as top-level
-        // `window.__timelines[...]` entries (the CLI then expects a matching
-        // `data-composition-id` and reports `timeline_id_mismatch`, or reports the
-        // timeline as unregistered). They are collected under a private registry
-        // and the `gsap.timeline` factory is accessed through a bracket notation so
-        // the CLI's `gsap_timeline_not_registered` heuristic does not apply to them.
+        // HF-CR4-suite — every scene is a **sub-composition host**: it carries
+        // `data-composition-id`, so the CLI no longer flags it as a nested timeline
+        // element (`nested_structure_needs_subcomposition`) and the runtime
+        // auto-nests its dedicated `window.__timelines[id]` timeline. One scene per
+        // track also removes `timeline_track_too_dense`.
         val collectedScripts = scenes.flatMap { it.scripts }
-            .joinToString("\n") { script ->
-                "(function(){\n" +
-                    script
-                        .replace("window.__timelines", "window.__hfSceneTimelines")
-                        // A child timeline created `paused:true` never advances once
-                        // nested in the root timeline; the root is the single paused
-                        // timeline, the scenes must run.
-                        .replace("gsap.timeline({ paused: true })", "gsap[\"timeline\"]()")
-                        .replace("gsap.timeline(", "gsap[\"timeline\"](") +
-                    "\n})();"
-            }
+            .joinToString("\n") { script -> "(function(){\n$script\n})();" }
+        val sceneScripts = scenes.joinToString("\n") { sceneTimelineScript(it) }
 
         return buildString {
             appendLine("<!DOCTYPE html>")
@@ -178,36 +167,27 @@ class HyperframesHtmlProcessor internal constructor(
             )
             appendLine(scenesHtml)
             appendLine("</div>")
-            appendLine("<script>window.__hfSceneStarts = {$sceneStarts};</script>")
+            appendLine("<script>window.__timelines = window.__timelines || {};</script>")
             if (collectedScripts.isNotBlank()) {
                 appendLine("<script>")
                 appendLine(collectedScripts)
                 appendLine("</script>")
             }
             appendLine("<script>")
-            appendLine("window.__timelines = window.__timelines || {};")
-            appendLine("(function () {")
-            appendLine("  var t = gsap.timeline({ paused: true });")
-            appendLine(motion)
-            appendLine("  var starts = window.__hfSceneStarts || {};")
-            appendLine("  var scenes = window.__hfSceneTimelines || {};")
-            appendLine("  Object.keys(scenes).forEach(function (k) {")
-            appendLine("    t.add(scenes[k], starts[k] || 0);")
-            appendLine("  });")
-            appendLine("  window.__timelines[\"root\"] = t;")
-            appendLine("  t.seek(0);")
-            appendLine("})();")
+            appendLine(sceneScripts)
+            appendLine("  window.__timelines[\"root\"] = gsap.timeline({ paused: true });")
             appendLine("</script>")
             appendLine("</body>")
             appendLine("</html>")
         }
     }
 
-    /** Renders one scene as a full-bleed clip with a background child. */
+    /** Renders one scene as a full-bleed sub-composition host with a background child. */
     private fun renderScene(scene: Scene): String = buildString {
         appendLine(
-            "<div class=\"scene clip\" id=\"${scene.id}\" data-start=\"${number(scene.start)}\" " +
-                "data-duration=\"${number(scene.duration)}\" data-track-index=\"0\">"
+            "<div class=\"scene clip\" id=\"${scene.id}\" data-composition-id=\"${scene.id}\" " +
+                "data-start=\"${number(scene.start)}\" data-duration=\"${number(scene.duration)}\" " +
+                "data-track-index=\"${scene.trackIndex}\">"
         )
         appendLine("  <div class=\"scene-bg\"></div>")
         appendLine("  <div class=\"scene-inner\">")
@@ -216,21 +196,27 @@ class HyperframesHtmlProcessor internal constructor(
         appendLine("</div>")
     }
 
-    /** Entrance + exit motion for a scene, expressed in absolute seconds. */
-    private fun sceneMotion(scene: Scene): String = buildString {
+    /**
+     * Per-scene timeline: reuses the `window.__timelines[id]` created by the
+     * template/author script (or creates it) and adds the entrance/exit tweens.
+     * The timeline stays `paused` — the runtime drives it as a sub-composition.
+     */
+    private fun sceneTimelineScript(scene: Scene): String = buildString {
         val id = scene.id
-        val start = scene.start
         val dur = scene.duration
+        appendLine("  (function () {")
+        appendLine("    var t = window.__timelines[\"$id\"] || gsap.timeline({ paused: true });")
+        appendLine("    t.pause();")
         appendLine(
-            "  t.fromTo(\"#$id .scene-inner\", { opacity: 0, y: 30 }, " +
-                "{ opacity: 1, y: 0, duration: 0.6, ease: \"power3.out\" }, ${number(start + 0.1)});"
+            "    t.fromTo(\"#$id .scene-inner\", { opacity: 0, y: 30 }, " +
+                "{ opacity: 1, y: 0, duration: 0.6, ease: \"power3.out\" }, 0.1);"
         )
-        val exitAt = start + dur - 0.45
-        if (exitAt > start + 0.6) {
-            appendLine(
-                "  t.to(\"#$id\", { opacity: 0, duration: 0.4, ease: \"power1.in\" }, ${number(exitAt)});"
-            )
+        if (dur - 0.45 > 0.7) {
+            appendLine("    t.to(\"#$id\", { opacity: 0, duration: 0.4, ease: \"power1.in\" }, ${number(dur - 0.45)});")
         }
+        appendLine("    window.__timelines[\"$id\"] = t;")
+        appendLine("    t.seek(0);")
+        append("  })();")
     }
 
     // ──────────────────────────────────────────────────────────────────────

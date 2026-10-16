@@ -5,6 +5,22 @@ _Date création_ : 2026-05-31
 _Version_ : 0.0.7
 
 '''
+== ✅ HF-CR4 suite — scènes en sous-compositions (S-033)
+
+Suppression des 7 warnings `nested_structure_needs_subcomposition` + du warning
+`timeline_track_too_dense` : chaque scène devient une **sous-composition**
+(`data-composition-id`, une piste par scène, timeline propre
+`window.__timelines["<id>"]` **ré-enregistrée** ; la racine enregistre une timeline
+pausée). **Bug dogfooding corrigé** : la première implémentation créait la timeline
+de scène sans la ré-enregistrer → 45 s de polling (setup 47 s) + scènes blanches ;
+corrigé (setup 2,3 s, toutes les scènes rendues). **Preuve** : `hyperframes lint`
+**0 erreur / 0 warning** (vs 7) ; `hyperframes check` **passed** (layout 0 issue,
+12/12 WCAG AA) ; rendu **1920×1080 / 26 s** iso-comportement (1 376 948 o).
+Rapport `.agents/sessions/033-hf-cr4-suite-subcompositions.adoc`.
+
+*Reste* : Release `0.0.8` (DAG MEMPHIS `0.0.98 → 0.0.99`).
+
+'''
 == ✅ Release `hyperframes-plugin 0.0.7` — Maven Central (S-032)
 
 Release DAG N0→N2 (accord pilote) : **MEMPHIS** `workspace-bom`/catalog
