@@ -1,6 +1,18 @@
 = Test Coverage Analysis — hyperframes-gradle
 
-_Dernière mise à jour_ : 2026-10-15 (Session 026 — consommation des ports vidéo partagés + durcissement du rendu réel)
+_Dernière mise à jour_ : 2026-10-15 (Session 028 — fix audio-post BGM/ducking + garde d'intégration réel ; S-030 CI cache = workflow-only, sans impact couverture)
+
+== Couverture — 15 octobre 2026 (après session 028)
+
+.Audio-post BGM/ducking — fix + garde d'intégration réel
+|===
+| Élément | Nature | Tests
+
+| `FfmpegAudioPostProductionIntegrationTest` (créé) | garde d'intégration **réel** (ffmpeg) : durée de sortie ≈ entrée (loudness-only + BGM+ducking), skip-gardé (`assumeTrue`) | +2 (conditionnels) ; câblé `real-render-hyperframes.yml`
+| `PostProductionCommandsTest` (renforcé) | verrouille `aresample=48000` (sans bed) + `asplit=2` (ducking) | assertions ajoutées
+|===
+
+_(S-030 — cache CI `~/.npm` + `~/.cache/puppeteer` : workflow-only, aucune modification de tests/couverture.)_
 
 == Couverture — 15 octobre 2026 (après session 026)
 
