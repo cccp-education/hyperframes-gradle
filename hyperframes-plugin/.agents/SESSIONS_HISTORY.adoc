@@ -1,5 +1,13 @@
 = SESSIONS_HISTORY — hyperframes-gradle
 
+== Session 030 (2026-10-15) — Cache CI du rendu réel (npm + Puppeteer Chromium)
+
+Maintenance CI (cache cross-borough). Le workflow non bloquant `real-render-hyperframes.yml`
+re-téléchargeait à chaque run les tarballs `hyperframes@0.8.157` **et** Chromium
+(Puppeteer). Ajout d'un cache `actions/cache@v4` sur `~/.npm` + `~/.cache/puppeteer`
+(clé `hyperframes-cli-<os>-0.8.157`). Workflow YAML uniquement. Cadrage transverse :
+`workspace-bom/.agents/CADRAGE_CI_CACHE.adoc`. Rapport `.agents/sessions/030-ci-cache-real-render.adoc`.
+
 == Session 029 (2026-10-15) — Release corrective `hyperframes-plugin 0.0.6` (Maven Central)
 
 Release DAG N0→N1→N2 (accord pilote) : MEMPHIS catalogue/BOM `0.0.96`

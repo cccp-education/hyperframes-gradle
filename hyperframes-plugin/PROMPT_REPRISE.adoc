@@ -1,7 +1,7 @@
-= PROMPT_REPRISE — HyperFrames Gradle (Session 029 TERMINÉE → 030)
-:session: 029
+= PROMPT_REPRISE — HyperFrames Gradle (Session 030 TERMINÉE → 031)
+:session: 030
 :date: 2026-10-15
-:status: ✅ TERMINÉ — release corrective `hyperframes-plugin 0.0.6` (Maven Central)
+:status: ✅ TERMINÉ — cache CI du rendu réel (npm + Puppeteer Chromium)
 :borough: Watts
 
 '''
@@ -12,6 +12,13 @@ Plugin Gradle fonctionnel : AsciiDoc → AsciidoctorJ → HTML enrichi → CLI N
 **`HF-CR3` ✅ TERMINÉ 3/3** (S-025) + durci S-026. **Version publiée `0.0.6`**
 (Maven Central, bundle `71616cda`, S-029). Noyau **`education.cccp:video-kernel:0.4.0`**.
 Catalogue ws `0.0.96` / BOM `0.0.96`.
+
+== Fait en session 030 — Cache CI du rendu réel
+
+Maintenance CI (cache cross-borough, `workspace-bom/.agents/CADRAGE_CI_CACHE.adoc`).
+`real-render-hyperframes.yml` : cache `actions/cache@v4` sur `~/.npm` +
+`~/.cache/puppeteer` (clé `hyperframes-cli-<os>-0.8.157`) → plus de re-téléchargement
+npm/Chromium sur cache chaud. Rapport `.agents/sessions/030-ci-cache-real-render.adoc`.
 
 == Fait en session 029 — Release corrective `hyperframes-plugin 0.0.6`
 
@@ -30,10 +37,11 @@ burn-in ✅, loudnorm seul ✅, narration espeak ✅ ; **BGM sans ducking et duc
 renforcés + **garde d'intégration réel** `FfmpegAudioPostProductionIntegrationTest`.
 Rapport `.agents/sessions/028-dogfooding-audio-post-fix.adoc`.
 
-== Mission Session 030 — au choix (pilote)
+== Mission Session 031 — au choix (pilote)
 
-* **Backlog hyperframes** : tous EPICs clos ; releases `0.0.6` publiée.
-* A) **HF-CR3 suite** : rapatrier le rendu réel dans la CI requise / enrichir (Manim/Remotion).
+* **Backlog hyperframes** : tous EPICs clos ; release `0.0.6` publiée ; cache CI posé.
+* A) **HF-CR3 suite** : rapatrier le rendu réel dans la CI requise / enrichir
+  (Manim/Remotion) — au prix d'un CI plus lourd (cf. `CADRAGE_CI_CACHE.adoc`).
 * B) Maintenance / nouvelle demande pilote.
 
 == Points d'attention

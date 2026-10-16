@@ -2,13 +2,13 @@
 :toc:
 
 _Règles absolues_ : voir `AGENT.adoc`
-_Derniere mise a jour_ : 2026-10-15 (Session 029 — **Release corrective `hyperframes-plugin 0.0.6`** (Maven Central, bundle `71616cda`) — propage le fix audio-post BGM/ducking.)
+_Derniere mise a jour_ : 2026-10-15 (Session 030 — **Cache CI du rendu réel** : `actions/cache` sur `~/.npm` + `~/.cache/puppeteer` — plus de re-téléchargement npm/Chromium. Cf. `workspace-bom/.agents/CADRAGE_CI_CACHE.adoc`.)
 _DAG_ : N2 — Plugin Gradle de transformation documentaire AsciiDoc → vidéo MP4
 _Dépendance N2_ : codex-gradle (compileOnly, AsciidoctorJ partagé)
 _Bridge externe_ : HyperFrames CLI via le noyau `VideoEngine` (`node <cliScript> render <dir> --output <mp4>`)
 
-_Dernière session terminée_ : 029 — **Release corrective `hyperframes-plugin 0.0.6`**. Rapport `.agents/sessions/029-release-0.0.6.adoc`.
-_Prochaine session_ : 030 — au choix : A) HF-CR3 suite (rapatriement CI requise / enrichissement) ; B) maintenance / nouvelle demande pilote.
+_Dernière session terminée_ : 030 — **Cache CI du rendu réel (npm + Puppeteer Chromium)**. Rapport `.agents/sessions/030-ci-cache-real-render.adoc`.
+_Prochaine session_ : 031 — au choix : A) HF-CR3 suite (rapatriement CI requise / enrichissement) ; B) maintenance / nouvelle demande pilote.
 _Version publiée_ : **0.0.6** (Maven Central, bundle `71616cda`) + Gradle Plugin Portal (handle `cccp-education`)
 
 '''
@@ -197,6 +197,7 @@ Le dictionnaire reste côté auteur (AsciiDoc), pas côté moteur (Node.js).
 
 |===
 | # | Date | Type | Sujet | Score
+| 030 | 2026-10-15 | ci | **Cache CI du rendu réel.** `real-render-hyperframes.yml` re-téléchargeait npm + Chromium à chaque run ; ajout `actions/cache@v4` sur `~/.npm` + `~/.cache/puppeteer` (clé `hyperframes-cli-<os>-0.8.157`). Aucun code plugin modifié. | ✅ TERMINÉ
 | 029 | 2026-10-15 | release | **Publication corrective `hyperframes-plugin 0.0.6`** (Maven Central, bundle `71616cda`, AUTOMATIC). Release DAG N0→N1→N2 : MEMPHIS catalogue/BOM `0.0.96` → re-pin catalogue `0.0.95 → 0.0.96` + platform `workspace-bom 0.0.95 → 0.0.96` + toml local `0.0.5 → 0.0.6`. Contenu : fix bug audio-post BGM/ducking (S-028) + garde d'intégration réel. | ✅ TERMINÉ
 | 028 | 2026-10-15 | dogfooding+fix | **Dogfooding réel des adaptateurs post-production + fix bug ffmpeg.** Vrais binaires (ffmpeg 6.1.1, espeak) : burn-in ✅, loudnorm seul ✅, narration ✅ ; **BGM/ducking ❌** (durée tronquée 0,118 s / `Invalid stream specifier: voice`). **2 causes** : `loudnorm` sort à 192 kHz (amix tronque) ; label `[voice]` mono-usage réutilisé. **Fix** : `…,aresample=48000` + `asplit=2`. Tests unit renforcés + **garde d'intégration réel** `FfmpegAudioPostProductionIntegrationTest` (skip-gardé, câblé `real-render-hyperframes.yml`). | ✅ TERMINÉ
 | 027 | 2026-10-15 | release | **Publication `hyperframes-plugin 0.0.5`** (Maven Central, bundle `dbdfa6fb`, AUTOMATIC). Release DAG N0→N1→N2 : MEMPHIS catalogue/BOM `0.0.95` (`hyperframes-plugin = "0.0.5"`) → re-pin catalogue `0.0.90 → 0.0.95` + platform `workspace-bom 0.0.90 → 0.0.95` + toml local `0.0.4 → 0.0.5`. Contenu depuis 0.0.4 : consommation des ports vidéo partagés (`video-kernel 0.4.0`) + durcissement du rendu réel + correctif contrat Gradle de l'extension. | ✅ TERMINÉ

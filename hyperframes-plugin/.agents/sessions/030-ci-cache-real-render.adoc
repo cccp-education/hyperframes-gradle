@@ -1,0 +1,28 @@
+= Session 030 — Cache CI du rendu réel (npm + Puppeteer Chromium)
+:toc:
+
+== Contexte
+
+Maintenance CI (cache cross-borough, cf. `workspace-bom/.agents/CADRAGE_CI_CACHE.adoc`).
+Le workflow **non bloquant** `real-render-hyperframes.yml` (dispatch + cron hebdo)
+re-téléchargeait à chaque run les tarballs `hyperframes@0.8.157` **et** Chromium
+(Puppeteer, ~150-300 Mo).
+
+== Correctif
+
+Ajout d'un cache `actions/cache@v4` sur `~/.npm` + `~/.cache/puppeteer`, clé
+`hyperframes-cli-${{ runner.os }}-0.8.157` (pinnée sur la version de la CLI → un bump
+rafraîchit le cache). Pas de `cache: npm` sur `setup-node` : l'install est ad-hoc,
+sans lockfile.
+
+== Portée
+
+Workflow `.github/workflows/real-render-hyperframes.yml` uniquement (fichier YAML) ;
+aucun code plugin modifié. Les runs suivants sur cache chaud ne re-téléchargent plus
+npm ni Chromium.
+
+== Rappel (contrainte)
+
+Le cache GitHub Actions est **scopé par dépôt** : il n'atteint pas les autres boroughs.
+Un cache « global » exigerait un runner self-hosted à disque persistant ou une image
+conteneur pré-bakée (décision pilote, hors périmètre).

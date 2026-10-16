@@ -1,6 +1,12 @@
 = COMPLETED_TASKS_ARCHIVE — hyperframes-gradle
 :date: 2026-05-31
-:last-updated: 2026-10-15 (session 029)
+:last-updated: 2026-10-15 (session 030)
+
+== Session 030 (2026-10-15) — Cache CI du rendu réel (npm + Puppeteer Chromium) ✅
+
+* Maintenance CI : `real-render-hyperframes.yml` re-téléchargeait npm + Chromium à
+  chaque run → ajout `actions/cache@v4` sur `~/.npm` + `~/.cache/puppeteer`
+  (clé `hyperframes-cli-<os>-0.8.157`). Workflow-only.
 
 == Session 029 (2026-10-15) — Release corrective `hyperframes-plugin 0.0.6` (Maven Central) ✅
 
