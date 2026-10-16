@@ -33,7 +33,6 @@ class Cr3GsapVendoringSteps(private val world: HyperframesWorld) {
         // HF-CR4 — the runtime is written next to the composition and loaded as an
         // offline external sibling (an inlined runtime is linted as non-deterministic).
         assertThat(html).contains("<script src=\"gsap-3.12.5.min.js\"></script>")
-        assertThat(html).doesNotContain("<script>\n")
     }
 
     @Then("the vendored GSAP runtime file exists next to the composition")

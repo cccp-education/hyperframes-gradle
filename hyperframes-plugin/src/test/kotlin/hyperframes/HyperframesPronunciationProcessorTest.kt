@@ -151,16 +151,26 @@ kubernetes: koobernetayz</pre>
 
     @Test
     fun `pronunciation block preserves the rest of the HTML body`() {
+        // Asciidoctor-shaped document: content lives inside #content sections
+        // (the processor builds one scene per section).
         val html = """<!DOCTYPE html>
 <html>
 <head><title>Test</title></head>
-<body>
+<body class="article">
+<div id="content">
+<div class="sect1">
+<h2 id="intro">Intro</h2>
+<div class="sectionbody">
 <div class="listingblock hyperframes-pronunciation">
 <div class="content">
 <pre>dos: do</pre>
 </div>
 </div>
 <div class="paragraph"><p>Le conteneur isole l'application.</p></div>
+</div>
+</div>
+</div>
+<div id="footer"></div>
 </body>
 </html>"""
 

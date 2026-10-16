@@ -385,7 +385,7 @@ class HyperframesPluginTest {
         assertTrue(result.task(":generateHyperframesHtml")?.outcome?.toString()?.contains("SUCCESS") == true)
         val html = projectDir.resolve("build/hyperframes/index.html").readText()
         assertContains(html, "hf-title-card-title\">Solo Title</span>")
-        assertFalse(html.contains("hf-title-card-subtitle"), "No subtitle span when subtitle is absent")
+        assertFalse(html.contains("hf-title-card-subtitle\""), "No subtitle span when subtitle is absent")
     }
 
     // ──────────────────────────────────────────────────

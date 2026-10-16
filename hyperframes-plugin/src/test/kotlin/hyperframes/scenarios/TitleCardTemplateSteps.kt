@@ -93,6 +93,8 @@ class TitleCardTemplateSteps(private val world: HyperframesWorld) {
     @Then("the generated HTML does not contain a subtitle span")
     fun htmlDoesNotContainSubtitle() {
         val html = world.generatedHtml()
-        assertFalse(html.contains("hf-title-card-subtitle"), "HTML should not contain a subtitle span")
+        // The stylesheet declares `.hf-title-card-subtitle{…}` — only the *span*
+        // markup (class attribute closing quote) proves a subtitle was rendered.
+        assertFalse(html.contains("hf-title-card-subtitle\""), "HTML should not contain a subtitle span")
     }
 }
