@@ -1,146 +1,70 @@
 = PROMPT_REPRISE — HyperFrames Gradle (Session 036 TERMINÉE → 037)
 :session: 036
 :date: 2026-10-17
-:status: ✅ TERMINÉ — EPIC `HF-YOUTUBE-PUBLISH` : BDD parité deux moteurs + garde secrets (dogfooding réel en attente d'accord pilote)
+:status: ✅ TERMINÉ — HF-YOUTUBE-PUBLISH US-4 (BDD 2 moteurs) + HF-DEMO-QUALITY US-1 / US-2 v1 / US-3
 :borough: Watts
 
 '''
 == État des lieux
+* Plugin N2 AsciiDoc → HTML → CLI → MP4 ; HF-0→HF-7, HF-KERNEL-ADAPTER, HF-CR3,
+  VK-4-SHARED-PORTS, HF-CR4 ✅.
+* **HF-YOUTUBE-PUBLISH 🟡** : US-4 BDD ✅ (hyperframes + capsule S-207) ; reste
+  **dogfooding réel** (accord pilote) + EPIC `PUBLISH-ADAPTER-N1`.
+* **HF-DEMO-QUALITY 🟡** : US-1 démo ✅, **US-2 v1 transitions cover ✅**,
+  **US-3 médias ✅** ; reste **US-2b** (blur/push), **US-4** (chrome/typo),
+  **US-5** (entrées).
+* **Version publiée `0.0.9`** (Central) — **le code a changé depuis** : release
+  **`0.0.10` requise** avant consommation (accord pilote ; MEMPHIS d'abord).
+  Noyau `video-kernel 0.5.0` publié ; catalogue/BOM ws `0.0.99`.
 
-Plugin Gradle fonctionnel : AsciiDoc → AsciidoctorJ → HTML HyperFrames → CLI Node → MP4
-(via le noyau `VideoEngine`). EPICs HF-0→HF-7 ✅, `HF-KERNEL-ADAPTER` ✅, `HF-CR3` ✅,
-`VK-4-SHARED-PORTS` ✅, `HF-CR4` ✅, `HF-YOUTUBE-PUBLISH` 🟡 (US-0→US-3, US-4 BDD ✅,
-US-5 ; reste **US-4 dogfooding réel** + EPIC `PUBLISH-ADAPTER-N1`).
-**Version publiée `0.0.9`** (Maven Central). Noyau publié
-**`education.cccp:video-kernel:0.5.0`**. Catalogue ws `0.0.99` / BOM `0.0.99`.
+== Fait en session 036
+. **US-4 BDD** : `HyperframesPublishFunctionalTest` (TestKit, 3) + 4 scénarios
+  `youtube_publish.feature` ; parité capsule (S-207). `.gitignore` couvre
+  `youtube.yaml` + `client_secret_*.json`.
+. **Démo de référence** `demo-video/` : 48 s, 5 scènes, 1920×1080/30 fps, chrome,
+  League Gothic + IBM Plex Mono, médias PD/CC0 (`ATTRIBUTIONS.md`), MP4 gitignoré ; blur/push hors DSL (US-2b).
+. **US-2 v1 transitions cover** : rôles scène **sortante** `hf-transition-grid`
+  / `-shutter` / `-fade` → overlay enfant de `#stage` + tweens `rootTl` (sans
+  fondu pré-frontière ; sans rôle = historique). 5 unit + 1 FT + 5 BDD.
+. **US-3 médias** : `ReferencedAssets` copie les `src` relatifs `<img>`/`<audio>`
+  `inputDir`→`outputDir` (http/data/absolus, manquants, traversée ignorés) ; bloc
+  `[.hyperframes-audio]` (`bgm:`/`sfx: <s> <file>`) → `<audio>` directs. 6 unit + 1 FT + 3 BDD.
+. Doc : `doc/PILOTAGE_HYPERFRAMES.adoc` § Transitions / § Médias. CI verte
+  `40230367330` ; commits `44f568c`, `1c02378`, `49dc38b`.
 
-== Fait en session 034 — Release `0.0.8`
+== Limites connues (pas des bugs)
+* Durée de transition fixe **0,5 s** (pas de knob) ; blur/push non portés (US-2b).
+* Volumes audio sérialisés sur **2 décimales** (`0.3` → `0.30`).
+* Copie d'assets : **src relatifs** seulement ; bloc audio **dans une section** ; BGM borné.
+* `demo-video/` est **autonome**, pas générée par le plugin (référence qualité).
 
-Release DAG N0→N2 : MEMPHIS catalogue/BOM `0.0.97 → 0.0.98` → hyperframes re-pin
-`0.0.98` + toml local `0.0.8` → **Central `0.0.8`** (bundle `a34abddf`). Contenu :
-HF-CR4 suite. CI `Test` verte `25a957e`.
+== Publication YouTube — bloquée (à reprendre avec le pilote)
+* `obtainYouTubeRefreshToken` → **`Error 400: redirect_uri_mismatch`** : ajouter
+  `http://localhost:8765/` aux URI du client OAuth (ou créer un client **Desktop**).
+* `youtube.yaml` : clientId/clientSecret présents, **refreshToken manquant**
+  (loader durci : clés snake_case + nom des champs manquants).
+* Règle 2 : aucun upload sans accord pilote (`videos.insert` = 1600 unités).
 
-== Fait en session 035 — Cadrage `HF-YOUTUBE-PUBLISH` + noyau US-1
-
-* **US-0 Cadrage** : `.agents/CADRAGE_EPIC_HF_YOUTUBE_PUBLISH.adoc` — déploiement
-  YouTube industrialisé (transverse hyperframes/video-kernel/capsule), **guide OAuth
-  2.0** (upload ≠ clé API), 12 décisions, 6 US. « Clé API » corrigé : il faut un
-  **jeu OAuth 2.0** (clientId/clientSecret/refreshToken), secret dans `youtube.yaml`
-  gitignoré.
-* **US-1 Noyau** : sous-package `video.kernel.publish` (contrat pur) —
-  `VideoPublication`, `VideoChapter`, `VideoLink`/`VideoLinks`, `VideoVisibility`,
-  `VideoPublicationLimits`, `VideoPublicationValidator` + `VideoPublicationValidation`,
-  `VideoDescriptionComposer`, `VideoPublisher` (port) + `VideoPublicationResult`
-  (sealed). `0.4.0 → 0.5.0`, manifeste d'API **+14 types**, 31 unit. Compiles VERTS.
-* **DAG contraint** : hyperframes (US-2) résout le noyau depuis **Central** →
-  la publication `video-kernel 0.5.0` (US-1b) est un **prérequis dur** (✅ fait).
-
-== Fait en session 035 — US-1b + US-2 (accord pilote publish+git)
-
-* **US-1b** : `video-kernel 0.5.0` publié Central (bundle `85598927`, propagation
-  repo1 confirmée).
-* **US-2** domaine `hyperframes.publish` : `YouTubeCredentials` (rédigé),
-  `YouTubeCredentialsLoader`, `HttpTransport`+`JdkHttpTransport`, `YouTubePublishCommand`
-  (builders purs), `YouTubeDataApiPublisher`, `DisabledVideoPublisher`,
-  `HyperframesPublisherResolver`, `ChapterLineParser`, tâche
-  `publishHyperframesToYouTube` (groupe `deploy`, opt-in), extension (19 properties),
-  wiring, `youtube_example.yaml` + `.gitignore`. `video-kernel 0.4.0 → 0.5.0`.
-  5 unit + BDD `@publish` (fake transport — **aucun réseau**).
-* **US-1c + US-5 release** : MEMPHIS `workspace-bom/catalog 0.0.98 → 0.0.99`
-  (bundle `341922a4`, `hyperframes-plugin 0.0.9` + `video-kernel 0.5.0`) →
-  hyperframes re-pin `0.0.99` + toml `hyperframes 0.0.9` → **Central `0.0.9`**
-  (AUTOMATIC ; propagation repo1 en cours à la clôture). Piège : Central rejette le
-  POM si `workspace-bom:0.0.99` n'est pas **encore** propagé (dépendances sans
-  version) → publier MEMPHIS d'abord, attendre repo1 200, puis hyperframes.
-* **US-3a (capsule, session transverse)** : adoption du modèle neutre.
-
-== Fait en session 036 — US-4 (BDD parité) + garde secrets
-
-* **Couverture fonctionnelle hyperframes** (commit `f8a3518`) :
-  `HyperframesPublishFunctionalTest` (TestKit hermétique, 3 tests : groupe `deploy`,
-  `skipped` par défaut, `degraded` sans credentials). Complète les 4 scénarios BDD
-  `youtube_publish.feature` (fake transport) de S-035.
-* **Parité capsule** (session transverse S-207) : `capsule_publish.feature`
-  (5 scénarios) + runner dédié + shard CI `media` + TestKit hermétique. **US-4 (BDD)
-  est complet sur les deux moteurs.**
-* **Garde secrets** : `.gitignore` couvre `youtube.yaml` **et** `client_secret_*.json`
-  (fichier téléchargé depuis Google Cloud).
-* **Enabler** : le module `youtube-auth-plugin` (video-kernel) a été dogfoodé par le
-  pilote ; un défaut loopback (`/favicon.ico` terminant l'attente) a été corrigé en
-  `0.0.2`.
-
-== Fait en session 036 (suite) — qualité vidéo : démo de référence
-
-Demande pilote : contenu, animations, transitions + médias libres de droit
-(publication mise de côté). Livrable `demo-video/` : composition autonome 48 s
-(5 scènes, 1920×1080/30 fps) — hook typographique, chaîne AsciiDoc→MP4 (rail +
-signal), DSL + aperçu, qualité (stats + barres), fin (liens). Transitions CSS
-(grid dissolve, 2 × blur crossfade, vertical push), chrome de plateau (timecode,
-repères, barre), typographie League Gothic + IBM Plex Mono, palette ambre/menthe.
-Médias : fibre NASA (PD), datacenter NREL (PD), hexagone CC0, icônes Lucide ISC,
-scan PD, BGM/ticks générés localement. Licences `demo-video/ATTRIBUTIONS.md`.
-
-Preuves : `lint` 0 erreur, `validate` 0 erreur console + 101 textes WCAG AA,
-`inspect` 0 erreur, rendu `out/hyperframes-demo.mp4` **48,0 s / 1920×1080 /
-30 fps / H.264+AAC** (audio moyen −28,9 dB). Écart : le DSL du plugin ne sait pas
-encore exprimer transitions/médias/chrome/entrées → EPIC `HF-DEMO-QUALITY` US-2→5.
-
-== Fait en session 036 (suite) — HF-DEMO-QUALITY US-2 v1 (transitions cover DSL)
-
-Rôles sur la scène **sortante** : `hf-transition-grid` (12 cellules),
-`hf-transition-shutter`, `hf-transition-fade`. `transitionOf` → `Boundary` →
-overlay enfant de `#stage` + tweens sur l'unique timeline racine (`rootTl`) ;
-la scène sortante ne fait plus son fondu pré-frontière. Sans rôle : sortie
-historique inchangée. Tests : 5 unit `HyperframesHtmlProcessorTest`, 1 FT TestKit
-(`[#one.hyperframes-composition.hf-transition-grid]`), 5 scénarios BDD
-`@quality-transition`. Dogfooding /tmp (4 scènes) : lint 0/0, validate 0 erreur
-console + 9 WCAG AA, inspect 0 issue, rendu 25 s, snapshots de frontière
-conformes. Doc DSL : `doc/PILOTAGE_HYPERFRAMES.adoc` § Transitions.
-
-== Fait en session 036 (suite) — HF-DEMO-QUALITY US-3 (médias DSL)
-
-`ReferencedAssets` (objet pur) extrait les `src` relatifs de `<img>`/`<audio>` et
-les copie de `inputDir` vers `outputDir` (chemins préservés ; http/data/absolus
-ignorés ; fichier manquant ou traversée ignorés sans échec). `generateHyperframesHtml`
-appelle la copie après écriture du HTML. Bloc `[.hyperframes-audio]` :
-`bgm: <file> [volume=]` (start 0, borné à la durée totale) et
-`sfx: <secondes> <file> [volume=]` → `<audio>` **enfants directs** de `#stage`.
-Tests : 3 unit `ReferencedAssetsTest` + 3 unit processor + 1 FT TestKit (image +
-audio copiés) + 3 BDD `@quality-media`. Dogfooding /tmp : assets copiés, lint 0/0,
-validate 0 erreur console, inspect 0 issue, rendu 15 s avec audio (−29,4 dB moyen).
-
-== Mission Session 037 — HF-DEMO-QUALITY US-2b / US-4 / US-5
-
-* **US-2b** : `blur-crossfade` + `vertical-push` (chevauchement de clips).
-* **US-4 chrome + typographie display** ; **US-5 entrées chorégraphiées**.
-* Sinon : dogfooding réel (accord pilote) ou EPIC `PUBLISH-ADAPTER-N1`.
+== Mission Session 037 (au choix pilote)
+* **HF-DEMO-QUALITY US-2b** : `blur-crossfade` + `vertical-push` (clips
+  chevauchés, entrées décalées).
+* **US-4** chrome/timecode/repères + typographie display ; **US-5** entrées.
+* **Release `0.0.10`** : MEMPHIS catalogue/BOM → hyperframes (accord pilote).
+* Sinon : dogfooding réel YouTube / `PUBLISH-ADAPTER-N1`.
 
 == Points d'attention
-
-* **Local = Build, Tests = CI** : ne jamais lancer `test`/`check` en local.
-* **Règle 2 — PUBLISH** : accord pilote. **Règle 6 — ZÉRO secret** : `youtube.yaml`
-  gitignoré uniquement.
-* **Version dérivée** : bumper le catalogue MEMPHIS ET le toml local (même valeur).
-* **Noyau `0.5.0`** : version locale en avance sur Central (`0.4.0`) — ne pas
-  publier sans accord.
-
-== Rappels techniques
-
-* Port `video.kernel.publish.VideoPublisher` (fun interface, `publish(VideoPublication)
-  : VideoPublicationResult`, **ne jette jamais**). Modèle neutre — pas de vocabulaire
-  YouTube dans le noyau.
-* Frontière noyau : `video.ci.KernelBoundaryTest` (imports `java/kotlin/contracts/
-  video.kernel` ; pas de `processbuilder`). Implémentation réseau = N2.
-* Composition : `VideoDescriptionComposer.compose(publication, header)` →
-  header + description + `Chapters` + `Links` + hashtags, retire `<`/`>`.
+* **Local = Build, Tests = CI** ; ne jamais lancer `test`/`check` en local.
+* Bumper le catalogue MEMPHIS **ET** le toml local (même valeur) avant release.
+* **Zéro secret** commité (`youtube.yaml`, `client_secret_*.json`).
+* Noyau `0.5.0` publié — ne pas republier sans changement/accord.
 
 == Routes documents clés
-
 |===
 | Document | Chemin
-| Cadrage EPIC | `.agents/CADRAGE_EPIC_HF_YOUTUBE_PUBLISH.adoc`
-| Rapport S-035 | `.agents/sessions/035-hf-youtube-publish-cadrage-us1-kernel.adoc`
-| Noyau (N1) | `../video-kernel-gradle/video-kernel-plugin/src/main/kotlin/video/kernel/publish/`
-| Backlog | `BACKLOG.adoc`
-| Règles | `AGENT.adoc`
+| Rapport S-036 | `.agents/sessions/036-hf-youtube-publish-us4-status.adoc`
+| Démo | `demo-video/` (+ `ATTRIBUTIONS.md`)
+| Doc DSL | `doc/PILOTAGE_HYPERFRAMES.adoc` (§ Transitions, § Médias)
+| Cadrage | `.agents/CADRAGE_EPIC_HF_YOUTUBE_PUBLISH.adoc`
+| Backlog / règles | `BACKLOG.adoc` · `AGENT.adoc`
+| Noyau N1 | `../video-kernel-gradle/video-kernel-plugin/src/main/kotlin/video/kernel/publish/`
 |===
