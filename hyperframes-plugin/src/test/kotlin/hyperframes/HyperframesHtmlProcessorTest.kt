@@ -357,7 +357,7 @@ class HyperframesHtmlProcessorTest {
 
         assertContains(result, """<audio id="hf-audio-0" src="assets/audio/bgm.mp3" """)
         assertContains(result, """data-start="0" data-duration="10"""")
-        assertContains(result, """data-track-index="90" data-volume="0.3"""")
+        assertContains(result, """data-track-index="90" data-volume="0.30"""")
         assertContains(result, """<audio id="hf-audio-1" src="assets/audio/whoosh.mp3" """)
         assertContains(result, """data-start="6" """)
         assertContains(result, """data-volume="0.25"""")

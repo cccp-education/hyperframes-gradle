@@ -68,7 +68,7 @@ class HfDemoQualityMediaSteps {
             "expected the BGM cue as the first direct audio child"
         }
         check(enhanced.contains("""data-start="0""")) { "the BGM must start at 0" }
-        check(enhanced.contains("""data-volume="0.3"""")) { "the BGM volume must be 0.3" }
+        check(enhanced.contains("""data-volume="0.30"""")) { "the BGM volume must be 0.3" }
     }
 
     @Then("the quality media sfx starts at 6")
