@@ -100,7 +100,25 @@ class HyperframesHtmlProcessor internal constructor(
         val duration: Double,
         val inner: String,
         val scripts: List<String>,
-        val trackIndex: Int
+        val trackIndex: Int,
+        val transition: Transition? = null
+    )
+
+    /** Cover-style transition supported by the DSL (HF-DEMO-QUALITY US-2 v1). */
+    private enum class TransitionKind { GRID_DISSOLVE, SHUTTER, FADE }
+
+    private data class Transition(
+        val kind: TransitionKind,
+        val durationSeconds: Double = DEFAULT_TRANSITION_SECONDS
+    )
+
+    /** A scene boundary carrying the outgoing scene's transition. */
+    private data class Boundary(
+        val overlayId: String,
+        val outgoingId: String,
+        val incomingId: String,
+        val time: Double,
+        val transition: Transition
     )
 
     private fun buildComposition(html: String): String {
@@ -132,12 +150,26 @@ class HyperframesHtmlProcessor internal constructor(
             val duration = sceneDurationOf(section) ?: sceneDurationSeconds
             val scripts = extractScriptBodies(section)
             val inner = sanitizeSceneInner(stripSceneWrapper(stripScripts(section))).trim()
-            scenes.add(Scene(id, cursor, duration, inner, scripts, scenes.size))
+            scenes.add(Scene(id, cursor, duration, inner, scripts, scenes.size, transitionOf(section)))
             cursor += duration
         }
 
         val total = if (cursor > 0.0) cursor else sceneDurationSeconds
         val scenesHtml = scenes.joinToString("\n") { renderScene(it) }
+        // A transition belongs to the **outgoing** scene and is only meaningful
+        // when another scene follows (the last scene's role is ignored).
+        val boundaries = scenes.mapIndexedNotNull { index, scene ->
+            val transition = scene.transition ?: return@mapIndexedNotNull null
+            scenes.getOrNull(index + 1) ?: return@mapIndexedNotNull null
+            Boundary(
+                overlayId = "hf-transition-$index",
+                outgoingId = scene.id,
+                incomingId = scenes[index + 1].id,
+                time = scene.start + scene.duration,
+                transition = transition,
+            )
+        }
+        val transitionsHtml = boundaries.joinToString("\n") { renderTransitionOverlay(it) }
         // HF-CR4-suite — every scene is a **sub-composition host**: it carries
         // `data-composition-id`, so the CLI no longer flags it as a nested timeline
         // element (`nested_structure_needs_subcomposition`) and the runtime
@@ -166,6 +198,9 @@ class HyperframesHtmlProcessor internal constructor(
                     "data-fps=\"$fps\" data-output=\"${outputName}.mp4\">"
             )
             appendLine(scenesHtml)
+            if (transitionsHtml.isNotBlank()) {
+                appendLine(transitionsHtml)
+            }
             appendLine("</div>")
             appendLine("<script>window.__timelines = window.__timelines || {};</script>")
             if (collectedScripts.isNotBlank()) {
@@ -175,7 +210,12 @@ class HyperframesHtmlProcessor internal constructor(
             }
             appendLine("<script>")
             appendLine(sceneScripts)
-            appendLine("  window.__timelines[\"root\"] = gsap.timeline({ paused: true });")
+            if (boundaries.isEmpty()) {
+                // Historical, transition-free composition: one empty root timeline.
+                appendLine("  window.__timelines[\"root\"] = gsap.timeline({ paused: true });")
+            } else {
+                appendLine(rootTransitionScript(boundaries))
+            }
             appendLine("</script>")
             appendLine("</body>")
             appendLine("</html>")
@@ -211,11 +251,139 @@ class HyperframesHtmlProcessor internal constructor(
             "    t.fromTo(\"#$id .scene-inner\", { opacity: 0, y: 30 }, " +
                 "{ opacity: 1, y: 0, duration: 0.6, ease: \"power3.out\" }, 0.1);"
         )
-        if (dur - 0.45 > 0.7) {
+        // A scene handing off to a transition must stay fully visible until the
+        // boundary: the cover overlay (root timeline) owns the handoff, so the
+        // historical pre-boundary fade would show the empty background too early.
+        if (scene.transition == null && dur - 0.45 > 0.7) {
             appendLine("    t.to(\"#$id\", { opacity: 0, duration: 0.4, ease: \"power1.in\" }, ${number(dur - 0.45)});")
         }
         appendLine("    window.__timelines[\"$id\"] = t;")
         appendLine("    t.seek(0);")
+        append("  })();")
+    }
+
+    // ──────────────────────────────────────────────────────────────────────
+    // Scene transitions (HF-DEMO-QUALITY US-2 v1 — cover transitions)
+    // ──────────────────────────────────────────────────────────────────────
+
+    /**
+     * Reads the outgoing-scene transition from its **role classes**.
+     *
+     * Asciidoctor drops non-standard block attributes, but it preserves roles.
+     * The DSL therefore encodes the transition as a class on the composition
+     * section:
+     *
+     * ```
+     * [#intro.hyperframes-composition.hf-transition-grid]
+     * == Introduction
+     * ```
+     *
+     * Supported roles: `hf-transition-grid` (4×3 grid dissolve),
+     * `hf-transition-shutter` (two halves close/open) and `hf-transition-fade`
+     * (dip to the background colour). Unknown roles are ignored (backward
+     * compatible, no transition).
+     */
+    private fun transitionOf(section: String): Transition? {
+        val openTag = section.substringBefore('>')
+        val classes = CLASS_ATTR.find(openTag)?.groupValues?.get(1) ?: return null
+        val kind = when {
+            ROLE_GRID.containsMatchIn(classes) -> TransitionKind.GRID_DISSOLVE
+            ROLE_SHUTTER.containsMatchIn(classes) -> TransitionKind.SHUTTER
+            ROLE_FADE.containsMatchIn(classes) -> TransitionKind.FADE
+            else -> return null
+        }
+        return Transition(kind)
+    }
+
+    /** Renders the overlay a cover transition drives on the root timeline. */
+    private fun renderTransitionOverlay(boundary: Boundary): String = buildString {
+        when (boundary.transition.kind) {
+            TransitionKind.GRID_DISSOLVE -> {
+                appendLine("<div class=\"hf-transition hf-transition-grid\" id=\"${boundary.overlayId}\" data-layout-allow-occlusion>")
+                repeat(GRID_CELLS) { i ->
+                    appendLine(
+                        "  <div class=\"hf-transition-cell\" " +
+                            "style=\"background:${GRID_PALETTE[i % GRID_PALETTE.size]}\"></div>"
+                    )
+                }
+                append("</div>")
+            }
+            TransitionKind.SHUTTER -> {
+                appendLine("<div class=\"hf-transition hf-transition-shutter\" id=\"${boundary.overlayId}\" data-layout-allow-occlusion>")
+                appendLine("  <div class=\"hf-shutter-top\" data-layout-allow-overflow></div>")
+                appendLine("  <div class=\"hf-shutter-bottom\" data-layout-allow-overflow></div>")
+                append("</div>")
+            }
+            TransitionKind.FADE -> {
+                append("<div class=\"hf-transition hf-transition-fade\" id=\"${boundary.overlayId}\" data-layout-allow-occlusion></div>")
+            }
+        }
+    }
+
+    /**
+     * Root-timeline script: the **only** timeline that drives the cover
+     * overlays. Each transition is centred on its scene boundary `T`: the cover
+     * grows for `duration/2`, the clip swap happens at `T` underneath it, then
+     * the cover recedes.
+     */
+    private fun rootTransitionScript(boundaries: List<Boundary>): String = buildString {
+        appendLine("  (function () {")
+        appendLine("    var rootTl = gsap.timeline({ paused: true });")
+        boundaries.forEach { boundary ->
+            val id = boundary.overlayId
+            val time = boundary.time
+            val half = boundary.transition.durationSeconds / 2
+            when (boundary.transition.kind) {
+                TransitionKind.GRID_DISSOLVE -> {
+                    // Initial hidden state via gsap.set (immediate, outside the
+                    // timeline): the lint rejects a CSS `transform: scale(0)` that a
+                    // GSAP scale tween would overwrite.
+                    appendLine("    gsap.set(\"#$id .hf-transition-cell\", { scale: 0 });")
+                    appendLine(
+                        "    rootTl.to(\"#$id .hf-transition-cell\", { scale: 1, duration: ${number(half)}, " +
+                            "ease: \"power3.out\", stagger: 0.015 }, ${number(time - half)});"
+                    )
+                    appendLine(
+                        "    rootTl.to(\"#$id .hf-transition-cell\", { scale: 0, duration: ${number(half)}, " +
+                            "ease: \"power3.in\", stagger: 0.015 }, ${number(time + 0.02)});"
+                    )
+                }
+                TransitionKind.SHUTTER -> {
+                    // Panels rest OUTSIDE the frame (open shutter). gsap.set (not a
+                    // CSS transform) keeps the lint happy and the frame uncovered
+                    // outside the transition window.
+                    appendLine("    gsap.set(\"#$id .hf-shutter-top\", { yPercent: -100 });")
+                    appendLine("    gsap.set(\"#$id .hf-shutter-bottom\", { yPercent: 100 });")
+                    appendLine(
+                        "    rootTl.to(\"#$id .hf-shutter-top\", { yPercent: 0, duration: ${number(half)}, " +
+                            "ease: \"power3.in\" }, ${number(time - half)});"
+                    )
+                    appendLine(
+                        "    rootTl.to(\"#$id .hf-shutter-bottom\", { yPercent: 0, duration: ${number(half)}, " +
+                            "ease: \"power3.in\" }, ${number(time - half)});"
+                    )
+                    appendLine(
+                        "    rootTl.to(\"#$id .hf-shutter-top\", { yPercent: -100, duration: ${number(half)}, " +
+                            "ease: \"power3.out\" }, ${number(time + 0.02)});"
+                    )
+                    appendLine(
+                        "    rootTl.to(\"#$id .hf-shutter-bottom\", { yPercent: 100, duration: ${number(half)}, " +
+                            "ease: \"power3.out\" }, ${number(time + 0.02)});"
+                    )
+                }
+                TransitionKind.FADE -> {
+                    appendLine(
+                        "    rootTl.fromTo(\"#$id\", { opacity: 0 }, { opacity: 1, duration: ${number(half)}, " +
+                            "ease: \"power2.in\" }, ${number(time - half)});"
+                    )
+                    appendLine(
+                        "    rootTl.to(\"#$id\", { opacity: 0, duration: ${number(half)}, " +
+                            "ease: \"power2.out\" }, ${number(time + 0.02)});"
+                    )
+                }
+            }
+        }
+        appendLine("    window.__timelines[\"root\"] = rootTl;")
         append("  })();")
     }
 
@@ -541,6 +709,8 @@ class HyperframesHtmlProcessor internal constructor(
 
     private companion object {
         const val DEFAULT_SCENE_SECONDS = 5.0
+        const val DEFAULT_TRANSITION_SECONDS = 0.5
+        const val GRID_CELLS = 12
         const val CLOSE_DIV = "</div>"
 
         val CONTENT_OPEN = Regex("""<div id="content"[^>]*>""")
@@ -550,6 +720,11 @@ class HyperframesHtmlProcessor internal constructor(
         val DURATION_ATTR = Regex("""data-duration="([0-9.]+)"""")
         val SCRIPT_TAG = Regex("""<script\b[^>]*>(.*?)</script>""", RegexOption.DOT_MATCHES_ALL)
         val RESERVED_TIMING_ATTR = Regex("""\s+(?:data-track-index|data-start|data-duration|data-end)="[^"]*"""")
+        val CLASS_ATTR = Regex("""class="([^"]*)"""")
+        val ROLE_GRID = Regex("""(?:^|\s)hf-transition-grid(?:\s|$)""")
+        val ROLE_SHUTTER = Regex("""(?:^|\s)hf-transition-shutter(?:\s|$)""")
+        val ROLE_FADE = Regex("""(?:^|\s)hf-transition-fade(?:\s|$)""")
+        val GRID_PALETTE = listOf("#f59e0b", "#38bdf8", "#f8fafc", "#1e293b", "#b45309")
 
         val DESIGN_CSS = """
 :root{--bg:#0f172a;--fg:#f8fafc;--muted:#94a3b8;--accent:#f59e0b;--card:#16213a;--line:#1e293b}
@@ -594,6 +769,14 @@ html,body{width:__W__px;height:__H__px;overflow:hidden;background:var(--bg);
 .hf-code-diff{display:flex;gap:40px;justify-content:center;flex-wrap:wrap}
 .hf-code-diff pre{flex:1;min-width:640px}
 .hf-kw{color:#f59e0b;font-weight:600}
+/* HF-DEMO-QUALITY US-2 v1 — cover transitions (driven by the root timeline) */
+.hf-transition{position:absolute;inset:0;z-index:50;pointer-events:none;overflow:hidden}
+.hf-transition-grid{display:grid;grid-template-columns:repeat(4,1fr);grid-template-rows:repeat(3,1fr)}
+.hf-transition-cell{transform-origin:center center}
+.hf-shutter-top,.hf-shutter-bottom{position:absolute;left:0;width:100%;height:50%;background:var(--bg)}
+.hf-shutter-top{top:0}
+.hf-shutter-bottom{top:50%}
+.hf-transition-fade{background:var(--bg);opacity:0}
 """
     }
 }

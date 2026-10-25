@@ -246,6 +246,98 @@ class HyperframesHtmlProcessorTest {
         assertContains(result, """style="height:100%"""")
     }
 
+    // ──────────────────────────────────────────────
+    // 5. Scene transitions (HF-DEMO-QUALITY US-2 v1)
+    // ──────────────────────────────────────────────
+
+    @Test
+    fun `a grid transition on the outgoing scene emits a cover overlay and root tweens`() {
+        val result = processor.enhance(
+            asciidoctorDocument(
+                """
+                <div class="sect1 hyperframes-composition hf-transition-grid" id="one"><h2 id="s1">One</h2></div>
+                <div class="sect1"><h2 id="s2">Two</h2></div>
+                """.trimIndent()
+            )
+        )
+
+        assertContains(result, """class="hf-transition hf-transition-grid" id="hf-transition-1"""")
+        assertEquals(12, Regex("""class="hf-transition-cell"""").findAll(result).count(),
+            "the grid dissolve covers the frame with 12 cells")
+        assertContains(result, """rootTl.to("#hf-transition-1 .hf-transition-cell"""")
+        assertContains(result, """window.__timelines["root"] = rootTl;""")
+        assertFalse(
+            result.contains("""window.__timelines["root"] = gsap.timeline({ paused: true });"""),
+            "a transition must replace the historical empty root timeline"
+        )
+    }
+
+    @Test
+    fun `shutter and fade roles emit their own overlays`() {
+        val result = processor.enhance(
+            asciidoctorDocument(
+                """
+                <div class="sect1 hyperframes-composition hf-transition-shutter" id="one"><h2 id="s1">One</h2></div>
+                <div class="sect1 hyperframes-composition hf-transition-fade" id="two"><h2 id="s2">Two</h2></div>
+                <div class="sect1"><h2 id="s3">Three</h2></div>
+                """.trimIndent()
+            )
+        )
+
+        assertContains(result, """class="hf-transition hf-transition-shutter" id="hf-transition-1"""")
+        assertContains(result, """class="hf-shutter-top"""")
+        assertContains(result, """class="hf-transition hf-transition-fade" id="hf-transition-2"""")
+        assertContains(result, """gsap.set("#hf-transition-1 .hf-shutter-top", { yPercent: -100 });""")
+        assertContains(result, """rootTl.to("#hf-transition-1 .hf-shutter-top"""")
+        assertContains(result, """rootTl.fromTo("#hf-transition-2"""")
+    }
+
+    @Test
+    fun `a transitioned scene does not fade out before its boundary`() {
+        val result = processor.enhance(
+            asciidoctorDocument(
+                """
+                <div class="sect1 hyperframes-composition hf-transition-grid" id="one"><h2 id="s1">One</h2></div>
+                <div class="sect1"><h2 id="s2">Two</h2></div>
+                """.trimIndent()
+            )
+        )
+
+        assertFalse(
+            result.contains("""t.to("#s1", { opacity: 0"""),
+            "the cover overlay owns the handoff; the scene must stay visible until the boundary"
+        )
+    }
+
+    @Test
+    fun `no transition keeps the historical empty root timeline`() {
+        val result = processor.enhance(
+            asciidoctorDocument(
+                """
+                <div class="sect1"><h2 id="s1">One</h2></div>
+                <div class="sect1"><h2 id="s2">Two</h2></div>
+                """.trimIndent()
+            )
+        )
+
+        assertContains(result, """window.__timelines["root"] = gsap.timeline({ paused: true });""")
+        assertFalse(result.contains("""class="hf-transition hf-transition-"""), "no overlay without a role")
+    }
+
+    @Test
+    fun `a transition on the last scene is ignored`() {
+        val result = processor.enhance(
+            asciidoctorDocument(
+                """
+                <div class="sect1 hyperframes-composition hf-transition-grid" id="one"><h2 id="s1">One</h2></div>
+                """.trimIndent()
+            )
+        )
+
+        assertFalse(result.contains("""class="hf-transition hf-transition-"""), "nothing to transition to")
+        assertContains(result, """window.__timelines["root"] = gsap.timeline({ paused: true });""")
+    }
+
     private fun assertEquals(expected: Int, actual: Int, message: String) {
         kotlin.test.assertEquals(expected, actual, message)
     }

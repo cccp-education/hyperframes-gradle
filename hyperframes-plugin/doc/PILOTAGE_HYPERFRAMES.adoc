@@ -746,3 +746,41 @@ site --> stagiaire : consomme
 * GSAP : https://gsap.com
 * Mémo cadrage : `office/sites/cheroliv.com/jbake/content/blog/2022/0054_memo_cadrage_post.adoc`
 * Architecture détaillée : `doc/HYPERFRAMES_ARCHITECTURE.adoc`
+
+'''
+== Transitions de scène (HF-DEMO-QUALITY US-2 v1)
+
+Le DSL exprime une transition **cover** en ajoutant un rôle à la section
+AsciiDoc de la scène **sortante** :
+
+[source,asciidoc]
+----
+[#intro.hyperframes-composition.hf-transition-grid]
+== Introduction
+
+Contenu de la scène.
+
+[#suite.hyperframes-composition.hf-transition-shutter]
+== Suite
+
+...
+----
+
+[cols="1,3", options="header"]
+|===
+| Rôle | Effet (0,5 s, centré sur la frontière)
+| `hf-transition-grid` | Grille 4 × 3 (12 cellules, 5 couleurs) qui se referme puis s'ouvre.
+| `hf-transition-shutter` | Deux panneaux pleine largeur se ferment au milieu puis s'ouvrent.
+| `hf-transition-fade` | Fondu au fond de la composition (`--bg`) puis retour.
+|===
+
+* La transition est portée par la scène **sortante** ; le rôle de la dernière
+  scène est ignoré (rien après).
+* Le processeur émet un overlay (`#hf-transition-<index>`) **enfant direct** de
+  `#stage` et pilote la transition sur l'unique timeline racine (`rootTl`).
+* La scène sortante **ne fait plus** son fondu de fin historique : l'overlay
+  possède le handoff (elle reste pleine jusqu'à la frontière).
+* Les autres types (`blur-crossfade`, `vertical-push`) exigent un chevauchement
+  de clips et sont l'US suivante (`HF-DEMO-QUALITY US-2b`).
+* Rétro-compatibilité : sans rôle, la composition est inchangée (timeline racine
+  vide historique).

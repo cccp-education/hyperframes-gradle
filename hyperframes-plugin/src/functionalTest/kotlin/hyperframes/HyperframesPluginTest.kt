@@ -630,4 +630,40 @@ class HyperframesPluginTest {
             "no JSON island without domain and without author block"
         )
     }
+
+    @Test
+    fun `generateHyperframesHtml emits a transition overlay for a scene role`() {
+        writeBuildFiles(projectDir)
+
+        val srcDir = projectDir.resolve("src/docs")
+        srcDir.mkdirs()
+        srcDir.resolve("index.adoc").writeText(buildString {
+            appendLine("= Transition demo")
+            appendLine(":hyperframes-width: 1920")
+            appendLine(":hyperframes-height: 1080")
+            appendLine(":hyperframes-fps: 30")
+            appendLine()
+            appendLine("[#one.hyperframes-composition.hf-transition-grid]")
+            appendLine("== One")
+            appendLine()
+            appendLine("First scene.")
+            appendLine()
+            appendLine("[#two.hyperframes-composition]")
+            appendLine("== Two")
+            appendLine()
+            appendLine("Second scene.")
+        })
+
+        val result = GradleRunner.create()
+            .withProjectDir(projectDir)
+            .withPluginClasspath()
+            .withArguments("generateHyperframesHtml", "--info")
+            .build()
+
+        assertTrue(result.task(":generateHyperframesHtml")?.outcome?.toString()?.contains("SUCCESS") == true)
+        val html = projectDir.resolve("build/hyperframes/index.html").readText()
+        assertContains(html, """class="hf-transition hf-transition-grid" id="hf-transition-1"""")
+        assertContains(html, """class="hf-transition-cell"""")
+        assertContains(html, """window.__timelines["root"] = rootTl;""")
+    }
 }
