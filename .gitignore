@@ -11,3 +11,6 @@ out/
 *.webm
 # HF-YOUTUBE-PUBLISH — OAuth 2.0 credentials (never commit)
 youtube.yaml
+
+# OAuth secret downloads (Google Cloud)
+client_secret_*.json
