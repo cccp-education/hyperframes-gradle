@@ -1,6 +1,15 @@
 = Test Coverage Analysis — hyperframes-gradle
 
-_Dernière mise à jour_ : 2026-10-17 (Session 036 — HF-YOUTUBE-PUBLISH US-4 : couverture fonctionnelle TestKit de la tâche de publication)
+_Dernière mise à jour_ : 2026-10-17 (Session 036 — HF-YOUTUBE-PUBLISH US-4 + HF-DEMO-QUALITY US-1/US-2 v1)
+
+== Couverture — 17 octobre 2026 (après session 036, US-2 v1)
+
+.HF-DEMO-QUALITY US-2 v1 — transitions cover dans le DSL
+|===
+| Élément | Nature | Tests
+
+| `HyperframesHtmlProcessor.transitionOf` + `renderTransitionOverlay` + `rootTransitionScript` | rôles `hf-transition-grid`/`-shutter`/`-fade` → overlay enfant de `#stage` + tweens sur la timeline racine ; scène sortante sans fondu pré-frontière ; rétro-compat sans rôle | +5 unit `HyperframesHtmlProcessorTest` (grid 12 cellules, shutter/fade, pas de fondu, historique, rôle dernière scène ignoré) ; +1 FT TestKit (`generateHyperframesHtml` avec `[#one.hyperframes-composition.hf-transition-grid]`) ; +5 BDD `hf_demo_quality_transitions.feature` (`@quality-transition`, steps préfixés)
+|===
 
 == Couverture — 17 octobre 2026 (après session 036)
 

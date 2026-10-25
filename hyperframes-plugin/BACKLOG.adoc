@@ -27,14 +27,18 @@ chorégraphiées, transitions, chrome de plateau, médias PD/CC0. Le DSL du plug
 |===
 | US | Livrable | Statut
 | US-1 | **Démo de référence** : `demo-video/index.html` (5 scènes, 48 s), médias libres de droit (`ATTRIBUTIONS.md`), rendu MP4 validé (lint/validate/inspect/rendu) | ✅ S-036
-| US-2 | **Transitions dans le DSL** : déclarer `grid-dissolve` / `push` / `blur-crossfade` depuis l'AsciiDoc (bloc `transition`) + génération CSS/GSAP + tests unit/BDD | 🟡 À FAIRE
-| US-3 | **Médias dans le DSL** : images (`image::`), BGM/SFX (`audio::` ou attributs docinfo), copie des assets dans `outputDir` + tests | 🟡 À FAIRE
+| US-2 | **Transitions cover dans le DSL** : rôles `hf-transition-grid` / `-shutter` / `-fade` sur la scène sortante → overlay enfant de `#stage` + tweens sur la timeline racine ; rétro-compat totale. 5 unit + 1 fonctionnel + 5 BDD ; dogfooding lint 0/0 / inspect 0 issue. | ✅ S-036 (v1)
+| US-2b | **Transitions à chevauchement** : `blur-crossfade` + `vertical-push` (deux scènes visibles, clips sur pistes chevauchées, entrées décalées) | 🟡 À FAIRE
+| US-3 | **Médias dans le DSL** : images copiées dans `outputDir`, BGM/SFX (bloc `[.hyperframes-audio]`) → `<audio>` enfants de `#stage` + tests | 🟡 À FAIRE
 | US-4 | **Chrome + typographie** : timecode/repères/barre, polices display (League Gothic / IBM Plex Mono) configurables | 🟡 À FAIRE
 | US-5 | **Entrées chorégraphiées par scène** : `gsap.set` au chargement + tweens par scène (fin des apparitions groupées) | 🟡 À FAIRE
 |===
 
 _Preuve de la démo_ : `lint` 0 erreur, `validate` 0 erreur console + 101 éléments
 WCAG AA, `inspect` 0 erreur, MP4 48,0 s / 1920×1080 / 30 fps / H.264+AAC.
+_Preuve du DSL (US-2 v1)_ : consommateur /tmp (4 scènes + grid/shutter/fade) →
+`lint` 0/0, `validate` 0 erreur console + 9 textes WCAG AA, `inspect` 0 issue,
+rendu 25 s ; snapshots de frontière (grille / shutter fermé / fade) conformes.
 Rapport `.agents/sessions/036-hf-youtube-publish-us4-status.adoc` (§ qualité vidéo).
 
 == 🟡 EPIC HF-YOUTUBE-PUBLISH — Déploiement YouTube industrialisé (transverse, S-035)

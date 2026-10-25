@@ -75,6 +75,33 @@ La publication est mise de côté ; le livrable est une **vidéo de référence*
   médias, typographie display ni chrome ; chaque capacité devient une US de
   l'EPIC `HF-DEMO-QUALITY` (BACKLOG).
 
+== HF-DEMO-QUALITY US-2 v1 — transitions cover dans le DSL
+
+Premier portage de la démo vers le plugin (baby-step DDD/TDD/BDD) :
+
+* **DSL** : rôle sur la section **sortante** —
+  `[#intro.hyperframes-composition.hf-transition-grid]` (idem `-shutter`,
+  `-fade`). Asciidoctor préserve les rôles (les attributs custom sont perdus),
+  d'où ce canal. Durée 0,5 s, centrée sur la frontière.
+* **Processor** : `transitionOf` (rôles) → `Boundary` → overlay enfant direct de
+  `#stage` (`#hf-transition-<index>`) + tweens sur l'unique timeline racine
+  (`rootTl`). La scène sortante ne fait **plus** son fondu pré-frontière (le cover
+  possède le handoff). Sans rôle : sortie historique inchangée (timeline racine
+  vide).
+* **Types** : `grid` (12 cellules 4 × 3, 5 couleurs), `shutter` (deux panneaux
+  hors-cadre au repos, fermeture/ouverture), `fade` (dip au fond).
+* **Tests** : 5 unit `HyperframesHtmlProcessorTest` (overlay grid 12 cellules,
+  shutter/fade, scène sans fondu pré-frontière, rétro-compat, rôle dernière
+  scène ignoré) ; 1 fonctionnel TestKit (AsciiDoc `[#one.hyperframes-composition.hf-transition-grid]`
+  → overlay dans `index.html`) ; BDD `hf_demo_quality_transitions.feature`
+  (5 scénarios `@quality-transition`, steps préfixés).
+* **Preuve dogfooding** (consommateur /tmp + `publishToMavenLocal`, 4 scènes) :
+  `lint` **0/0**, `validate` 0 erreur console + 9 textes WCAG AA, `inspect`
+  **0 issue**, rendu 25 s. Snapshots aux frontières : grille visible (10,0 s,
+  moyenne 0,54), shutter fermé (15,0 s, image uniforme), fade (20,0 s, uniforme).
+* **Reste** : US-2b (blur/push = chevauchement de clips), US-3 médias, US-4
+  chrome/typographie, US-5 entrées.
+
 == Vérification
 
 * **Local = Build, Tests = CI** : aucun code source hyperframes modifié

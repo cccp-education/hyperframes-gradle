@@ -25,6 +25,17 @@ console + **101 textes WCAG AA**, `inspect` 0 erreur, MP4 **48,0 s / 1920×1080 
 sait pas encore exprimer transitions/médias/chrome/entrées → EPIC
 `HF-DEMO-QUALITY` US-2→US-5.
 
+**Suite — HF-DEMO-QUALITY US-2 v1 (transitions cover DSL)** : rôles sur la scène
+sortante `hf-transition-grid` / `-shutter` / `-fade` → overlay enfant de `#stage`
++ tweens sur l'unique timeline racine (`rootTl`) ; la scène sortante ne fait plus
+son fondu pré-frontière (le cover possède le handoff) ; sans rôle, composition
+historique inchangée. 5 unit + 1 FT TestKit + 5 scénarios BDD
+`@quality-transition`. Dogfooding /tmp (4 scènes) : lint 0/0, validate 0 erreur
+console + 9 WCAG AA, inspect 0 issue, rendu 25 s ; snapshots de frontière
+(grille à 10,0 s, shutter fermé à 15,0 s, fade à 20,0 s) conformes. Doc
+`doc/PILOTAGE_HYPERFRAMES.adoc` § Transitions. Reste US-2b (blur/push),
+US-3 médias, US-4 chrome, US-5 entrées.
+
 == Session 035 (2026-10-16) — EPIC `HF-YOUTUBE-PUBLISH` : cadrage + US-1 + US-1b + US-2 (transverse)
 
 Déploiement YouTube industrialisé (upload **OAuth 2.0** `videos.insert` + `thumbnails.set`,

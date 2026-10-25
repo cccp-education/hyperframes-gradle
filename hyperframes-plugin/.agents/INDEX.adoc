@@ -2,13 +2,13 @@
 :toc:
 
 _Règles absolues_ : voir `AGENT.adoc`
-_Derniere mise a jour_ : 2026-10-17 (Session 036 — **HF-YOUTUBE-PUBLISH US-4 (BDD parité)** + **HF-DEMO-QUALITY US-1** : `demo-video/` = vidéo de référence 48 s (5 scènes, transitions CSS, médias PD/CC0, audio généré), validée `lint`/`validate`/`inspect` et rendue MP4 1920×1080/30 fps). Cf. `.agents/sessions/036-hf-youtube-publish-us4-status.adoc`.)
+_Derniere mise a jour_ : 2026-10-17 (Session 036 — **HF-YOUTUBE-PUBLISH US-4** + **HF-DEMO-QUALITY US-1/US-2 v1** : `demo-video/` (48 s, médias PD/CC0) + transitions cover dans le DSL (`hf-transition-grid`/`-shutter`/`-fade`, overlay + timeline racine, 5 unit + 1 FT + 5 BDD, dogfooding lint 0/0 / inspect 0 issue). Cf. `.agents/sessions/036-hf-youtube-publish-us4-status.adoc`.)
 _DAG_ : N2 — Plugin Gradle de transformation documentaire AsciiDoc → vidéo MP4
 _Dépendance N2_ : codex-gradle (compileOnly, AsciidoctorJ partagé)
 _Bridge externe_ : HyperFrames CLI via le noyau `VideoEngine` (`node <cliScript> render <dir> --output <mp4>`)
 
-_Dernière session terminée_ : 036 — **HF-YOUTUBE-PUBLISH US-4 (BDD parité) + garde secrets + HF-DEMO-QUALITY US-1 (démo de référence 48 s)**. Rapport `.agents/sessions/036-hf-youtube-publish-us4-status.adoc`.
-_Prochaine session_ : 037 — **HF-DEMO-QUALITY US-2→US-5** (porter transitions, médias, chrome, entrées au DSL) ; sinon US-4 dogfooding réel (accord pilote) ou **EPIC `PUBLISH-ADAPTER-N1`**.
+_Dernière session terminée_ : 036 — **HF-YOUTUBE-PUBLISH US-4 + HF-DEMO-QUALITY US-1 + US-2 v1 (transitions cover DSL)**. Rapport `.agents/sessions/036-hf-youtube-publish-us4-status.adoc`.
+_Prochaine session_ : 037 — **HF-DEMO-QUALITY US-3** (médias : copie des images + bloc audio) ; puis US-2b (blur/push), US-4, US-5. Sinon dogfooding réel / `PUBLISH-ADAPTER-N1`.
 _Version publiée_ : **0.0.9** (Maven Central) + Gradle Plugin Portal (handle `cccp-education`). Catalogue ws **`0.0.99`** (BOM `0.0.99`), noyau **`video-kernel 0.5.0`**.
 
 '''
@@ -60,7 +60,7 @@ _Version publiée_ : **0.0.9** (Maven Central) + Gradle Plugin Portal (handle `c
 | HF-CR4-SUB | **Scènes en sous-compositions** — `data-composition-id` par scène + une piste par scène + timeline propre ré-enregistrée : supprime les 7 warnings `nested_structure_needs_subcomposition` + `timeline_track_too_dense`. | ✅ **TERMINÉ (S-033)** — lint **0/0**, check passed | P2
 | HF-CR4-REL2 | **Release `hyperframes-plugin 0.0.8`** (Central) — DAG MEMPHIS `0.0.98` (bundle `59a780ce`) → hyperframes (bundle `a34abddf`). Contenu : HF-CR4 suite. | ✅ **TERMINÉ (S-034)** | P0
 | HF-YOUTUBE-PUBLISH | **Déploiement YouTube industrialisé** (transverse hyperframes/video-kernel/capsule) — upload automatique OAuth 2.0 (`videos.insert` resumable + `thumbnails.set`) + titre/description/chapitres/hashtags/liens/navigation. N1 `video.kernel.publish` (modèle + port `VideoPublisher` + validation + composition) ↔ N2 adaptateurs. Cadrage `.agents/CADRAGE_EPIC_HF_YOUTUBE_PUBLISH.adoc`. | 🟡 **EN COURS** — US-0 ✅ + US-1 ✅ + US-1b ✅ (noyau publié) + US-2 ✅ (hyperframes) + US-1c ✅ + US-5 ✅ (release `0.0.9`) + US-3a ✅ (capsule) + US-3b ✅ (capsule S-206) + **US-4 BDD ✅ (deux moteurs : hyperframes S-035/S-036, capsule S-207)** ; reste **US-4 dogfooding réel** 🟡 (accord pilote) + EPIC `PUBLISH-ADAPTER-N1` | P1
-| HF-DEMO-QUALITY | **Démo de référence + portage des capacités au DSL** — `demo-video/` (5 scènes, 48 s, transitions CSS, médias PD/CC0, chrome, typographie display) comme cible qualité ; puis porter transitions/médias/chrome/entrées dans `HyperframesHtmlProcessor` avec tests. | 🟡 US-1 ✅ S-036 ; US-2→US-5 🟡 À FAIRE | P1
+| HF-DEMO-QUALITY | **Démo de référence + portage des capacités au DSL** — `demo-video/` (5 scènes, 48 s, transitions CSS, médias PD/CC0, chrome, typographie display) comme cible qualité ; puis porter transitions/médias/chrome/entrées dans `HyperframesHtmlProcessor` avec tests. | 🟡 US-1 ✅ S-036 ; **US-2 v1 ✅ S-036** (rôles grid/shutter/fade, 5 unit + 1 FT + 5 BDD, lint 0/0) ; US-2b→US-5 🟡 | P1
 |===
 
 '''

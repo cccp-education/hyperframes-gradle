@@ -85,13 +85,26 @@ Preuves : `lint` 0 erreur, `validate` 0 erreur console + 101 textes WCAG AA,
 30 fps / H.264+AAC** (audio moyen −28,9 dB). Écart : le DSL du plugin ne sait pas
 encore exprimer transitions/médias/chrome/entrées → EPIC `HF-DEMO-QUALITY` US-2→5.
 
-== Mission Session 037 — HF-DEMO-QUALITY US-2→US-5
+== Fait en session 036 (suite) — HF-DEMO-QUALITY US-2 v1 (transitions cover DSL)
 
-* **US-2 transitions** dans le DSL (bloc `transition` + génération CSS/GSAP).
-* **US-3 médias** dans le DSL (images, BGM/SFX, copie des assets).
-* **US-4 chrome + typographie display** configurables.
-* **US-5 entrées chorégraphiées** par scène (`gsap.set` + tweens).
-* Sinon : US-4 dogfooding réel (accord pilote) ou EPIC `PUBLISH-ADAPTER-N1`.
+Rôles sur la scène **sortante** : `hf-transition-grid` (12 cellules),
+`hf-transition-shutter`, `hf-transition-fade`. `transitionOf` → `Boundary` →
+overlay enfant de `#stage` + tweens sur l'unique timeline racine (`rootTl`) ;
+la scène sortante ne fait plus son fondu pré-frontière. Sans rôle : sortie
+historique inchangée. Tests : 5 unit `HyperframesHtmlProcessorTest`, 1 FT TestKit
+(`[#one.hyperframes-composition.hf-transition-grid]`), 5 scénarios BDD
+`@quality-transition`. Dogfooding /tmp (4 scènes) : lint 0/0, validate 0 erreur
+console + 9 WCAG AA, inspect 0 issue, rendu 25 s, snapshots de frontière
+conformes. Doc DSL : `doc/PILOTAGE_HYPERFRAMES.adoc` § Transitions.
+
+== Mission Session 037 — HF-DEMO-QUALITY US-3 (médias)
+
+* **US-3 médias** : copier les images référencées dans `outputDir` (préserver
+  les chemins relatifs) ; bloc `[.hyperframes-audio]` (BGM + SFX) → `<audio>`
+  enfants directs de `#stage` ; tests unit/FT/BDD ; dogfooding lint/inspect.
+* **US-2b** : `blur-crossfade` + `vertical-push` (chevauchement de clips).
+* **US-4 chrome + typographie display** ; **US-5 entrées chorégraphiées**.
+* Sinon : dogfooding réel (accord pilote) ou EPIC `PUBLISH-ADAPTER-N1`.
 
 == Points d'attention
 
