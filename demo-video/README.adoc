@@ -65,13 +65,15 @@ Le processeur du plugin (`HyperframesHtmlProcessor`) sait aujourd'hui produire :
 * un design system de base ;
 * **des transitions cover** : `hf-transition-grid` (grid dissolve),
   `hf-transition-shutter` et `hf-transition-fade`, déclarées en rôle sur la
-  scène sortante (US-2 v1, voir `doc/PILOTAGE_HYPERFRAMES.adoc` § Transitions).
+  scène sortante (US-2 v1, voir `doc/PILOTAGE_HYPERFRAMES.adoc` § Transitions) ;
+* **des médias** : les `<img src>` relatifs sont copiés de `inputDir` vers
+  `outputDir` (chemins préservés) et le bloc `[.hyperframes-audio]` émet des
+  `<audio>` enfants directs de `#stage` (BGM + SFX, US-3).
 
 Il **ne sait pas encore** exprimer :
 
 * les transitions **blur-crossfade** et **vertical-push** (chevauchement de
   clips, US-2b) ;
-* les **médias** (images copiées, BGM, SFX) déclarés dans le document (US-3) ;
 * la **typographie display** et le chrome de plateau (timecode, repères) (US-4) ;
 * les entrées chorégraphiées par scène (`gsap.set` + tweens) (US-5).
 

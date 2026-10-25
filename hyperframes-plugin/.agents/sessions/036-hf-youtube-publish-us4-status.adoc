@@ -102,6 +102,25 @@ Premier portage de la démo vers le plugin (baby-step DDD/TDD/BDD) :
 * **Reste** : US-2b (blur/push = chevauchement de clips), US-3 médias, US-4
   chrome/typographie, US-5 entrées.
 
+== HF-DEMO-QUALITY US-3 — médias référencés (images + audio)
+
+* **Copie d'assets** : `ReferencedAssets` (objet pur) extrait les `src` relatifs
+  des `<img>`/`<audio>` et les copie de `inputDir` vers `outputDir` (chemins
+  préservés ; `http(s):`/`data:`/absolus ignorés ; fichier manquant ou traversée
+  ignorés sans échec). `generateHyperframesHtml` copie après écriture du HTML.
+* **Audio DSL** : bloc `[.hyperframes-audio]` —
+  `bgm: <fichier> [volume=]` (départ 0, borné à la durée totale) et
+  `sfx: <secondes> <fichier> [volume=]` → `<audio>` **enfants directs** de
+  `#stage` ; le bloc est retiré du contenu de scène ; lignes invalides ignorées.
+* **Tests** : 3 unit `ReferencedAssetsTest` (extraction, copie, traversée) +
+  3 unit processor (2 cues, lignes invalides, absence) + 1 FT TestKit (image +
+  audio copiés) + 3 BDD `@quality-media` (steps préfixés).
+* **Dogfooding** (/tmp, 2 scènes + image hexagone + BGM + scan) : assets copiés
+  (`hexagon.webp`, `assets/bgm.mp3`, `assets/scan.ogg`), `lint` **0/0**,
+  `validate` 0 erreur console + 7 WCAG AA, `inspect` **0 issue**, rendu 15 s
+  H.264+AAC (audio −29,4 dB moyen / −12,9 dB max).
+* **Reste** : US-2b (blur/push), US-4 chrome/typographie, US-5 entrées.
+
 == Vérification
 
 * **Local = Build, Tests = CI** : aucun code source hyperframes modifié

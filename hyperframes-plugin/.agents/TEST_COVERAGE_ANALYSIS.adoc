@@ -1,6 +1,17 @@
 = Test Coverage Analysis — hyperframes-gradle
 
-_Dernière mise à jour_ : 2026-10-17 (Session 036 — HF-YOUTUBE-PUBLISH US-4 + HF-DEMO-QUALITY US-1/US-2 v1)
+_Dernière mise à jour_ : 2026-10-17 (Session 036 — HF-YOUTUBE-PUBLISH US-4 + HF-DEMO-QUALITY US-1/US-2 v1/US-3)
+
+== Couverture — 17 octobre 2026 (après session 036, US-3)
+
+.HF-DEMO-QUALITY US-3 — médias référencés (images + audio)
+|===
+| Élément | Nature | Tests
+
+| `ReferencedAssets.kt` (créé) | extraction des `src` relatifs `<img>`/`<audio>` + copie `inputDir → outputDir` (chemins préservés, http/data/absolus et traversée ignorés) | +3 unit `ReferencedAssetsTest` (extraction distincte, copie byte-identique, missing/traversée)
+| `GenerateHyperframesHtmlTask` | copie les assets après écriture du HTML | +1 FT TestKit (image + audio copiés sous `build/hyperframes/`)
+| `HyperframesHtmlProcessor` audio | bloc `[.hyperframes-audio]` → `<audio>` directs de `#stage` (BGM borné à la durée, SFX au temps donné, volume optionnel, lignes invalides ignorées) | +3 unit processor ; +3 BDD `hf_demo_quality_media.feature` (`@quality-media`, steps préfixés)
+|===
 
 == Couverture — 17 octobre 2026 (après session 036, US-2 v1)
 

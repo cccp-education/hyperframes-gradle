@@ -97,11 +97,20 @@ historique inchangée. Tests : 5 unit `HyperframesHtmlProcessorTest`, 1 FT TestK
 console + 9 WCAG AA, inspect 0 issue, rendu 25 s, snapshots de frontière
 conformes. Doc DSL : `doc/PILOTAGE_HYPERFRAMES.adoc` § Transitions.
 
-== Mission Session 037 — HF-DEMO-QUALITY US-3 (médias)
+== Fait en session 036 (suite) — HF-DEMO-QUALITY US-3 (médias DSL)
 
-* **US-3 médias** : copier les images référencées dans `outputDir` (préserver
-  les chemins relatifs) ; bloc `[.hyperframes-audio]` (BGM + SFX) → `<audio>`
-  enfants directs de `#stage` ; tests unit/FT/BDD ; dogfooding lint/inspect.
+`ReferencedAssets` (objet pur) extrait les `src` relatifs de `<img>`/`<audio>` et
+les copie de `inputDir` vers `outputDir` (chemins préservés ; http/data/absolus
+ignorés ; fichier manquant ou traversée ignorés sans échec). `generateHyperframesHtml`
+appelle la copie après écriture du HTML. Bloc `[.hyperframes-audio]` :
+`bgm: <file> [volume=]` (start 0, borné à la durée totale) et
+`sfx: <secondes> <file> [volume=]` → `<audio>` **enfants directs** de `#stage`.
+Tests : 3 unit `ReferencedAssetsTest` + 3 unit processor + 1 FT TestKit (image +
+audio copiés) + 3 BDD `@quality-media`. Dogfooding /tmp : assets copiés, lint 0/0,
+validate 0 erreur console, inspect 0 issue, rendu 15 s avec audio (−29,4 dB moyen).
+
+== Mission Session 037 — HF-DEMO-QUALITY US-2b / US-4 / US-5
+
 * **US-2b** : `blur-crossfade` + `vertical-push` (chevauchement de clips).
 * **US-4 chrome + typographie display** ; **US-5 entrées chorégraphiées**.
 * Sinon : dogfooding réel (accord pilote) ou EPIC `PUBLISH-ADAPTER-N1`.

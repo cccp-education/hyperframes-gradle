@@ -36,6 +36,17 @@ console + 9 WCAG AA, inspect 0 issue, rendu 25 s ; snapshots de frontière
 `doc/PILOTAGE_HYPERFRAMES.adoc` § Transitions. Reste US-2b (blur/push),
 US-3 médias, US-4 chrome, US-5 entrées.
 
+**Suite — HF-DEMO-QUALITY US-3 (médias référencés)** : `ReferencedAssets` copie
+les `<img src>`/`<audio src>` relatifs de `inputDir` vers `outputDir` (chemins
+préservés, traversée/missing ignorés) ; `generateHyperframesHtml` l'appelle après
+écriture. Bloc `[.hyperframes-audio]` : `bgm:` (départ 0, borné à la durée totale)
+et `sfx: <s> <file>` → `<audio>` enfants directs de `#stage` (volume optionnel,
+lignes invalides ignorées). 3 unit `ReferencedAssetsTest` + 3 unit processor +
+1 FT TestKit + 3 BDD `@quality-media`. Dogfooding /tmp (image + BGM + scan) :
+assets copiés, lint 0/0, validate 0 erreur console + 7 WCAG AA, inspect 0 issue,
+rendu 15 s H.264+AAC (−29,4 dB moyen). Doc `doc/PILOTAGE_HYPERFRAMES.adoc`
+§ Médias. Reste US-2b, US-4, US-5.
+
 == Session 035 (2026-10-16) — EPIC `HF-YOUTUBE-PUBLISH` : cadrage + US-1 + US-1b + US-2 (transverse)
 
 Déploiement YouTube industrialisé (upload **OAuth 2.0** `videos.insert` + `thumbnails.set`,

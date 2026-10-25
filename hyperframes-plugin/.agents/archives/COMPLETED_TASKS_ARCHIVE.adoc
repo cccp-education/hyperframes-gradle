@@ -14,9 +14,11 @@
   `inspect` verts, rendu MP4 1920×1080/30 fps.
 * [x] **HF-DEMO-QUALITY US-2 v1** : transitions cover DSL (`hf-transition-grid` /
   `-shutter` / `-fade`), 5 unit + 1 FT + 5 BDD, dogfooding lint 0/0 / inspect 0 issue.
+* [x] **HF-DEMO-QUALITY US-3** : `ReferencedAssets` (copie images/audio) + bloc
+  `[.hyperframes-audio]` (BGM/SFX → `<audio>` directs), 6 unit + 1 FT + 3 BDD.
 * [ ] US-4b dogfooding réel (accord pilote explicite).
 * [ ] EPIC `PUBLISH-ADAPTER-N1` (module partagé).
-* [ ] HF-DEMO-QUALITY US-2b→US-5 (blur/push, médias, chrome, entrées).
+* [ ] HF-DEMO-QUALITY US-2b/US-4/US-5 (blur/push, chrome, entrées).
 
 == Session 035 (2026-10-16) — EPIC `HF-YOUTUBE-PUBLISH` : cadrage + US-1 + US-1b + US-2 ✅
 
