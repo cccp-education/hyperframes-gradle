@@ -120,7 +120,14 @@ abstract class GenerateHyperframesHtmlTask : DefaultTask() {
             // `non_deterministic_code`).
             outputFile.resolve(GsapLibrary.FILE_NAME).writeText(GsapLibrary.source)
 
+            // US-3 — the composition references images/audio with relative paths;
+            // copy them next to index.html so the CLI resolves real files.
+            val copiedAssets = ReferencedAssets.copy(enhancedHtml, inputFile, outputFile)
+
             logger.lifecycle("HyperFrames HTML generated: ${generatedHtml.absolutePath}")
+            if (copiedAssets.isNotEmpty()) {
+                logger.lifecycle("   Copied ${copiedAssets.size} referenced asset(s) next to the composition")
+            }
             logger.info("   Enhanced with HyperFrames data-* attributes (HF-3)")
         } finally {
             asciidoctor.shutdown()

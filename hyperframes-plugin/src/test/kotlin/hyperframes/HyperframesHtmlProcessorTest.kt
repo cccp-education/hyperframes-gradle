@@ -338,6 +338,58 @@ class HyperframesHtmlProcessorTest {
         assertContains(result, """window.__timelines["root"] = gsap.timeline({ paused: true });""")
     }
 
+    // ──────────────────────────────────────────────
+    // 6. Audio cues (HF-DEMO-QUALITY US-3)
+    // ──────────────────────────────────────────────
+
+    @Test
+    fun `an audio block emits direct audio children with start and volume`() {
+        val result = processor.enhance(
+            asciidoctorDocument(
+                """
+                <div class="sect1"><h2 id="a">A</h2>
+                <div class="listingblock hyperframes-audio"><div class="content"><pre>bgm: assets/audio/bgm.mp3 volume=0.3
+                sfx: 6.0 assets/audio/whoosh.mp3 volume=0.25</pre></div></div>
+                </div>
+                """.trimIndent()
+            )
+        )
+
+        assertContains(result, """<audio id="hf-audio-0" src="assets/audio/bgm.mp3" """)
+        assertContains(result, """data-start="0" data-duration="10"""")
+        assertContains(result, """data-track-index="90" data-volume="0.3"""")
+        assertContains(result, """<audio id="hf-audio-1" src="assets/audio/whoosh.mp3" """)
+        assertContains(result, """data-start="6" """)
+        assertContains(result, """data-volume="0.25"""")
+        assertFalse(
+            result.contains("listingblock hyperframes-audio"),
+            "the audio block must be removed from the scene content"
+        )
+    }
+
+    @Test
+    fun `an invalid audio line is skipped and an empty block emits nothing`() {
+        val result = processor.enhance(
+            asciidoctorDocument(
+                """
+                <div class="sect1"><h2 id="a">A</h2>
+                <div class="listingblock hyperframes-audio"><div class="content"><pre>bad: nope
+                sfx: not-a-time file.mp3</pre></div></div>
+                </div>
+                """.trimIndent()
+            )
+        )
+
+        assertFalse(result.contains("""<audio"""), "no cue must be emitted from invalid lines")
+    }
+
+    @Test
+    fun `a document without an audio block emits no audio element`() {
+        val result = processor.enhance(asciidoctorDocument("""<div class="sect1"><h2 id="a">A</h2></div>"""))
+
+        assertFalse(result.contains("""<audio"""), "no audio by default")
+    }
+
     private fun assertEquals(expected: Int, actual: Int, message: String) {
         kotlin.test.assertEquals(expected, actual, message)
     }

@@ -784,3 +784,32 @@ Contenu de la scène.
   de clips et sont l'US suivante (`HF-DEMO-QUALITY US-2b`).
 * Rétro-compatibilité : sans rôle, la composition est inchangée (timeline racine
   vide historique).
+
+'''
+== Médias référencés (HF-DEMO-QUALITY US-3)
+
+=== Images
+
+Un `image::logo.png[]` (ou tout `<img src="…">` relatif) est **copié** par
+`generateHyperframesHtml` de `inputDir` vers `outputDir`, en préservant le chemin
+relatif (`images/logo.png` → `images/logo.png`). Les URLs `http(s):`, `data:` et
+les chemins absolus sont ignorés ; un fichier manquant ou hors de `inputDir`
+(traversée) est ignoré sans faire échouer le build.
+
+=== Audio
+
+[source,asciidoc]
+----
+[.hyperframes-audio]
+----
+bgm: assets/audio/bgm.mp3 volume=0.35
+sfx: 2.0 assets/audio/whoosh.mp3 volume=0.2
+----
+----
+
+* `bgm:` démarre à 0 et est borné à la durée totale de la composition ;
+* `sfx: <secondes> <fichier>` place l'effet au temps donné ;
+* `volume=` optionnel (défaut `0.2`) ;
+* les `<audio>` émis sont des **enfants directs** de `#stage` (le runtime ne
+  pilote que ceux-là) et les fichiers sont copiés comme les images ;
+* les lignes invalides sont ignorées (une coquille ne casse pas le build).

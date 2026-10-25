@@ -666,4 +666,51 @@ class HyperframesPluginTest {
         assertContains(html, """class="hf-transition-cell"""")
         assertContains(html, """window.__timelines["root"] = rootTl;""")
     }
+
+    @Test
+    fun `generateHyperframesHtml copies referenced assets and emits audio cues`() {
+        writeBuildFiles(projectDir)
+
+        val srcDir = projectDir.resolve("src/docs")
+        srcDir.mkdirs()
+        srcDir.resolve("logo.png").writeBytes(byteArrayOf(1, 2, 3, 4))
+        srcDir.resolve("assets").mkdirs()
+        srcDir.resolve("assets/tone.mp3").writeBytes(byteArrayOf(5, 6, 7))
+        srcDir.resolve("index.adoc").writeText(buildString {
+            appendLine("= Media demo")
+            appendLine(":hyperframes-width: 1920")
+            appendLine(":hyperframes-height: 1080")
+            appendLine(":hyperframes-fps: 30")
+            appendLine()
+            appendLine("[#one.hyperframes-composition]")
+            appendLine("== One")
+            appendLine()
+            appendLine("[.hyperframes-audio]")
+            appendLine("----")
+            appendLine("bgm: assets/tone.mp3 volume=0.2")
+            appendLine("----")
+            appendLine()
+            appendLine("image::logo.png[]")
+        })
+
+        val result = GradleRunner.create()
+            .withProjectDir(projectDir)
+            .withPluginClasspath()
+            .withArguments("generateHyperframesHtml", "--info")
+            .build()
+
+        assertTrue(result.task(":generateHyperframesHtml")?.outcome?.toString()?.contains("SUCCESS") == true)
+        val html = projectDir.resolve("build/hyperframes/index.html").readText()
+        assertContains(html, """<audio""")
+        assertContains(html, """src="assets/tone.mp3"""")
+        assertContains(html, """src="logo.png"""")
+        assertTrue(
+            projectDir.resolve("build/hyperframes/logo.png").exists(),
+            "the referenced image must be copied next to the composition"
+        )
+        assertTrue(
+            projectDir.resolve("build/hyperframes/assets/tone.mp3").exists(),
+            "the referenced audio must be copied next to the composition"
+        )
+    }
 }

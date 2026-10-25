@@ -77,15 +77,17 @@ class HyperframesHtmlProcessor internal constructor(
     fun enhance(html: String): String {
         val inlineDictionary = extractInlineHints(html)
         val blockDictionary = PronunciationDictionary()
+        val audioCues = mutableListOf<AudioCue>()
         val expanded = html
             .let { expandTitleCardBlocks(it) }
             .let { expandCodeDiffBlocks(it) }
             .let { expandDataChartBlocks(it) }
             .let { expandKineticCaptionsBlocks(it) }
             .let { expandPronunciationBlocks(it, blockDictionary) }
+            .let { expandAudioBlocks(it, audioCues) }
             .let { stripInlineHintsFromTracks(it) }
             .let { enhanceAnimationBlocks(it) }
-        val composition = buildComposition(expanded)
+        val composition = buildComposition(expanded, audioCues)
         return injectPronunciationIsland(composition, blockDictionary, inlineDictionary)
     }
 
@@ -121,7 +123,15 @@ class HyperframesHtmlProcessor internal constructor(
         val transition: Transition
     )
 
-    private fun buildComposition(html: String): String {
+    /** A BGM/SFX cue declared by an `[.hyperframes-audio]` block (US-3). */
+    private data class AudioCue(
+        val file: String,
+        val start: Double,
+        val volume: Double,
+        val kind: String
+    )
+
+    private fun buildComposition(html: String, audioCues: List<AudioCue> = emptyList()): String {
         val contentInner = extractContentInner(html) ?: html
         val headerTitle = extractHeaderTitle(html)
 
@@ -170,6 +180,7 @@ class HyperframesHtmlProcessor internal constructor(
             )
         }
         val transitionsHtml = boundaries.joinToString("\n") { renderTransitionOverlay(it) }
+        val audioHtml = renderAudio(audioCues, total)
         // HF-CR4-suite — every scene is a **sub-composition host**: it carries
         // `data-composition-id`, so the CLI no longer flags it as a nested timeline
         // element (`nested_structure_needs_subcomposition`) and the runtime
@@ -197,6 +208,9 @@ class HyperframesHtmlProcessor internal constructor(
                     "data-duration=\"${number(total)}\" data-width=\"$width\" data-height=\"$height\" " +
                     "data-fps=\"$fps\" data-output=\"${outputName}.mp4\">"
             )
+            if (audioHtml.isNotBlank()) {
+                appendLine(audioHtml)
+            }
             appendLine(scenesHtml)
             if (transitionsHtml.isNotBlank()) {
                 appendLine(transitionsHtml)
@@ -386,6 +400,76 @@ class HyperframesHtmlProcessor internal constructor(
         appendLine("    window.__timelines[\"root\"] = rootTl;")
         append("  })();")
     }
+
+    // ──────────────────────────────────────────────────────────────────────
+    // Audio cues (HF-DEMO-QUALITY US-3)
+    // ──────────────────────────────────────────────────────────────────────
+
+    /**
+     * Extracts `[.hyperframes-audio]` listing blocks and removes them from the
+     * document body.
+     *
+     * DSL (one cue per line):
+     *
+     * ```
+     * [.hyperframes-audio]
+     * ----
+     * bgm: assets/audio/bgm.mp3 volume=0.2
+     * sfx: 6.0 assets/audio/whoosh.mp3 volume=0.25
+     * ----
+     * ```
+     *
+     * Lines starting with `#` and blank lines are ignored. An invalid cue is
+     * skipped (defensive: a typo never breaks the build).
+     */
+    private fun expandAudioBlocks(html: String, cues: MutableList<AudioCue>): String {
+        val block = Regex(
+            """<div[^>]*class="[^"]*hyperframes-audio[^"]*"[^>]*>\s*<div class="content">\s*<pre>(.*?)</pre>\s*</div>\s*</div>""",
+            RegexOption.DOT_MATCHES_ALL
+        )
+        return block.replace(html) { match ->
+            match.groupValues[1].lineSequence().forEach { line ->
+                parseAudioCue(line)?.let(cues::add)
+            }
+            ""
+        }
+    }
+
+    private fun parseAudioCue(line: String): AudioCue? {
+        val trimmed = line.trim()
+        if (trimmed.isEmpty() || trimmed.startsWith("#")) return null
+        val kind = when {
+            trimmed.startsWith("bgm:") -> "bgm"
+            trimmed.startsWith("sfx:") -> "sfx"
+            else -> return null
+        }
+        val tokens = trimmed.substringAfter(':').trim().split(Regex("""\s+"""))
+        val volume = tokens.firstOrNull { it.startsWith("volume=") }
+            ?.substringAfter('=')?.toDoubleOrNull() ?: AUDIO_DEFAULT_VOLUME
+        val args = tokens.filterNot { it.startsWith("volume=") }
+        return if (kind == "bgm") {
+            val file = args.firstOrNull() ?: return null
+            AudioCue(file, 0.0, volume, kind)
+        } else {
+            val start = args.getOrNull(0)?.toDoubleOrNull() ?: return null
+            val file = args.getOrNull(1) ?: return null
+            AudioCue(file, start, volume, kind)
+        }
+    }
+
+    /**
+     * Emits one `<audio>` per cue as a DIRECT child of `#stage` (the runtime only
+     * drives direct root children). BGM is bounded to the composition duration;
+     * SFX use their intrinsic length.
+     */
+    private fun renderAudio(cues: List<AudioCue>, total: Double): String =
+        cues.mapIndexed { index, cue ->
+            val duration = if (cue.kind == "bgm") " data-duration=\"${number(total)}\"" else ""
+            "<audio id=\"hf-audio-$index\" src=\"${escapeText(cue.file)}\" " +
+                "data-start=\"${number(cue.start)}\"$duration " +
+                "data-track-index=\"${AUDIO_TRACK_INDEX + index}\" " +
+                "data-volume=\"${number(cue.volume)}\"></audio>"
+        }.joinToString("\n")
 
     // ──────────────────────────────────────────────────────────────────────
     // HTML structural helpers
@@ -711,6 +795,8 @@ class HyperframesHtmlProcessor internal constructor(
         const val DEFAULT_SCENE_SECONDS = 5.0
         const val DEFAULT_TRANSITION_SECONDS = 0.5
         const val GRID_CELLS = 12
+        const val AUDIO_DEFAULT_VOLUME = 0.2
+        const val AUDIO_TRACK_INDEX = 90
         const val CLOSE_DIV = "</div>"
 
         val CONTENT_OPEN = Regex("""<div id="content"[^>]*>""")
