@@ -1,0 +1,75 @@
+= Demo video — « Un document. Une vidéo. »
+:toc:
+
+Référence de **qualité de contenu, d'animation et de transition** pour la sortie
+HyperFrames du borough (AsciiDoc → vidéo). Composition HyperFrames autonome
+(vidéo explicative 48 s, 1920 × 1080, 30 fps), enrichie de médias libres de droit.
+
+_Ce dossier n'est pas produit par le plugin Gradle_ : c'est la **cible qualité**
+(voir « Écart avec le DSL Gradle » plus bas). Il se rend avec la CLI HyperFrames.
+
+== Rendu
+
+[source,shell]
+----
+cd demo-video
+npx hyperframes lint
+npx hyperframes validate          # alias historique de `check`
+npx hyperframes inspect
+npx hyperframes render . --quality delivery -o out/hyperframes-demo.mp4
+----
+
+Sortie locale : `out/hyperframes-demo.mp4` (gitignoré). Prérequis : Node.js,
+`hyperframes` (CLI), `ffprobe`, Chrome headless.
+
+== Direction artistique
+
+* **Angle** : un laboratoire de cinéma technique — le document devient signal.
+* **Palette** : fond `#0c0f12`, encre `#ece7db`, accent ambre `#e2a03f`
+  (lampe de projecteur, chaleur), secondaire menthe `#7fb8a4`.
+* **Typographie** : *League Gothic* (display condensé, 400) + *IBM Plex Mono*
+  (métadonnées, code). Contraste industriel / technique, sans paire de sans-serif.
+* **Densité** : 8 à 10 éléments par scène — grille, halo, grain, chrome de plateau
+  (timecode, repères de cadre, barre supérieure), contenu, détails mono.
+
+== Structure (48 s, 5 scènes)
+
+[cols="1,1,3,2", options="header"]
+|===
+| Temps | Scène | Contenu | Transition de sortie
+
+| 0–6 s | 01 Hook | « Un document. Une vidéo. » — typographie cinétique | **grid dissolve** (4 × 3 cellules, rideau centre→bords)
+| 6–18 s | 02 Chaîne | AsciiDoc → HTML → CLI → MP4, rail + signal animé, panneau fibre | **blur crossfade** 10 px
+| 18–30 s | 03 DSL | extrait AsciiDoc (`composition` + `animation`), timeline GSAP, aperçu de rendu | **vertical push**
+| 30–40 s | 04 Qualité | 1920×1080 · 30 fps · 0 réseau · reproductible, barres de données | **blur crossfade** 12 px
+| 40–48 s | 05 Fin | AsciiDoc → MP4 + liens cccp.education / talaria.school / cheroliv.com | fondu final
+|===
+
+Les transitions sont **CSS** (pas de package shader) : la scène sortante reste
+visible jusqu'au handoff, les entrées sont explicites (`gsap.set` au chargement,
+puis tweens), et la timeline est unique et *seekable*.
+
+== Médias libres de droit
+
+Trois images **domaine public / CC0** (fibre NASA, datacenter NREL, hexagone CC0),
+huit icônes **Lucide (ISC)**, un effet **domaine public** et une bande sonore
+**générée localement** (aucun droit tiers). Licences et sources :
+`ATTRIBUTIONS.md`.
+
+== Écart avec le DSL Gradle (prochain chantier)
+
+Le processeur du plugin (`HyperframesHtmlProcessor`) sait aujourd'hui produire :
+
+* des scènes à partir des sections AsciiDoc ;
+* des timelines GSAP à partir des blocs `[.hyperframes-animation]` ;
+* un design system de base.
+
+Il **ne sait pas** exprimer :
+
+* les **transitions** entre scènes (grid dissolve, push, blur) ;
+* les **médias** (images, BGM, SFX) déclarés dans le document ;
+* la **typographie display** et le chrome de plateau (timecode, repères) ;
+* les entrées chorégraphiées par scène (`gsap.set` + tweens).
+
+Cette démo sert de **référence** : chaque capacité ci-dessus est un candidat
+d'US pour le DSL (`HF-DEMO-QUALITY`), avec tests unit/BDD côté plugin.

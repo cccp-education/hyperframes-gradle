@@ -1,0 +1,918 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1920, height=1080" />
+    <title>HyperFrames Gradle — Un document. Une vidéo.</title>
+    <style>
+      :root {
+        --bg: #0c0f12;
+        --panel: #12171b;
+        --panel-2: #171d22;
+        --fg: #ece7db;
+        --muted: #a6b0b5;
+        --accent: #e2a03f;
+        --accent-2: #7fb8a4;
+        --line: rgba(236, 231, 219, 0.14);
+        --line-strong: rgba(236, 231, 219, 0.28);
+      }
+      * { box-sizing: border-box; }
+      html, body { margin: 0; padding: 0; background: #000; }
+      body {
+        width: 1920px;
+        height: 1080px;
+        overflow: hidden;
+        color: var(--fg);
+        font-family: "IBM Plex Mono", monospace;
+      }
+      #root {
+        position: relative;
+        width: 1920px;
+        height: 1080px;
+        overflow: hidden;
+        background: var(--bg);
+      }
+      .scene {
+        position: absolute;
+        inset: 0;
+        width: 1920px;
+        height: 1080px;
+        overflow: hidden;
+        background: var(--bg);
+      }
+      #s1 { z-index: 1; }
+      #s2 { z-index: 2; opacity: 0; }
+      #s3 { z-index: 3; opacity: 0; }
+      #s4 { z-index: 4; opacity: 0; }
+      #s5 { z-index: 5; opacity: 0; }
+
+      .bg-fill { position: absolute; inset: 0; background-color: var(--bg); }
+      .bg-img {
+        position: absolute;
+        inset: -60px;
+        background-size: cover;
+        background-position: center;
+        opacity: 0.55;
+      }
+      .scrim {
+        position: absolute;
+        inset: 0;
+        background:
+          radial-gradient(1200px 900px at 18% 30%, rgba(226, 160, 63, 0.16) 0%, rgba(226, 160, 63, 0) 62%),
+          linear-gradient(90deg, rgba(12, 15, 18, 0.96) 0%, rgba(12, 15, 18, 0.78) 48%, rgba(12, 15, 18, 0.35) 100%);
+      }
+      .grid {
+        position: absolute;
+        inset: 0;
+        background-image:
+          linear-gradient(to right, rgba(236, 231, 219, 0.055) 1px, transparent 1px),
+          linear-gradient(to bottom, rgba(236, 231, 219, 0.055) 1px, transparent 1px);
+        background-size: 120px 120px;
+      }
+      .grain {
+        position: absolute;
+        inset: 0;
+        opacity: 0.06;
+        background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/></filter><rect width='160' height='160' filter='url(%23n)'/></svg>");
+      }
+      .glow {
+        position: absolute;
+        width: 1100px;
+        height: 1100px;
+        border-radius: 50%;
+        background: radial-gradient(
+          circle,
+          rgba(226, 160, 63, 0.22) 0%,
+          rgba(226, 160, 63, 0.09) 34%,
+          rgba(226, 160, 63, 0) 68%
+        );
+      }
+
+      /* shared chrome */
+      .marks span {
+        position: absolute;
+        width: 34px;
+        height: 34px;
+        border: 2px solid var(--line-strong);
+      }
+      .marks span:nth-child(1) { left: 34px; top: 34px; border-right: 0; border-bottom: 0; }
+      .marks span:nth-child(2) { right: 34px; top: 34px; border-left: 0; border-bottom: 0; }
+      .marks span:nth-child(3) { left: 34px; bottom: 34px; border-right: 0; border-top: 0; }
+      .marks span:nth-child(4) { right: 34px; bottom: 34px; border-left: 0; border-top: 0; }
+
+      .topbar {
+        position: absolute;
+        top: 38px;
+        left: 88px;
+        right: 88px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 9px 14px;
+        font-size: 19px;
+        letter-spacing: 0.22em;
+        color: #c9d1d4;
+        background: rgba(9, 12, 14, 0.9);
+        border: 1px solid var(--line);
+      }
+      .topbar .tc { color: var(--accent); }
+      .topbar .tag::before {
+        content: "";
+        display: inline-block;
+        width: 9px;
+        height: 9px;
+        margin-right: 12px;
+        background: var(--accent-2);
+        border-radius: 50%;
+        vertical-align: 1px;
+      }
+
+      .kicker {
+        display: block;
+        font-size: 21px;
+        letter-spacing: 0.34em;
+        color: var(--accent);
+        margin-bottom: 28px;
+      }
+      .display {
+        font-family: "League Gothic", sans-serif;
+        font-weight: 400;
+        letter-spacing: -0.015em;
+        line-height: 0.86;
+        margin: 0;
+        text-transform: uppercase;
+      }
+
+      .s1-content {
+        position: absolute;
+        left: 120px;
+        top: 268px;
+        width: 1380px;
+      }
+      .s1-content .display { font-size: 196px; }
+      .s1-content .l1 { display: block; color: var(--accent); }
+      .s1-content .l2 { display: block; color: var(--fg); }
+      .s1-rule {
+        display: block;
+        width: 420px;
+        height: 4px;
+        margin: 34px 0 26px;
+        background: var(--accent);
+        transform-origin: left center;
+      }
+      .s1-sub {
+        font-size: 30px;
+        letter-spacing: 0.06em;
+        color: var(--muted);
+      }
+      .s1-sub b { color: var(--fg); font-weight: 700; }
+      .s1-meta {
+        position: absolute;
+        left: 120px;
+        right: 120px;
+        bottom: 74px;
+        display: flex;
+        gap: 74px;
+      }
+      .meta-col { display: flex; flex-direction: column; gap: 8px; }
+      .meta-col .lbl { font-size: 16px; letter-spacing: 0.28em; color: var(--muted); }
+      .meta-col .val { font-size: 21px; letter-spacing: 0.08em; color: var(--fg); }
+      .s1-scan {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 3px;
+        height: 1080px;
+        background: var(--accent);
+        opacity: 0.25;
+      }
+      .deco-line {
+        position: absolute;
+        left: 96px;
+        right: 96px;
+        height: 2px;
+        background: var(--line);
+        transform-origin: left center;
+      }
+
+      /* scene 2 */
+      #s2 .media {
+        position: absolute;
+        right: 0;
+        top: 0;
+        width: 700px;
+        height: 1080px;
+        overflow: hidden;
+      }
+      #s2 .media img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        opacity: 0.62;
+      }
+      #s2 .media-scrim {
+        position: absolute;
+        inset: 0;
+        background:
+          linear-gradient(90deg, var(--bg) 0%, rgba(12, 15, 18, 0.55) 34%, rgba(12, 15, 18, 0.2) 100%),
+          linear-gradient(0deg, rgba(12, 15, 18, 0.8) 0%, rgba(12, 15, 18, 0) 42%);
+      }
+      #s2 .media-caption {
+        position: absolute;
+        left: 44px;
+        bottom: 56px;
+        font-size: 17px;
+        letter-spacing: 0.28em;
+        color: var(--accent-2);
+      }
+      .s2-left {
+        position: absolute;
+        left: 120px;
+        top: 214px;
+        width: 1120px;
+      }
+      .s2-left .display { font-size: 146px; color: var(--fg); }
+      .s2-left .display em { font-style: normal; color: var(--accent); }
+      .s2-kicker { margin-bottom: 22px; }
+      .stages {
+        position: relative;
+        margin-top: 64px;
+        width: 980px;
+      }
+      .rail {
+        position: absolute;
+        left: 33px;
+        top: 12px;
+        width: 3px;
+        height: 420px;
+        background: var(--line);
+      }
+      .rail-fill {
+        position: absolute;
+        left: 33px;
+        top: 12px;
+        width: 3px;
+        height: 420px;
+        background: var(--accent);
+        transform-origin: top center;
+        transform: scaleY(0);
+      }
+      .signal {
+        position: absolute;
+        left: 27px;
+        top: 6px;
+        width: 15px;
+        height: 15px;
+        border-radius: 50%;
+        background: var(--accent);
+        box-shadow: 0 0 22px 6px rgba(226, 160, 63, 0.35);
+      }
+      .stage {
+        position: relative;
+        display: grid;
+        grid-template-columns: 70px 90px 1fr 320px;
+        align-items: center;
+        height: 104px;
+        margin-left: 0;
+      }
+      .stage .icon-wrap {
+        width: 70px;
+        height: 70px;
+        border: 2px solid var(--line-strong);
+        background: var(--panel);
+        display: grid;
+        place-items: center;
+      }
+      .stage .icon {
+        width: 32px;
+        height: 32px;
+        background-color: var(--muted);
+        -webkit-mask-position: center;
+        mask-position: center;
+        -webkit-mask-repeat: no-repeat;
+        mask-repeat: no-repeat;
+        -webkit-mask-size: contain;
+        mask-size: contain;
+      }
+      .stage .num { font-size: 18px; letter-spacing: 0.22em; color: var(--muted); }
+      .stage .name {
+        font-family: "League Gothic", sans-serif;
+        font-size: 54px;
+        letter-spacing: 0.01em;
+        color: var(--fg);
+        line-height: 1;
+      }
+      .stage .sub { font-size: 19px; color: var(--muted); letter-spacing: 0.04em; }
+      .stage + .stage { margin-top: 2px; }
+      .icon-file { -webkit-mask-image: url("assets/icons/file-text.svg"); mask-image: url("assets/icons/file-text.svg"); }
+      .icon-braces { -webkit-mask-image: url("assets/icons/braces.svg"); mask-image: url("assets/icons/braces.svg"); }
+      .icon-term { -webkit-mask-image: url("assets/icons/terminal.svg"); mask-image: url("assets/icons/terminal.svg"); }
+      .icon-film { -webkit-mask-image: url("assets/icons/film.svg"); mask-image: url("assets/icons/film.svg"); }
+
+      /* scene 3 */
+      #s3 .code-col {
+        position: absolute;
+        left: 110px;
+        top: 196px;
+        width: 1050px;
+      }
+      #s3 .code-head {
+        display: flex;
+        align-items: baseline;
+        justify-content: space-between;
+        margin-bottom: 22px;
+      }
+      #s3 .code-head .kicker { margin: 0; }
+      #s3 .path { font-size: 18px; color: var(--muted); letter-spacing: 0.08em; }
+      .code-panel {
+        border: 2px solid var(--line-strong);
+        background: var(--panel);
+        padding: 34px 38px;
+        min-height: 596px;
+      }
+      .code-line {
+        display: flex;
+        gap: 22px;
+        font-size: 25px;
+        line-height: 1.62;
+        white-space: pre;
+        color: var(--fg);
+      }
+      .code-line .ln { color: var(--muted); width: 34px; text-align: right; flex: none; }
+      .code-line .code { color: var(--fg); }
+      .t-accent { color: var(--accent); }
+      .t-mint { color: var(--accent-2); }
+      .t-muted { color: var(--muted); }
+      #s3 .side {
+        position: absolute;
+        right: 96px;
+        top: 230px;
+        width: 640px;
+      }
+      .preview {
+        position: relative;
+        width: 640px;
+        height: 360px;
+        border: 2px solid var(--line-strong);
+        background: var(--panel-2);
+        overflow: hidden;
+      }
+      .preview .grid { background-size: 60px 60px; }
+      .preview .p-glow {
+        position: absolute;
+        left: -120px;
+        top: -160px;
+        width: 520px;
+        height: 520px;
+        border-radius: 50%;
+        background: radial-gradient(circle, rgba(226, 160, 63, 0.3) 0%, rgba(226, 160, 63, 0) 66%);
+      }
+      .preview .p-title {
+        position: absolute;
+        left: 42px;
+        top: 116px;
+        font-family: "League Gothic", sans-serif;
+        font-size: 84px;
+        line-height: 0.9;
+        color: var(--fg);
+        text-transform: uppercase;
+      }
+      .preview .p-title em { font-style: normal; color: var(--accent); display: block; }
+      .preview .p-rule {
+        position: absolute;
+        left: 44px;
+        top: 268px;
+        width: 220px;
+        height: 3px;
+        background: var(--accent);
+        transform-origin: left center;
+      }
+      .preview .p-label {
+        position: absolute;
+        right: 18px;
+        bottom: 14px;
+        font-size: 14px;
+        letter-spacing: 0.18em;
+        color: var(--muted);
+      }
+      .playhead {
+        position: absolute;
+        left: 0;
+        right: 0;
+        top: 0;
+        height: 2px;
+        background: var(--accent-2);
+        opacity: 0.8;
+      }
+      .side-note {
+        margin-top: 26px;
+        font-size: 19px;
+        line-height: 1.65;
+        color: var(--muted);
+        letter-spacing: 0.03em;
+      }
+      .side-note b { color: var(--fg); font-weight: 700; }
+      .side-tags { display: flex; gap: 12px; margin-top: 22px; }
+      .tag-pill {
+        border: 2px solid var(--line-strong);
+        padding: 9px 14px;
+        font-size: 16px;
+        letter-spacing: 0.16em;
+        color: var(--accent-2);
+      }
+
+      /* scene 4 */
+      #s4 .bg-img { opacity: 0.2; }
+      .s4-head {
+        position: absolute;
+        left: 120px;
+        top: 172px;
+      }
+      .s4-head .display { font-size: 112px; color: var(--fg); }
+      .s4-head .display em { font-style: normal; color: var(--accent); }
+      .stats {
+        position: absolute;
+        left: 120px;
+        right: 120px;
+        top: 430px;
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 22px;
+      }
+      .stat {
+        border: 2px solid var(--line-strong);
+        background: var(--panel);
+        padding: 30px 28px 26px;
+        min-height: 300px;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+      }
+      .stat .icon {
+        width: 34px;
+        height: 34px;
+        background-color: var(--accent);
+        -webkit-mask-position: center;
+        mask-position: center;
+        -webkit-mask-repeat: no-repeat;
+        mask-repeat: no-repeat;
+        -webkit-mask-size: contain;
+        mask-size: contain;
+      }
+      .icon-cpu { -webkit-mask-image: url("assets/icons/cpu.svg"); mask-image: url("assets/icons/cpu.svg"); }
+      .icon-shield { -webkit-mask-image: url("assets/icons/shield-check.svg"); mask-image: url("assets/icons/shield-check.svg"); }
+      .icon-layers { -webkit-mask-image: url("assets/icons/layers.svg"); mask-image: url("assets/icons/layers.svg"); }
+      .icon-workflow { -webkit-mask-image: url("assets/icons/workflow.svg"); mask-image: url("assets/icons/workflow.svg"); }
+      .stat .value {
+        font-family: "League Gothic", sans-serif;
+        font-size: 96px;
+        line-height: 0.9;
+        color: var(--fg);
+      }
+      .stat .value small { font-family: "IBM Plex Mono", monospace; font-size: 22px; color: var(--muted); }
+      .stat .label { font-size: 19px; letter-spacing: 0.08em; color: var(--muted); }
+      .bar { height: 4px; background: var(--line); margin-top: 18px; }
+      .bar span {
+        display: block;
+        height: 4px;
+        width: 100%;
+        background: var(--accent);
+        transform-origin: left center;
+      }
+      .s4-foot {
+        position: absolute;
+        left: 120px;
+        right: 120px;
+        bottom: 84px;
+        display: flex;
+        justify-content: space-between;
+        font-size: 18px;
+        letter-spacing: 0.2em;
+        color: var(--muted);
+      }
+
+      /* scene 5 */
+      #s5 .bg-img { opacity: 0.34; }
+      .s5-content {
+        position: absolute;
+        left: 120px;
+        top: 250px;
+        width: 1500px;
+      }
+      .s5-content .display { font-size: 176px; color: var(--fg); }
+      .s5-content .display em { font-style: normal; color: var(--accent); }
+      .s5-sub {
+        margin-top: 28px;
+        font-size: 26px;
+        letter-spacing: 0.12em;
+        color: var(--muted);
+      }
+      .s5-rule {
+        width: 520px;
+        height: 4px;
+        background: var(--accent);
+        margin: 38px 0 32px;
+        transform-origin: left center;
+      }
+      .links { display: flex; gap: 46px; }
+      .link { display: flex; flex-direction: column; gap: 7px; }
+      .link .host { font-size: 26px; color: var(--fg); letter-spacing: 0.04em; }
+      .link .what { font-size: 16px; letter-spacing: 0.24em; color: var(--accent-2); }
+      .s5-foot {
+        position: absolute;
+        left: 120px;
+        right: 120px;
+        bottom: 84px;
+        display: flex;
+        justify-content: space-between;
+        font-size: 17px;
+        letter-spacing: 0.24em;
+        color: var(--muted);
+      }
+
+      /* grid dissolve overlay */
+      #grid-dissolve {
+        position: absolute;
+        inset: 0;
+        z-index: 20;
+        pointer-events: none;
+        overflow: hidden;
+      }
+      .gd-cell { position: absolute; transform: scale(0); }
+    </style>
+  </head>
+  <body>
+    <div
+      id="root"
+      data-composition-id="dogfood"
+      data-width="1920"
+      data-height="1080"
+      data-start="0"
+      data-duration="48"
+    >
+      <!-- media: direct children of the composition root -->
+      <audio id="bgm" src="assets/audio/bgm.mp3" data-start="0" data-duration="48" data-track-index="10" data-volume="1"></audio>
+      <audio id="sfx-01" src="assets/audio/scan.ogg" data-start="0.18" data-duration="0.9" data-track-index="11" data-volume="0.2"></audio>
+      <audio id="sfx-02" src="assets/audio/scan.ogg" data-start="6.0" data-duration="0.7" data-track-index="11" data-volume="0.22"></audio>
+      <audio id="sfx-03" src="assets/audio/scan.ogg" data-start="18.0" data-duration="0.7" data-track-index="11" data-volume="0.2"></audio>
+      <audio id="sfx-04" src="assets/audio/scan.ogg" data-start="30.0" data-duration="0.7" data-track-index="11" data-volume="0.2"></audio>
+      <audio id="sfx-05" src="assets/audio/scan.ogg" data-start="40.0" data-duration="0.7" data-track-index="11" data-volume="0.16"></audio>
+      <audio id="sfx-06" src="assets/audio/scan.ogg" data-start="45.6" data-duration="0.9" data-track-index="11" data-volume="0.14"></audio>
+      <audio id="tick-1" src="assets/audio/tick.mp3" data-start="7.75" data-duration="0.08" data-track-index="12" data-volume="0.4"></audio>
+      <audio id="tick-2" src="assets/audio/tick.mp3" data-start="8.85" data-duration="0.08" data-track-index="12" data-volume="0.4"></audio>
+      <audio id="tick-3" src="assets/audio/tick.mp3" data-start="9.97" data-duration="0.08" data-track-index="12" data-volume="0.4"></audio>
+      <audio id="tick-4" src="assets/audio/tick.mp3" data-start="11.08" data-duration="0.08" data-track-index="12" data-volume="0.4"></audio>
+
+      <!-- SCENE 1 — hook -->
+      <div id="s1" class="scene">
+        <div class="bg-fill"></div>
+        <div id="s1-img" class="bg-img" data-layout-allow-overflow style="background-image: url('assets/img/hexagon.webp')"></div>
+        <div class="scrim"></div>
+        <div class="grid"></div>
+        <div id="s1-glow" class="glow" data-layout-allow-overflow style="left: -320px; top: -360px"></div>
+        <div class="grain"></div>
+        <div class="s1-scan" id="s1-scan"></div>
+        <div class="marks"><span></span><span></span><span></span><span></span></div>
+        <div class="topbar"><span class="tc">00:00:00:00</span><span class="tag">HYP-FRAMES / LAB</span></div>
+
+        <div class="s1-content">
+          <span class="kicker" data-enter>PIPELINE DOCUMENTAIRE</span>
+          <h1 class="display">
+            <span class="l1" data-enter>Un document.</span>
+            <span class="l2" data-enter>Une vidéo.</span>
+          </h1>
+          <span class="s1-rule" data-enter-rule></span>
+          <div class="s1-sub" data-enter>AsciiDoc annoté → <b>HyperFrames</b> → MP4</div>
+        </div>
+
+        <div class="s1-meta">
+          <div class="meta-col" data-enter><span class="lbl">ENGINE</span><span class="val">HYPERFRAMES CLI</span></div>
+          <div class="meta-col" data-enter><span class="lbl">BUILD</span><span class="val">GRADLE / N2</span></div>
+          <div class="meta-col" data-enter><span class="lbl">SCÈNE</span><span class="val">01 / 05</span></div>
+        </div>
+        <div class="deco-line" style="bottom: 128px" data-enter-rule></div>
+      </div>
+
+      <!-- SCENE 2 — the pipeline -->
+      <div id="s2" class="scene">
+        <div class="bg-fill"></div>
+        <div class="grid"></div>
+        <div id="s2-glow" class="glow" data-layout-allow-overflow style="right: -420px; bottom: -420px"></div>
+        <div class="grain"></div>
+
+        <div class="media">
+          <img id="s2-img" src="assets/img/fiber.jpg" alt="Fibre optique" />
+          <div class="media-scrim"></div>
+          <div class="media-caption">FIBRE / SIGNAL</div>
+        </div>
+
+        <div class="marks"><span></span><span></span><span></span><span></span></div>
+        <div class="topbar"><span class="tc">00:00:06:00</span><span class="tag">CHAÎNE / 02</span></div>
+
+        <div class="s2-left">
+          <span class="kicker s2-kicker" data-enter>Chaîne de production</span>
+          <h2 class="display">
+            <span data-enter>Du texte</span>
+            <span data-enter><em>au signal.</em></span>
+          </h2>
+
+          <div class="stages">
+            <div class="rail"></div>
+            <div class="rail-fill" id="rail-fill"></div>
+            <div class="signal" id="signal"></div>
+
+            <div class="stage" data-enter id="st1">
+              <div class="icon-wrap" id="ring-1"><span class="icon icon-file"></span></div>
+              <span class="num">01</span>
+              <span class="name">AsciiDoc</span>
+              <span class="sub">source annotée</span>
+            </div>
+            <div class="stage" data-enter id="st2">
+              <div class="icon-wrap" id="ring-2"><span class="icon icon-braces"></span></div>
+              <span class="num">02</span>
+              <span class="name">HTML</span>
+              <span class="sub">composition + timeline</span>
+            </div>
+            <div class="stage" data-enter id="st3">
+              <div class="icon-wrap" id="ring-3"><span class="icon icon-term"></span></div>
+              <span class="num">03</span>
+              <span class="name">CLI</span>
+              <span class="sub">rendu headless</span>
+            </div>
+            <div class="stage" data-enter id="st4">
+              <div class="icon-wrap" id="ring-4"><span class="icon icon-film"></span></div>
+              <span class="num">04</span>
+              <span class="name">MP4</span>
+              <span class="sub">1920 × 1080 / 30 fps</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SCENE 3 — the DSL -->
+      <div id="s3" class="scene">
+        <div class="bg-fill"></div>
+        <div class="grid"></div>
+        <div id="s3-glow" class="glow" data-layout-allow-overflow style="left: 560px; top: -520px"></div>
+        <div class="grain"></div>
+        <div class="marks"><span></span><span></span><span></span><span></span></div>
+        <div class="topbar"><span class="tc">00:00:18:00</span><span class="tag">DSL / 03</span></div>
+
+        <div class="code-col">
+          <div class="code-head">
+            <span class="kicker" data-enter>Le document EST la composition</span>
+            <span class="path" data-enter>src/docs/index.adoc</span>
+          </div>
+          <div class="code-panel">
+            <div class="code-line" data-enter><span class="ln">01</span><span class="code t-accent">[.hyperframes-composition#intro]</span></div>
+            <div class="code-line" data-enter><span class="ln">02</span><span class="code t-mint">== Un document</span></div>
+            <div class="code-line" data-enter><span class="ln">03</span><span class="code"> </span></div>
+            <div class="code-line" data-enter><span class="ln">04</span><span class="code t-accent">[.hyperframes-animation, type=gsap]</span></div>
+            <div class="code-line" data-enter><span class="ln">05</span><span class="code t-muted">----</span></div>
+            <div class="code-line" data-enter><span class="ln">06</span><span class="code">window.__timelines = {};</span></div>
+            <div class="code-line" data-enter><span class="ln">07</span><span class="code"><span class="t-mint">const</span> tl = gsap.timeline({ paused: <span class="t-accent">true</span> });</span></div>
+            <div class="code-line" data-enter><span class="ln">08</span><span class="code">tl.from(<span class="t-mint">"#intro"</span>, { opacity: <span class="t-accent">0</span> });</span></div>
+            <div class="code-line" data-enter><span class="ln">09</span><span class="code">window.__timelines[<span class="t-mint">"intro"</span>] = tl;</span></div>
+            <div class="code-line" data-enter><span class="ln">10</span><span class="code t-muted">----</span></div>
+          </div>
+        </div>
+
+        <div class="side">
+          <div class="preview" id="preview">
+            <div class="grid"></div>
+            <div class="p-glow"></div>
+            <div class="p-title">Un document.<em>Une vidéo.</em></div>
+            <div class="p-rule" id="p-rule"></div>
+            <div class="playhead" id="playhead"></div>
+            <div class="p-label">FRAME 042 / 1440</div>
+          </div>
+          <div class="side-note" data-enter>
+            Une section = une scène. Un bloc = une timeline.<br />
+            Le même fichier produit <b>la vidéo</b> et le <b>document</b>.
+          </div>
+          <div class="side-tags" data-enter>
+            <span class="tag-pill">COMPOSITION</span>
+            <span class="tag-pill">GSAP</span>
+            <span class="tag-pill">SEEKABLE</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- SCENE 4 — quality -->
+      <div id="s4" class="scene">
+        <div class="bg-fill"></div>
+        <div class="bg-img" data-layout-allow-overflow style="background-image: url('assets/img/datacenter.jpg')"></div>
+        <div class="scrim"></div>
+        <div class="grid"></div>
+        <div id="s4-glow" class="glow" data-layout-allow-overflow style="right: -300px; top: -520px"></div>
+        <div class="grain"></div>
+        <div class="marks"><span></span><span></span><span></span><span></span></div>
+        <div class="topbar"><span class="tc">00:00:30:00</span><span class="tag">QUALITÉ / 04</span></div>
+
+        <div class="s4-head">
+          <span class="kicker" data-enter>Sortie de production</span>
+          <h2 class="display" data-enter>Zéro <em>improvisation.</em></h2>
+        </div>
+
+        <div class="stats">
+          <div class="stat" data-enter>
+            <span class="icon icon-cpu"></span>
+            <span class="value">1920<small>×</small>1080</span>
+            <span class="label">FRAME FIXE</span>
+            <div class="bar"><span data-enter-bar></span></div>
+          </div>
+          <div class="stat" data-enter>
+            <span class="icon icon-workflow"></span>
+            <span class="value">30<small> fps</small></span>
+            <span class="label">TIMELINE DÉTERMINISTE</span>
+            <div class="bar"><span data-enter-bar></span></div>
+          </div>
+          <div class="stat" data-enter>
+            <span class="icon icon-shield"></span>
+            <span class="value">0<small> réseau</small></span>
+            <span class="label">RENDU HORS-LIGNE</span>
+            <div class="bar"><span data-enter-bar></span></div>
+          </div>
+          <div class="stat" data-enter>
+            <span class="icon icon-layers"></span>
+            <span class="value">100<small> %</small></span>
+            <span class="label">REPRODUCTIBLE</span>
+            <div class="bar"><span data-enter-bar></span></div>
+          </div>
+        </div>
+
+        <div class="s4-foot">
+          <span data-enter>LE MÊME TEMPS → LES MÊMES PIXELS</span>
+          <span data-enter>SCÈNE 04 / 05</span>
+        </div>
+      </div>
+
+      <!-- SCENE 5 — outro -->
+      <div id="s5" class="scene">
+        <div class="bg-fill"></div>
+        <div class="bg-img" data-layout-allow-overflow style="background-image: url('assets/img/hexagon.webp')"></div>
+        <div class="scrim"></div>
+        <div class="grid"></div>
+        <div id="s5-glow" class="glow" data-layout-allow-overflow style="left: -380px; bottom: -420px"></div>
+        <div class="grain"></div>
+        <div class="marks"><span></span><span></span><span></span><span></span></div>
+        <div class="topbar"><span class="tc">00:00:40:00</span><span class="tag">FIN / 05</span></div>
+
+        <div class="s5-content">
+          <span class="kicker" data-enter>Du document à la vidéo</span>
+          <h2 class="display">
+            <span data-enter>AsciiDoc <em>→</em> MP4</span>
+          </h2>
+          <div class="s5-sub" data-enter>Un seul pipeline. Aucun montage manuel.</div>
+          <div class="s5-rule" data-enter-rule></div>
+          <div class="links">
+            <div class="link" data-enter><span class="host">cccp.education</span><span class="what">OPEN SOURCE</span></div>
+            <div class="link" data-enter><span class="host">talaria.school</span><span class="what">FORMATIONS</span></div>
+            <div class="link" data-enter><span class="host">cheroliv.com</span><span class="what">AUTEUR</span></div>
+          </div>
+        </div>
+
+        <div class="s5-foot">
+          <span data-enter>HYPERFRAMES GRADLE / 0.0.9</span>
+          <span data-enter>FIN</span>
+        </div>
+      </div>
+
+      <!-- CSS transition overlay -->
+      <div id="grid-dissolve"></div>
+    </div>
+
+    <script src="assets/gsap.min.js"></script>
+    <script>
+      window.__timelines = window.__timelines || {};
+      var tl = gsap.timeline({ paused: true });
+
+      // ── establish the hidden start state of every entrance, at t=0 ─────────
+      gsap.set("#s1 [data-enter]", { opacity: 0, y: 36 });
+      gsap.set("#s1 [data-enter-rule]", { scaleX: 0 });
+      gsap.set("#s2 [data-enter]", { opacity: 0, y: 52 });
+      gsap.set("#s3 [data-enter]", { opacity: 0, x: -28 });
+      gsap.set("#s4 [data-enter]", { opacity: 0, y: 56 });
+      gsap.set("#s4 [data-enter-bar]", { scaleX: 0 });
+      gsap.set("#s5 [data-enter]", { opacity: 0, y: 48 });
+      gsap.set("#s5 [data-enter-rule]", { scaleX: 0 });
+      gsap.set("#rail-fill", { scaleY: 0 });
+      gsap.set("#signal", { y: 0, opacity: 0 });
+      gsap.set("#p-rule", { scaleX: 0 });
+      gsap.set("#playhead", { y: 0, opacity: 0 });
+      gsap.set("#preview", { scale: 0.94, rotation: -1.4, opacity: 0 });
+
+      // ── SCENE 1 — hook (0 → 6) ─────────────────────────────────────────────
+      tl.fromTo("#bgm", { volume: 0.35 }, { volume: 0.35, duration: 0.2, ease: "none" }, 0);
+      tl.to("#s1-img", { scale: 1.14, duration: 6, ease: "none" }, 0);
+      tl.to("#s1-glow", { scale: 1.07, opacity: 0.72, duration: 3, ease: "sine.inOut", yoyo: true, repeat: 1 }, 0);
+      tl.fromTo("#s1-scan", { x: -40, opacity: 0 }, { x: 1960, opacity: 0.25, duration: 5.2, ease: "none" }, 0.4);
+
+      tl.to("#s1 .kicker", { opacity: 1, y: 0, duration: 0.5, ease: "power2.out" }, 0.2);
+      tl.to("#s1 .l1", { opacity: 1, y: 0, duration: 0.8, ease: "expo.out" }, 0.38);
+      tl.to("#s1 .l2", { opacity: 1, y: 0, duration: 0.8, ease: "expo.out" }, 0.56);
+      tl.to("#s1 .s1-rule", { scaleX: 1, duration: 0.55, ease: "power3.out" }, 0.95);
+      tl.to("#s1 .s1-sub", { opacity: 1, y: 0, duration: 0.55, ease: "power2.out" }, 1.1);
+      tl.to("#s1 .meta-col", { opacity: 1, y: 0, duration: 0.45, ease: "power2.out", stagger: 0.09 }, 1.3);
+      tl.to("#s1 .deco-line", { scaleX: 1, duration: 0.8, ease: "power3.out" }, 1.45);
+
+      // ── T1 6.0 — GRID DISSOLVE (S1 → S2) ──────────────────────────────────
+      var grid = document.getElementById("grid-dissolve");
+      var palette = ["#e2a03f", "#7fb8a4", "#ece7db", "#2a3238", "#c97b2e"];
+      var cells = [];
+      var cols = 4, rows = 3, cw = 480, ch = 360, idx = 0;
+      for (var r = 0; r < rows; r++) {
+        for (var c = 0; c < cols; c++) {
+          var cell = document.createElement("div");
+          cell.className = "gd-cell";
+          cell.style.left = c * cw + "px";
+          cell.style.top = r * ch + "px";
+          cell.style.width = cw + "px";
+          cell.style.height = ch + "px";
+          cell.style.backgroundColor = palette[idx % palette.length];
+          cell.style.transformOrigin = "center center";
+          grid.appendChild(cell);
+          cells.push({ el: cell, dist: Math.abs(c - (cols - 1) / 2) + Math.abs(r - (rows - 1) / 2) });
+          idx++;
+        }
+      }
+      cells.sort(function (a, b) { return a.dist - b.dist; });
+      var cellEls = cells.map(function (x) { return x.el; });
+
+      tl.to(cellEls, { scale: 1, duration: 0.24, ease: "power3.out", stagger: 0.018 }, 6.0);
+      tl.set("#s2", { zIndex: 6, opacity: 1 }, 6.2);
+      tl.set("#s1", { opacity: 0 }, 6.2);
+      tl.to(cellEls, { scale: 0, duration: 0.24, ease: "power3.in", stagger: 0.018 }, 6.3);
+      tl.set("#grid-dissolve", { opacity: 0 }, 6.68);
+
+      // ── SCENE 2 — pipeline (6 → 18) ────────────────────────────────────────
+      tl.to("#s2-img", { scale: 1.12, duration: 12, ease: "none" }, 6);
+      tl.to("#s2-glow", { scale: 1.08, opacity: 0.74, duration: 3, ease: "sine.inOut", yoyo: true, repeat: 3 }, 6);
+      tl.to("#s2 .kicker", { opacity: 1, y: 0, duration: 0.45, ease: "power2.out" }, 6.5);
+      tl.to("#s2 .display [data-enter]", { opacity: 1, y: 0, duration: 0.7, ease: "expo.out", stagger: 0.12 }, 6.65);
+      tl.to("#s2 .stage", { opacity: 1, y: 0, duration: 0.5, ease: "power2.out", stagger: 0.12 }, 7.0);
+      tl.to("#rail-fill", { scaleY: 1, duration: 4.4, ease: "none" }, 7.2);
+      tl.set("#signal", { opacity: 1 }, 7.2);
+      tl.to("#signal", { y: 420, duration: 4.4, ease: "none" }, 7.2);
+
+      function activate(sel, at) {
+        tl.to(sel + " .icon-wrap", { backgroundColor: "#e2a03f", duration: 0.25, ease: "power2.out" }, at);
+        tl.to(sel + " .icon", { backgroundColor: "#0c0f12", duration: 0.25, ease: "power2.out" }, at);
+        tl.to(sel + " .name", { color: "#e2a03f", duration: 0.25, ease: "power2.out" }, at);
+      }
+      activate("#st1", 7.75);
+      activate("#st2", 8.85);
+      activate("#st3", 9.97);
+      activate("#st4", 11.08);
+
+      // ── T2 18.0 — BLUR CROSSFADE (S2 → S3) ────────────────────────────────
+      tl.to("#s2", { filter: "blur(10px)", scale: 1.03, opacity: 0, duration: 0.5, ease: "power2.inOut" }, 18.0);
+      tl.fromTo("#s3", { filter: "blur(10px)", scale: 0.97, opacity: 0 }, { filter: "blur(0px)", scale: 1, opacity: 1, duration: 0.5, ease: "power2.inOut" }, 18.1);
+
+      // ── SCENE 3 — DSL (18 → 30) ────────────────────────────────────────────
+      tl.to("#s3-glow", { scale: 1.09, opacity: 0.7, duration: 3, ease: "sine.inOut", yoyo: true, repeat: 3 }, 18);
+      tl.to("#s3 .code-head .kicker", { opacity: 1, x: 0, duration: 0.45, ease: "power2.out" }, 18.55);
+      tl.to("#s3 .path", { opacity: 1, x: 0, duration: 0.45, ease: "power2.out" }, 18.7);
+      tl.to("#s3 .code-line", { opacity: 1, x: 0, duration: 0.28, ease: "power2.out", stagger: 0.4 }, 19.0);
+      tl.fromTo("#preview", { scale: 0.94, rotation: -1.4, opacity: 0 }, { scale: 1, rotation: 0, opacity: 1, duration: 0.6, ease: "power3.out" }, 20.4);
+      tl.to("#p-rule", { scaleX: 1, duration: 0.5, ease: "power3.out" }, 21.0);
+      tl.set("#playhead", { opacity: 0.8 }, 22.0);
+      tl.to("#playhead", { y: 356, duration: 4.6, ease: "none" }, 22.0);
+      tl.to("#s3 .side-note", { opacity: 1, x: 0, duration: 0.55, ease: "power2.out" }, 23.4);
+      tl.to("#s3 .side-tags", { opacity: 1, x: 0, duration: 0.5, ease: "power2.out" }, 23.8);
+
+      // ── T3 30.0 — VERTICAL PUSH (S3 → S4) ──────────────────────────────────
+      tl.to("#s3", { y: -1080, duration: 0.5, ease: "power3.inOut" }, 30.0);
+      tl.fromTo("#s4", { y: 1080, opacity: 1 }, { y: 0, opacity: 1, duration: 0.5, ease: "power3.inOut" }, 30.0);
+
+      // ── SCENE 4 — quality (30 → 40) ────────────────────────────────────────
+      tl.to("#s4 .bg-img", { scale: 1.08, duration: 10, ease: "none" }, 30);
+      tl.to("#s4-glow", { scale: 1.06, opacity: 0.66, duration: 2.5, ease: "sine.inOut", yoyo: true, repeat: 3 }, 30);
+      tl.to("#s4 .kicker", { opacity: 1, y: 0, duration: 0.45, ease: "power2.out" }, 30.55);
+      tl.to("#s4 .display", { opacity: 1, y: 0, duration: 0.55, ease: "power3.out" }, 30.7);
+      tl.to("#s4 .stat", { opacity: 1, y: 0, duration: 0.55, ease: "power2.out", stagger: 0.12 }, 30.9);
+      tl.to("#s4 .bar span", { scaleX: 1, duration: 0.8, ease: "power3.out", stagger: 0.16 }, 31.3);
+      tl.to("#s4 .s4-foot [data-enter]", { opacity: 1, y: 0, duration: 0.5, ease: "power2.out", stagger: 0.1 }, 32.2);
+
+      // ── T4 40.0 — BLUR CROSSFADE (S4 → S5) ────────────────────────────────
+      tl.to("#s4", { filter: "blur(12px)", scale: 1.03, opacity: 0, duration: 0.6, ease: "power2.inOut" }, 40.0);
+      tl.fromTo("#s5", { filter: "blur(12px)", scale: 0.97, opacity: 0 }, { filter: "blur(0px)", scale: 1, opacity: 1, duration: 0.6, ease: "power2.inOut" }, 40.1);
+
+      // ── SCENE 5 — outro (40 → 48) ──────────────────────────────────────────
+      tl.to("#s5 .bg-img", { scale: 1.1, duration: 8, ease: "none" }, 40);
+      tl.to("#s5-glow", { scale: 1.07, opacity: 0.7, duration: 2.6, ease: "sine.inOut", yoyo: true, repeat: 2 }, 40);
+      tl.to("#s5 .kicker", { opacity: 1, y: 0, duration: 0.45, ease: "power2.out" }, 40.55);
+      tl.to("#s5 .display [data-enter]", { opacity: 1, y: 0, duration: 0.7, ease: "expo.out" }, 40.7);
+      tl.to("#s5 .s5-sub", { opacity: 1, y: 0, duration: 0.5, ease: "power2.out" }, 41.15);
+      tl.to("#s5 .s5-rule", { scaleX: 1, duration: 0.55, ease: "power3.out" }, 41.35);
+      tl.to("#s5 .link", { opacity: 1, y: 0, duration: 0.5, ease: "power2.out", stagger: 0.12 }, 41.7);
+      tl.to("#s5 .s5-foot [data-enter]", { opacity: 1, y: 0, duration: 0.45, ease: "power2.out", stagger: 0.1 }, 42.2);
+
+      // final fade (only the final scene may exit) + BGM wind-down
+      tl.to("#bgm", { volume: 0, duration: 3, ease: "none" }, 45.0);
+      tl.to("#s5", { opacity: 0, duration: 1.2, ease: "power2.inOut" }, 46.6);
+
+      window.__timelines["dogfood"] = tl;
+    </script>
+  </body>
+</html>
