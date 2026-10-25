@@ -50,6 +50,32 @@ class YouTubeCredentialsLoaderTest {
     }
 
     @Test
+    fun `normalises snake_case and kebab-case keys`() {
+        val values = YouTubeCredentialsLoader.parse(
+            """
+            youtube:
+              client_id: a
+              client-secret: b
+              refresh_token: c
+              channel-id: UC123
+            """.trimIndent(),
+        )
+
+        assertThat(values["clientid"]).isEqualTo("a")
+        assertThat(values["clientsecret"]).isEqualTo("b")
+        assertThat(values["refreshtoken"]).isEqualTo("c")
+        assertThat(values["channelid"]).isEqualTo("UC123")
+    }
+
+    @Test
+    fun `missing upload fields are reported by name only`() {
+        val credentials = YouTubeCredentials(clientId = "a", clientSecret = "", refreshToken = "")
+
+        assertThat(credentials.missingUploadFields()).containsExactly("clientSecret", "refreshToken")
+        assertThat(credentials.canUpload()).isFalse()
+    }
+
+    @Test
     fun `load returns null for a missing file`() {
         assertThat(YouTubeCredentialsLoader.load(File(tempDir, "absent.yaml"))).isNull()
     }

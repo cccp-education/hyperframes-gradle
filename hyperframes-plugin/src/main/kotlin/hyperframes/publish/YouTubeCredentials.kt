@@ -26,8 +26,17 @@ data class YouTubeCredentials(
     val apiKey: String = "",
 ) {
     /** `true` when enough is present to perform an authenticated upload. */
-    fun canUpload(): Boolean =
-        clientId.isNotBlank() && clientSecret.isNotBlank() && refreshToken.isNotBlank()
+    fun canUpload(): Boolean = missingUploadFields().isEmpty()
+
+    /**
+     * Names of the upload fields that are still missing (never their values) —
+     * lets the resolver report an actionable message without leaking a secret.
+     */
+    fun missingUploadFields(): List<String> = buildList {
+        if (clientId.isBlank()) add("clientId")
+        if (clientSecret.isBlank()) add("clientSecret")
+        if (refreshToken.isBlank()) add("refreshToken")
+    }
 
     /** Redacted representation — never prints a secret. */
     override fun toString(): String =

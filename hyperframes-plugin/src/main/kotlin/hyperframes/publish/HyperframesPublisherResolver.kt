@@ -39,7 +39,8 @@ object HyperframesPublisherResolver {
             ?: return DisabledVideoPublisher("credentials file not found or empty: ${credentialsFile.name}")
         if (!credentials.canUpload()) {
             return DisabledVideoPublisher(
-                "credentials incomplete in ${credentialsFile.name} (need clientId, clientSecret, refreshToken)",
+                "credentials incomplete in ${credentialsFile.name}: missing " +
+                    credentials.missingUploadFields().joinToString(", "),
             )
         }
         onLog("YouTube publisher enabled (channel '${credentials.channelId.ifBlank { "unknown" }}')")

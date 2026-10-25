@@ -39,9 +39,12 @@ object YouTubeCredentialsLoader {
     }
 
     /**
-     * Parses the simple `youtube:` map. Keys are matched case-insensitively and
-     * stripped of quotes; comments (`#`) and blank lines are ignored. The
-     * `youtube:` section header is optional (keys may appear at top level).
+     * Parses the simple `youtube:` map. Keys are matched **case-insensitively and
+     * ignoring separators**: `clientId`, `client_id` and `client-id` all normalise
+     * to `clientid` (Google's downloaded OAuth JSON uses `client_id` /
+     * `client_secret` / `refresh_token`). Values are stripped of quotes; comments
+     * (`#`) and blank lines are ignored. The `youtube:` section header is optional
+     * (keys may appear at top level).
      */
     fun parse(text: String): Map<String, String> {
         val values = linkedMapOf<String, String>()
@@ -50,11 +53,15 @@ object YouTubeCredentialsLoader {
             if (line.isEmpty() || line == "youtube:") continue
             val separator = line.indexOf(':')
             if (separator <= 0) continue
-            val key = line.substring(0, separator).trim().lowercase()
+            val key = normaliseKey(line.substring(0, separator))
             val value = line.substring(separator + 1).trim().trim('"', '\'')
             if (key.isEmpty() || value.isEmpty()) continue
             values[key] = value
         }
         return values
     }
+
+    /** `client-id` / `client_id` / `clientId` → `clientid` (names, never values). */
+    private fun normaliseKey(raw: String): String =
+        raw.trim().lowercase().replace("_", "").replace("-", "")
 }
