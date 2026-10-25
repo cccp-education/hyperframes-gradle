@@ -9,8 +9,12 @@
   `media` + TestKit hermétique.
 * [x] `.gitignore` : `youtube.yaml` + `client_secret_*.json`.
 * [x] Enabler video-kernel : `youtube-auth-plugin 0.0.2` (loopback `/favicon.ico`).
+* [x] **HF-DEMO-QUALITY US-1** : `demo-video/` — vidéo de référence 48 s
+  (5 scènes, transitions CSS, médias PD/CC0, audio généré), `lint`/`validate`/
+  `inspect` verts, rendu MP4 1920×1080/30 fps.
 * [ ] US-4b dogfooding réel (accord pilote explicite).
 * [ ] EPIC `PUBLISH-ADAPTER-N1` (module partagé).
+* [ ] HF-DEMO-QUALITY US-2→US-5 (transitions/médias/chrome/entrées dans le DSL).
 
 == Session 035 (2026-10-16) — EPIC `HF-YOUTUBE-PUBLISH` : cadrage + US-1 + US-1b + US-2 ✅
 

@@ -69,13 +69,29 @@ HF-CR4 suite. CI `Test` verte `25a957e`.
   pilote ; un défaut loopback (`/favicon.ico` terminant l'attente) a été corrigé en
   `0.0.2`.
 
-== Mission Session 037 — au choix (pilote)
+== Fait en session 036 (suite) — qualité vidéo : démo de référence
 
-* **US-4 dogfooding réel** : upload d'une vidéo rendue sur `@cccp.education`
-  (accord pilote explicite ; `youtube.yaml` prêt). `videos.insert` = 1600 unités.
-* **EPIC `PUBLISH-ADAPTER-N1`** : extraire l'adaptateur YouTube commun en module
-  partagé (doctrine « seuil à 2 ») — hyperframes + capsule.
-* **Release** `hyperframes-plugin` (si de nouveaux changements code).
+Demande pilote : contenu, animations, transitions + médias libres de droit
+(publication mise de côté). Livrable `demo-video/` : composition autonome 48 s
+(5 scènes, 1920×1080/30 fps) — hook typographique, chaîne AsciiDoc→MP4 (rail +
+signal), DSL + aperçu, qualité (stats + barres), fin (liens). Transitions CSS
+(grid dissolve, 2 × blur crossfade, vertical push), chrome de plateau (timecode,
+repères, barre), typographie League Gothic + IBM Plex Mono, palette ambre/menthe.
+Médias : fibre NASA (PD), datacenter NREL (PD), hexagone CC0, icônes Lucide ISC,
+scan PD, BGM/ticks générés localement. Licences `demo-video/ATTRIBUTIONS.md`.
+
+Preuves : `lint` 0 erreur, `validate` 0 erreur console + 101 textes WCAG AA,
+`inspect` 0 erreur, rendu `out/hyperframes-demo.mp4` **48,0 s / 1920×1080 /
+30 fps / H.264+AAC** (audio moyen −28,9 dB). Écart : le DSL du plugin ne sait pas
+encore exprimer transitions/médias/chrome/entrées → EPIC `HF-DEMO-QUALITY` US-2→5.
+
+== Mission Session 037 — HF-DEMO-QUALITY US-2→US-5
+
+* **US-2 transitions** dans le DSL (bloc `transition` + génération CSS/GSAP).
+* **US-3 médias** dans le DSL (images, BGM/SFX, copie des assets).
+* **US-4 chrome + typographie display** configurables.
+* **US-5 entrées chorégraphiées** par scène (`gsap.set` + tweens).
+* Sinon : US-4 dogfooding réel (accord pilote) ou EPIC `PUBLISH-ADAPTER-N1`.
 
 == Points d'attention
 

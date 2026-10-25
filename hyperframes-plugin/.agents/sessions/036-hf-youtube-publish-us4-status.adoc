@@ -51,6 +51,30 @@ loopback (une requête parasite `/favicon.ico` terminait l'attente) corrigé en
 `0.0.2` (voir `video-kernel-gradle/youtube-auth-plugin/.agents/sessions/002-…`).
 
 '''
+== Suite de session — qualité vidéo : démo de référence (`demo-video/`)
+
+Demande pilote : « avançons sur la qualité de la vidéo quant à son contenu, ses
+animations, ses transitions, et allons chercher des contenus libres de droit ».
+La publication est mise de côté ; le livrable est une **vidéo de référence** de
+48 s qui montre la cible qualité du borough.
+
+* **Composition autonome** (`demo-video/index.html`) : 5 scènes (hook, chaîne,
+  DSL, qualité, fin), 1920 × 1080 / 30 fps, timeline GSAP unique et *seekable*,
+  transitions CSS (grid dissolve, blur crossfade ×2, vertical push), chrome de
+  plateau (timecode, repères, barre) et direction artistique ambre/menthe,
+  League Gothic + IBM Plex Mono.
+* **Médias libres de droit** (voir `demo-video/ATTRIBUTIONS.md`) : fibre NASA
+  (domaine public), datacenter NREL (domaine public), hexagone CC0 ; icônes
+  Lucide ISC ; effet de scan domaine public ; BGM + ticks **générés localement**
+  (aucun droit tiers), normalisés.
+* **Preuves** : `hyperframes lint` 0 erreur, `validate` 0 erreur console et
+  **101 éléments texte WCAG AA**, `inspect` 0 erreur (débordements de scène
+  intentionnels marqués `data-layout-allow-overflow`), rendu `out/hyperframes-demo.mp4`
+  **48,0 s / 1920×1080 / 30 fps / H.264 + AAC**, audio moyen −28,9 dB.
+* **Écart identifié** : le DSL du plugin ne sait pas exprimer transitions,
+  médias, typographie display ni chrome ; chaque capacité devient une US de
+  l'EPIC `HF-DEMO-QUALITY` (BACKLOG).
+
 == Vérification
 
 * **Local = Build, Tests = CI** : aucun code source hyperframes modifié

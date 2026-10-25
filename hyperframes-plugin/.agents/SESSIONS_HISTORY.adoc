@@ -12,6 +12,19 @@ loopback `/favicon.ico` corrigé en `0.0.2`. **US-4 (BDD) complet sur les deux
 moteurs** ; reste le dogfooding réel (accord pilote explicite). Aucun code source
 hyperframes modifié. Rapport `.agents/sessions/036-hf-youtube-publish-us4-status.adoc`.
 
+**Suite — HF-DEMO-QUALITY US-1 (démo de référence)** : `demo-video/` est une
+composition HyperFrames autonome de 48 s (5 scènes, 1920×1080/30 fps) qui fixe la
+cible qualité du borough : contenu dense, chrome de plateau, typographie display
+(League Gothic + IBM Plex Mono), palette ambre/menthe, transitions CSS (grid
+dissolve, 2 × blur crossfade, vertical push), entrées chorégraphiées par scène.
+Médias **libres de droit** : fibre NASA (PD), datacenter NREL (PD), hexagone CC0,
+icônes Lucide ISC, scan PD, BGM/ticks générés localement (licences
+`demo-video/ATTRIBUTIONS.md`). Preuves : `lint` 0 erreur, `validate` 0 erreur
+console + **101 textes WCAG AA**, `inspect` 0 erreur, MP4 **48,0 s / 1920×1080 /
+30 fps / H.264+AAC** (audio −28,9 dB moyen). Écart tracé : le DSL du plugin ne
+sait pas encore exprimer transitions/médias/chrome/entrées → EPIC
+`HF-DEMO-QUALITY` US-2→US-5.
+
 == Session 035 (2026-10-16) — EPIC `HF-YOUTUBE-PUBLISH` : cadrage + US-1 + US-1b + US-2 (transverse)
 
 Déploiement YouTube industrialisé (upload **OAuth 2.0** `videos.insert` + `thumbnails.set`,

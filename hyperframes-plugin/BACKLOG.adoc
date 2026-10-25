@@ -16,6 +16,27 @@ adaptateur `hyperframes.publish` (déploiement YouTube OAuth 2.0) + tâche
 `publishHyperframesToYouTube` + consommation `video-kernel 0.5.0`.
 Rapport `.agents/sessions/035-hf-youtube-publish-cadrage-us1-kernel.adoc`.
 
+== 🟡 EPIC HF-DEMO-QUALITY — Démo de référence + portage des capacités au DSL (S-036)
+
+_Cadre_ : `demo-video/` (composition HyperFrames autonome, sources + médias libres
+de droit) est la **cible qualité** du borough : contenu dense, animations
+chorégraphiées, transitions, chrome de plateau, médias PD/CC0. Le DSL du plugin
+(`HyperframesHtmlProcessor`) ne sait pas encore exprimer ces capacités.
+
+[cols="1,3,1", options="header"]
+|===
+| US | Livrable | Statut
+| US-1 | **Démo de référence** : `demo-video/index.html` (5 scènes, 48 s), médias libres de droit (`ATTRIBUTIONS.md`), rendu MP4 validé (lint/validate/inspect/rendu) | ✅ S-036
+| US-2 | **Transitions dans le DSL** : déclarer `grid-dissolve` / `push` / `blur-crossfade` depuis l'AsciiDoc (bloc `transition`) + génération CSS/GSAP + tests unit/BDD | 🟡 À FAIRE
+| US-3 | **Médias dans le DSL** : images (`image::`), BGM/SFX (`audio::` ou attributs docinfo), copie des assets dans `outputDir` + tests | 🟡 À FAIRE
+| US-4 | **Chrome + typographie** : timecode/repères/barre, polices display (League Gothic / IBM Plex Mono) configurables | 🟡 À FAIRE
+| US-5 | **Entrées chorégraphiées par scène** : `gsap.set` au chargement + tweens par scène (fin des apparitions groupées) | 🟡 À FAIRE
+|===
+
+_Preuve de la démo_ : `lint` 0 erreur, `validate` 0 erreur console + 101 éléments
+WCAG AA, `inspect` 0 erreur, MP4 48,0 s / 1920×1080 / 30 fps / H.264+AAC.
+Rapport `.agents/sessions/036-hf-youtube-publish-us4-status.adoc` (§ qualité vidéo).
+
 == 🟡 EPIC HF-YOUTUBE-PUBLISH — Déploiement YouTube industrialisé (transverse, S-035)
 
 _Cadrage_ : `.agents/CADRAGE_EPIC_HF_YOUTUBE_PUBLISH.adoc`.
