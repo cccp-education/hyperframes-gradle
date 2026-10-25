@@ -1,7 +1,7 @@
-= PROMPT_REPRISE — HyperFrames Gradle (Session 035 TERMINÉE → 036)
-:session: 035
-:date: 2026-10-16
-:status: ✅ TERMINÉ — EPIC `HF-YOUTUBE-PUBLISH` : cadrage + US-1 + US-1b + US-2
+= PROMPT_REPRISE — HyperFrames Gradle (Session 036 TERMINÉE → 037)
+:session: 036
+:date: 2026-10-17
+:status: ✅ TERMINÉ — EPIC `HF-YOUTUBE-PUBLISH` : BDD parité deux moteurs + garde secrets (dogfooding réel en attente d'accord pilote)
 :borough: Watts
 
 '''
@@ -9,7 +9,8 @@
 
 Plugin Gradle fonctionnel : AsciiDoc → AsciidoctorJ → HTML HyperFrames → CLI Node → MP4
 (via le noyau `VideoEngine`). EPICs HF-0→HF-7 ✅, `HF-KERNEL-ADAPTER` ✅, `HF-CR3` ✅,
-`VK-4-SHARED-PORTS` ✅, `HF-CR4` ✅, `HF-YOUTUBE-PUBLISH` ✅ (US-0→US-2, US-5).
+`VK-4-SHARED-PORTS` ✅, `HF-CR4` ✅, `HF-YOUTUBE-PUBLISH` 🟡 (US-0→US-3, US-4 BDD ✅,
+US-5 ; reste **US-4 dogfooding réel** + EPIC `PUBLISH-ADAPTER-N1`).
 **Version publiée `0.0.9`** (Maven Central). Noyau publié
 **`education.cccp:video-kernel:0.5.0`**. Catalogue ws `0.0.99` / BOM `0.0.99`.
 
@@ -53,14 +54,28 @@ HF-CR4 suite. CI `Test` verte `25a957e`.
   version) → publier MEMPHIS d'abord, attendre repo1 200, puis hyperframes.
 * **US-3a (capsule, session transverse)** : adoption du modèle neutre.
 
-== Mission Session 036 — US-3b (capsule) ou US-4 (dogfooding)
+== Fait en session 036 — US-4 (BDD parité) + garde secrets
 
-* **US-3b** (capsule) : tâche `publishCapsuleToYouTube` + adaptateur YouTube.
-  **Décision d'architecture requise** : le pipeline OAuth/HTTP (~520 lignes) vit en
-  N2 hyperframes → réutilisation par (a) **duplication verbatim N2** ou (b) **module
-  partagé N1 `youtube-publish`** (doctrine « seuil à 2 »). À arbitrer.
-* **US-4** (hyperframes) : dogfooding réel — upload sur la chaîne `@cccp.education`
-  (nécessite un `youtube.yaml` généré par le pilote, cadrage §2.2).
+* **Couverture fonctionnelle hyperframes** (commit `f8a3518`) :
+  `HyperframesPublishFunctionalTest` (TestKit hermétique, 3 tests : groupe `deploy`,
+  `skipped` par défaut, `degraded` sans credentials). Complète les 4 scénarios BDD
+  `youtube_publish.feature` (fake transport) de S-035.
+* **Parité capsule** (session transverse S-207) : `capsule_publish.feature`
+  (5 scénarios) + runner dédié + shard CI `media` + TestKit hermétique. **US-4 (BDD)
+  est complet sur les deux moteurs.**
+* **Garde secrets** : `.gitignore` couvre `youtube.yaml` **et** `client_secret_*.json`
+  (fichier téléchargé depuis Google Cloud).
+* **Enabler** : le module `youtube-auth-plugin` (video-kernel) a été dogfoodé par le
+  pilote ; un défaut loopback (`/favicon.ico` terminant l'attente) a été corrigé en
+  `0.0.2`.
+
+== Mission Session 037 — au choix (pilote)
+
+* **US-4 dogfooding réel** : upload d'une vidéo rendue sur `@cccp.education`
+  (accord pilote explicite ; `youtube.yaml` prêt). `videos.insert` = 1600 unités.
+* **EPIC `PUBLISH-ADAPTER-N1`** : extraire l'adaptateur YouTube commun en module
+  partagé (doctrine « seuil à 2 ») — hyperframes + capsule.
+* **Release** `hyperframes-plugin` (si de nouveaux changements code).
 
 == Points d'attention
 

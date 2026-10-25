@@ -1,6 +1,15 @@
 = Test Coverage Analysis — hyperframes-gradle
 
-_Dernière mise à jour_ : 2026-10-15 (Session 028 — fix audio-post BGM/ducking + garde d'intégration réel ; S-030 CI cache = workflow-only, sans impact couverture)
+_Dernière mise à jour_ : 2026-10-17 (Session 036 — HF-YOUTUBE-PUBLISH US-4 : couverture fonctionnelle TestKit de la tâche de publication)
+
+== Couverture — 17 octobre 2026 (après session 036)
+
+.HF-YOUTUBE-PUBLISH US-4 — couverture fonctionnelle de la publication
+|===
+| Élément | Nature | Tests
+
+| `HyperframesPublishFunctionalTest` (créé, commit `f8a3518`) | TestKit **hermétique** : tâche enregistrée au groupe `deploy`, `publication.json` `skipped` par défaut, `degraded` sans credentials (zéro réseau) | +3 tests ; `youtube_publish.feature` (4 scénarios BDD, fake transport) inchangée
+|===
 
 == Couverture — 15 octobre 2026 (après session 028)
 

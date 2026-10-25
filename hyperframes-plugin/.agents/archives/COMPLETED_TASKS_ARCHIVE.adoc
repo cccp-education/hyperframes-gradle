@@ -1,6 +1,16 @@
 = COMPLETED_TASKS_ARCHIVE — hyperframes-gradle
 :date: 2026-05-31
-:last-updated: 2026-10-16 (session 035)
+:last-updated: 2026-10-17 (session 036)
+
+== Session 036 (2026-10-17) — HF-YOUTUBE-PUBLISH US-4 : BDD parité + garde secrets ✅
+
+* [x] `HyperframesPublishFunctionalTest` (TestKit hermétique, 3 tests) — commit `f8a3518`.
+* [x] Parité capsule (S-207) : `capsule_publish.feature` 5 scénarios + runner + shard
+  `media` + TestKit hermétique.
+* [x] `.gitignore` : `youtube.yaml` + `client_secret_*.json`.
+* [x] Enabler video-kernel : `youtube-auth-plugin 0.0.2` (loopback `/favicon.ico`).
+* [ ] US-4b dogfooding réel (accord pilote explicite).
+* [ ] EPIC `PUBLISH-ADAPTER-N1` (module partagé).
 
 == Session 035 (2026-10-16) — EPIC `HF-YOUTUBE-PUBLISH` : cadrage + US-1 + US-1b + US-2 ✅
 

@@ -1,5 +1,17 @@
 = SESSIONS_HISTORY — hyperframes-gradle
 
+== Session 036 (2026-10-17) — HF-YOUTUBE-PUBLISH US-4 : BDD parité + garde secrets (transverse)
+
+`HyperframesPublishFunctionalTest` (TestKit hermétique, 3 tests : groupe `deploy`,
+`skipped` par défaut, `degraded` sans credentials — commit `f8a3518`) complète les
+4 scénarios BDD `youtube_publish.feature` de S-035. Parité capsule livrée en session
+transverse S-207 (`capsule_publish.feature` 5 scénarios + runner dédié + shard `media`
++ TestKit hermétique). `.gitignore` couvre `youtube.yaml` **et** `client_secret_*.json`.
+Enabler : dogfooding pilote du module `youtube-auth-plugin` (video-kernel), défaut
+loopback `/favicon.ico` corrigé en `0.0.2`. **US-4 (BDD) complet sur les deux
+moteurs** ; reste le dogfooding réel (accord pilote explicite). Aucun code source
+hyperframes modifié. Rapport `.agents/sessions/036-hf-youtube-publish-us4-status.adoc`.
+
 == Session 035 (2026-10-16) — EPIC `HF-YOUTUBE-PUBLISH` : cadrage + US-1 + US-1b + US-2 (transverse)
 
 Déploiement YouTube industrialisé (upload **OAuth 2.0** `videos.insert` + `thumbnails.set`,

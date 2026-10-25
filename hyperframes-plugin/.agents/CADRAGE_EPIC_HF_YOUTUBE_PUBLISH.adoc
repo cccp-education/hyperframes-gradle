@@ -3,7 +3,7 @@
 :_session_: S-035
 :_date_: 2026-10-16
 :_pilote_: hyperframes (Watts) · transverse video-kernel (N1) + capsule (Détroit)
-:_statut_: 🟡 CADRÉ — US-0 terminé, US-1 amorcé (noyau)
+:_statut_: 🟡 EN COURS — US-0→US-3 ✅, US-4 BDD ✅ (deux moteurs) ; reste US-4 dogfooding réel (accord pilote) + module partagé `PUBLISH-ADAPTER-N1`
 
 '''
 == 1. Objectif
@@ -242,19 +242,19 @@ de description) ; l'**adaptateur HTTP/OAuth** reste N2 (frontière noyau : pas d
   `VideoPublicationValidator`, `VideoDescriptionComposer`, `VideoPublisher`
   (port), `VideoPublicationResult` + tests unit + manifeste d'API. Version
   `0.4.0 → 0.5.0`. | ✅ S-035 (code) | M
-| US-1b | **Publication `video-kernel 0.5.0`** (Central, accord pilote) + BOM/catalog. | 🟡 À FAIRE | S
+| US-1b | **Publication `video-kernel 0.5.0`** (Central, accord pilote) + BOM/catalog. | ✅ S-035 | S
 | US-2 | **hyperframes** : `hyperframes.publish` — `YouTubeDataApiPublisher`
   (OAuth refresh-token + resumable upload + `thumbnails.set`), `PublicationBuilder`,
   `HyperframesPublisherResolver`, `youtube.yaml` loader (`YouTubeCredentials`,
   logs rédigés), tâche `publishHyperframesToYouTube` (groupe `deploy`), 9–12
-  properties d'extension, `youtube_example.yaml`. | 🟡 À FAIRE | L
+  properties d'extension, `youtube_example.yaml`. | ✅ S-035 | L
 | US-3 | **capsule** : `capsule.adapter.youtube.YouTubePublisher` + tâche
   `publishCapsuleToYouTube` ; **adoption** du modèle neutre
-  (`VideoDescriptionBuilder`/`YouTubeChaptersFormatter` délégués au noyau). | 🟡 À FAIRE | M
+  (`VideoDescriptionBuilder`/`YouTubeChaptersFormatter` délégués au noyau). | ✅ S-205 (US-3a) + S-206 (US-3b) | M
 | US-4 | **BDD + dogfooding** : features `@publish` (fake publisher) sur
-  hyperframes + capsule ; dogfooding réel skip-gardé (accord pilote). | 🟡 À FAIRE | M
+  hyperframes + capsule ; dogfooding réel skip-gardé (accord pilote). | ✅ BDD S-035/S-036 + S-207 ; **dogfooding réel 🟡 (accord pilote)** | M
 | US-5 | **Release** `hyperframes-plugin 0.0.9` + `capsule-plugin` (contenu
-  publish) + MEMPHIS BOM/catalog. | 🟡 À FAIRE | S
+  publish) + MEMPHIS BOM/catalog. | ✅ S-035 (`capsule-plugin` non publié — accord pilote requis) | S
 |===
 
 '''

@@ -1,0 +1,71 @@
+= Session 036 — HF-YOUTUBE-PUBLISH : clôture de la parité BDD + garde secrets
+:session: 036
+:date: 2026-10-17
+:borough: Watts (hyperframes) — session transverse video-kernel + capsule
+:epic: HF-YOUTUBE-PUBLISH
+:statut: ✅ TERMINÉE (US-4 : BDD parité ✅ / dogfooding réel 🟡 accord pilote)
+
+'''
+== Contexte
+
+L'EPIC transverse `HF-YOUTUBE-PUBLISH` est à un US de sa clôture fonctionnelle.
+La session S-035 avait livré le noyau N1, l'adaptateur hyperframes et la release
+`0.0.9` ; la session transverse S-206 avait livré l'adaptateur capsule (US-3b)
+sans BDD. Cette session solde la **parité d'acceptation** et durcit l'hygiène
+des secrets OAuth.
+
+'''
+== Fait en session
+
+=== 1. Couverture fonctionnelle hyperframes (commit `f8a3518`)
+
+`HyperframesPublishFunctionalTest` (TestKit, hermétique, zéro réseau) :
+
+* la tâche `publishHyperframesToYouTube` est enregistrée dans le groupe `deploy` ;
+* désactivée par défaut → `publication.json` `skipped=true` ;
+* activée sans `youtube.yaml` → `degraded` (resolver atteint, échec propre, pas
+  de levée).
+
+Complète la BDD `youtube_publish.feature` (4 scénarios, transport factice) livrée
+en S-035.
+
+=== 2. Parité capsule (US-4)
+
+La moitié capsule est livrée en session transverse S-207 :
+`capsule_publish.feature` (5 scénarios, fake transport) + runner dédié +
+rattachement shard CI `media` + `PublishCapsuleToYouTubeFunctionalTest`.
+**US-4 (BDD)** est donc complet sur les **deux** moteurs.
+
+=== 3. Garde secrets OAuth
+
+`.gitignore` : `youtube.yaml` (déjà) + **`client_secret_*.json`** (fichier
+téléchargé depuis Google Cloud lors de la création du client OAuth). Le fichier
+de credentials réel n'est jamais versionné ; `youtube_example.yaml` documente le
+format.
+
+=== 4. Enabler video-kernel (session transverse)
+
+Le flux d'obtention du refresh token (`obtainYouTubeRefreshToken`, module
+`youtube-auth-plugin`) a été dogfoodé par le pilote. Il a révélé un défaut
+loopback (une requête parasite `/favicon.ico` terminait l'attente) corrigé en
+`0.0.2` (voir `video-kernel-gradle/youtube-auth-plugin/.agents/sessions/002-…`).
+
+'''
+== Vérification
+
+* **Local = Build, Tests = CI** : aucun code source hyperframes modifié
+  cette session (tests déjà committés) ; la preuve reste la CI du commit poussé
+  (`test-hyperframes.yml` : `test`, `functionalTest`, `cucumberTest`, `check`).
+* Zéro secret commité.
+
+'''
+== Reste
+
+* **US-4 — dogfooding réel** : upload d'une vidéo rendue sur
+  `@cccp.education` (`publishHyperframesToYouTube`, `youtube.yaml` prêt côté
+  dépôt). **Accord pilote explicite requis** (Règle 2 — PUBLISH ;
+  `videos.insert` = 1600 unités de quota, ~6 publications/jour au quota par
+  défaut).
+* **EPIC `PUBLISH-ADAPTER-N1`** (option b) : extraire l'adaptateur commun en
+  module partagé (doctrine « seuil à 2 ») — duplication verbatim N2 assumée
+  aujourd'hui par hyperframes + capsule.

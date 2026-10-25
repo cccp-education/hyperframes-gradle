@@ -2,13 +2,13 @@
 :toc:
 
 _Règles absolues_ : voir `AGENT.adoc`
-_Derniere mise a jour_ : 2026-10-16 (Session 035 — **EPIC `HF-YOUTUBE-PUBLISH`** : cadrage + **US-1** noyau `video.kernel.publish` (`0.4.0 → 0.5.0`) + **US-1b** publication `video-kernel 0.5.0` Central (bundle `85598927`) + **US-2** adaptateur `hyperframes.publish` (OAuth 2.0 + resumable upload + `thumbnails.set`) + tâche `publishHyperframesToYouTube` + **US-1c/US-5 release `hyperframes-plugin 0.0.9`** (MEMPHIS `0.0.99`, catalogue `video-kernel 0.5.0`)). Cf. `.agents/sessions/035-hf-youtube-publish-cadrage-us1-kernel.adoc`.)
+_Derniere mise a jour_ : 2026-10-17 (Session 036 — **HF-YOUTUBE-PUBLISH US-4 (BDD parité)** : `HyperframesPublishFunctionalTest` TestKit hermétique + parité capsule (`capsule_publish.feature` 5 scénarios, S-207) + garde secrets `.gitignore` (`client_secret_*.json`) ; **dogfooding réel** en attente d'accord pilote. Cf. `.agents/sessions/036-hf-youtube-publish-us4-status.adoc`.)
 _DAG_ : N2 — Plugin Gradle de transformation documentaire AsciiDoc → vidéo MP4
 _Dépendance N2_ : codex-gradle (compileOnly, AsciidoctorJ partagé)
 _Bridge externe_ : HyperFrames CLI via le noyau `VideoEngine` (`node <cliScript> render <dir> --output <mp4>`)
 
-_Dernière session terminée_ : 035 — **EPIC `HF-YOUTUBE-PUBLISH` : cadrage + US-1 + US-1b + US-2**. Rapport `.agents/sessions/035-hf-youtube-publish-cadrage-us1-kernel.adoc`.
-_Prochaine session_ : 036 — **US-3b** (capsule `publishCapsuleToYouTube`, décision duplication N2 vs module N1) ou **US-4** (dogfooding réel, `youtube.yaml` pilote). US-1c (MEMPHIS `0.0.99`/`video-kernel 0.5.0`) ✅ livré.
+_Dernière session terminée_ : 036 — **HF-YOUTUBE-PUBLISH US-4 (BDD parité) + garde secrets**. Rapport `.agents/sessions/036-hf-youtube-publish-us4-status.adoc`.
+_Prochaine session_ : 037 — **US-4 dogfooding réel** (accord pilote explicite) ou **EPIC `PUBLISH-ADAPTER-N1`** (module partagé). US-3b (capsule) ✅ S-206 ; BDD capsule ✅ S-207.
 _Version publiée_ : **0.0.9** (Maven Central) + Gradle Plugin Portal (handle `cccp-education`). Catalogue ws **`0.0.99`** (BOM `0.0.99`), noyau **`video-kernel 0.5.0`**.
 
 '''
@@ -59,7 +59,7 @@ _Version publiée_ : **0.0.9** (Maven Central) + Gradle Plugin Portal (handle `c
 | HF-CR4-REL | **Release `hyperframes-plugin 0.0.7`** (Central) — DAG MEMPHIS `workspace-bom/catalog 0.0.97` (bundle `5bb28984`) → hyperframes (bundle `1e5c734d`). | ✅ **TERMINÉ (S-032)** | P0
 | HF-CR4-SUB | **Scènes en sous-compositions** — `data-composition-id` par scène + une piste par scène + timeline propre ré-enregistrée : supprime les 7 warnings `nested_structure_needs_subcomposition` + `timeline_track_too_dense`. | ✅ **TERMINÉ (S-033)** — lint **0/0**, check passed | P2
 | HF-CR4-REL2 | **Release `hyperframes-plugin 0.0.8`** (Central) — DAG MEMPHIS `0.0.98` (bundle `59a780ce`) → hyperframes (bundle `a34abddf`). Contenu : HF-CR4 suite. | ✅ **TERMINÉ (S-034)** | P0
-| HF-YOUTUBE-PUBLISH | **Déploiement YouTube industrialisé** (transverse hyperframes/video-kernel/capsule) — upload automatique OAuth 2.0 (`videos.insert` resumable + `thumbnails.set`) + titre/description/chapitres/hashtags/liens/navigation. N1 `video.kernel.publish` (modèle + port `VideoPublisher` + validation + composition) ↔ N2 adaptateurs. Cadrage `.agents/CADRAGE_EPIC_HF_YOUTUBE_PUBLISH.adoc`. | 🟡 **EN COURS** — US-0 ✅ + US-1 ✅ + US-1b ✅ (noyau publié) + US-2 ✅ (hyperframes) + US-1c ✅ + US-5 ✅ (release `0.0.9`) ; US-3a ✅ (capsule) + reste US-3b (tâche capsule) + US-4 (dogfooding) 🟡 À FAIRE | P1
+| HF-YOUTUBE-PUBLISH | **Déploiement YouTube industrialisé** (transverse hyperframes/video-kernel/capsule) — upload automatique OAuth 2.0 (`videos.insert` resumable + `thumbnails.set`) + titre/description/chapitres/hashtags/liens/navigation. N1 `video.kernel.publish` (modèle + port `VideoPublisher` + validation + composition) ↔ N2 adaptateurs. Cadrage `.agents/CADRAGE_EPIC_HF_YOUTUBE_PUBLISH.adoc`. | 🟡 **EN COURS** — US-0 ✅ + US-1 ✅ + US-1b ✅ (noyau publié) + US-2 ✅ (hyperframes) + US-1c ✅ + US-5 ✅ (release `0.0.9`) + US-3a ✅ (capsule) + US-3b ✅ (capsule S-206) + **US-4 BDD ✅ (deux moteurs : hyperframes S-035/S-036, capsule S-207)** ; reste **US-4 dogfooding réel** 🟡 (accord pilote) + EPIC `PUBLISH-ADAPTER-N1` | P1
 |===
 
 '''

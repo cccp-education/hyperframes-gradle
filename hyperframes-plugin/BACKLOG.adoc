@@ -48,11 +48,20 @@ lecture publique. Guide de génération : cadrage §2.2.
 | US-1c | Alignement MEMPHIS `workspace-bom`/`workspace-catalog` (`0.0.99` : `video-kernel 0.5.0`) | MEMPHIS | ✅ S-035
 | US-3a | Adoption capsule du modèle neutre (`YouTubeChaptersFormatter.formatTimestamp` +
   `VideoDescriptionBuilder.FORBIDDEN_CHARS` délégués au noyau ; `video-kernel 0.5.0`). | capsule | ✅ S-035
-| US-3b | Tâche `publishCapsuleToYouTube` + adaptateur YouTube (décision
-  duplication verbatim N2 **ou** module partagé N1 `youtube-publish`). | capsule | 🟡 À FAIRE
-| US-4 | Dogfooding réel skip-gardé (upload réel — accord pilote + `youtube.yaml` généré). | hyperframes + capsule | 🟡 À FAIRE
+| US-3b | Tâche `publishCapsuleToYouTube` + adaptateur YouTube (décision (a)
+  duplication verbatim N2 retenue — doctrine « seuil à 2 » : implémentation N2 d'un
+  port N1 tolérée). | capsule | ✅ S-206
+| US-4 | **BDD `@publish` sur les deux moteurs** : hyperframes (4 scénarios + TestKit
+  hermétique) + capsule (5 scénarios + TestKit hermétique, S-207). | hyperframes + capsule | ✅ S-035/S-036/S-207
+| US-4b | **Dogfooding réel** (upload `@cccp.education` — accord pilote explicite). | hyperframes + capsule | 🟡 À FAIRE
 | US-5 | Release `hyperframes-plugin 0.0.9` (DAG MEMPHIS `0.0.99`). | — | ✅ S-035
 |===
+
+_Session 036 (2026-10-17)_ : couverture fonctionnelle TestKit hyperframes
+(`HyperframesPublishFunctionalTest`, commit `f8a3518`), `.gitignore`
+`client_secret_*.json`, parité capsule livrée en S-207. Le module
+`youtube-auth-plugin` (video-kernel) a été dogfoodé par le pilote (correctif loopback
+`0.0.2`).
 
 _Littérature de référence (patrons)_ : `capsule/publish/VideoDescriptionBuilder`,
 `capsule/chapters/YouTubeChaptersFormatter`, `capsule/FishAudioKey` (rédaction
