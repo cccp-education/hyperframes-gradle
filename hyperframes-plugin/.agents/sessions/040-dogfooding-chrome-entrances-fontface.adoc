@@ -1,0 +1,56 @@
+= Session 040 — Dogfooding réel chrome/entrées + correctifs typographiques
+:session: 040
+:date: 2026-10-26
+:borough: Watts
+:statut: ✅ TERMINÉ
+
+== Mission
+
+Exercer le DSL S-038 (chrome + entrées) dans un consommateur réel `/tmp` en
+`includeBuild`, puis passer les gates HyperFrames (`lint`, `check`, rendu MP4).
+
+== Protocole
+
+* Consommateur `/tmp/opencode/hf-dogfood-s040` — `includeBuild` du plugin,
+  aucune publication.
+* Document AsciiDoc 4 scènes (titre + 3 sections), chrome activé
+  (`HYP-FRAMES / S040`) et entrées chorégraphiées.
+* `hyperframes@0.8.205`, Chromium, ffmpeg/ffprobe locaux.
+
+== Défauts révélés (corrigés)
+
+. **`font_family_without_font_face`** — `hyperframes lint` rejette `Impact`
+   (et toute famille nommée) sans déclaration `@font-face`, même avec un
+   fallback générique. Correctif : `TypographyConfig.fontFaceCss()` émet un
+   `@font-face{font-family:'X';src:local('X')}` par famille nommée, dédupliqué,
+   génériques exclus (`sans-serif`, `monospace`, `system-ui`, …).
+. **`text_below_floor`** — le timecode chrome (19 px) et le code inline (27 px)
+   sous le plancher de 28 px. Correctif : topbar chrome `28 px`, `pre` `32 px`.
+. Le warning `film_silent` reste **attendu** : le document de dogfooding n'a
+   pas de piste audio (aucun bug).
+
+== Preuve
+
+[cols="2,3"]
+|===
+| Gate | Résultat
+
+| `hyperframes lint build/hyperframes` | ✅ **0 error / 0 warning**
+| `hyperframes check build/hyperframes` | ✅ **Check passed** — Lint 0/0, Runtime 0/0, Layout 0 issue, Motion 0/0, Contrast 9/9 WCAG AA ; 1 warning Craft `film_silent` (sans audio)
+| `renderHyperframes` | ✅ `hf-dogfood-s040.mp4` — 1 072 167 o
+| `ffprobe` | ✅ **H.264 / 1920×1080 / 20,000 s**
+|===
+
+== Fichiers
+
+* `hyperframes/chrome/TypographyConfig.kt` — `fontFaceCss()`.
+* `HyperframesHtmlProcessor.kt` — injection `@font-face`, topbar 28 px, `pre` 32 px.
+* Tests : `TypographyConfigTest` (+2), `HyperframesHtmlProcessorChromeTest` (+2
+  assertions), `HyperframesChromeFunctionalTest` (+2 assertions), BDD chrome
+  (+1 scénario `@quality-chrome`).
+* Rapport `.agents/sessions/040-dogfooding-chrome-entrances-fontface.adoc`.
+
+== Gates locaux
+
+`compileKotlin compileTestKotlin compileFunctionalTestKotlin` VERT. Aucun test
+local exécuté (Local = Build, Tests = CI). Publication corrective : S-041.

@@ -1,0 +1,45 @@
+= Session 041 — Release corrective `hyperframes-plugin 0.0.11`
+:session: 041
+:date: 2026-10-26
+:borough: Watts
+:statut: ✅ TERMINÉ
+
+== Mission
+
+Publier le correctif S-040 (`@font-face … src: local(...)` + plancher
+typographique), la `0.0.10` échouant `hyperframes lint`.
+
+== Modifications
+
+[cols="2,2,4"]
+|===
+| Fichier | Avant | Après
+
+| `hyperframes-plugin/gradle/libs.versions.toml` | `hyperframes = "0.0.10"` | `0.0.11`
+| `hyperframes-plugin/settings.gradle.kts` | `workspace-catalog:0.0.106` | `0.0.108`
+| `hyperframes-plugin/build.gradle.kts` | `workspace-bom:0.0.106` | `0.0.108`
+|===
+
+== Publication
+
+[cols="2,3"]
+|===
+| Étape | Résultat
+
+| MEMPHIS BOM/catalog `0.0.108` | ✅ bundle `566b2ba8-b4e6-4c3b-934f-bb9c9f150385`, propagation repo1 200
+| `publishToMavenLocal` | ✅ VERT — POM `0.0.11` importe `workspace-bom:0.0.108`
+| `publishAggregationToCentralPortal` | ✅ bundle **`5e1db54d-cf84-4ab9-8056-aae3157abe4a`** (AUTOMATIC)
+| Propagation repo1 | ✅ `hyperframes-plugin/0.0.11` + marker `education.cccp.hyperframes.gradle.plugin/0.0.11` HTTP 200
+|===
+
+== Contenu depuis `0.0.10`
+
+* `fontFaceCss()` : `@font-face{font-family:'X';src:local('X')}` par famille
+  nommée (dédupliqué, génériques exclus) → lint 0/0.
+* Topbar chrome 28 px, `pre` 32 px → plancher typographique.
+* Preuve dogfooding S-040 : lint 0/0, check passed, MP4 H.264 1920×1080 / 20 s.
+
+== Gates
+
+Local = Build : compiles ×3 VERTS, `publishToMavenLocal` VERT. Aucun test local.
+CI de la clôture : à vérifier sur le run du commit poussé.

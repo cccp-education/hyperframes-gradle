@@ -133,6 +133,20 @@ class HfDemoQualityChromeSteps {
         }
     }
 
+    @Then("the quality chrome declares a local font face for {string}")
+    fun localFontFace(family: String) {
+        check(enhanced.contains("@font-face{font-family:'$family';src:local('$family')}")) {
+            "expected a local @font-face for $family"
+        }
+    }
+
+    @Then("the quality chrome does not declare a font face for {string}")
+    fun noFontFaceForGeneric(family: String) {
+        check(!enhanced.contains("font-family:'$family'")) {
+            "generic family $family must not be declared as a font face"
+        }
+    }
+
     @Then("the quality chrome renders no progress bar")
     fun progressBarAbsent() {
         check(!enhanced.contains("""id="hf-chrome-progress"""")) {

@@ -78,6 +78,8 @@ class HyperframesChromeFunctionalTest {
         assertContains(html, "LAB · 01 / 02")
         assertContains(html, """--hf-display-font:"League Gothic", Impact, sans-serif""")
         assertContains(html, """--hf-mono-font:"IBM Plex Mono", monospace""")
+        assertContains(html, "@font-face{font-family:'League Gothic';src:local('League Gothic')}")
+        assertContains(html, "@font-face{font-family:'IBM Plex Mono';src:local('IBM Plex Mono')}")
     }
 
     @Test

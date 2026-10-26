@@ -326,6 +326,10 @@ class HyperframesHtmlProcessor internal constructor(
                     .replace("__DISPLAY_FONT__", typography.displayFont)
                     .replace("__MONO_FONT__", typography.monoFont)
             )
+            val fontFaces = typography.fontFaceCss()
+            if (fontFaces.isNotBlank()) {
+                appendLine(fontFaces)
+            }
             if (chrome.enabled) {
                 appendLine(CHROME_CSS)
             }
@@ -1043,7 +1047,7 @@ html,body{width:__W__px;height:__H__px;overflow:hidden;background:var(--bg);
 .scene-inner a{color:var(--accent);text-decoration:none}
 .scene-inner code{font-family:var(--hf-mono-font);font-size:.9em;
   background:var(--card);border:1px solid var(--line);border-radius:8px;padding:2px 10px}
-.scene-inner pre{font-family:var(--hf-mono-font);font-size:30px;line-height:1.5;
+.scene-inner pre{font-family:var(--hf-mono-font);font-size:32px;line-height:1.5;
   background:var(--card);border:1px solid var(--line);border-radius:16px;padding:36px 44px;overflow:hidden;color:#e2e8f0}
 .scene-inner img{max-width:900px;max-height:620px;border-radius:16px}
 .scene-inner blockquote{border-left:8px solid var(--accent);padding-left:36px;
@@ -1087,7 +1091,7 @@ html,body{width:__W__px;height:__H__px;overflow:hidden;background:var(--bg);
 .hf-chrome-marks span:nth-child(4){right:34px;bottom:34px;border-left:0;border-top:0}
 .hf-chrome-topbar{position:absolute;top:38px;left:88px;right:88px;display:flex;
   justify-content:space-between;align-items:center;padding:9px 14px;font-family:var(--hf-mono-font);
-  font-size:19px;letter-spacing:.22em;color:#c9d1d4;background:rgba(9,12,14,.9);
+  font-size:28px;letter-spacing:.18em;color:#c9d1d4;background:rgba(9,12,14,.9);
   border:1px solid rgba(248,250,252,.14)}
 .hf-chrome-timecode{color:var(--accent)}
 .hf-chrome-progress{position:absolute;left:0;right:0;bottom:0;height:6px;z-index:60;

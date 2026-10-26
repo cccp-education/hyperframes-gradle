@@ -2,9 +2,19 @@
 :toc:
 
 _Date création_ : 2026-05-31
-_Version_ : **0.0.10 (Central)** — HEAD S-039 publié ; catalogue/BOM ws **`0.0.106`**.
+_Version_ : **0.0.11 (Central)** — HEAD S-041 publié ; catalogue/BOM ws **`0.0.108`**.
 
 '''
+== ✅ Release corrective `hyperframes-plugin 0.0.11` — Maven Central (S-041)
+
+DAG N0→N2 : MEMPHIS BOM/catalog `0.0.107 → 0.0.108` (bundle `566b2ba8`,
+propagation repo1 200) → hyperframes re-pin `workspace-catalog/BOM 0.0.108` +
+toml `0.0.11` → **Central bundle `5e1db54d`** (AUTOMATIC), propagation repo1 200
+(plugin + marker). Contenu S-040 : `@font-face … src: local(...)` par famille
+nommée (lint 0/0) + plancher typographique (topbar 28 px, `pre` 32 px), révélé
+par le dogfooding chrome/entrées. Rapports `.agents/sessions/040-…` +
+`041-release-0.0.11.adoc`.
+
 == ✅ Release `hyperframes-plugin 0.0.10` — Maven Central (S-039)
 
 Release DAG N0→N2 : **MEMPHIS** `workspace-bom`/catalog `0.0.105 → 0.0.106`
@@ -65,7 +75,7 @@ Rapport `.agents/sessions/036-hf-youtube-publish-us4-status.adoc` (§ qualité v
   **CI `Test` run `40276785081` VERTE**.
 * **Transverse** : aucun port N1 n'émerge de cette US (chrome et entrées sont
   du rendu HTML propre à hyperframes) → `video-kernel` et `capsule` inchangés.
-* **Release** : `0.0.10` publiée S-039 (Central `ca092903`, catalogue ws `0.0.106`).
+* **Release** : `0.0.11` publiée S-041 (corrective, Central `5e1db54d`, catalogue ws `0.0.108`).
 
 == ⏸️ EPIC HF-YOUTUBE-PUBLISH — Déploiement YouTube industrialisé (transverse, S-035) — GELÉ (S-037)
 

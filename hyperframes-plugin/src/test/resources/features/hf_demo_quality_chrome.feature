@@ -28,6 +28,14 @@ Feature: HF-DEMO-QUALITY US-4 — studio chrome and typography
     And the quality chrome mono font variable is "IBM Plex Mono, monospace"
     And the quality chrome headings use the display font
 
+  Scenario: Typography declares local font faces for lint
+    Given a quality chrome document with two scenes
+    When I enhance the quality chrome document with display font "League Gothic, Impact, sans-serif" and mono font "IBM Plex Mono, monospace"
+    Then the quality chrome declares a local font face for "League Gothic"
+    And the quality chrome declares a local font face for "Impact"
+    And the quality chrome declares a local font face for "IBM Plex Mono"
+    And the quality chrome does not declare a font face for "sans-serif"
+
   Scenario: The progress bar can be disabled
     Given a quality chrome document with two scenes
     When I enhance the quality chrome document with chrome enabled and the progress bar disabled

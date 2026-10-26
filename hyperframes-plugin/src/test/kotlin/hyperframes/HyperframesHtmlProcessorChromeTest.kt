@@ -93,6 +93,8 @@ class HyperframesHtmlProcessorChromeTest {
 
         assertContains(result, """--hf-display-font:"League Gothic", Impact, sans-serif""")
         assertContains(result, """--hf-mono-font:"IBM Plex Mono", monospace""")
+        assertContains(result, "@font-face{font-family:'League Gothic';src:local('League Gothic')}")
+        assertContains(result, "@font-face{font-family:'IBM Plex Mono';src:local('IBM Plex Mono')}")
         assertContains(result, ".scene-inner h2{font-family:var(--hf-display-font)")
         assertContains(result, ".scene-inner pre{font-family:var(--hf-mono-font)")
     }

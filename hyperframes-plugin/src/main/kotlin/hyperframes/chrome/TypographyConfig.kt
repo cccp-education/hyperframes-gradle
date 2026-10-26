@@ -26,6 +26,31 @@ data class TypographyConfig(
         }
     }
 
+    /**
+     * HF-DEMO-QUALITY US-4 (dogfooding S-040) — emits one `@font-face` per named
+     * family with `src: local(...)`.
+     *
+     * HyperFrames' lint rejects a named font family that has no `@font-face`,
+     * even when the stack has a generic fallback (the renderer would silently
+     * substitute a different typeface). The declaration alone satisfies the
+     * contract; an OS-bundled font is resolved locally, no network fetch.
+     *
+     * Generic families (`sans-serif`, `monospace`, `system-ui`, …) are skipped.
+     */
+    fun fontFaceCss(): String =
+        (familiesOf(displayFont) + familiesOf(monoFont))
+            .distinctBy { it.lowercase() }
+            .filterNot { it.lowercase() in GENERIC_FAMILIES }
+            .joinToString("\n") { family ->
+                val escaped = family.replace("\\", "\\\\").replace("'", "\\'")
+                "@font-face{font-family:'$escaped';src:local('$escaped')}"
+            }
+
+    private fun familiesOf(stack: String): List<String> =
+        stack.split(',')
+            .map { it.trim().trim('"', '\'').trim() }
+            .filter { it.isNotBlank() }
+
     companion object {
         const val DEFAULT_DISPLAY_FONT = """"League Gothic", "Arial Narrow", Impact, sans-serif"""
         const val DEFAULT_MONO_FONT = """"IBM Plex Mono", "JetBrains Mono", ui-monospace, monospace"""
@@ -36,5 +61,11 @@ data class TypographyConfig(
          * the CSS declaration it is injected into.
          */
         private val SAFE_FONT_STACK = Regex("""^[A-Za-z0-9 ,"'_\-]+$""")
+
+        private val GENERIC_FAMILIES = setOf(
+            "serif", "sans-serif", "monospace", "cursive", "fantasy",
+            "system-ui", "ui-serif", "ui-sans-serif", "ui-monospace", "ui-rounded",
+            "emoji", "math", "fangsong", "-apple-system", "blinkmacsystemfont",
+        )
     }
 }

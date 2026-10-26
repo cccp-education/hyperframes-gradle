@@ -611,3 +611,22 @@ bundle `ca092903` (AUTOMATIC), propagation repo1 200 (plugin + marker). POM
 `0.0.10` importe `workspace-bom:0.0.106`. Contenu : `HF-DEMO-QUALITY` US-4
 chrome/typographie + US-5 entrées chorégraphiées. Zéro code produit modifié.
 Rapport `.agents/sessions/039-release-0.0.10.adoc`.
+
+== Session 040 (2026-10-26) — Dogfooding chrome/entrées + correctifs typographiques
+
+Consommateur `/tmp/opencode/hf-dogfood-s040` en `includeBuild` (aucune publication),
+AsciiDoc 4 scènes, chrome + entrées, `hyperframes@0.8.205`. **Défauts réels corrigés** :
+`font_family_without_font_face` (`Impact`) → `TypographyConfig.fontFaceCss()` émet
+`@font-face{font-family:'X';src:local('X')}` par famille nommée (dédupliqué, génériques
+exclus) ; `text_below_floor` → topbar chrome 28 px, `pre` 32 px. **Preuve** : lint
+**0/0**, `check` **passed** (Contrast 9/9 AA ; 1 warning `film_silent` attendu sans
+audio), MP4 **H.264 1920×1080 / 20,000 s / 1 072 167 o**. +2 UT, +2 assertions FT,
++2 assertions processor, +1 scénario BDD. Rapport
+`.agents/sessions/040-dogfooding-chrome-entrances-fontface.adoc`.
+
+== Session 041 (2026-10-26) — Release corrective `hyperframes-plugin 0.0.11`
+
+DAG N0→N2 : MEMPHIS BOM/catalog `0.0.107 → 0.0.108` (bundle `566b2ba8`, propagation
+repo1 200) → hyperframes re-pin `workspace-catalog/BOM 0.0.108` + toml `0.0.11` →
+Central bundle `5e1db54d` (AUTOMATIC), propagation repo1 200 (plugin + marker).
+Contenu : correctifs S-040. Rapport `.agents/sessions/041-release-0.0.11.adoc`.
