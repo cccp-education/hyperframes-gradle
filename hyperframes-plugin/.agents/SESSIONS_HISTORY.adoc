@@ -587,3 +587,18 @@ Rapport `.agents/sessions/034-release-0.0.8.adoc`.
 
 
 
+== Session 038 (2026-10-26) — HF-DEMO-QUALITY US-4 + US-5 (EPIC TERMINÉ)
+
+Portage au DSL des deux dernières capacités de la démo de référence.
+**US-4** : domaine pur `hyperframes.chrome` (`ChromeConfig`, `TypographyConfig`,
+`ChromeRenderer`) — timecode `HH:MM:SS:FF` par scène, 4 repères, barre de
+progression globale pilotée par `rootTl`, piles CSS display/mono offline.
+**US-5** : domaine pur `hyperframes.entrance` (`EntranceConfig`,
+`SceneEntrancePlanner`) — `gsap.set` au chargement, stagger déterministe par
+atome, sélecteurs scellés par scène. DSL opt-in : `chromeEnabled`,
+`chromeTimecode`, `chromeCornerMarks`, `chromeProgressBar`, `chromeLabel`,
+`entrancesEnabled`, `displayFont`, `monoFont`. **Preuves** : 23 UT, 4 FT TestKit,
+7 BDD (`@quality-chrome`, `@quality-entrances`). **Local = Build** (compiles
+VERT) ; preuve = CI. Aucun port N1 → `video-kernel`/`capsule` inchangés.
+**EPIC HF-DEMO-QUALITY TERMINÉ 5/5**. Reste release `0.0.10`.
+Rapport `.agents/sessions/038-hf-demo-quality-us4-us5-chrome-entrances.adoc`.

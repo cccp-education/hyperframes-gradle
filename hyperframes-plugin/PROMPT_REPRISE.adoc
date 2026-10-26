@@ -1,11 +1,11 @@
-= PROMPT_REPRISE — HyperFrames Gradle (Session 037 TERMINÉE → 038)
-:session: 037
+= PROMPT_REPRISE — HyperFrames Gradle (Session 038 TERMINÉE → 039)
+:session: 038
 :date: 2026-10-26
-:status: ✅ TERMINÉ — HF-DEMO-QUALITY US-2b (blur-crossfade + vertical-push)
+:status: ✅ TERMINÉ — HF-DEMO-QUALITY US-4 + US-5 (EPIC TERMINÉ)
 :borough: Watts
 
 '''
-== Décision pilote S-037
+== Décision pilote S-037 (rappel)
 
 * **Arrêt du déploiement YouTube** (`HF-YOUTUBE-PUBLISH`, `youtube-auth-plugin`,
   `publishHyperframesToYouTube` / `publishCapsuleToYouTube`) : hors scope.
@@ -14,57 +14,63 @@
 
 == État des lieux
 
-* `HF-DEMO-QUALITY` : US-1 ✅ S-036, US-2 cover ✅ S-036, **US-2b overlap ✅ S-037**,
-  US-3 médias ✅ S-036 ; restent **US-4** (chrome/typographie) et **US-5**
-  (entrées chorégraphiées).
-* **US-2b livré** : `blur-crossfade` + `vertical-push`, chevauchement 0,6 s,
-  `data-start` entrant décalé, `rootTl` anime les deux wrappers, total raccourci,
-  marqueurs `data-layout-allow-overlap`/`-overflow` sur `.scene-inner`.
-* **Preuve réelle** : consommateur `/tmp` en `includeBuild` (aucune publication) ;
-  `hyperframes lint` 0/0 ; `check --at-transitions` **Layout 0 issue / 39 samples**,
-  Lint/Runtime/Motion 0/0, Contrast 8/8 ; rendu **MP4 18,8 s / 726 Ko / 564 frames**.
-* **Warnings Craft restants** : `first_frame_empty`, `film_silent`, 3 `dead_stretch`
-  → US-4 (chrome/typo), US-5 (entrées), piste audio.
-* **Version** : `0.0.9` Central ; le code a changé (S-036 + S-037) → release
-  **`0.0.10`** requise avant consommation (accord pilote, MEMPHIS d'abord).
-  Catalogue/BOM ws `0.0.99`, `video-kernel 0.5.0`.
+* `HF-DEMO-QUALITY` : **✅ TERMINÉ 5/5** — US-1 ✅ S-036, US-2 v1 ✅ S-036,
+  US-2b ✅ S-037, US-3 ✅ S-036, **US-4 ✅ S-038**, **US-5 ✅ S-038**.
+* **US-4** : domaine pur `hyperframes.chrome` — `ChromeConfig` (timecode,
+  repères, barre, label), `TypographyConfig` (piles CSS offline),
+  `ChromeRenderer` (`HH:MM:SS:FF`, escaping, HTML chrome). DSL opt-in
+  `chromeEnabled` / `chromeTimecode` / `chromeCornerMarks` /
+  `chromeProgressBar` / `chromeLabel` + `displayFont` / `monoFont`.
+* **US-5** : domaine pur `hyperframes.entrance` — `EntranceConfig`,
+  `SceneEntrancePlanner` (`gsap.set` au chargement, stagger déterministe par
+  atome, sélecteurs scellés par scène). DSL opt-in `entrancesEnabled`.
+* **Preuves** : +23 UT, +4 FT TestKit, +7 scénarios BDD
+  (`@quality-chrome`, `@quality-entrances`). **Local = Build** (compiles VERT) ;
+  les tests s'exécutent en CI (workflow `Test`).
+* **Transverse** : aucun port N1 n'émerge (chrome/entrées = rendu HTML propre à
+  hyperframes) → `video-kernel` et `capsule` **inchangés**.
+* **Version** : `0.0.9` Central ; HEAD S-038 non publié → release **`0.0.10`**
+  requise (accord pilote, MEMPHIS-first). Catalogue/BOM ws `0.0.99`,
+  `video-kernel 0.5.0`.
 
-== Mission Session 038 — au choix pilote
+== Mission Session 039 — au choix pilote
 
-. **US-4 — chrome + typographie** : timecode, repères, barre de progression,
-   polices display (League Gothic / IBM Plex Mono) configurables par le DSL.
-. **US-5 — entrées chorégraphiées par scène** : `gsap.set` au chargement +
-   tweens par scène (fin des apparitions groupées / dead stretches).
-3. **Release `0.0.10`** : DAG MEMPHIS-first, accord pilote.
-4. **Capsule / video-kernel qualité** : sur demande explicite — ne pas rouvrir
-   YouTube.
+. **Release `0.0.10`** : DAG MEMPHIS-first (`workspace-bom`/catalog → hyperframes),
+   accord pilote explicite.
+. **Dogfooding réel** du DSL chrome/entrées : consommateur `/tmp` en
+   `includeBuild` (aucune publication), `hyperframes lint/check`, rendu MP4.
+3. **Capsule / video-kernel** : sur demande explicite — ne pas rouvrir YouTube.
+4. Sinon : maintenance.
 
-== Fait en session 037
+== Fait en session 038
 
-* `HyperframesHtmlProcessor` : `TransitionKind.BLUR_CROSSFADE`/`VERTICAL_PUSH`,
-  fenêtre 0,6 s, scènes en deux passes (`RawScene` → `Scene`), boundaries overlap,
-  `rootTl` blur/opacité et `yPercent`, marqueurs de layout.
-* +3 UT `HyperframesHtmlProcessorTest` + 2 scénarios BDD `@quality-transition`.
-* Doc `doc/PILOTAGE_HYPERFRAMES.adoc` § Transitions.
-* CI `40270297236` (commit `119201b`) verte.
+* `hyperframes/chrome/{ChromeConfig,TypographyConfig,ChromeRenderer}.kt`
+* `hyperframes/entrance/{EntranceConfig,SceneEntrancePlanner}.kt`
+* Wiring `HyperframesHtmlProcessor` (`withChrome`, `withTypography`,
+  `withEntrances`), `HyperframesExtension`, `GenerateHyperframesHtmlTask`,
+  `HyperframesPlugin`.
+* CSS design system : variables `--hf-display-font`/`--hf-mono-font` + chrome
+  (topbar, repères, barre). `progressTween` sur `rootTl`.
+* Doc `doc/PILOTAGE_HYPERFRAMES.adoc` § DSL (chrome, typographie, entrées).
+* Rapports : `.agents/sessions/038-hf-demo-quality-us4-us5-chrome-entrances.adoc`.
 
 == Points d'attention
 
 * **Local = Build, Tests = CI** : compiler/builder uniquement ; jamais
   `test`/`check` local.
-* **Règle 2 — PUBLISH** : accord pilote ; ne pas republier `0.0.9` (split-brain).
+* **Règle 2 — PUBLISH** : accord pilote ; ne pas republier `0.0.9`.
 * **Zéro secret** ; **zéro Python** ; English only code/tests/features.
-* Le check de layout signale les chevauchements ; les marqueurs doivent être sur
-  le **conteneur interne** de la scène, pas sur la racine.
+* Chrome/entrées sont **opt-in** : ne pas casser le rendu historique.
 * `demo-video/` reste la référence qualité autonome ; le DSL converge vers elle.
 
 == Routes documents clés
 
 |===
 | Document | Chemin
+| Rapport S-038 | `.agents/sessions/038-hf-demo-quality-us4-us5-chrome-entrances.adoc`
 | Rapport S-037 | `.agents/sessions/037-hf-demo-quality-us2b-overlap-transitions.adoc`
 | Démo | `demo-video/` (+ `ATTRIBUTIONS.md`)
-| Doc DSL | `doc/PILOTAGE_HYPERFRAMES.adoc` (§ Transitions, § Médias)
+| Doc DSL | `doc/PILOTAGE_HYPERFRAMES.adoc`
 | Backlog / règles | `BACKLOG.adoc` · `AGENT.adoc`
 | Noyau N1 | `../video-kernel-gradle/video-kernel-plugin/src/main/kotlin/video/kernel/`
 |===

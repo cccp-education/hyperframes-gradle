@@ -2,7 +2,7 @@
 :toc:
 
 _Date création_ : 2026-05-31
-_Version_ : 0.0.9 (Central) — HEAD S-037 (US-2b) non publié ; release 0.0.10 requise (accord pilote, MEMPHIS-first).
+_Version_ : 0.0.9 (Central) — HEAD S-038 (US-2b + US-4 + US-5) non publié ; release 0.0.10 requise (accord pilote, MEMPHIS-first).
 
 '''
 == ✅ Release `hyperframes-plugin 0.0.9` — Maven Central (S-035)
@@ -16,7 +16,7 @@ adaptateur `hyperframes.publish` (déploiement YouTube OAuth 2.0) + tâche
 `publishHyperframesToYouTube` + consommation `video-kernel 0.5.0`.
 Rapport `.agents/sessions/035-hf-youtube-publish-cadrage-us1-kernel.adoc`.
 
-== 🟡 EPIC HF-DEMO-QUALITY — Démo de référence + portage des capacités au DSL (S-036)
+== ✅ EPIC HF-DEMO-QUALITY — Démo de référence + portage des capacités au DSL (TERMINÉ S-038)
 
 _Cadre_ : `demo-video/` (composition HyperFrames autonome, sources + médias libres
 de droit) est la **cible qualité** du borough : contenu dense, animations
@@ -30,8 +30,8 @@ chorégraphiées, transitions, chrome de plateau, médias PD/CC0. Le DSL du plug
 | US-2 | **Transitions cover dans le DSL** : rôles `hf-transition-grid` / `-shutter` / `-fade` sur la scène sortante → overlay enfant de `#stage` + tweens sur la timeline racine ; rétro-compat totale. 5 unit + 1 fonctionnel + 5 BDD ; dogfooding lint 0/0 / inspect 0 issue. | ✅ S-036 (v1)
 | US-2b | **Transitions à chevauchement** : `blur-crossfade` + `vertical-push` (deux scènes visibles, clips sur pistes chevauchées, entrées décalées) | ✅ S-037 — 0,6 s de chevauchement, `data-start` entrant décalé, tweens blur/push sur `rootTl`, marqueurs `data-layout-allow-overlap`/`-overflow` ; +3 UT, +2 BDD ; dogfooding réel `check --at-transitions` Layout **0 issue/39 samples**, rendu MP4 18,8 s ; CI `40270297236` verte.
 | US-3 | **Médias dans le DSL** : images copiées dans `outputDir`, BGM/SFX (bloc `[.hyperframes-audio]`) → `<audio>` enfants de `#stage` + tests. 3 unit `ReferencedAssetsTest` + 3 unit processor + 1 FT TestKit + 3 BDD ; dogfooding lint 0/0 / inspect 0 issue / rendu 15 s avec audio. | ✅ S-036
-| US-4 | **Chrome + typographie** : timecode/repères/barre, polices display (League Gothic / IBM Plex Mono) configurables | 🟡 À FAIRE
-| US-5 | **Entrées chorégraphiées par scène** : `gsap.set` au chargement + tweens par scène (fin des apparitions groupées) | 🟡 À FAIRE
+| US-4 | **Chrome + typographie** : timecode/repères/barre, polices display (League Gothic / IBM Plex Mono) configurables | ✅ S-038 — `chrome.*` opt-in (timecode `HH:MM:SS:FF` par scène, 4 repères, barre de progression pilotée par `rootTl`) + piles CSS `displayFont`/`monoFont` ; +9 UT, +2 FT, +4 BDD.
+| US-5 | **Entrées chorégraphiées par scène** : `gsap.set` au chargement + tweens par scène (fin des apparitions groupées) | ✅ S-038 — `entrancesEnabled` opt-in : `gsap.set` au chargement, stagger déterministe par atome, sélecteurs scellés par scène ; +5 UT, +2 FT, +3 BDD.
 |===
 
 _Preuve de la démo_ : `lint` 0 erreur, `validate` 0 erreur console + 101 éléments
@@ -41,7 +41,23 @@ _Preuve du DSL (US-2 v1)_ : consommateur /tmp (4 scènes + grid/shutter/fade) �
 rendu 25 s ; snapshots de frontière (grille / shutter fermé / fade) conformes.
 Rapport `.agents/sessions/036-hf-youtube-publish-us4-status.adoc` (§ qualité vidéo).
 
-== 🟡 EPIC HF-YOUTUBE-PUBLISH — Déploiement YouTube industrialisé (transverse, S-035)
+=== US-4/US-5 (S-038) — chrome, typographie, entrées
+
+* **Domaine pur** : `hyperframes.chrome` (`ChromeConfig`, `TypographyConfig`,
+  `ChromeRenderer` — timecode, marks, barre, escaping) et
+  `hyperframes.entrance` (`EntranceConfig`, `SceneEntrancePlanner`).
+* **DSL** : `chromeEnabled` / `chromeTimecode` / `chromeCornerMarks` /
+  `chromeProgressBar` / `chromeLabel` / `displayFont` / `monoFont` /
+  `entrancesEnabled`. Tout est **opt-in** sauf les polices (défauts = piles
+  League Gothic / IBM Plex Mono avec fallback système).
+* **Preuves** : 23 UT domaine/processor + 4 FT TestKit + 7 scénarios BDD
+  (`@quality-chrome`, `@quality-entrances`). Local = Build (compiles VERT) ;
+  les tests s'exécutent en CI.
+* **Transverse** : aucun port N1 n'émerge de cette US (chrome et entrées sont
+  du rendu HTML propre à hyperframes) → `video-kernel` et `capsule` inchangés.
+* **Reste** : release `0.0.10` (accord pilote, DAG MEMPHIS-first).
+
+== ⏸️ EPIC HF-YOUTUBE-PUBLISH — Déploiement YouTube industrialisé (transverse, S-035) — GELÉ (S-037)
 
 _Cadrage_ : `.agents/CADRAGE_EPIC_HF_YOUTUBE_PUBLISH.adoc`.
 _Session_ : transverse hyperframes (Watts) + video-kernel (N1) + capsule (Détroit).
@@ -78,7 +94,7 @@ lecture publique. Guide de génération : cadrage §2.2.
   port N1 tolérée). | capsule | ✅ S-206
 | US-4 | **BDD `@publish` sur les deux moteurs** : hyperframes (4 scénarios + TestKit
   hermétique) + capsule (5 scénarios + TestKit hermétique, S-207). | hyperframes + capsule | ✅ S-035/S-036/S-207
-| US-4b | **Dogfooding réel** (upload `@cccp.education` — accord pilote explicite). | hyperframes + capsule | 🟡 À FAIRE
+| US-4b | **Dogfooding réel** (upload `@cccp.education` — accord pilote explicite). | hyperframes + capsule | ⏸️ GELÉ (S-037 : YouTube hors scope)
 | US-5 | Release `hyperframes-plugin 0.0.9` (DAG MEMPHIS `0.0.99`). | — | ✅ S-035
 |===
 

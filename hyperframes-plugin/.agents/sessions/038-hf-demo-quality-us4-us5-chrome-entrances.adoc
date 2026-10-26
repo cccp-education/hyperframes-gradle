@@ -1,0 +1,80 @@
+= Session 038 — HF-DEMO-QUALITY US-4 + US-5 (chrome, typographie, entrées)
+:session: 038
+:date: 2026-10-26
+:borough: Watts
+:statut: ✅ TERMINÉ — EPIC HF-DEMO-QUALITY TERMINÉ 5/5
+
+== Mission
+
+Clore l'EPIC `HF-DEMO-QUALITY` en portant au DSL les deux dernières capacités
+de la démo de référence :
+
+* **US-4** — chrome studio (timecode, repères, barre de progression) et
+  typographie display configurable (League Gothic / IBM Plex Mono).
+* **US-5** — entrées chorégraphiées par scène (`gsap.set` au chargement,
+  tweens par atome, fin des apparitions groupées).
+
+Méthode : baby-step DDD/TDD/BDD (unit → functional TestKit → Cucumber), en
+agile software craftsmanship. **Local = Build, Tests = CI** : seuls les compiles
+ont été exécutés localement.
+
+== Décisions
+
+. **Opt-in strict** : `chromeEnabled` et `entrancesEnabled` par défaut `false`
+   → aucune composition existante ne change de comportement, sauf les piles de
+   polices (défauts = League Gothic / IBM Plex Mono avec fallback système).
+. **Timecode = début de scène** (`HH:MM:SS:FF`), pas une horloge par frame :
+   une frame doit être reproductible depuis la timeline seule (déterminisme).
+. **Barre de progression globale** = élément direct de `#stage`, rempli par le
+   `rootTl` sur la durée totale (seek-safe).
+. **Chrome par scène** = frère de `.scene-inner` (z-index 40), donc l'entrée
+   chorégraphiée du contenu ne déplace pas le mobilier.
+. **Sélecteurs d'atomes scellés par scène** (`#id .scene-inner h2`, `p`, `li`,
+   `pre`, `img`, templates…) : deux scènes ne s'animent jamais mutuellement.
+. **Aucun port N1** : chrome et entrées sont du rendu HTML spécifique au moteur
+   HyperFrames → `video-kernel` et `capsule` restent inchangés.
+
+== Livrables
+
+[cols="2,5"]
+|===
+| Fichier | Rôle
+
+| `hyperframes/chrome/ChromeConfig.kt` | Configuration pure opt-in (timecode, marks, barre, label).
+| `hyperframes/chrome/TypographyConfig.kt` | Piles CSS display/mono + garde anti-injection (`{}`, `;`, `url(`).
+| `hyperframes/chrome/ChromeRenderer.kt` | HTML chrome par scène, barre globale, tween root, `formatTimecode`, escaping.
+| `hyperframes/entrance/EntranceConfig.kt` | Stagger/durée/offset/yOffset validés.
+| `hyperframes/entrance/SceneEntrancePlanner.kt` | `gsap.set` au chargement + `t.to` staggeré, sélecteurs par scène.
+| `HyperframesHtmlProcessor.kt` | `withChrome`/`withTypography`/`withEntrances`, CSS chrome, `progressTween`, timeline par scène.
+| `HyperframesExtension.kt` | 8 propriétés DSL + conventions.
+| `GenerateHyperframesHtmlTask.kt` | 8 inputs + construction des configs.
+| `HyperframesPlugin.kt` | Câblage extension → tâche.
+| `doc/PILOTAGE_HYPERFRAMES.adoc` | Documentation DSL (chrome, typographie, entrées).
+|===
+
+== Tests (preuve = CI)
+
+[cols="2,2,4"]
+|===
+| Niveau | Nombre | Contenu
+
+| Unit | 23 | `ChromeRendererTest` (8), `TypographyConfigTest` (3), `SceneEntrancePlannerTest` (5), `HyperframesHtmlProcessorChromeTest` (4), `HyperframesHtmlProcessorEntranceTest` (3)
+| Functional TestKit | 4 | `HyperframesChromeFunctionalTest` (2), `HyperframesEntrancesFunctionalTest` (2) — DSL → HTML réel
+| Cucumber BDD | 7 | `hf_demo_quality_chrome.feature` (4) + `hf_demo_quality_entrances.feature` (3)
+|===
+
+== Gates locaux (Local = Build)
+
+----
+./gradlew compileKotlin compileTestKotlin compileFunctionalTestKotlin
+BUILD SUCCESSFUL
+----
+
+Aucun `test`, `functionalTest`, `cucumberTest` ni `check` lancé localement
+(règle EAGER). La preuve de validité est le run CI du commit poussé.
+
+== Reste
+
+* Release `hyperframes-plugin 0.0.10` (accord pilote, DAG MEMPHIS-first).
+* Dogfooding réel du DSL chrome/entrées (consommateur `/tmp`, `includeBuild`).
+* `HF-YOUTUBE-PUBLISH` reste **gelé** (décision pilote S-037).

@@ -1,6 +1,18 @@
 = Test Coverage Analysis — hyperframes-gradle
 
-_Dernière mise à jour_ : 2026-10-26 (Session 037 — HF-DEMO-QUALITY US-2b)
+_Dernière mise à jour_ : 2026-10-26 (Session 038 — HF-DEMO-QUALITY US-4 + US-5)
+
+== Couverture — 26 octobre 2026 (après session 038, US-4 + US-5)
+
+.HF-DEMO-QUALITY US-4/US-5 — chrome, typographie, entrées
+|===
+| Élément | Nature | Tests
+
+| `hyperframes.chrome` | `ChromeConfig`/`TypographyConfig`/`ChromeRenderer` : timecode `HH:MM:SS:FF`, 4 repères, barre globale, tween root, escaping, garde anti-injection CSS | +8 `ChromeRendererTest` + 3 `TypographyConfigTest` + 4 `HyperframesHtmlProcessorChromeTest`
+| `hyperframes.entrance` | `EntranceConfig`/`SceneEntrancePlanner` : `gsap.set` au chargement, stagger déterministe, sélecteurs scellés par scène, validation des timings | +5 `SceneEntrancePlannerTest` + 3 `HyperframesHtmlProcessorEntranceTest`
+| DSL → HTML | `HyperframesExtension`/`GenerateHyperframesHtmlTask`/`HyperframesPlugin` : chrome/timecode/marks/barre/polices/entrées | +2 `HyperframesChromeFunctionalTest` + 2 `HyperframesEntrancesFunctionalTest` (TestKit)
+| BDD | 7 scénarios `@quality-chrome` (4) + `@quality-entrances` (3) | `hf_demo_quality_chrome.feature`, `hf_demo_quality_entrances.feature`
+|===
 
 == Couverture — 26 octobre 2026 (après session 037, US-2b)
 
