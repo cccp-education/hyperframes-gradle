@@ -88,6 +88,27 @@ class HfDemoQualityTransitionSteps {
         }
     }
 
+    @Then("the quality overlap starts at {string} seconds")
+    fun overlapStartsAt(seconds: String) {
+        check(enhanced.contains("""id="two" data-composition-id="two" data-start="$seconds"""")) {
+            "the incoming scene must start at $seconds, before the outgoing boundary"
+        }
+    }
+
+    @Then("the quality transition blur is declared")
+    fun blurDeclared() {
+        check(enhanced.contains("""gsap.set("#two", { opacity: 0, filter: "blur(18px)" });""")) {
+            "a blur-crossfade must initialise the incoming scene blurred and transparent"
+        }
+    }
+
+    @Then("the quality transition push is declared")
+    fun pushDeclared() {
+        check(enhanced.contains("""gsap.set("#two", { yPercent: 100 });""")) {
+            "a vertical-push must initialise the incoming scene below the frame"
+        }
+    }
+
     private fun document(sections: String): String = """
         <!DOCTYPE html>
         <html>

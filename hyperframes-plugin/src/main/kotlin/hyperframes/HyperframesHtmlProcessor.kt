@@ -106,21 +106,64 @@ class HyperframesHtmlProcessor internal constructor(
         val transition: Transition? = null
     )
 
-    /** Cover-style transition supported by the DSL (HF-DEMO-QUALITY US-2 v1). */
-    private enum class TransitionKind { GRID_DISSOLVE, SHUTTER, FADE }
+    /** A scene before its start time is assigned (overlap depends on the next scene). */
+    private data class RawScene(
+        val id: String,
+        val duration: Double,
+        val inner: String,
+        val scripts: List<String>,
+        val transition: Transition?
+    )
+
+    /**
+     * Scene transitions supported by the DSL.
+     *
+     * [GRID_DISSOLVE], [SHUTTER] and [FADE] are **cover** transitions: the two
+     * scenes do not overlap, the overlay owns the handoff. [BLUR_CROSSFADE] and
+     * [VERTICAL_PUSH] are **overlap** transitions: the incoming scene starts
+     * before the outgoing one ends and both clips are visible on their tracks
+     * (HF-DEMO-QUALITY US-2b).
+     */
+    private enum class TransitionKind {
+        GRID_DISSOLVE,
+        SHUTTER,
+        FADE,
+        BLUR_CROSSFADE,
+        VERTICAL_PUSH
+    }
 
     private data class Transition(
         val kind: TransitionKind,
-        val durationSeconds: Double = DEFAULT_TRANSITION_SECONDS
-    )
+        val durationSeconds: Double =
+            if (kind == TransitionKind.BLUR_CROSSFADE || kind == TransitionKind.VERTICAL_PUSH) {
+                DEFAULT_OVERLAP_SECONDS
+            } else {
+                DEFAULT_TRANSITION_SECONDS
+            }
+    ) {
+        val isOverlap: Boolean
+            get() = kind == TransitionKind.BLUR_CROSSFADE || kind == TransitionKind.VERTICAL_PUSH
 
-    /** A scene boundary carrying the outgoing scene's transition. */
+        val overlapSeconds: Double
+            get() = if (isOverlap) durationSeconds else 0.0
+    }
+
+    /** A cover-transition boundary carrying the outgoing scene's transition. */
     private data class Boundary(
         val overlayId: String,
         val outgoingId: String,
         val incomingId: String,
         val time: Double,
         val transition: Transition
+    )
+
+    /** An overlap-transition boundary: the incoming clip starts before the outgoing ends. */
+    private data class OverlapBoundary(
+        val outgoingId: String,
+        val incomingId: String,
+        val start: Double,
+        val overlapSeconds: Double,
+        val kind: TransitionKind
     )
 
     /** A BGM/SFX cue declared by an `[.hyperframes-audio]` block (US-3). */
@@ -135,22 +178,17 @@ class HyperframesHtmlProcessor internal constructor(
         val contentInner = extractContentInner(html) ?: html
         val headerTitle = extractHeaderTitle(html)
 
-        val scenes = mutableListOf<Scene>()
-        var cursor = 0.0
-
+        val rawScenes = mutableListOf<RawScene>()
         if (headerTitle != null) {
-            val dur = sceneDurationSeconds
-            scenes.add(
-                Scene(
+            rawScenes.add(
+                RawScene(
                     id = "hf-title",
-                    start = cursor,
-                    duration = dur,
+                    duration = sceneDurationSeconds,
                     inner = "<h1 class=\"hf-doc-title\">$headerTitle</h1>",
                     scripts = emptyList(),
-                    trackIndex = scenes.size
+                    transition = null,
                 )
             )
-            cursor += dur
         }
 
         var auto = 0
@@ -160,16 +198,29 @@ class HyperframesHtmlProcessor internal constructor(
             val duration = sceneDurationOf(section) ?: sceneDurationSeconds
             val scripts = extractScriptBodies(section)
             val inner = sanitizeSceneInner(stripSceneWrapper(stripScripts(section))).trim()
-            scenes.add(Scene(id, cursor, duration, inner, scripts, scenes.size, transitionOf(section)))
-            cursor += duration
+            rawScenes.add(RawScene(id, duration, inner, scripts, transitionOf(section)))
         }
 
-        val total = if (cursor > 0.0) cursor else sceneDurationSeconds
+        // HF-DEMO-QUALITY US-2b — an overlap transition pulls the next scene
+        // earlier: both clips are visible on their own tracks for `durationSeconds`.
+        // The last scene's transition is ignored (nothing to hand off to).
+        var cursor = 0.0
+        val scenes =
+            rawScenes.mapIndexed { index, raw ->
+                val scene = Scene(raw.id, cursor, raw.duration, raw.inner, raw.scripts, index, raw.transition)
+                val hasNext = index < rawScenes.lastIndex
+                val overlap = if (hasNext) raw.transition?.overlapSeconds ?: 0.0 else 0.0
+                cursor += raw.duration - overlap
+                scene
+            }
+        val total =
+            if (scenes.isNotEmpty()) scenes.last().start + scenes.last().duration else sceneDurationSeconds
         val scenesHtml = scenes.joinToString("\n") { renderScene(it) }
         // A transition belongs to the **outgoing** scene and is only meaningful
         // when another scene follows (the last scene's role is ignored).
-        val boundaries = scenes.mapIndexedNotNull { index, scene ->
+        val coverBoundaries = scenes.mapIndexedNotNull { index, scene ->
             val transition = scene.transition ?: return@mapIndexedNotNull null
+            if (transition.isOverlap) return@mapIndexedNotNull null
             scenes.getOrNull(index + 1) ?: return@mapIndexedNotNull null
             Boundary(
                 overlayId = "hf-transition-$index",
@@ -179,7 +230,19 @@ class HyperframesHtmlProcessor internal constructor(
                 transition = transition,
             )
         }
-        val transitionsHtml = boundaries.joinToString("\n") { renderTransitionOverlay(it) }
+        val overlapBoundaries = scenes.mapIndexedNotNull { index, scene ->
+            val transition = scene.transition ?: return@mapIndexedNotNull null
+            if (!transition.isOverlap) return@mapIndexedNotNull null
+            val incoming = scenes.getOrNull(index + 1) ?: return@mapIndexedNotNull null
+            OverlapBoundary(
+                outgoingId = scene.id,
+                incomingId = incoming.id,
+                start = incoming.start,
+                overlapSeconds = transition.durationSeconds,
+                kind = transition.kind,
+            )
+        }
+        val transitionsHtml = coverBoundaries.joinToString("\n") { renderTransitionOverlay(it) }
         val audioHtml = renderAudio(audioCues, total)
         // HF-CR4-suite — every scene is a **sub-composition host**: it carries
         // `data-composition-id`, so the CLI no longer flags it as a nested timeline
@@ -224,11 +287,11 @@ class HyperframesHtmlProcessor internal constructor(
             }
             appendLine("<script>")
             appendLine(sceneScripts)
-            if (boundaries.isEmpty()) {
+            if (coverBoundaries.isEmpty() && overlapBoundaries.isEmpty()) {
                 // Historical, transition-free composition: one empty root timeline.
                 appendLine("  window.__timelines[\"root\"] = gsap.timeline({ paused: true });")
             } else {
-                appendLine(rootTransitionScript(boundaries))
+                appendLine(rootTransitionScript(coverBoundaries, overlapBoundaries))
             }
             appendLine("</script>")
             appendLine("</body>")
@@ -294,8 +357,11 @@ class HyperframesHtmlProcessor internal constructor(
      *
      * Supported roles: `hf-transition-grid` (4×3 grid dissolve),
      * `hf-transition-shutter` (two halves close/open) and `hf-transition-fade`
-     * (dip to the background colour). Unknown roles are ignored (backward
-     * compatible, no transition).
+     * (dip to the background colour) are **cover** transitions.
+     * `hf-transition-blur-crossfade` and `hf-transition-vertical-push` are
+     * **overlap** transitions (US-2b): the incoming scene starts before the
+     * outgoing one ends, so both clips are visible during the handoff.
+     * Unknown roles are ignored (backward compatible, no transition).
      */
     private fun transitionOf(section: String): Transition? {
         val openTag = section.substringBefore('>')
@@ -304,6 +370,8 @@ class HyperframesHtmlProcessor internal constructor(
             ROLE_GRID.containsMatchIn(classes) -> TransitionKind.GRID_DISSOLVE
             ROLE_SHUTTER.containsMatchIn(classes) -> TransitionKind.SHUTTER
             ROLE_FADE.containsMatchIn(classes) -> TransitionKind.FADE
+            ROLE_BLUR.containsMatchIn(classes) -> TransitionKind.BLUR_CROSSFADE
+            ROLE_PUSH.containsMatchIn(classes) -> TransitionKind.VERTICAL_PUSH
             else -> return null
         }
         return Transition(kind)
@@ -331,19 +399,29 @@ class HyperframesHtmlProcessor internal constructor(
             TransitionKind.FADE -> {
                 append("<div class=\"hf-transition hf-transition-fade\" id=\"${boundary.overlayId}\" data-layout-allow-occlusion></div>")
             }
+            // Overlap transitions have no overlay: the two scene clips are both
+            // visible and the root timeline animates their wrappers.
+            TransitionKind.BLUR_CROSSFADE,
+            TransitionKind.VERTICAL_PUSH,
+            -> Unit
         }
     }
 
     /**
-     * Root-timeline script: the **only** timeline that drives the cover
-     * overlays. Each transition is centred on its scene boundary `T`: the cover
-     * grows for `duration/2`, the clip swap happens at `T` underneath it, then
-     * the cover recedes.
+     * Root-timeline script: the **only** timeline that drives the transitions.
+     *
+     * Cover transitions ([Boundary]) are centred on the scene boundary `T`: the
+     * cover grows for `duration/2`, the clip swap happens at `T` underneath it,
+     * then the cover recedes. Overlap transitions ([OverlapBoundary]) animate
+     * both scene wrappers during the shared window: blur/fade or vertical push.
      */
-    private fun rootTransitionScript(boundaries: List<Boundary>): String = buildString {
+    private fun rootTransitionScript(
+        coverBoundaries: List<Boundary>,
+        overlapBoundaries: List<OverlapBoundary>,
+    ): String = buildString {
         appendLine("  (function () {")
         appendLine("    var rootTl = gsap.timeline({ paused: true });")
-        boundaries.forEach { boundary ->
+        coverBoundaries.forEach { boundary ->
             val id = boundary.overlayId
             val time = boundary.time
             val half = boundary.transition.durationSeconds / 2
@@ -395,6 +473,43 @@ class HyperframesHtmlProcessor internal constructor(
                             "ease: \"power2.out\" }, ${number(time + 0.02)});"
                     )
                 }
+                // Overlap transitions are rendered by the loop below.
+                TransitionKind.BLUR_CROSSFADE,
+                TransitionKind.VERTICAL_PUSH,
+                -> Unit
+            }
+        }
+        overlapBoundaries.forEach { boundary ->
+            val start = number(boundary.start)
+            val duration = number(boundary.overlapSeconds)
+            when (boundary.kind) {
+                TransitionKind.BLUR_CROSSFADE -> {
+                    // The incoming scene is transparent and blurred at its start;
+                    // the outgoing scene blurs/fades out over the shared window.
+                    appendLine("    gsap.set(\"#${boundary.incomingId}\", { opacity: 0, filter: \"blur(18px)\" });")
+                    appendLine(
+                        "    rootTl.to(\"#${boundary.outgoingId}\", { opacity: 0, filter: \"blur(18px)\", " +
+                            "duration: $duration, ease: \"power2.inOut\" }, $start);"
+                    )
+                    appendLine(
+                        "    rootTl.to(\"#${boundary.incomingId}\", { opacity: 1, filter: \"blur(0px)\", " +
+                            "duration: $duration, ease: \"power2.inOut\" }, $start);"
+                    )
+                }
+                TransitionKind.VERTICAL_PUSH -> {
+                    // The incoming scene starts below the frame; both wrappers
+                    // translate together over the shared window.
+                    appendLine("    gsap.set(\"#${boundary.incomingId}\", { yPercent: 100 });")
+                    appendLine(
+                        "    rootTl.to(\"#${boundary.outgoingId}\", { yPercent: -100, " +
+                            "duration: $duration, ease: \"power2.inOut\" }, $start);"
+                    )
+                    appendLine(
+                        "    rootTl.to(\"#${boundary.incomingId}\", { yPercent: 0, " +
+                            "duration: $duration, ease: \"power2.inOut\" }, $start);"
+                    )
+                }
+                else -> Unit // cover transitions are handled above
             }
         }
         appendLine("    window.__timelines[\"root\"] = rootTl;")
@@ -794,6 +909,7 @@ class HyperframesHtmlProcessor internal constructor(
     private companion object {
         const val DEFAULT_SCENE_SECONDS = 5.0
         const val DEFAULT_TRANSITION_SECONDS = 0.5
+        const val DEFAULT_OVERLAP_SECONDS = 0.6
         const val GRID_CELLS = 12
         const val AUDIO_DEFAULT_VOLUME = 0.2
         const val AUDIO_TRACK_INDEX = 90
@@ -810,6 +926,8 @@ class HyperframesHtmlProcessor internal constructor(
         val ROLE_GRID = Regex("""(?:^|\s)hf-transition-grid(?:\s|$)""")
         val ROLE_SHUTTER = Regex("""(?:^|\s)hf-transition-shutter(?:\s|$)""")
         val ROLE_FADE = Regex("""(?:^|\s)hf-transition-fade(?:\s|$)""")
+        val ROLE_BLUR = Regex("""(?:^|\s)hf-transition-blur-crossfade(?:\s|$)""")
+        val ROLE_PUSH = Regex("""(?:^|\s)hf-transition-vertical-push(?:\s|$)""")
         val GRID_PALETTE = listOf("#f59e0b", "#38bdf8", "#f8fafc", "#1e293b", "#b45309")
 
         val DESIGN_CSS = """

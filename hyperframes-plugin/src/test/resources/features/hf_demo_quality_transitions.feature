@@ -34,3 +34,19 @@ Feature: HF-DEMO-QUALITY US-2 — DSL scene transitions
     When I enhance the quality transition document with the HyperFrames processor
     Then the quality transition overlay is absent
     And the quality transition keeps the historical root timeline
+
+  Scenario: A blur-crossfade overlaps the two scenes
+    Given a quality transition document whose first scene declares "blur-crossfade"
+    When I enhance the quality transition document with the HyperFrames processor
+    Then the quality transition overlay is absent
+    And the quality overlap starts at "9.40" seconds
+    And the quality transition blur is declared
+    And the quality transition root timeline is registered
+
+  Scenario: A vertical-push overlaps the two scenes
+    Given a quality transition document whose first scene declares "vertical-push"
+    When I enhance the quality transition document with the HyperFrames processor
+    Then the quality transition overlay is absent
+    And the quality overlap starts at "9.40" seconds
+    And the quality transition push is declared
+    And the quality transition root timeline is registered

@@ -339,6 +339,61 @@ class HyperframesHtmlProcessorTest {
     }
 
     // ──────────────────────────────────────────────
+    // 5b. Overlap transitions (HF-DEMO-QUALITY US-2b)
+    // ──────────────────────────────────────────────
+
+    @Test
+    fun `a blur-crossfade pulls the incoming scene earlier and animates both wrappers`() {
+        val result = processor.enhance(
+            asciidoctorDocument(
+                """
+                <div class="sect1 hyperframes-composition hf-transition-blur-crossfade" id="one" data-composition-id="one" data-duration="2"><h2 id="s1">One</h2></div>
+                <div class="sect1" id="two" data-composition-id="two" data-duration="2"><h2 id="s2">Two</h2></div>
+                """.trimIndent()
+            )
+        )
+
+        assertContains(result, """id="two" data-composition-id="two" data-start="6.40"""")
+        assertContains(result, """gsap.set("#two", { opacity: 0, filter: "blur(18px)" });""")
+        assertContains(result, """rootTl.to("#one", { opacity: 0, filter: "blur(18px)"""")
+        assertContains(result, """rootTl.to("#two", { opacity: 1, filter: "blur(0px)"""")
+        assertFalse(result.contains("""class="hf-transition hf-transition-"""), "overlap transitions have no cover overlay")
+    }
+
+    @Test
+    fun `a vertical-push overlaps the scenes and translates both wrappers`() {
+        val result = processor.enhance(
+            asciidoctorDocument(
+                """
+                <div class="sect1 hyperframes-composition hf-transition-vertical-push" id="one" data-composition-id="one" data-duration="2"><h2 id="s1">One</h2></div>
+                <div class="sect1" id="two" data-composition-id="two" data-duration="2"><h2 id="s2">Two</h2></div>
+                """.trimIndent()
+            )
+        )
+
+        assertContains(result, """id="two" data-composition-id="two" data-start="6.40"""")
+        assertContains(result, """gsap.set("#two", { yPercent: 100 });""")
+        assertContains(result, """rootTl.to("#one", { yPercent: -100""")
+        assertContains(result, """rootTl.to("#two", { yPercent: 0""")
+        assertFalse(result.contains("""class="hf-transition hf-transition-"""), "overlap transitions have no cover overlay")
+    }
+
+    @Test
+    fun `an overlap transition shortens the composition by its shared window`() {
+        val result = processor.enhance(
+            asciidoctorDocument(
+                """
+                <div class="sect1 hyperframes-composition hf-transition-blur-crossfade" id="one" data-composition-id="one" data-duration="2"><h2 id="s1">One</h2></div>
+                <div class="sect1" id="two" data-composition-id="two" data-duration="2"><h2 id="s2">Two</h2></div>
+                """.trimIndent()
+            )
+        )
+
+        // title 5 + scene one 2 + scene two 2 - overlap 0.6 = 8.4
+        assertContains(result, """data-composition-id="root" data-start="0" data-duration="8.40"""")
+    }
+
+    // ──────────────────────────────────────────────
     // 6. Audio cues (HF-DEMO-QUALITY US-3)
     // ──────────────────────────────────────────────
 
