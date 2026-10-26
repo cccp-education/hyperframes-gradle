@@ -52,7 +52,7 @@ Rapport `.agents/sessions/036-hf-youtube-publish-us4-status.adoc` (§ qualité v
   League Gothic / IBM Plex Mono avec fallback système).
 * **Preuves** : 23 UT domaine/processor + 4 FT TestKit + 7 scénarios BDD
   (`@quality-chrome`, `@quality-entrances`). Local = Build (compiles VERT) ;
-  les tests s'exécutent en CI.
+  **CI `Test` run `40276785081` VERTE**.
 * **Transverse** : aucun port N1 n'émerge de cette US (chrome et entrées sont
   du rendu HTML propre à hyperframes) → `video-kernel` et `capsule` inchangés.
 * **Reste** : release `0.0.10` (accord pilote, DAG MEMPHIS-first).

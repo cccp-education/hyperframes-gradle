@@ -26,7 +26,7 @@
   atome, sélecteurs scellés par scène). DSL opt-in `entrancesEnabled`.
 * **Preuves** : +23 UT, +4 FT TestKit, +7 scénarios BDD
   (`@quality-chrome`, `@quality-entrances`). **Local = Build** (compiles VERT) ;
-  les tests s'exécutent en CI (workflow `Test`).
+  **CI `Test` run `40276785081` VERTE** (unit + functional + Cucumber + `check`).
 * **Transverse** : aucun port N1 n'émerge (chrome/entrées = rendu HTML propre à
   hyperframes) → `video-kernel` et `capsule` **inchangés**.
 * **Version** : `0.0.9` Central ; HEAD S-038 non publié → release **`0.0.10`**

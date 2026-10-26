@@ -73,6 +73,12 @@ BUILD SUCCESSFUL
 Aucun `test`, `functionalTest`, `cucumberTest` ni `check` lancé localement
 (règle EAGER). La preuve de validité est le run CI du commit poussé.
 
+**CI `Test` run `40276785081` (commit `3774472`) : ✅ VERTE** — unit, functional
+TestKit, Cucumber BDD et `check` (validation + descriptors) passés. Le premier
+run (`40276560858`) a révélé un écart réel : le CSS chrome était inliné même
+chrome désactivé → correctif `fix(quality): emit chrome CSS only when chrome is
+enabled`, puis CI verte.
+
 == Reste
 
 * Release `hyperframes-plugin 0.0.10` (accord pilote, DAG MEMPHIS-first).
