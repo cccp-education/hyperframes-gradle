@@ -292,8 +292,29 @@ hyperframes {
     height.set(1080)
     fps.set(30)
     outputName.set("teasing-session-01")
+
+    // HF-DEMO-QUALITY US-4 — studio chrome (opt-in)
+    chromeEnabled.set(true)
+    chromeLabel.set("HYP-FRAMES / LAB")
+    chromeTimecode.set(true)        // HH:MM:SS:FF per scene
+    chromeCornerMarks.set(true)
+    chromeProgressBar.set(true)     // global bar driven by the root timeline
+
+    // HF-DEMO-QUALITY US-4 — display typography (plain CSS font stacks, offline)
+    displayFont.set(""""League Gothic", "Arial Narrow", Impact, sans-serif""")
+    monoFont.set(""""IBM Plex Mono", "JetBrains Mono", ui-monospace, monospace""")
+
+    // HF-DEMO-QUALITY US-5 — choreographed entrances (opt-in)
+    entrancesEnabled.set(true)
 }
 ----
+
+[TIP]
+====
+Chrome et entrées sont **opt-in** : sans configuration, la composition garde
+son rendu historique. Les polices sont de simples piles CSS (aucun import
+réseau) ; une police absente retombe sur la pile déclarée.
+====
 
 === 4.2 Wireframe — DSL AsciiDoc (blocs customs)
 

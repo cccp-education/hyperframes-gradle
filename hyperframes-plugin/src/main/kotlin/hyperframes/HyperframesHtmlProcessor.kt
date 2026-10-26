@@ -1,5 +1,10 @@
 package hyperframes
 
+import hyperframes.chrome.ChromeConfig
+import hyperframes.chrome.ChromeRenderer
+import hyperframes.chrome.TypographyConfig
+import hyperframes.entrance.EntranceConfig
+import hyperframes.entrance.SceneEntrancePlanner
 import hyperframes.pronunciation.PronunciationDictionary
 import hyperframes.pronunciation.PronunciationHint
 import hyperframes.template.Caption
@@ -50,7 +55,10 @@ class HyperframesHtmlProcessor internal constructor(
     private val fps: Int,
     private val outputName: String,
     private val domainDictionary: PronunciationDictionary?,
-    private val sceneDurationSeconds: Double
+    private val sceneDurationSeconds: Double,
+    private val chrome: ChromeConfig = ChromeConfig(),
+    private val typography: TypographyConfig = TypographyConfig(),
+    private val entrances: EntranceConfig = EntranceConfig()
 ) {
     /** Backward-compatible constructor — no domain dictionary, 5s scenes. */
     constructor(width: Int, height: Int, fps: Int, outputName: String) :
@@ -68,7 +76,38 @@ class HyperframesHtmlProcessor internal constructor(
      * overriding domain hints on conflict (word + language).
      */
     fun withDomainDictionary(domain: PronunciationDictionary?): HyperframesHtmlProcessor =
-        HyperframesHtmlProcessor(width, height, fps, outputName, domain, sceneDurationSeconds)
+        HyperframesHtmlProcessor(
+            width, height, fps, outputName, domain, sceneDurationSeconds, chrome, typography, entrances
+        )
+
+    /**
+     * HF-DEMO-QUALITY US-4 — returns a copy of this processor wired with the
+     * studio [chrome] (disabled by default, so the historical composition is
+     * preserved unless a consumer opts in).
+     */
+    fun withChrome(chrome: ChromeConfig): HyperframesHtmlProcessor =
+        HyperframesHtmlProcessor(
+            width, height, fps, outputName, domainDictionary, sceneDurationSeconds, chrome, typography, entrances
+        )
+
+    /**
+     * HF-DEMO-QUALITY US-4 — returns a copy of this processor wired with
+     * configurable [typography] (display + monospace font stacks).
+     */
+    fun withTypography(typography: TypographyConfig): HyperframesHtmlProcessor =
+        HyperframesHtmlProcessor(
+            width, height, fps, outputName, domainDictionary, sceneDurationSeconds, chrome, typography, entrances
+        )
+
+    /**
+     * HF-DEMO-QUALITY US-5 — returns a copy of this processor wired with
+     * choreographed per-scene [entrances] (opt-in; the historical grouped
+     * entrance is preserved by default).
+     */
+    fun withEntrances(entrances: EntranceConfig): HyperframesHtmlProcessor =
+        HyperframesHtmlProcessor(
+            width, height, fps, outputName, domainDictionary, sceneDurationSeconds, chrome, typography, entrances
+        )
 
     /**
      * Single entry point: transforms AsciiDoc HTML into a conformant
@@ -229,7 +268,9 @@ class HyperframesHtmlProcessor internal constructor(
             }
         val total =
             if (scenes.isNotEmpty()) scenes.last().start + scenes.last().duration else sceneDurationSeconds
-        val scenesHtml = scenes.joinToString("\n") { renderScene(it) }
+        val scenesHtml = scenes.mapIndexed { index, scene ->
+            renderScene(scene, index + 1, scenes.size)
+        }.joinToString("\n")
         // A transition belongs to the **outgoing** scene and is only meaningful
         // when another scene follows (the last scene's role is ignored).
         val coverBoundaries = scenes.mapIndexedNotNull { index, scene ->
@@ -258,6 +299,8 @@ class HyperframesHtmlProcessor internal constructor(
         }
         val transitionsHtml = coverBoundaries.joinToString("\n") { renderTransitionOverlay(it) }
         val audioHtml = renderAudio(audioCues, total)
+        val progressHtml = ChromeRenderer.progressBar(chrome)
+        val progressTween = ChromeRenderer.rootProgressTween(chrome, total)
         // HF-CR4-suite — every scene is a **sub-composition host**: it carries
         // `data-composition-id`, so the CLI no longer flags it as a nested timeline
         // element (`nested_structure_needs_subcomposition`) and the runtime
@@ -276,7 +319,13 @@ class HyperframesHtmlProcessor internal constructor(
             appendLine("<title>${escapeText(outputName)}</title>")
             appendLine(GsapLibrary.externalScript())
             appendLine("<style>")
-            appendLine(DESIGN_CSS.replace("__W__", width.toString()).replace("__H__", height.toString()))
+            appendLine(
+                DESIGN_CSS
+                    .replace("__W__", width.toString())
+                    .replace("__H__", height.toString())
+                    .replace("__DISPLAY_FONT__", typography.displayFont)
+                    .replace("__MONO_FONT__", typography.monoFont)
+            )
             appendLine("</style>")
             appendLine("</head>")
             appendLine("<body>")
@@ -292,6 +341,9 @@ class HyperframesHtmlProcessor internal constructor(
             if (transitionsHtml.isNotBlank()) {
                 appendLine(transitionsHtml)
             }
+            if (progressHtml.isNotBlank()) {
+                appendLine(progressHtml)
+            }
             appendLine("</div>")
             appendLine("<script>window.__timelines = window.__timelines || {};</script>")
             if (collectedScripts.isNotBlank()) {
@@ -301,11 +353,11 @@ class HyperframesHtmlProcessor internal constructor(
             }
             appendLine("<script>")
             appendLine(sceneScripts)
-            if (coverBoundaries.isEmpty() && overlapBoundaries.isEmpty()) {
+            if (coverBoundaries.isEmpty() && overlapBoundaries.isEmpty() && progressTween.isBlank()) {
                 // Historical, transition-free composition: one empty root timeline.
                 appendLine("  window.__timelines[\"root\"] = gsap.timeline({ paused: true });")
             } else {
-                appendLine(rootTransitionScript(coverBoundaries, overlapBoundaries))
+                appendLine(rootTransitionScript(coverBoundaries, overlapBoundaries, progressTween))
             }
             appendLine("</script>")
             appendLine("</body>")
@@ -314,7 +366,7 @@ class HyperframesHtmlProcessor internal constructor(
     }
 
     /** Renders one scene as a full-bleed sub-composition host with a background child. */
-    private fun renderScene(scene: Scene): String = buildString {
+    private fun renderScene(scene: Scene, sceneNumber: Int, sceneTotal: Int): String = buildString {
         appendLine(
             "<div class=\"scene clip\" id=\"${scene.id}\" data-composition-id=\"${scene.id}\" " +
                 "data-start=\"${number(scene.start)}\" data-duration=\"${number(scene.duration)}\" " +
@@ -330,6 +382,10 @@ class HyperframesHtmlProcessor internal constructor(
         appendLine("  <div class=\"scene-inner\"$overlapAttrs>")
         appendLine(scene.inner)
         appendLine("  </div>")
+        val chromeHtml = ChromeRenderer.sceneChrome(chrome, scene.start, fps, sceneNumber, sceneTotal)
+        if (chromeHtml.isNotBlank()) {
+            appendLine(chromeHtml)
+        }
         appendLine("</div>")
     }
 
@@ -344,10 +400,16 @@ class HyperframesHtmlProcessor internal constructor(
         appendLine("  (function () {")
         appendLine("    var t = window.__timelines[\"$id\"] || gsap.timeline({ paused: true });")
         appendLine("    t.pause();")
-        appendLine(
-            "    t.fromTo(\"#$id .scene-inner\", { opacity: 0, y: 30 }, " +
-                "{ opacity: 1, y: 0, duration: 0.6, ease: \"power3.out\" }, 0.1);"
-        )
+        if (entrances.enabled) {
+            // US-5 — hide the atoms at load, then reveal them in document order.
+            appendLine(SceneEntrancePlanner.setupScript(id, entrances))
+            appendLine(SceneEntrancePlanner.tweenScript(id, entrances))
+        } else {
+            appendLine(
+                "    t.fromTo(\"#$id .scene-inner\", { opacity: 0, y: 30 }, " +
+                    "{ opacity: 1, y: 0, duration: 0.6, ease: \"power3.out\" }, 0.1);"
+            )
+        }
         // A scene handing off to a transition must stay fully visible until the
         // boundary: the cover overlay (root timeline) owns the handoff, so the
         // historical pre-boundary fade would show the empty background too early.
@@ -438,9 +500,13 @@ class HyperframesHtmlProcessor internal constructor(
     private fun rootTransitionScript(
         coverBoundaries: List<Boundary>,
         overlapBoundaries: List<OverlapBoundary>,
+        progressTween: String,
     ): String = buildString {
         appendLine("  (function () {")
         appendLine("    var rootTl = gsap.timeline({ paused: true });")
+        if (progressTween.isNotBlank()) {
+            appendLine(progressTween)
+        }
         coverBoundaries.forEach { boundary ->
             val id = boundary.overlayId
             val time = boundary.time
@@ -951,7 +1017,8 @@ class HyperframesHtmlProcessor internal constructor(
         val GRID_PALETTE = listOf("#f59e0b", "#38bdf8", "#f8fafc", "#1e293b", "#b45309")
 
         val DESIGN_CSS = """
-:root{--bg:#0f172a;--fg:#f8fafc;--muted:#94a3b8;--accent:#f59e0b;--card:#16213a;--line:#1e293b}
+:root{--bg:#0f172a;--fg:#f8fafc;--muted:#94a3b8;--accent:#f59e0b;--card:#16213a;--line:#1e293b;
+  --hf-display-font:__DISPLAY_FONT__;--hf-mono-font:__MONO_FONT__}
 *{box-sizing:border-box;margin:0;padding:0}
 html,body{width:__W__px;height:__H__px;overflow:hidden;background:var(--bg);
   font-family:Inter,"Segoe UI",system-ui,sans-serif;color:var(--fg);
@@ -962,26 +1029,26 @@ html,body{width:__W__px;height:__H__px;overflow:hidden;background:var(--bg);
   background:radial-gradient(1200px 700px at 82% -12%,#1e3a5f 0%,rgba(15,23,42,0) 62%),var(--bg)}
 .scene-inner{position:relative;z-index:2;height:100%;width:100%;padding:0 160px;
   display:flex;flex-direction:column;justify-content:center;gap:28px}
-.scene-inner h1,.hf-doc-title{font-size:128px;line-height:1;font-weight:700;letter-spacing:-.03em}
-.scene-inner h2{font-size:82px;line-height:1.05;font-weight:700;letter-spacing:-.02em;max-width:1500px}
-.scene-inner h3{font-size:56px;font-weight:600;color:var(--accent)}
+.scene-inner h1,.hf-doc-title{font-family:var(--hf-display-font);font-size:128px;line-height:1;font-weight:700;letter-spacing:-.03em}
+.scene-inner h2{font-family:var(--hf-display-font);font-size:82px;line-height:1.05;font-weight:700;letter-spacing:-.02em;max-width:1500px}
+.scene-inner h3{font-family:var(--hf-display-font);font-size:56px;font-weight:600;color:var(--accent)}
 .scene-inner p{font-size:38px;line-height:1.55;color:#dbe4f0;max-width:1400px}
 .scene-inner .paragraph{margin:0}
 .scene-inner ul,.scene-inner ol{margin:8px 0 0 56px}
 .scene-inner li{font-size:40px;line-height:1.5;color:#e2e8f0;margin:14px 0}
 .scene-inner li::marker{color:var(--accent)}
 .scene-inner a{color:var(--accent);text-decoration:none}
-.scene-inner code{font-family:"JetBrains Mono",ui-monospace,monospace;font-size:.9em;
+.scene-inner code{font-family:var(--hf-mono-font);font-size:.9em;
   background:var(--card);border:1px solid var(--line);border-radius:8px;padding:2px 10px}
-.scene-inner pre{font-family:"JetBrains Mono",ui-monospace,monospace;font-size:30px;line-height:1.5;
+.scene-inner pre{font-family:var(--hf-mono-font);font-size:30px;line-height:1.5;
   background:var(--card);border:1px solid var(--line);border-radius:16px;padding:36px 44px;overflow:hidden;color:#e2e8f0}
 .scene-inner img{max-width:900px;max-height:620px;border-radius:16px}
 .scene-inner blockquote{border-left:8px solid var(--accent);padding-left:36px;
   font-size:52px;font-style:italic;color:#e2e8f0;max-width:1400px}
-.hf-title-card-title{display:block;font-size:140px;font-weight:700;letter-spacing:-.03em;line-height:1}
+.hf-title-card-title{display:block;font-family:var(--hf-display-font);font-size:140px;font-weight:700;letter-spacing:-.03em;line-height:1}
 .hf-title-card-subtitle{display:block;margin-top:28px;font-size:46px;color:var(--muted);font-weight:400}
 .hf-data-chart{display:flex;flex-direction:column;gap:40px}
-.hf-data-chart-title{font-size:56px;font-weight:600;color:var(--accent)}
+.hf-data-chart-title{font-family:var(--hf-display-font);font-size:56px;font-weight:600;color:var(--accent)}
 .hf-data-chart-plot{display:flex;align-items:flex-end;gap:48px;height:460px}
 .hf-data-chart-col{display:flex;flex-direction:column;justify-content:flex-end;align-items:center;height:100%;width:150px}
 .hf-data-chart-bar{width:100%;max-height:calc(100% - 56px);margin-bottom:16px;
@@ -989,7 +1056,7 @@ html,body{width:__W__px;height:__H__px;overflow:hidden;background:var(--bg);
 .hf-data-chart-label{font-size:30px;font-weight:600;color:#e2e8f0}
 .hf-kinetic-captions{position:relative;height:100%}
 .hf-kinetic-caption{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
-  font-size:84px;font-weight:700;text-align:center;letter-spacing:-.02em;padding:0 120px}
+  font-family:var(--hf-display-font);font-size:84px;font-weight:700;text-align:center;letter-spacing:-.02em;padding:0 120px}
 .hf-code-diff{display:flex;gap:40px;justify-content:center;flex-wrap:wrap}
 .hf-code-diff pre{flex:1;min-width:640px}
 .hf-kw{color:#f59e0b;font-weight:600}
@@ -1001,6 +1068,22 @@ html,body{width:__W__px;height:__H__px;overflow:hidden;background:var(--bg);
 .hf-shutter-top{top:0}
 .hf-shutter-bottom{top:50%}
 .hf-transition-fade{background:var(--bg);opacity:0}
+/* HF-DEMO-QUALITY US-4 — studio chrome (timecode, marks, progress) */
+.hf-chrome{position:absolute;inset:0;z-index:40;pointer-events:none}
+.hf-chrome-marks span{position:absolute;width:34px;height:34px;border:2px solid rgba(248,250,252,.28)}
+.hf-chrome-marks span:nth-child(1){left:34px;top:34px;border-right:0;border-bottom:0}
+.hf-chrome-marks span:nth-child(2){right:34px;top:34px;border-left:0;border-bottom:0}
+.hf-chrome-marks span:nth-child(3){left:34px;bottom:34px;border-right:0;border-top:0}
+.hf-chrome-marks span:nth-child(4){right:34px;bottom:34px;border-left:0;border-top:0}
+.hf-chrome-topbar{position:absolute;top:38px;left:88px;right:88px;display:flex;
+  justify-content:space-between;align-items:center;padding:9px 14px;font-family:var(--hf-mono-font);
+  font-size:19px;letter-spacing:.22em;color:#c9d1d4;background:rgba(9,12,14,.9);
+  border:1px solid rgba(248,250,252,.14)}
+.hf-chrome-timecode{color:var(--accent)}
+.hf-chrome-progress{position:absolute;left:0;right:0;bottom:0;height:6px;z-index:60;
+  pointer-events:none;background:rgba(248,250,252,.10)}
+.hf-chrome-progress span{display:block;height:100%;width:100%;background:var(--accent);
+  transform-origin:left center}
 """
     }
 }

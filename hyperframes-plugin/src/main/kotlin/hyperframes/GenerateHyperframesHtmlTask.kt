@@ -15,6 +15,9 @@ import org.asciidoctor.Asciidoctor
 import org.asciidoctor.Attributes
 import org.asciidoctor.Options
 import org.asciidoctor.SafeMode
+import hyperframes.chrome.ChromeConfig
+import hyperframes.chrome.TypographyConfig
+import hyperframes.entrance.EntranceConfig
 import hyperframes.pronunciation.PronunciationDomainLoader
 import hyperframes.vendor.GsapLibrary
 import java.io.File
@@ -64,6 +67,33 @@ abstract class GenerateHyperframesHtmlTask : DefaultTask() {
     @get:Optional
     abstract val pronunciationDomain: Property<String>
 
+    // ── HF-DEMO-QUALITY US-4 — chrome + typography ───────────────────────────
+
+    @get:Input
+    abstract val chromeEnabled: Property<Boolean>
+
+    @get:Input
+    abstract val chromeTimecode: Property<Boolean>
+
+    @get:Input
+    abstract val chromeCornerMarks: Property<Boolean>
+
+    @get:Input
+    abstract val chromeProgressBar: Property<Boolean>
+
+    @get:Input
+    @get:Optional
+    abstract val chromeLabel: Property<String>
+
+    @get:Input
+    abstract val displayFont: Property<String>
+
+    @get:Input
+    abstract val monoFont: Property<String>
+
+    @get:Input
+    abstract val entrancesEnabled: Property<Boolean>
+
     @TaskAction
     fun generate() {
         val inputFile = inputDir.asFile.get()
@@ -110,7 +140,24 @@ abstract class GenerateHyperframesHtmlTask : DefaultTask() {
                 height = height.get(),
                 fps = fps.get(),
                 outputName = outputName.get()
-            ).withDomainDictionary(domainDictionary)
+            )
+                .withChrome(
+                    ChromeConfig(
+                        enabled = chromeEnabled.get(),
+                        timecode = chromeTimecode.get(),
+                        cornerMarks = chromeCornerMarks.get(),
+                        progressBar = chromeProgressBar.get(),
+                        label = chromeLabel.orNull.orEmpty(),
+                    )
+                )
+                .withTypography(
+                    TypographyConfig(
+                        displayFont = displayFont.get(),
+                        monoFont = monoFont.get(),
+                    )
+                )
+                .withEntrances(EntranceConfig(enabled = entrancesEnabled.get()))
+                .withDomainDictionary(domainDictionary)
             val enhancedHtml = processor.enhance(rawHtml)
             generatedHtml.writeText(enhancedHtml)
 

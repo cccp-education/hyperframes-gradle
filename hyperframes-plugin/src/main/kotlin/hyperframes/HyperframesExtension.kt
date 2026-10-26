@@ -1,5 +1,6 @@
 package hyperframes
 
+import hyperframes.chrome.TypographyConfig
 import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.Property
@@ -151,6 +152,44 @@ abstract class HyperframesExtension {
     @get:Optional
     abstract val ttsVoice: Property<String>
 
+    // ── HF-DEMO-QUALITY US-4 — studio chrome + typography ─────────────────────
+
+    /** Enable the studio chrome on every scene (default `false`, backward compatible). */
+    @get:Input
+    abstract val chromeEnabled: Property<Boolean>
+
+    /** Render the per-scene `HH:MM:SS:FF` timecode (default `true`). */
+    @get:Input
+    abstract val chromeTimecode: Property<Boolean>
+
+    /** Render the four corner registration marks (default `true`). */
+    @get:Input
+    abstract val chromeCornerMarks: Property<Boolean>
+
+    /** Render the global bottom progress bar (default `true`). */
+    @get:Input
+    abstract val chromeProgressBar: Property<Boolean>
+
+    /** Optional programme label displayed before the scene counter. */
+    @get:Input
+    @get:Optional
+    abstract val chromeLabel: Property<String>
+
+    /** CSS font stack used for display headings (default: League Gothic stack). */
+    @get:Input
+    abstract val displayFont: Property<String>
+
+    /** CSS font stack used for code, captions and chrome (default: IBM Plex Mono stack). */
+    @get:Input
+    abstract val monoFont: Property<String>
+
+    /**
+     * Enable choreographed per-scene entrances (default `false`): content atoms
+     * are hidden at load and revealed with a deterministic stagger (US-5).
+     */
+    @get:Input
+    abstract val entrancesEnabled: Property<Boolean>
+
     // ── HF-YOUTUBE-PUBLISH US-2 — publish block (opt-in) ──────────────────────
 
     /** Enable publication to the platform (default `false` — backward compatible). */
@@ -252,6 +291,13 @@ abstract class HyperframesExtension {
         bgmLevelDb.convention(-18.0)
         loudnessTargetLufs.convention(-16.0)
         duckingEnabled.convention(false)
+        chromeEnabled.convention(false)
+        chromeTimecode.convention(true)
+        chromeCornerMarks.convention(true)
+        chromeProgressBar.convention(true)
+        displayFont.convention(TypographyConfig.DEFAULT_DISPLAY_FONT)
+        monoFont.convention(TypographyConfig.DEFAULT_MONO_FONT)
+        entrancesEnabled.convention(false)
         publishEnabled.convention(false)
         publishPlatform.convention("youtube")
         publishCredentialsFile.convention("youtube.yaml")

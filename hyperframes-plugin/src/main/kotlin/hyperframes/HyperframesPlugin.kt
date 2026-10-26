@@ -38,6 +38,14 @@ class HyperframesPlugin : Plugin<Project> {
             task.fps.set(extension.fps)
             task.outputName.set(extension.outputName)
             task.pronunciationDomain.set(extension.pronunciationDomain)
+            task.chromeEnabled.set(extension.chromeEnabled)
+            task.chromeTimecode.set(extension.chromeTimecode)
+            task.chromeCornerMarks.set(extension.chromeCornerMarks)
+            task.chromeProgressBar.set(extension.chromeProgressBar)
+            task.chromeLabel.set(extension.chromeLabel)
+            task.displayFont.set(extension.displayFont)
+            task.monoFont.set(extension.monoFont)
+            task.entrancesEnabled.set(extension.entrancesEnabled)
         }
 
         // Tâche : rendu MP4 via HyperFrames CLI (ProcessBuilder → node <cliScript> render)
