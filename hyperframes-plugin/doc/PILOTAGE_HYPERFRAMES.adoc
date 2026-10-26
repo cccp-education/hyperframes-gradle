@@ -748,10 +748,10 @@ site --> stagiaire : consomme
 * Architecture détaillée : `doc/HYPERFRAMES_ARCHITECTURE.adoc`
 
 '''
-== Transitions de scène (HF-DEMO-QUALITY US-2 v1)
+== Transitions de scène (HF-DEMO-QUALITY US-2 v1 + US-2b)
 
-Le DSL exprime une transition **cover** en ajoutant un rôle à la section
-AsciiDoc de la scène **sortante** :
+Le DSL exprime une transition en ajoutant un rôle à la section AsciiDoc de la
+scène **sortante** :
 
 [source,asciidoc]
 ----
@@ -768,20 +768,30 @@ Contenu de la scène.
 
 [cols="1,3", options="header"]
 |===
-| Rôle | Effet (0,5 s, centré sur la frontière)
-| `hf-transition-grid` | Grille 4 × 3 (12 cellules, 5 couleurs) qui se referme puis s'ouvre.
-| `hf-transition-shutter` | Deux panneaux pleine largeur se ferment au milieu puis s'ouvrent.
-| `hf-transition-fade` | Fondu au fond de la composition (`--bg`) puis retour.
+| Rôle | Effet
+| `hf-transition-grid` | Cover 0,5 s centré sur la frontière : grille 4 × 3 (12 cellules, 5 couleurs) qui se referme puis s'ouvre.
+| `hf-transition-shutter` | Cover 0,5 s : deux panneaux pleine largeur se ferment au milieu puis s'ouvrent.
+| `hf-transition-fade` | Cover 0,5 s : fondu au fond de la composition (`--bg`) puis retour.
+| `hf-transition-blur-crossfade` | Chevauchement 0,6 s : la scène entrante démarre avant la fin de la sortante ; les deux wrappers font un fondu + flou croisé.
+| `hf-transition-vertical-push` | Chevauchement 0,6 s : la sortante monte (`yPercent -100`) pendant que l'entrante arrive du bas (`yPercent 100 → 0`).
 |===
 
 * La transition est portée par la scène **sortante** ; le rôle de la dernière
   scène est ignoré (rien après).
-* Le processeur émet un overlay (`#hf-transition-<index>`) **enfant direct** de
-  `#stage` et pilote la transition sur l'unique timeline racine (`rootTl`).
-* La scène sortante **ne fait plus** son fondu de fin historique : l'overlay
-  possède le handoff (elle reste pleine jusqu'à la frontière).
-* Les autres types (`blur-crossfade`, `vertical-push`) exigent un chevauchement
-  de clips et sont l'US suivante (`HF-DEMO-QUALITY US-2b`).
+* Les transitions **cover** émettent un overlay (`#hf-transition-<index>`)
+  **enfant direct** de `#stage` et le pilotent sur l'unique timeline racine
+  (`rootTl`).
+* Les transitions **à chevauchement** n'émettent pas d'overlay : la scène
+  entrante voit son `data-start` avancé de 0,6 s, les deux pistes restent
+  visibles, et `rootTl` anime les deux wrappers. La durée totale diminue de
+  0,6 s par chevauchement.
+* Les scènes impliquées dans un chevauchement portent
+  `data-layout-allow-overlap` et `data-layout-allow-overflow` sur leur
+  `.scene-inner` : le chevauchement est intentionnel, le check de layout ne le
+  signale pas comme un défaut. Le marqueur doit être sur le **conteneur interne**
+  (la racine de scène est ignorée par HyperFrames).
+* La scène sortante **ne fait plus** son fondu de fin historique : l'overlay ou
+  `rootTl` possède le handoff.
 * Rétro-compatibilité : sans rôle, la composition est inchangée (timeline racine
   vide historique).
 

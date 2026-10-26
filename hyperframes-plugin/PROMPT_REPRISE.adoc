@@ -1,70 +1,70 @@
-= PROMPT_REPRISE — HyperFrames Gradle (Session 036 TERMINÉE → 037)
-:session: 036
-:date: 2026-10-17
-:status: ✅ TERMINÉ — HF-YOUTUBE-PUBLISH US-4 (BDD 2 moteurs) + HF-DEMO-QUALITY US-1 / US-2 v1 / US-3
+= PROMPT_REPRISE — HyperFrames Gradle (Session 037 TERMINÉE → 038)
+:session: 037
+:date: 2026-10-26
+:status: ✅ TERMINÉ — HF-DEMO-QUALITY US-2b (blur-crossfade + vertical-push)
 :borough: Watts
 
 '''
+== Décision pilote S-037
+
+* **Arrêt du déploiement YouTube** (`HF-YOUTUBE-PUBLISH`, `youtube-auth-plugin`,
+  `publishHyperframesToYouTube` / `publishCapsuleToYouTube`) : hors scope.
+* **Priorité : qualité de génération vidéo** — hyperframes / capsule /
+  video-kernel.
+
 == État des lieux
-* Plugin N2 AsciiDoc → HTML → CLI → MP4 ; HF-0→HF-7, HF-KERNEL-ADAPTER, HF-CR3,
-  VK-4-SHARED-PORTS, HF-CR4 ✅.
-* **HF-YOUTUBE-PUBLISH 🟡** : US-4 BDD ✅ (hyperframes + capsule S-207) ; reste
-  **dogfooding réel** (accord pilote) + EPIC `PUBLISH-ADAPTER-N1`.
-* **HF-DEMO-QUALITY 🟡** : US-1 démo ✅, **US-2 v1 transitions cover ✅**,
-  **US-3 médias ✅** ; reste **US-2b** (blur/push), **US-4** (chrome/typo),
-  **US-5** (entrées).
-* **Version publiée `0.0.9`** (Central) — **le code a changé depuis** : release
-  **`0.0.10` requise** avant consommation (accord pilote ; MEMPHIS d'abord).
-  Noyau `video-kernel 0.5.0` publié ; catalogue/BOM ws `0.0.99`.
 
-== Fait en session 036
-. **US-4 BDD** : `HyperframesPublishFunctionalTest` (TestKit, 3) + 4 scénarios
-  `youtube_publish.feature` ; parité capsule (S-207). `.gitignore` couvre
-  `youtube.yaml` + `client_secret_*.json`.
-. **Démo de référence** `demo-video/` : 48 s, 5 scènes, 1920×1080/30 fps, chrome,
-  League Gothic + IBM Plex Mono, médias PD/CC0 (`ATTRIBUTIONS.md`), MP4 gitignoré ; blur/push hors DSL (US-2b).
-. **US-2 v1 transitions cover** : rôles scène **sortante** `hf-transition-grid`
-  / `-shutter` / `-fade` → overlay enfant de `#stage` + tweens `rootTl` (sans
-  fondu pré-frontière ; sans rôle = historique). 5 unit + 1 FT + 5 BDD.
-. **US-3 médias** : `ReferencedAssets` copie les `src` relatifs `<img>`/`<audio>`
-  `inputDir`→`outputDir` (http/data/absolus, manquants, traversée ignorés) ; bloc
-  `[.hyperframes-audio]` (`bgm:`/`sfx: <s> <file>`) → `<audio>` directs. 6 unit + 1 FT + 3 BDD.
-. Doc : `doc/PILOTAGE_HYPERFRAMES.adoc` § Transitions / § Médias. CI verte
-  `40230367330` ; commits `44f568c`, `1c02378`, `49dc38b`.
+* `HF-DEMO-QUALITY` : US-1 ✅ S-036, US-2 cover ✅ S-036, **US-2b overlap ✅ S-037**,
+  US-3 médias ✅ S-036 ; restent **US-4** (chrome/typographie) et **US-5**
+  (entrées chorégraphiées).
+* **US-2b livré** : `blur-crossfade` + `vertical-push`, chevauchement 0,6 s,
+  `data-start` entrant décalé, `rootTl` anime les deux wrappers, total raccourci,
+  marqueurs `data-layout-allow-overlap`/`-overflow` sur `.scene-inner`.
+* **Preuve réelle** : consommateur `/tmp` en `includeBuild` (aucune publication) ;
+  `hyperframes lint` 0/0 ; `check --at-transitions` **Layout 0 issue / 39 samples**,
+  Lint/Runtime/Motion 0/0, Contrast 8/8 ; rendu **MP4 18,8 s / 726 Ko / 564 frames**.
+* **Warnings Craft restants** : `first_frame_empty`, `film_silent`, 3 `dead_stretch`
+  → US-4 (chrome/typo), US-5 (entrées), piste audio.
+* **Version** : `0.0.9` Central ; le code a changé (S-036 + S-037) → release
+  **`0.0.10`** requise avant consommation (accord pilote, MEMPHIS d'abord).
+  Catalogue/BOM ws `0.0.99`, `video-kernel 0.5.0`.
 
-== Limites connues (pas des bugs)
-* Durée de transition fixe **0,5 s** (pas de knob) ; blur/push non portés (US-2b).
-* Volumes audio sérialisés sur **2 décimales** (`0.3` → `0.30`).
-* Copie d'assets : **src relatifs** seulement ; bloc audio **dans une section** ; BGM borné.
-* `demo-video/` est **autonome**, pas générée par le plugin (référence qualité).
+== Mission Session 038 — au choix pilote
 
-== Publication YouTube — bloquée (à reprendre avec le pilote)
-* `obtainYouTubeRefreshToken` → **`Error 400: redirect_uri_mismatch`** : ajouter
-  `http://localhost:8765/` aux URI du client OAuth (ou créer un client **Desktop**).
-* `youtube.yaml` : clientId/clientSecret présents, **refreshToken manquant**
-  (loader durci : clés snake_case + nom des champs manquants).
-* Règle 2 : aucun upload sans accord pilote (`videos.insert` = 1600 unités).
+. **US-4 — chrome + typographie** : timecode, repères, barre de progression,
+   polices display (League Gothic / IBM Plex Mono) configurables par le DSL.
+. **US-5 — entrées chorégraphiées par scène** : `gsap.set` au chargement +
+   tweens par scène (fin des apparitions groupées / dead stretches).
+3. **Release `0.0.10`** : DAG MEMPHIS-first, accord pilote.
+4. **Capsule / video-kernel qualité** : sur demande explicite — ne pas rouvrir
+   YouTube.
 
-== Mission Session 037 (au choix pilote)
-* **HF-DEMO-QUALITY US-2b** : `blur-crossfade` + `vertical-push` (clips
-  chevauchés, entrées décalées).
-* **US-4** chrome/timecode/repères + typographie display ; **US-5** entrées.
-* **Release `0.0.10`** : MEMPHIS catalogue/BOM → hyperframes (accord pilote).
-* Sinon : dogfooding réel YouTube / `PUBLISH-ADAPTER-N1`.
+== Fait en session 037
+
+* `HyperframesHtmlProcessor` : `TransitionKind.BLUR_CROSSFADE`/`VERTICAL_PUSH`,
+  fenêtre 0,6 s, scènes en deux passes (`RawScene` → `Scene`), boundaries overlap,
+  `rootTl` blur/opacité et `yPercent`, marqueurs de layout.
+* +3 UT `HyperframesHtmlProcessorTest` + 2 scénarios BDD `@quality-transition`.
+* Doc `doc/PILOTAGE_HYPERFRAMES.adoc` § Transitions.
+* CI `40270297236` (commit `119201b`) verte.
 
 == Points d'attention
-* **Local = Build, Tests = CI** ; ne jamais lancer `test`/`check` en local.
-* Bumper le catalogue MEMPHIS **ET** le toml local (même valeur) avant release.
-* **Zéro secret** commité (`youtube.yaml`, `client_secret_*.json`).
-* Noyau `0.5.0` publié — ne pas republier sans changement/accord.
+
+* **Local = Build, Tests = CI** : compiler/builder uniquement ; jamais
+  `test`/`check` local.
+* **Règle 2 — PUBLISH** : accord pilote ; ne pas republier `0.0.9` (split-brain).
+* **Zéro secret** ; **zéro Python** ; English only code/tests/features.
+* Le check de layout signale les chevauchements ; les marqueurs doivent être sur
+  le **conteneur interne** de la scène, pas sur la racine.
+* `demo-video/` reste la référence qualité autonome ; le DSL converge vers elle.
 
 == Routes documents clés
+
 |===
 | Document | Chemin
-| Rapport S-036 | `.agents/sessions/036-hf-youtube-publish-us4-status.adoc`
+| Rapport S-037 | `.agents/sessions/037-hf-demo-quality-us2b-overlap-transitions.adoc`
 | Démo | `demo-video/` (+ `ATTRIBUTIONS.md`)
 | Doc DSL | `doc/PILOTAGE_HYPERFRAMES.adoc` (§ Transitions, § Médias)
-| Cadrage | `.agents/CADRAGE_EPIC_HF_YOUTUBE_PUBLISH.adoc`
 | Backlog / règles | `BACKLOG.adoc` · `AGENT.adoc`
-| Noyau N1 | `../video-kernel-gradle/video-kernel-plugin/src/main/kotlin/video/kernel/publish/`
+| Noyau N1 | `../video-kernel-gradle/video-kernel-plugin/src/main/kotlin/video/kernel/`
 |===

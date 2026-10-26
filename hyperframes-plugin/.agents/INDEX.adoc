@@ -2,13 +2,14 @@
 :toc:
 
 _Règles absolues_ : voir `AGENT.adoc`
-_Derniere mise a jour_ : 2026-10-17 (Session 036 — **HF-YOUTUBE-PUBLISH US-4** + **HF-DEMO-QUALITY US-1/US-2 v1/US-3** : démo 48 s (médias PD/CC0) ; DSL : transitions cover (grid/shutter/fade) + copie d’assets + bloc audio `[.hyperframes-audio]` → `<audio>` directs ; dogfooding lint 0/0, inspect 0 issue, rendus 25 s et 15 s. Cf. `.agents/sessions/036-hf-youtube-publish-us4-status.adoc`.)
+_Derniere mise a jour_ : 2026-10-26 (Session 037 — **HF-DEMO-QUALITY US-2b : transitions à chevauchement** ✅ — `blur-crossfade` + `vertical-push`, fenêtre partagée 0,6 s, `data-start` entrant décalé, tweens blur/yPercent sur `rootTl`, marqueurs `data-layout-allow-overlap`/`-overflow` sur `.scene-inner`. +3 UT + 2 BDD. **Dogfooding réel** : `check --at-transitions` Layout **0 issue/39 samples**, Lint/Runtime/Motion 0/0, Contrast 8/8 ; MP4 18,8 s / 726 Ko. CI `40270297236` verte. **Aucun YouTube** — priorité qualité vidéo.)
+_Derniere mise a jour (anterieure)_ : 2026-10-17 (Session 036 — **HF-YOUTUBE-PUBLISH US-4** + **HF-DEMO-QUALITY US-1/US-2 v1/US-3** : démo 48 s (médias PD/CC0) ; DSL : transitions cover (grid/shutter/fade) + copie d’assets + bloc audio `[.hyperframes-audio]` → `<audio>` directs ; dogfooding lint 0/0, inspect 0 issue, rendus 25 s et 15 s. Cf. `.agents/sessions/036-hf-youtube-publish-us4-status.adoc`.)
 _DAG_ : N2 — Plugin Gradle de transformation documentaire AsciiDoc → vidéo MP4
 _Dépendance N2_ : codex-gradle (compileOnly, AsciidoctorJ partagé)
 _Bridge externe_ : HyperFrames CLI via le noyau `VideoEngine` (`node <cliScript> render <dir> --output <mp4>`)
 
-_Dernière session terminée_ : 036 — **HF-YOUTUBE-PUBLISH US-4 + HF-DEMO-QUALITY US-1 + US-2 v1 + US-3 (médias DSL)**. Rapport `.agents/sessions/036-hf-youtube-publish-us4-status.adoc`.
-_Prochaine session_ : 037 — **HF-DEMO-QUALITY US-2b** (blur/push) puis **US-4** (chrome/typographie) et **US-5** (entrées). Sinon dogfooding réel / `PUBLISH-ADAPTER-N1`.
+_Dernière session terminée_ : 037 — **HF-DEMO-QUALITY US-2b (transitions à chevauchement)**. Rapport `.agents/sessions/037-hf-demo-quality-us2b-overlap-transitions.adoc`.
+_Prochaine session_ : 038 — **HF-DEMO-QUALITY US-4** (chrome/timecode/repères/barre + typographie display) puis **US-5** (entrées chorégraphiées), **release `0.0.10`** (accord pilote, MEMPHIS-first). **Priorité qualité vidéo — pas de déploiement YouTube.**
 _Version publiée_ : **0.0.9** (Maven Central) + Gradle Plugin Portal (handle `cccp-education`). Catalogue ws **`0.0.99`** (BOM `0.0.99`), noyau **`video-kernel 0.5.0`**.
 
 '''
@@ -258,6 +259,7 @@ sert qu'à la lecture. Guide §2.2 du cadrage.
 
 |===
 | # | Date | Type | Sujet | Score
+| 037 | 2026-10-26 | feat+test+dogfooding | **HF-DEMO-QUALITY US-2b — transitions à chevauchement** ✅ — `blur-crossfade` + `vertical-push` : la scène entrante démarre 0,6 s avant la fin de la sortante, `rootTl` anime les deux wrappers (blur/opacité ou `yPercent`), total raccourci, marqueurs `data-layout-allow-overlap`/`-overflow` sur `.scene-inner` pour le check. +3 UT + 2 BDD. Dogfooding réel : `check --at-transitions` **Layout 0 issue/39 samples**, Lint/Runtime/Motion 0/0, Contrast 8/8, MP4 18,8 s/726 Ko. CI `40270297236` verte. Aucun YouTube, zéro bump/publication. Rapport `.agents/sessions/037-hf-demo-quality-us2b-overlap-transitions.adoc`. | 10/10
 | 035 | 2026-10-16 | cadrage+feat+release | **EPIC `HF-YOUTUBE-PUBLISH` : cadrage + US-1 + US-1b + US-2 + US-1c/US-5 release `0.0.9`** (transverse hyperframes/video-kernel/capsule/MEMPHIS). DAG MEMPHIS `workspace-bom/catalog 0.0.98 → 0.0.99` (bundle `341922a4`, `hyperframes-plugin 0.0.9` + `video-kernel 0.5.0`) → hyperframes re-pin `0.0.99` + toml `hyperframes 0.0.9` → **Central `hyperframes-plugin 0.0.9`** (propagation repo1 en cours). Cadrage `.agents/CADRAGE_EPIC_HF_YOUTUBE_PUBLISH.adoc` (guide OAuth 2.0, 12 décisions, 6 US). **US-1** noyau `video.kernel.publish` (modèle + port `VideoPublisher` + validation + composition, `0.4.0 → 0.5.0`, +14 types, 31 unit). **US-1b** publication `video-kernel 0.5.0` Central (bundle `85598927`). **US-2** adaptateur `hyperframes.publish` (OAuth 2.0 refresh-token + resumable upload + `thumbnails.set`, JDK `HttpClient`, aucun SDK Google) + tâche `publishHyperframesToYouTube` (groupe `deploy`, opt-in, `youtube.yaml` gitignoré) + 5 unit + BDD `@publish` (fake transport). Compiles VERTS (Local = Build). | ✅ TERMINÉ
 | 034 | 2026-10-16 | release | **Release `hyperframes-plugin 0.0.8`** (Maven Central, bundle `a34abddf`) — DAG MEMPHIS `0.0.97 → 0.0.98` (bundle `59a780ce`). Contenu : HF-CR4 suite (scènes en sous-compositions, lint 0/0). | ✅ TERMINÉ
 | 030 | 2026-10-15 | ci | **Cache CI du rendu réel.** `real-render-hyperframes.yml` re-téléchargeait npm + Chromium à chaque run ; ajout `actions/cache@v4` sur `~/.npm` + `~/.cache/puppeteer` (clé `hyperframes-cli-<os>-0.8.157`). Aucun code plugin modifié. | ✅ TERMINÉ

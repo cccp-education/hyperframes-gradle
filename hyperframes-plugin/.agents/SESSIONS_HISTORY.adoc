@@ -1,5 +1,23 @@
 = SESSIONS_HISTORY — hyperframes-gradle
 
+== Session 037 (2026-10-26) — HF-DEMO-QUALITY US-2b : transitions à chevauchement
+
+`blur-crossfade` + `vertical-push` : la scène entrante démarre **0,6 s avant**
+la fin de la sortante (deux clips visibles, pistes distinctes) ; `rootTl` anime
+les deux wrappers (opacité + `filter blur(18px)`, ou `yPercent -100 / 100 → 0`) ;
+la durée totale diminue de 0,6 s par chevauchement. Les scènes concernées portent
+`data-layout-allow-overlap` + `data-layout-allow-overflow` sur leur `.scene-inner`
+(le marqueur sur la racine de scène est ignoré par le check). Transitions cover
+inchangées, rétro-compatibles. **Tests** : +3 UT `HyperframesHtmlProcessorTest`
+(offset `6.40`, total `8.40`, tweens, absence d'overlay, marqueurs) + 2 scénarios
+BDD `@quality-transition`. **Dogfooding réel** (consommateur `/tmp`, `includeBuild`,
+aucune publication) : `hyperframes lint` 0/0 ; `check --at-transitions` Lint/
+Runtime/Motion 0/0, **Layout 0 issue / 39 samples**, Contrast 8/8 WCAG AA ; rendu
+MP4 18,8 s / 726 Ko / 564 frames. Warnings Craft restants (first frame, silence,
+dead stretches) → US-4/US-5 + audio. **CI `40270297236`** (commit `119201b`) verte.
+**Hors scope : YouTube** (décision pilote S-037). Zéro bump, zéro publication.
+Rapport `.agents/sessions/037-hf-demo-quality-us2b-overlap-transitions.adoc`.
+
 == Session 036 (2026-10-17) — HF-YOUTUBE-PUBLISH US-4 : BDD parité + garde secrets (transverse)
 
 `HyperframesPublishFunctionalTest` (TestKit hermétique, 3 tests : groupe `deploy`,

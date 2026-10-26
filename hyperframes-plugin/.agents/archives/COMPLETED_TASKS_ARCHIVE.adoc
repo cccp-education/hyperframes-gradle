@@ -1,6 +1,21 @@
 = COMPLETED_TASKS_ARCHIVE — hyperframes-gradle
 :date: 2026-05-31
-:last-updated: 2026-10-17 (session 036)
+:last-updated: 2026-10-26 (session 037)
+
+== Session 037 (2026-10-26) — HF-DEMO-QUALITY US-2b : transitions à chevauchement ✅
+
+* [x] `blur-crossfade` + `vertical-push` : scène entrante décalée de 0,6 s,
+  deux clips visibles sur pistes distinctes, `rootTl` anime les deux wrappers.
+* [x] Durée totale raccourcie de 0,6 s par chevauchement ; dernière scène ignorée.
+* [x] Marqueurs `data-layout-allow-overlap`/`-overflow` sur `.scene-inner` pour
+  les chevauchements intentionnels ; cover transitions inchangées.
+* [x] +3 UT `HyperframesHtmlProcessorTest` + 2 BDD `@quality-transition`.
+* [x] Dogfooding réel : `lint` 0/0 ; `check --at-transitions` Layout 0 issue/39
+  samples, Lint/Runtime/Motion 0/0, Contrast 8/8 ; MP4 18,8 s/726 Ko.
+* [x] CI `40270297236` (commit `119201b`) verte.
+* [x] Doc `doc/PILOTAGE_HYPERFRAMES.adoc` § Transitions mise à jour.
+* [x] **Hors scope : YouTube** (décision pilote S-037) ; zéro bump/publication.
+* [ ] US-4 (chrome/typographie), US-5 (entrées), release `0.0.10`.
 
 == Session 036 (2026-10-17) — HF-YOUTUBE-PUBLISH US-4 : BDD parité + garde secrets ✅
 

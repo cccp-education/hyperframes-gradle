@@ -2,7 +2,7 @@
 :toc:
 
 _Date création_ : 2026-05-31
-_Version_ : 0.0.9
+_Version_ : 0.0.9 (Central) — HEAD S-037 (US-2b) non publié ; release 0.0.10 requise (accord pilote, MEMPHIS-first).
 
 '''
 == ✅ Release `hyperframes-plugin 0.0.9` — Maven Central (S-035)
@@ -28,7 +28,7 @@ chorégraphiées, transitions, chrome de plateau, médias PD/CC0. Le DSL du plug
 | US | Livrable | Statut
 | US-1 | **Démo de référence** : `demo-video/index.html` (5 scènes, 48 s), médias libres de droit (`ATTRIBUTIONS.md`), rendu MP4 validé (lint/validate/inspect/rendu) | ✅ S-036
 | US-2 | **Transitions cover dans le DSL** : rôles `hf-transition-grid` / `-shutter` / `-fade` sur la scène sortante → overlay enfant de `#stage` + tweens sur la timeline racine ; rétro-compat totale. 5 unit + 1 fonctionnel + 5 BDD ; dogfooding lint 0/0 / inspect 0 issue. | ✅ S-036 (v1)
-| US-2b | **Transitions à chevauchement** : `blur-crossfade` + `vertical-push` (deux scènes visibles, clips sur pistes chevauchées, entrées décalées) | 🟡 À FAIRE
+| US-2b | **Transitions à chevauchement** : `blur-crossfade` + `vertical-push` (deux scènes visibles, clips sur pistes chevauchées, entrées décalées) | ✅ S-037 — 0,6 s de chevauchement, `data-start` entrant décalé, tweens blur/push sur `rootTl`, marqueurs `data-layout-allow-overlap`/`-overflow` ; +3 UT, +2 BDD ; dogfooding réel `check --at-transitions` Layout **0 issue/39 samples**, rendu MP4 18,8 s ; CI `40270297236` verte.
 | US-3 | **Médias dans le DSL** : images copiées dans `outputDir`, BGM/SFX (bloc `[.hyperframes-audio]`) → `<audio>` enfants de `#stage` + tests. 3 unit `ReferencedAssetsTest` + 3 unit processor + 1 FT TestKit + 3 BDD ; dogfooding lint 0/0 / inspect 0 issue / rendu 15 s avec audio. | ✅ S-036
 | US-4 | **Chrome + typographie** : timecode/repères/barre, polices display (League Gothic / IBM Plex Mono) configurables | 🟡 À FAIRE
 | US-5 | **Entrées chorégraphiées par scène** : `gsap.set` au chargement + tweens par scène (fin des apparitions groupées) | 🟡 À FAIRE

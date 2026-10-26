@@ -1,6 +1,16 @@
 = Test Coverage Analysis — hyperframes-gradle
 
-_Dernière mise à jour_ : 2026-10-17 (Session 036 — HF-YOUTUBE-PUBLISH US-4 + HF-DEMO-QUALITY US-1/US-2 v1/US-3)
+_Dernière mise à jour_ : 2026-10-26 (Session 037 — HF-DEMO-QUALITY US-2b)
+
+== Couverture — 26 octobre 2026 (après session 037, US-2b)
+
+.HF-DEMO-QUALITY US-2b — transitions à chevauchement
+|===
+| Élément | Nature | Tests
+
+| `HyperframesHtmlProcessor` overlap | `blur-crossfade` / `vertical-push` : scène entrante décalée de 0,6 s, total raccourci, tweens sur les deux wrappers, aucun overlay, marqueurs de layout | +3 unit `HyperframesHtmlProcessorTest` (offset `6.40`, total `8.40`, blur+push, marqueurs 2 scènes, absence sur cover) ; +2 BDD `hf_demo_quality_transitions.feature` (`@quality-transition`)
+| Dogfooding réel | consommateur `/tmp` en `includeBuild`, aucune publication | `lint` 0/0 ; `check --at-transitions` Layout 0/39, Lint/Runtime/Motion 0/0, Contrast 8/8 ; MP4 18,8 s
+|===
 
 == Couverture — 17 octobre 2026 (après session 036, US-3)
 

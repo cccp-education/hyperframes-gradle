@@ -1,0 +1,92 @@
+= Session 037 — HF-DEMO-QUALITY US-2b : transitions à chevauchement
+:session: 037
+:date: 2026-10-26
+:borough: Watts — hyperframes (N2)
+:epic: HF-DEMO-QUALITY
+:statut: ✅ TERMINÉE
+
+'''
+== Contexte
+
+`HF-DEMO-QUALITY US-2` (S-036) avait livré les transitions **cover**
+(`grid`/`shutter`/`fade`) : les deux scènes ne se chevauchent pas, un overlay
+possède le handoff. `US-2b` ajoute les transitions **à chevauchement** :
+`blur-crossfade` et `vertical-push`, où la scène entrante démarre **avant** la
+fin de la sortante et les deux clips restent visibles sur leurs pistes.
+
+Décision pilote S-037 : **arrêter le déploiement YouTube** et concentrer les
+sessions sur la **qualité de génération vidéo** (hyperframes / capsule /
+video-kernel).
+
+'''
+== Livré
+
+* `TransitionKind` + `BLUR_CROSSFADE` / `VERTICAL_PUSH` ; `Transition` porte une
+  fenêtre de chevauchement de **0,6 s**.
+* Calcul des scènes en deux passes (`RawScene` → `Scene`) : la scène suivante
+  démarre à `start + duration - overlap` ; la durée totale diminue d'autant.
+  Dernière scène : rôle ignoré (pas de chevauchement sans cible).
+* `rootTl` pilote les deux wrappers pendant la fenêtre partagée :
+  ** `blur-crossfade` : sortante `opacity 0` + `filter blur(18px)`, entrante
+     `opacity 1` + `blur(0)` ;
+  ** `vertical-push` : sortante `yPercent -100`, entrante `yPercent 100 → 0`.
+* Aucun overlay cover pour ces deux rôles ; les transitions cover existantes
+  sont inchangées (rétro-compatibilité).
+* Les scènes impliquées dans un chevauchement portent
+  `data-layout-allow-overlap` + `data-layout-allow-overflow` sur leur
+  `.scene-inner` : le chevauchement est **intentionnel**, pas un défaut de layout
+  (le marqueur sur la racine de scène est ignoré par le check HyperFrames).
+* Documentation `doc/PILOTAGE_HYPERFRAMES.adoc` mise à jour (rôles, chevauchement,
+  marqueurs).
+
+'''
+== Tests et preuves
+
+* **Unit** (`HyperframesHtmlProcessorTest`) — **+3 tests** : offset de la scène
+  entrante (`6.40` sur un fixture 5+2+2), total raccourci (`8.40`), tweens des
+  deux wrappers, absence d'overlay, marqueurs sur les deux scènes d'un overlap,
+  absence de marqueur sur une transition cover.
+* **BDD** (`hf_demo_quality_transitions.feature`, `@quality-transition`) —
+  **+2 scénarios** : blur-crossfade et vertical-push ; steps préfixés.
+* **Dogfooding réel** (consommateur `/tmp/opencode/hf-us2b-dogfood`, `includeBuild`
+  du plugin source, aucun `publishToMavenLocal`) :
+  ** `generateHyperframesHtml` : composition 1920×1080, 4 scènes, 18,80 s ;
+  ** `hyperframes lint` : **0 erreur, 0 warning** ;
+  ** `hyperframes check --at-transitions` : Lint 0/0, Runtime 0/0,
+     **Layout 0 issue / 39 samples**, Motion 0/0, Contrast **8/8 WCAG AA** ;
+  ** rendu réel `us2b.mp4` : 18,8 s, 726 Ko, 564 frames, H.264, 50 s (GPU).
+* Les 5 warnings **Craft** restants du check (`first_frame_empty`, `film_silent`,
+  3 `dead_stretch`) ne concernent pas les transitions : ils relèvent d'US-4
+  (chrome/typo) et US-5 (entrées) + d'une piste audio.
+
+**CI verte** : run `40270297236` (commit `119201b`) — `Build & Test (unit +
+functional + Cucumber)` **success**. Run `40269336332` (commit `9d65faf`) vert
+avant les marqueurs de layout.
+
+'''
+== Reste HF-DEMO-QUALITY
+
+|===
+| US | Sujet | Statut
+| US-1 | démo de référence | ✅ S-036
+| US-2 | transitions cover (grid/shutter/fade) | ✅ S-036
+| US-2b | blur-crossfade + vertical-push | ✅ S-037
+| US-4 | chrome + typographie (timecode/repères/barre, display fonts) | 🟡 À FAIRE
+| US-5 | entrées chorégraphiées par scène | 🟡 À FAIRE
+|===
+
+Release `hyperframes-plugin 0.0.10` requise pour distribuer S-036/S-037 (accord
+pilote, MEMPHIS-first). **Aucune publication YouTube** dans cette session.
+
+'''
+== Pièges
+
+1. *(S-037)* Une transition à chevauchement doit décaler le `data-start` de la
+   scène entrante ; un overlay sans chevauchement ne montre qu'une scène.
+2. *(S-037)* Le check de layout signale le chevauchement de texte et le débordement
+   canvas comme des défauts ; marquer le **conteneur interne** de la scène
+   (`data-layout-allow-overlap`/`-overflow`), jamais la racine de scène.
+3. *(S-037)* La scène sortante ne doit pas faire son fondu historique : le
+   `rootTl` possède le handoff.
+4. *(S-037)* Ne pas republier `0.0.9` en local : le code a changé, la prochaine
+   release est `0.0.10`.
