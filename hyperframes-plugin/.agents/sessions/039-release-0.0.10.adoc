@@ -44,4 +44,5 @@ chorégraphiées), conformément au DAG N0→N2 : MEMPHIS d'abord, hyperframes e
 == Gates
 
 Local = Build : compiles VERT, `publishToMavenLocal` VERT. Aucun test local.
-La CI de la clôture sera déclenchée par le commit de gouvernance.
+**CI `Test` run `40324823842` (commit `efbaa0a`) : ✅ VERTE** — unit + functional
+TestKit + Cucumber + `check` contre `workspace-bom:0.0.106`.
