@@ -326,6 +326,9 @@ class HyperframesHtmlProcessor internal constructor(
                     .replace("__DISPLAY_FONT__", typography.displayFont)
                     .replace("__MONO_FONT__", typography.monoFont)
             )
+            if (chrome.enabled) {
+                appendLine(CHROME_CSS)
+            }
             appendLine("</style>")
             appendLine("</head>")
             appendLine("<body>")
@@ -1068,7 +1071,14 @@ html,body{width:__W__px;height:__H__px;overflow:hidden;background:var(--bg);
 .hf-shutter-top{top:0}
 .hf-shutter-bottom{top:50%}
 .hf-transition-fade{background:var(--bg);opacity:0}
-/* HF-DEMO-QUALITY US-4 — studio chrome (timecode, marks, progress) */
+"""
+
+        /**
+         * HF-DEMO-QUALITY US-4 — chrome styles are emitted **only when chrome is
+         * enabled**, so an unconfigured composition contains no `hf-chrome` token
+         * at all (strict opt-in, easy to assert).
+         */
+        val CHROME_CSS = """
 .hf-chrome{position:absolute;inset:0;z-index:40;pointer-events:none}
 .hf-chrome-marks span{position:absolute;width:34px;height:34px;border:2px solid rgba(248,250,252,.28)}
 .hf-chrome-marks span:nth-child(1){left:34px;top:34px;border-right:0;border-bottom:0}
