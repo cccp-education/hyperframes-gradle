@@ -602,3 +602,12 @@ atome, sélecteurs scellés par scène. DSL opt-in : `chromeEnabled`,
 VERT) ; preuve = CI. Aucun port N1 → `video-kernel`/`capsule` inchangés.
 **EPIC HF-DEMO-QUALITY TERMINÉ 5/5**. Reste release `0.0.10`.
 Rapport `.agents/sessions/038-hf-demo-quality-us4-us5-chrome-entrances.adoc`.
+== Session 039 (2026-10-26) — Release `hyperframes-plugin 0.0.10` (Maven Central)
+
+Release DAG N0→N2 : MEMPHIS `workspace-bom`/catalog `0.0.105 → 0.0.106`
+(`hyperframes-plugin = "0.0.10"`, bundle `2a6cabd8`, propagation repo1 200) →
+hyperframes re-pin `workspace-catalog/BOM 0.0.106` + toml `0.0.10` → Central
+bundle `ca092903` (AUTOMATIC), propagation repo1 200 (plugin + marker). POM
+`0.0.10` importe `workspace-bom:0.0.106`. Contenu : `HF-DEMO-QUALITY` US-4
+chrome/typographie + US-5 entrées chorégraphiées. Zéro code produit modifié.
+Rapport `.agents/sessions/039-release-0.0.10.adoc`.

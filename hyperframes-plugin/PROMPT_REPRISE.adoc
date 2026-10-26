@@ -1,74 +1,61 @@
-= PROMPT_REPRISE — HyperFrames Gradle (Session 038 TERMINÉE → 039)
-:session: 038
+= PROMPT_REPRISE — HyperFrames Gradle (Session 039 TERMINÉE → 040)
+:session: 039
 :date: 2026-10-26
-:status: ✅ TERMINÉ — HF-DEMO-QUALITY US-4 + US-5 (EPIC TERMINÉ)
+:status: ✅ TERMINÉ — Release `hyperframes-plugin 0.0.10` (Maven Central)
 :borough: Watts
 
 '''
 == Décision pilote S-037 (rappel)
 
-* **Arrêt du déploiement YouTube** (`HF-YOUTUBE-PUBLISH`, `youtube-auth-plugin`,
-  `publishHyperframesToYouTube` / `publishCapsuleToYouTube`) : hors scope.
+* **Arrêt du déploiement YouTube** : hors scope.
 * **Priorité : qualité de génération vidéo** — hyperframes / capsule /
   video-kernel.
 
 == État des lieux
 
-* `HF-DEMO-QUALITY` : **✅ TERMINÉ 5/5** — US-1 ✅ S-036, US-2 v1 ✅ S-036,
-  US-2b ✅ S-037, US-3 ✅ S-036, **US-4 ✅ S-038**, **US-5 ✅ S-038**.
-* **US-4** : domaine pur `hyperframes.chrome` — `ChromeConfig` (timecode,
-  repères, barre, label), `TypographyConfig` (piles CSS offline),
-  `ChromeRenderer` (`HH:MM:SS:FF`, escaping, HTML chrome). DSL opt-in
-  `chromeEnabled` / `chromeTimecode` / `chromeCornerMarks` /
-  `chromeProgressBar` / `chromeLabel` + `displayFont` / `monoFont`.
-* **US-5** : domaine pur `hyperframes.entrance` — `EntranceConfig`,
-  `SceneEntrancePlanner` (`gsap.set` au chargement, stagger déterministe par
-  atome, sélecteurs scellés par scène). DSL opt-in `entrancesEnabled`.
-* **Preuves** : +23 UT, +4 FT TestKit, +7 scénarios BDD
-  (`@quality-chrome`, `@quality-entrances`). **Local = Build** (compiles VERT) ;
-  **CI `Test` run `40276785081` VERTE** (unit + functional + Cucumber + `check`).
-* **Transverse** : aucun port N1 n'émerge (chrome/entrées = rendu HTML propre à
-  hyperframes) → `video-kernel` et `capsule` **inchangés**.
-* **Version** : `0.0.9` Central ; HEAD S-038 non publié → release **`0.0.10`**
-  requise (accord pilote, MEMPHIS-first). Catalogue/BOM ws `0.0.99`,
+* `HF-DEMO-QUALITY` : **✅ TERMINÉ 5/5** (US-1/2/3 S-036, US-2b S-037,
+  **US-4 chrome/typo + US-5 entrées S-038**).
+* **Release `0.0.10`** ✅ S-039 : MEMPHIS BOM/catalog `0.0.106` (bundle
+  `2a6cabd8`) → hyperframes Central bundle `ca092903`, propagation repo1 200
+  (plugin + marker). POM `0.0.10` importe `workspace-bom:0.0.106`.
+* **Version** : `0.0.10` Central + Plugin Portal. Catalogue ws `0.0.106`,
   `video-kernel 0.5.0`.
+* **Code** : domaine pur `hyperframes.chrome` + `hyperframes.entrance` ; DSL
+  opt-in (`chromeEnabled`, `chromeTimecode`, `chromeCornerMarks`,
+  `chromeProgressBar`, `chromeLabel`, `entrancesEnabled`, `displayFont`,
+  `monoFont`). 23 UT + 4 FT + 7 BDD ; CI `40277030929` verte.
+* **Transverse** : aucun port N1 → `video-kernel`/`capsule` inchangés.
 
-== Mission Session 039 — au choix pilote
+== Mission Session 040 — au choix pilote
 
-. **Release `0.0.10`** : DAG MEMPHIS-first (`workspace-bom`/catalog → hyperframes),
-   accord pilote explicite.
 . **Dogfooding réel** du DSL chrome/entrées : consommateur `/tmp` en
-   `includeBuild` (aucune publication), `hyperframes lint/check`, rendu MP4.
+   `includeBuild`, `hyperframes lint/check`, rendu MP4.
+2. **Maintenance** / governance.
 3. **Capsule / video-kernel** : sur demande explicite — ne pas rouvrir YouTube.
-4. Sinon : maintenance.
 
-== Fait en session 038
+== Fait en session 039
 
-* `hyperframes/chrome/{ChromeConfig,TypographyConfig,ChromeRenderer}.kt`
-* `hyperframes/entrance/{EntranceConfig,SceneEntrancePlanner}.kt`
-* Wiring `HyperframesHtmlProcessor` (`withChrome`, `withTypography`,
-  `withEntrances`), `HyperframesExtension`, `GenerateHyperframesHtmlTask`,
-  `HyperframesPlugin`.
-* CSS design system : variables `--hf-display-font`/`--hf-mono-font` + chrome
-  (topbar, repères, barre). `progressTween` sur `rootTl`.
-* Doc `doc/PILOTAGE_HYPERFRAMES.adoc` § DSL (chrome, typographie, entrées).
-* Rapports : `.agents/sessions/038-hf-demo-quality-us4-us5-chrome-entrances.adoc`.
+* MEMPHIS `workspace-bom`/catalog `0.0.105 → 0.0.106` (`hyperframes-plugin =
+  0.0.10`) + garde `PlatformCatalogAlignmentTest` ré-alignée.
+* hyperframes pins `workspace-catalog/BOM 0.0.106` + toml `hyperframes = 0.0.10`.
+* Central bundles `2a6cabd8` (MEMPHIS) / `ca092903` (hyperframes), propagation
+  repo1 HTTP 200.
+* Rapports : `.agents/sessions/039-release-0.0.10.adoc` +
+  `workspace-bom/.agents/sessions/309-bom-0.0.106-hyperframes-0.0.10.adoc`.
 
 == Points d'attention
 
-* **Local = Build, Tests = CI** : compiler/builder uniquement ; jamais
-  `test`/`check` local.
-* **Règle 2 — PUBLISH** : accord pilote ; ne pas republier `0.0.9`.
+* **Local = Build, Tests = CI** : jamais `test`/`check` local.
 * **Zéro secret** ; **zéro Python** ; English only code/tests/features.
-* Chrome/entrées sont **opt-in** : ne pas casser le rendu historique.
-* `demo-video/` reste la référence qualité autonome ; le DSL converge vers elle.
+* Chrome/entrées **opt-in** : ne pas casser le rendu historique.
+* `demo-video/` reste la référence qualité ; le DSL converge vers elle.
 
 == Routes documents clés
 
 |===
 | Document | Chemin
+| Rapport S-039 | `.agents/sessions/039-release-0.0.10.adoc`
 | Rapport S-038 | `.agents/sessions/038-hf-demo-quality-us4-us5-chrome-entrances.adoc`
-| Rapport S-037 | `.agents/sessions/037-hf-demo-quality-us2b-overlap-transitions.adoc`
 | Démo | `demo-video/` (+ `ATTRIBUTIONS.md`)
 | Doc DSL | `doc/PILOTAGE_HYPERFRAMES.adoc`
 | Backlog / règles | `BACKLOG.adoc` · `AGENT.adoc`

@@ -1,0 +1,47 @@
+= Session 039 — Release `hyperframes-plugin 0.0.10` (Maven Central)
+:session: 039
+:date: 2026-10-26
+:borough: Watts
+:statut: ✅ TERMINÉ
+
+== Mission
+
+Publier le HEAD S-038 (`HF-DEMO-QUALITY` US-4 chrome/typographie + US-5 entrées
+chorégraphiées), conformément au DAG N0→N2 : MEMPHIS d'abord, hyperframes ensuite.
+
+== Modifications
+
+[cols="2,2,4"]
+|===
+| Fichier | Avant | Après
+
+| `hyperframes-plugin/gradle/libs.versions.toml` | `hyperframes = "0.0.9"` | `0.0.10`
+| `hyperframes-plugin/settings.gradle.kts` | `workspace-catalog:0.0.99` | `0.0.106`
+| `hyperframes-plugin/build.gradle.kts` | `workspace-bom:0.0.99` | `0.0.106`
+|===
+
+== Publication
+
+[cols="2,3"]
+|===
+| Étape | Résultat
+
+| MEMPHIS BOM/catalog `0.0.106` | ✅ bundle `2a6cabd8-5b94-4882-abd5-512c5a7d65ea`, propagation repo1 HTTP 200
+| `publishToMavenLocal` hyperframes | ✅ VERT — POM `0.0.10` importe `workspace-bom:0.0.106`
+| `publishAggregationToCentralPortal` | ✅ bundle **`ca092903-ad60-45d3-9e7d-7e4d4c446f38`** (AUTOMATIC)
+| Propagation repo1 | ✅ `hyperframes-plugin/0.0.10` + marker `education.cccp.hyperframes.gradle.plugin/0.0.10` HTTP 200
+|===
+
+== Contenu depuis `0.0.9`
+
+* `HF-DEMO-QUALITY` US-4 : chrome opt-in (`chromeEnabled`, `chromeTimecode`,
+  `chromeCornerMarks`, `chromeProgressBar`, `chromeLabel`) + typographie
+  `displayFont`/`monoFont`.
+* `HF-DEMO-QUALITY` US-5 : `entrancesEnabled` (choregraphie par scène).
+* Domaine pur `hyperframes.chrome` + `hyperframes.entrance`, 23 UT + 4 FT + 7 BDD.
+* Preuve CI du code : run `40277030929` ✅ (unit + functional + Cucumber + check).
+
+== Gates
+
+Local = Build : compiles VERT, `publishToMavenLocal` VERT. Aucun test local.
+La CI de la clôture sera déclenchée par le commit de gouvernance.
