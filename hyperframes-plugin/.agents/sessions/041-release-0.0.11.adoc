@@ -42,4 +42,5 @@ typographique), la `0.0.10` échouant `hyperframes lint`.
 == Gates
 
 Local = Build : compiles ×3 VERTS, `publishToMavenLocal` VERT. Aucun test local.
-CI de la clôture : à vérifier sur le run du commit poussé.
+**CI `Test` run `40377112606` (commit `059a1b5`) : ✅ VERTE** — unit + functional
+TestKit + Cucumber + `check` contre `workspace-bom:0.0.108`.
