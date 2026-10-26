@@ -270,6 +270,7 @@ class HyperframesHtmlProcessorTest {
             result.contains("""window.__timelines["root"] = gsap.timeline({ paused: true });"""),
             "a transition must replace the historical empty root timeline"
         )
+        assertFalse(result.contains("data-layout-allow-overlap"), "a cover transition does not overlap the scenes")
     }
 
     @Test
@@ -358,6 +359,11 @@ class HyperframesHtmlProcessorTest {
         assertContains(result, """rootTl.to("#one", { opacity: 0, filter: "blur(18px)"""")
         assertContains(result, """rootTl.to("#two", { opacity: 1, filter: "blur(0px)"""")
         assertFalse(result.contains("""class="hf-transition hf-transition-"""), "overlap transitions have no cover overlay")
+        assertEquals(
+            2,
+            Regex("""data-layout-allow-overlap""").findAll(result).count(),
+            "both scenes of the overlap carry the intentional-overlap marker",
+        )
     }
 
     @Test
@@ -376,6 +382,11 @@ class HyperframesHtmlProcessorTest {
         assertContains(result, """rootTl.to("#one", { yPercent: -100""")
         assertContains(result, """rootTl.to("#two", { yPercent: 0""")
         assertFalse(result.contains("""class="hf-transition hf-transition-"""), "overlap transitions have no cover overlay")
+        assertEquals(
+            2,
+            Regex("""data-layout-allow-overlap""").findAll(result).count(),
+            "both scenes of the push carry the intentional-overlap marker",
+        )
     }
 
     @Test

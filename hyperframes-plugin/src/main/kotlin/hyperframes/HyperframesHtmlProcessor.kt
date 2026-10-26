@@ -103,7 +103,8 @@ class HyperframesHtmlProcessor internal constructor(
         val inner: String,
         val scripts: List<String>,
         val trackIndex: Int,
-        val transition: Transition? = null
+        val transition: Transition? = null,
+        val allowOverlap: Boolean = false
     )
 
     /** A scene before its start time is assigned (overlap depends on the next scene). */
@@ -207,8 +208,21 @@ class HyperframesHtmlProcessor internal constructor(
         var cursor = 0.0
         val scenes =
             rawScenes.mapIndexed { index, raw ->
-                val scene = Scene(raw.id, cursor, raw.duration, raw.inner, raw.scripts, index, raw.transition)
                 val hasNext = index < rawScenes.lastIndex
+                val allowOverlap =
+                    (hasNext && raw.transition?.isOverlap == true) ||
+                        (index > 0 && rawScenes[index - 1].transition?.isOverlap == true)
+                val scene =
+                    Scene(
+                        raw.id,
+                        cursor,
+                        raw.duration,
+                        raw.inner,
+                        raw.scripts,
+                        index,
+                        raw.transition,
+                        allowOverlap,
+                    )
                 val overlap = if (hasNext) raw.transition?.overlapSeconds ?: 0.0 else 0.0
                 cursor += raw.duration - overlap
                 scene
@@ -307,7 +321,13 @@ class HyperframesHtmlProcessor internal constructor(
                 "data-track-index=\"${scene.trackIndex}\">"
         )
         appendLine("  <div class=\"scene-bg\"></div>")
-        appendLine("  <div class=\"scene-inner\">")
+        // US-2b — an overlap transition intentionally puts two scenes on screen;
+        // mark the inner container (a marker on the scene root is ignored by the
+        // HyperFrames layout check) so a designed crossfade/push is not reported
+        // as an accidental text collision or canvas overflow.
+        val overlapAttrs =
+            if (scene.allowOverlap) " data-layout-allow-overlap data-layout-allow-overflow" else ""
+        appendLine("  <div class=\"scene-inner\"$overlapAttrs>")
         appendLine(scene.inner)
         appendLine("  </div>")
         appendLine("</div>")
