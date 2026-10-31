@@ -7,9 +7,9 @@ DAG N0→N2 : MEMPHIS `workspace-bom/catalog 0.0.113 → 0.0.114` (catalogue
 hyperframes re-pin `workspace-catalog/BOM 0.0.114` + toml `0.0.13` → Central
 bundle `70d29242-5f54-410f-994e-40977ff93b40` (AUTOMATIC), propagation repo1
 200 (plugin + marker). Contenu : `HF-DEMO-QUALITY US-6` fond média par scène
-(session 044, CI verte `41236362098`). **Règle 2 révisée « accord toujours
-granted »** (décision pilote 2026-10-31). Rapport
-`.agents/sessions/045-release-0.0.13.adoc`.
+(session 044, CI verte `41236362098`). **CI de release verte** `Test`
+`41239612772`. **Règle 2 révisée « accord toujours granted »** (décision pilote
+2026-10-31). Rapport `.agents/sessions/045-release-0.0.13.adoc`.
 
 == Session 044 (2026-10-31) — HF-DEMO-QUALITY US-6 : fond média par scène
 
