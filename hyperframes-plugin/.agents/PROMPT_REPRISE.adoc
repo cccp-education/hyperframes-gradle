@@ -17,7 +17,8 @@ Le DSL exprime désormais le **fond média par scène** (image plein cadre + scr
   et zéro token `hf-bg` sans bloc) ;
 * 15 unit + 2 functional TestKit + 4 scénarios BDD `@quality-background` ;
 * dogfooding `/tmp` : `lint` **0/0**, `check` **passed** (Layout 0/9,
-  Contrast 8/8 AA), asset copié.
+  Contrast 8/8 AA), asset copié ;
+* **CI `Test` verte** run `41236362098` (commit `15d0b85`).
 
 Rapport `.agents/sessions/044-hf-demo-quality-us6-background.adoc`.
 Cadrage `.agents/CADRAGE_EPIC_HF_DEMO_QUALITY_US6.adoc`.
@@ -33,8 +34,8 @@ Cadrage `.agents/CADRAGE_EPIC_HF_DEMO_QUALITY_US6.adoc`.
 
 . Release `hyperframes-plugin 0.0.13` (contenu US-6) — **accord pilote requis**
    (Règle 2), DAG MEMPHIS → hyperframes.
-. CI du commit S-044 (preuve unit/functional/BDD) + dogfooding enrichi
-   (rendu MP4 réel avec fond média, `check` complet).
+. Dogfooding enrichi (rendu MP4 réel avec fond média, `check` complet) —
+   la preuve CI S-044 est déjà verte.
 . Candidats qualité ultérieurs : fond vidéo / parallaxe / `poster` (hors scope
    US-6, à cadrer).
 . YouTube : ne pas rouvrir sans décision explicite.

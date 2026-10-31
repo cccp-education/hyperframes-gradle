@@ -11,7 +11,9 @@ déclaré (backward compatible : aucun token `hf-bg` sans bloc). Tests : 15 unit
 (9 domaine + 6 processeur), 2 functional TestKit (copie d'asset + backward
 compat), 4 scénarios BDD `@quality-background`. RED prouvé par compilation →
 GREEN. Dogfooding `/tmp` : `lint` **0/0**, `check` **passed** (Layout 0/9,
-Contrast 8/8 AA). YouTube gelé, zéro publication. Rapport
+Contrast 8/8 AA). **CI verte** run `41236362098` (commit `15d0b85`) — premier
+run rouge sur 2 assertions visant les *tokens CSS* au lieu des éléments,
+correctif test-only. YouTube gelé, zéro publication. Rapport
 `.agents/sessions/044-hf-demo-quality-us6-background.adoc`.
 
 == Session 043 (2026-10-31) — Release `hyperframes-plugin 0.0.12`

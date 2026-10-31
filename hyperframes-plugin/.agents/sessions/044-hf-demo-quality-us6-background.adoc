@@ -89,6 +89,15 @@ Consommateur `/tmp/opencode/hf-bg-dogfood` en `includeBuild`, sans publication.
 * **Local = Build** : `compileKotlin` / `compileTestKotlin` /
   `compileFunctionalTestKotlin` / `assemble` / `validatePlugins` VERTS.
 * Tests (`test`, `functionalTest`, `cucumberTest`) délégués **CI**.
+* **CI `Test` verte** : run **`41236362098`** (commit `15d0b85`) — `Compile`,
+  `Run unit tests`, `Run functional tests (GradleTestKit)`,
+  `Run Cucumber BDD tests`, `Full check` : ✅.
+  *Itératif* : le premier run (`41236205862`, commit `d73e83e`) était rouge sur
+  2 tests unitaires — les assertions d'absence visaient les **tokens CSS**
+  (`hf-bg-grid`, `hf-bg-scrim`) alors que la feuille de style conditionnelle
+  est émise dès qu'une scène déclare un fond. Correctif **test-only** : les
+  assertions portent désormais sur l'**élément** (`<div class="hf-bg-…">`),
+  jamais sur le token CSS. Même correction dans les steps BDD.
 * Cross-borough (aucune modification) : `capsule-plugin` et
   `video-kernel-plugin` compilent VERTS.
 * Zéro secret ; zéro Python ; English only code/tests/features.
