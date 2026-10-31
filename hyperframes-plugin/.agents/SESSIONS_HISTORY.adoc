@@ -9,7 +9,8 @@ DisabledVideoPublisher, seam HTTP) ; copies N2 supprimées, `JdkHttpTransport` e
 (`alias(libs.plugins.youtube.auth)`), upload toujours gelé. **US-7** :
 `BackgroundImage.parallax` (`0..0.25`), média sur-échelonné + pan `yPercent`
 déterministe ; +3 UT +2 UT processeur +1 FT +1 BDD. **Release `0.0.14`** : MEMPHIS
-`0.0.115` (`0e74a6a8`) → Central bundle `11eb9906`, propagation 200. Rapport
+`0.0.115` (`0e74a6a8`) → Central bundle `11eb9906`, propagation 200. **CI verte**
+`Test` `41243897426`. Rapport
 `.agents/sessions/046-adoption-n1-us7-parallax-release-0.0.14.adoc`.
 
 == Session 045 (2026-10-31) — Release `hyperframes-plugin 0.0.13`

@@ -9,6 +9,7 @@
 * [x] US-7 parallaxe (`BackgroundImage.parallax`, pan `yPercent`), +6 tests/assertions +1 BDD.
 * [x] Dogfooding `lint` 0/0, `check` passed.
 * [x] Central bundle `11eb9906-f2d0-4ea0-82d6-9d7856106a61`, propagation 200.
+* [x] CI `Test` verte run `41243897426`.
 * [x] Rapport `.agents/sessions/046-adoption-n1-us7-parallax-release-0.0.14.adoc`.
 
 == Session 045 (2026-10-31) — Release `hyperframes-plugin 0.0.13` ✅

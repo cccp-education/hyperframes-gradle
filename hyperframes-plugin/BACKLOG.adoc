@@ -24,7 +24,7 @@ DAG MEMPHIS `0.0.115` (`0e74a6a8`, propagation 200) → hyperframes re-pin
 |===
 
 _Dogfooding_ : tween vérifié, `lint` 0/0, `check` passed (2 warnings Craft).
-CI `Test` à confirmer sur le commit de release.
+**CI verte** : `Test` `41243897426`.
 
 '''
 == ✅ Release `hyperframes-plugin 0.0.13` — Maven Central (S-045)

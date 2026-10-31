@@ -52,3 +52,7 @@ DAG : MEMPHIS `0.0.115` (`0e74a6a8`, propagation 200) → hyperframes re-pin
 * Tests : `BackgroundImageTest`, `HyperframesHtmlProcessorBackgroundTest`,
   `HyperframesBackgroundFunctionalTest`, `HfDemoQualityBackgroundSteps`,
   `hf_demo_quality_background.feature`.
+
+== CI
+
+**CI `Test` verte** : run **`41243897426`** (commit `fc03037`).
