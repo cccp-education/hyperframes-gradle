@@ -2,7 +2,7 @@
 :toc:
 
 _Règles absolues_ : voir `AGENT.adoc`
-_Derniere mise a jour_ : 2026-10-31 (Session 042 — **VK-4 US-4e : hyperframes 2ᵉ consommateur audio** ✅ — `post.AudioEnvelopeProbe` (N2 ffmpeg, `-y`) + `post.NarrationSilenceCheck` (pur) + warning `narration is silent` dans `generateHyperframesNarration`. Tests : 3 unit probe + 4 unit check + 1 intégration ffmpeg + 4 scénarios BDD `narration_silence` + 1 TestKit. Pins `workspace-catalog/BOM 0.0.112`, `video-kernel 0.6.0`. Compiles ×3 VERTS. **CI verte** : `Test` `41214467362` ; cross-borough `video-kernel Test` `41214453154`, `runAllTests` `41214459791` (21/21), capsule `Full Tests` `41214473586` (25/25). Rapport `.agents/sessions/042-vk4-us4e-narration-silence.adoc`.)
+_Derniere mise a jour_ : 2026-10-31 (Session 043 — **Release `hyperframes-plugin 0.0.12`** ✅ — DAG MEMPHIS `0.0.113` (`455f513d`, propagation 200) → hyperframes re-pin `workspace-catalog/BOM 0.0.113` → Central bundle `097dea25` (AUTOMATIC), propagation repo1 200. Contenu : VK-4 US-4e narration silence (2ᵉ consommateur `video-kernel 0.6.0`). YouTube gelé. Rapport `.agents/sessions/043-release-0.0.12.adoc`.)
 _Derniere mise a jour (antérieure)_ : 2026-10-26 (Session 039 — **Release `hyperframes-plugin 0.0.10` (Maven Central)** ✅ — DAG N0→N2 : MEMPHIS `workspace-bom`/catalog `0.0.105 → 0.0.106` (bundle `2a6cabd8`, propagation repo1 200) → hyperframes re-pin `workspace-catalog/BOM 0.0.106` + toml `0.0.10` → Central bundle `ca092903` (AUTOMATIC, propagation repo1 200 plugin + marker). Contenu : `HF-DEMO-QUALITY` US-4 chrome/typographie + US-5 entrées chorégraphiées. Catalogue ws `0.0.106`, `video-kernel 0.5.0`. Zéro code modifié hors pins.)
 _Derniere mise a jour (antérieure)_ : 2026-10-26 (Session 038 — **HF-DEMO-QUALITY US-4 + US-5 ✅ — EPIC TERMINÉ**. US-4 : chrome studio opt-in (`chrome.*` : timecode `HH:MM:SS:FF` par scène, 4 repères, barre de progression pilotée par `rootTl`) + typographie configurable (`displayFont`/`monoFont`, piles CSS offline). US-5 : entrées chorégraphiées opt-in (`entrancesEnabled` : `gsap.set` au chargement, stagger déterministe par atome, sélecteurs scellés par scène). Domaine pur `hyperframes.chrome` + `hyperframes.entrance`. +23 UT, +4 FT, +7 BDD. Local = Build (compiles VERT) ; **CI `Test` run `40276785081` VERTE** (unit + functional + BDD + check). Aucun port N1 → `video-kernel`/`capsule` inchangés. **Reste release `0.0.10`** (accord pilote).)
 _Derniere mise a jour (anterieure)_ : 2026-10-17 (Session 036 — **HF-YOUTUBE-PUBLISH US-4** + **HF-DEMO-QUALITY US-1/US-2 v1/US-3** : démo 48 s (médias PD/CC0) ; DSL : transitions cover (grid/shutter/fade) + copie d’assets + bloc audio `[.hyperframes-audio]` → `<audio>` directs ; dogfooding lint 0/0, inspect 0 issue, rendus 25 s et 15 s. Cf. `.agents/sessions/036-hf-youtube-publish-us4-status.adoc`.)
@@ -10,9 +10,9 @@ _DAG_ : N2 — Plugin Gradle de transformation documentaire AsciiDoc → vidéo 
 _Dépendance N2_ : codex-gradle (compileOnly, AsciidoctorJ partagé)
 _Bridge externe_ : HyperFrames CLI via le noyau `VideoEngine` (`node <cliScript> render <dir> --output <mp4>`)
 
-_Dernière session terminée_ : 042 — **VK-4 US-4e narration silence**. Rapport `.agents/sessions/042-vk4-us4e-narration-silence.adoc`.
-_Prochaine session_ : 043 — CI / dogfooding enrichi / release / maintenance. **Priorité qualité vidéo — pas de déploiement YouTube.**
-_Version publiée_ : **0.0.11** (Maven Central) + Gradle Plugin Portal (handle `cccp-education`). Catalogue ws **`0.0.112`** (BOM `0.0.112`), noyau **`video-kernel 0.6.0`**.
+_Dernière session terminée_ : 043 — **Release `hyperframes-plugin 0.0.12`**. Rapport `.agents/sessions/043-release-0.0.12.adoc`.
+_Prochaine session_ : 044 — CI / dogfooding enrichi / maintenance. **Priorité qualité vidéo — pas de déploiement YouTube.**
+_Version publiée_ : **0.0.12** (Maven Central) + Gradle Plugin Portal (handle `cccp-education`). Catalogue ws **`0.0.113`** (BOM `0.0.113`), noyau **`video-kernel 0.6.0`**.
 
 '''
 == RÈGLES ABSOLUES (résumé)

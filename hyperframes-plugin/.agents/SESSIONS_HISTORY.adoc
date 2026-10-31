@@ -1,5 +1,14 @@
 = SESSIONS_HISTORY — hyperframes-gradle
 
+== Session 043 (2026-10-31) — Release `hyperframes-plugin 0.0.12`
+
+DAG MEMPHIS `workspace-bom/catalog 0.0.113` (`455f513d`, propagation 200) →
+hyperframes re-pin `workspace-catalog/BOM 0.0.113` → Central bundle
+`097dea25-0d8f-4990-8705-3ccaf3b594ab` (AUTOMATIC), propagation repo1 200
+(plugin + marker). Contenu : VK-4 US-4e narration silence (2ᵉ consommateur
+`video-kernel 0.6.0`). YouTube gelé. Rapport
+`.agents/sessions/043-release-0.0.12.adoc`.
+
 == Session 042 (2026-10-31) — VK-4 US-4e : narration silence
 
 HyperFrames devient le **2ᵉ consommateur** des primitives audio partagées
