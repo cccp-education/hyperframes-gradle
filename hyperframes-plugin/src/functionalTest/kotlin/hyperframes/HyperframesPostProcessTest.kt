@@ -2,9 +2,11 @@ package hyperframes
 
 import java.io.File
 import java.nio.file.Path
+import java.util.concurrent.TimeUnit
 import kotlin.test.assertContains
 import kotlin.test.assertTrue
 import org.gradle.testkit.runner.GradleRunner
+import org.junit.jupiter.api.Assumptions.assumeTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
@@ -72,6 +74,41 @@ class HyperframesPostProcessTest {
         val result = runner("generateHyperframesNarration")
 
         assertContains(result.output, "no narration tracks found")
+    }
+
+    @Test
+    fun `generateHyperframesNarration warns when an existing take is silent`() {
+        assumeTrue(ffmpegOnPath()) { "ffmpeg is required to build a real silent narration take" }
+        val html = projectDir.resolve("build/hyperframes/index.html")
+        html.parentFile.mkdirs()
+        html.writeText(
+            """<div id="stage"><div class="hyperframes-track"><p>Bonjour</p></div></div>""",
+        )
+        val narration = projectDir.resolve("build/hyperframes/narration/narration-1.wav")
+        narration.parentFile.mkdirs()
+        generateSilentWav(narration)
+
+        val result = runner("generateHyperframesNarration")
+
+        assertContains(result.output, "narration is silent")
+    }
+
+    private fun ffmpegOnPath(): Boolean =
+        System.getenv("PATH")?.split(File.pathSeparator).orEmpty().any { entry ->
+            File(entry, "ffmpeg").let { it.isFile && it.canExecute() }
+        }
+
+    private fun generateSilentWav(output: File) {
+        val process = ProcessBuilder(
+            "ffmpeg", "-v", "error", "-y",
+            "-f", "lavfi", "-i", "anullsrc=r=16000:cl=mono",
+            "-t", "1",
+            output.absolutePath,
+        ).redirectErrorStream(true).start()
+        val finished = process.waitFor(60, TimeUnit.SECONDS)
+        assumeTrue(finished && process.exitValue() == 0) {
+            "ffmpeg could not produce a silent wav — narration silence check not exercised here"
+        }
     }
 
     private fun runner(vararg args: String) = GradleRunner.create()

@@ -1,6 +1,8 @@
 package hyperframes
 
+import hyperframes.post.AudioEnvelopeProbe
 import hyperframes.post.EspeakTextToSpeech
+import hyperframes.post.NarrationSilenceCheck
 import hyperframes.post.NarrationTrackExtractor
 import java.io.File
 import org.gradle.api.DefaultTask
@@ -51,6 +53,11 @@ abstract class GenerateHyperframesNarrationTask : DefaultTask() {
     @get:Optional
     abstract val ttsVoice: Property<String>
 
+    /** Optional `ffmpeg` executable used to probe the narration envelope (default: PATH). */
+    @get:Input
+    @get:Optional
+    abstract val ffmpegExecutable: Property<String>
+
     @TaskAction
     fun synthesizeNarration() {
         val htmlFile = File(htmlDir.asFile.get(), "index.html")
@@ -82,6 +89,27 @@ abstract class GenerateHyperframesNarrationTask : DefaultTask() {
             logger.warn("generateHyperframesNarration: {} of {} narration tracks synthesized (TTS unavailable/failed)",
                 produced, narrations.size)
         }
-        logger.lifecycle("generateHyperframesNarration: {} narration file(s) in {}", produced, outDir.absolutePath)
+
+        // VK-4 US-4e — a mute take is a content defect: use the shared N1
+        // silence detector on every produced narration file. The probe is N2
+        // (ffmpeg); when it is unavailable the check is skipped, never read as
+        // clean.
+        val narrationFiles = narrations.indices
+            .map { File(outDir, "narration-${it + 1}.wav") }
+            .filter { it.isFile && it.length() > 0L }
+        val probe = AudioEnvelopeProbe(ffmpegPath = ffmpegExecutable.getOrElse("ffmpeg"))
+        val silent = NarrationSilenceCheck.silentFiles(narrationFiles) { probe.probe(it) }
+        silent.forEach { file ->
+            logger.warn(
+                "generateHyperframesNarration: narration is silent (check the TTS output): {}",
+                file.name,
+            )
+        }
+        logger.lifecycle(
+            "generateHyperframesNarration: {} narration file(s) in {}, {} silent",
+            produced,
+            outDir.absolutePath,
+            silent.size,
+        )
     }
 }

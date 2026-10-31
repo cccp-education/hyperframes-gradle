@@ -2,7 +2,23 @@
 :toc:
 
 _Date création_ : 2026-05-31
-_Version_ : **0.0.11 (Central)** — HEAD S-041 publié ; catalogue/BOM ws **`0.0.108`**.
+_Version_ : **0.0.11 (Central)** — HEAD S-041 publié ; catalogue/BOM ws **`0.0.112`**.
+
+'''
+== ✅ VK-4 US-4e — narration silence (S-042)
+
+HyperFrames est le **2ᵉ consommateur** des primitives audio partagées
+`video-kernel 0.6.0` (`RmsEnvelope` + `AudioSilenceDetector` + `SilenceAnalysis`).
+
+[cols="1,3,1", options="header"]
+|===
+| US | Livrable | Statut
+| US-4e | `post.AudioEnvelopeProbe` (N2 ffmpeg, `-y`) + `post.NarrationSilenceCheck` (pur, sonde injectée) + warning `narration is silent` dans `generateHyperframesNarration` — jamais fatal (sonde absente = skip, jamais « propre »). 3 unit probe + 4 unit check + 1 intégration ffmpeg + 4 scénarios BDD + 1 TestKit. | ✅ S-042
+|===
+
+_Pins_ : `workspace-catalog/BOM 0.0.112`, `video-kernel 0.6.0`. Aucun bump/publication hyperframes (code consommateur uniquement).
+
+_Rapport_ : `.agents/sessions/042-vk4-us4e-narration-silence.adoc`.
 
 '''
 == ✅ Release corrective `hyperframes-plugin 0.0.11` — Maven Central (S-041)

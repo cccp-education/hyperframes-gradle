@@ -1,0 +1,101 @@
+= Session 042 — VK-4 US-4e — hyperframes 2ᵉ consommateur du détecteur de silence
+:session: 042
+:date: 2026-10-31
+:borough: Watts (hyperframes-gradle)
+:status: ✅ TERMINÉE
+:pattern: baby-step DDD/TDD/BDD (unit + intégration ffmpeg + Cucumber + TestKit)
+:scope: transverse video-kernel → MEMPHIS → hyperframes + capsule
+
+== Mission
+
+Devenir le **second consommateur** réel des primitives audio partagées promues
+au noyau `video-kernel 0.6.0` (`RmsEnvelope`, `AudioSilenceDetector`,
+`SilenceAnalysis`) et brancher la détection sur les narrations HyperFrames.
+
+== Constat
+
+`generateHyperframesNarration` synthétise `narration-<n>.wav` mais **ne vérifie
+pas** que le take porte du signal. Un TTS NoOp/cassé produisait un WAV
+techniquement valide mais muet, invisible avant le rendu final.
+
+== Design
+
+* **Noyau N1** : `AudioSilenceDetector` (décision pure, indépendante de l'ASR).
+* **Adapter N2** : `hyperframes.post.AudioEnvelopeProbe` (ffmpeg → PCM s16le →
+  `RmsEnvelope`), `-y` obligatoire (le fichier temporaire existe déjà).
+* **Décision de fichiers** : `hyperframes.post.NarrationSilenceCheck` (pure,
+  sonde injectée ; une sonde absente n'est jamais lue comme « propre »).
+* **Wiring** : `GenerateHyperframesNarrationTask` journalise
+  `narration is silent` par take muet ; jamais fatal (la tâche est opt-in et
+  la sonde est optionnelle).
+* **Pins** : `workspace-catalog/BOM 0.0.112`, `video-kernel 0.6.0`.
+
+== Baby-step DDD/TDD/BDD
+
+=== RED
+
+Tests écrits avant l'adapter :
+
+* `AudioEnvelopeProbeTest` (3 unit : argv `-y`, PCM silencieux, fichier absent) ;
+* `NarrationSilenceCheckTest` (4 unit : silence, audible, sonde indisponible,
+  ordre préservé) ;
+* `narration_silence.feature` (4 scénarios BDD) ;
+* TestKit `generateHyperframesNarration warns when an existing take is silent` ;
+* `AudioEnvelopeProbeIntegrationTest` (ffmpeg réel, skip-gardé).
+
+=== GREEN
+
+* `AudioEnvelopeProbe` + `NarrationSilenceCheck` ;
+* wiring dans `GenerateHyperframesNarrationTask` (`ffmpegExecutable` injecté
+  depuis `HyperframesExtension`) ;
+* steps `NarrationSilenceSteps` préfixés « narration silence » (S-088).
+
+=== Gates locaux (Local = Build)
+
+[source,shell]
+----
+./gradlew compileKotlin compileTestKotlin compileFunctionalTestKotlin
+----
+
+BUILD SUCCESSFUL (les suites s'exécutent en CI).
+
+== DAG / propagation
+
+[cols="2,3,2", options="header"]
+|===
+| Étape | Artefact | Preuve
+| 1 | `video-kernel 0.6.0` | Central `9911e841`, repo1 200
+| 2 | MEMPHIS `0.0.112` | Central `e8f32286`, repo1 200
+| 3 | hyperframes re-pin + adoption | compiles VERT, CI à prouver
+|===
+
+== Effet
+
+Une narration muette est désormais signalée dans le build (`narration is
+silent`) ; le même noyau sert capsule (`verifyCapsuleVoice`) et hyperframes.
+Le rendu final n'est pas bloqué : la sonde est un signal de qualité, jamais un
+prérequis (ffmpeg absent → skip, jamais « propre »).
+
+== Fichiers
+
+[cols="1,3", options="header"]
+|===
+| Fichier | Nature
+| `src/main/kotlin/hyperframes/post/AudioEnvelopeProbe.kt` | créé
+| `src/main/kotlin/hyperframes/post/NarrationSilenceCheck.kt` | créé
+| `src/main/kotlin/hyperframes/GenerateHyperframesNarrationTask.kt` | modifié (sonde + warning)
+| `src/main/kotlin/hyperframes/HyperframesPlugin.kt` | modifié (wiring `ffmpegExecutable`)
+| `src/test/kotlin/hyperframes/post/AudioEnvelopeProbeTest.kt` | créé (3 unit)
+| `src/test/kotlin/hyperframes/post/NarrationSilenceCheckTest.kt` | créé (4 unit)
+| `src/test/kotlin/hyperframes/post/AudioEnvelopeProbeIntegrationTest.kt` | créé (ffmpeg réel, skip-gardé)
+| `src/test/resources/features/narration_silence.feature` | créé (4 scénarios)
+| `src/test/kotlin/hyperframes/scenarios/NarrationSilenceSteps.kt` | créé
+| `src/functionalTest/kotlin/hyperframes/HyperframesPostProcessTest.kt` | modifié (+1 TestKit)
+| `settings.gradle.kts`, `build.gradle.kts`, `gradle/libs.versions.toml` | pins `0.0.112` / `video-kernel 0.6.0`
+|===
+
+== Suite
+
+* CI `Test` + `Full Tests` sur le commit poussé ; le BDD agrégé exécute
+  `narration_silence.feature`, les unit/intégration couvrent le probe.
+* Aucun bump/publication hyperframes (code consommateur uniquement).

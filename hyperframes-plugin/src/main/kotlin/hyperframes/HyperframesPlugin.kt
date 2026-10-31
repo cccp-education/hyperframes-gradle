@@ -92,6 +92,7 @@ class HyperframesPlugin : Plugin<Project> {
             task.outputDir.set(target.layout.buildDirectory.dir("hyperframes/narration"))
             task.ttsExecutable.set(extension.ttsExecutable)
             task.ttsVoice.set(extension.ttsVoice)
+            task.ffmpegExecutable.set(extension.ffmpegExecutable)
         }
         target.tasks.named("generateHyperframesNarration") { it.mustRunAfter("generateHyperframesHtml") }
 

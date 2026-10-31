@@ -1,68 +1,55 @@
-= PROMPT_REPRISE — HyperFrames Gradle (Session 041 TERMINÉE → 042)
-:session: 041
-:date: 2026-10-26
-:status: ✅ TERMINÉ — Dogfooding chrome/entrées + release corrective 0.0.11
+= PROMPT_REPRISE — HyperFrames Gradle (Session 042 TERMINÉE → 043)
+:session: 042
+:date: 2026-10-31
+:status: ✅ TERMINÉE — VK-4 US-4e (narration silence)
 :borough: Watts
 
 '''
-== Décision pilote S-037 (rappel)
+== Session 042 (TERMINÉE) — VK-4 US-4e : hyperframes 2ᵉ consommateur audio
 
-* **Arrêt du déploiement YouTube** : hors scope.
-* **Priorité : qualité de génération vidéo** — hyperframes / capsule /
-  video-kernel.
+Le noyau `video-kernel 0.6.0` publie `video.kernel.audio.RmsEnvelope` +
+`AudioSilenceDetector` + `SilenceAnalysis`. HyperFrames les consomme
+réellement :
 
-== État des lieux
+* `post.AudioEnvelopeProbe` (N2 ffmpeg, `-y` obligatoire) ;
+* `post.NarrationSilenceCheck` (pur, sonde injectée) ;
+* `generateHyperframesNarration` journalise `narration is silent` par take
+  muet — jamais fatal (ffmpeg absent → skip, jamais « propre »).
 
-* `HF-DEMO-QUALITY` : **✅ TERMINÉ 5/5** (US-1/2/3 S-036, US-2b S-037,
-  **US-4 chrome/typo + US-5 entrées S-038**).
-* **Release corrective `0.0.11`** ✅ S-041 : MEMPHIS BOM/catalog `0.0.108`
-  (bundle `566b2ba8`) → hyperframes Central bundle `5e1db54d`, propagation
-  repo1 200 (plugin + marker). POM `0.0.11` importe `workspace-bom:0.0.108`.
-* **Dogfooding S-040** ✅ : consommateur `/tmp` `includeBuild`, lint **0/0**,
-  `check` **passed** (Contrast 9/9 AA ; 1 warning `film_silent` attendu), MP4
-  **H.264 1920×1080 / 20 s**. Défauts corrigés : `@font-face … src: local(...)`
-  par famille nommée + plancher typographique (topbar 28 px, `pre` 32 px).
-* **Version** : `0.0.11` Central + Plugin Portal. Catalogue ws `0.0.108`,
-  `video-kernel 0.5.0`.
-* **Code** : domaine pur `hyperframes.chrome` + `hyperframes.entrance` ; DSL
-  opt-in (`chromeEnabled`, `chromeTimecode`, `chromeCornerMarks`,
-  `chromeProgressBar`, `chromeLabel`, `entrancesEnabled`, `displayFont`,
-  `monoFont`). 23 UT + 4 FT + 7 BDD ; CI `40277030929` verte.
-* **Transverse** : aucun port N1 → `video-kernel`/`capsule` inchangés.
+Tests : 3 unit `AudioEnvelopeProbeTest` + 4 unit `NarrationSilenceCheckTest` +
+1 intégration ffmpeg réelle (skip-gardée) + 4 scénarios BDD
+`narration_silence.feature` + 1 TestKit. Pins `workspace-catalog/BOM 0.0.112`,
+`video-kernel 0.6.0`.
 
-== Mission Session 042 — au choix pilote
+Rapport `.agents/sessions/042-vk4-us4e-narration-silence.adoc`.
 
-. **Dogfooding enrichi** : audio/BGM + sous-titres + TTS sur le consommateur
-   `/tmp` (sans YouTube).
-2. **Maintenance** / governance.
-3. **Capsule / video-kernel** : sur demande explicite — ne pas rouvrir YouTube.
+== État
 
-== Fait en session 041
+* `hyperframes-plugin 0.0.11` Central + Plugin Portal (non bumpé).
+* Catalogue/BOM ws `0.0.112` ; noyau `video-kernel 0.6.0`.
+* **YouTube gelé** (S-037).
+* Aucun EPIC métier ouvert.
 
-* Dogfooding chrome/entrées (S-040) : lint 0/0, check passed, MP4 20 s.
-* Correctif `@font-face` + plancher typographique ; tests +5 assertions,
-  +2 unit, +1 scénario BDD.
-* MEMPHIS `workspace-bom`/catalog `0.0.107 → 0.0.108` (`hyperframes-plugin =
-  0.0.11`) ; hyperframes pins `workspace-catalog/BOM 0.0.108` + toml `0.0.11`.
-* Central bundles `566b2ba8` (MEMPHIS) / `5e1db54d` (hyperframes), propagation
-  repo1 HTTP 200.
-* Rapports `.agents/sessions/040-…` + `041-release-0.0.11.adoc`.
+== Mission Session 043 — au choix pilote
+
+. CI `Test` + `Full Tests` du commit.
+2. Dogfooding enrichi (audio/BGM + sous-titres + TTS, sans YouTube).
+3. Release `hyperframes-plugin` si le code consommateur doit être publié.
+4. Maintenance / gouvernance.
 
 == Points d'attention
 
 * **Local = Build, Tests = CI** : jamais `test`/`check` local.
-* **Zéro secret** ; **zéro Python** ; English only code/tests/features.
-* Chrome/entrées **opt-in** : ne pas casser le rendu historique.
-* `demo-video/` reste la référence qualité ; le DSL converge vers elle.
+* **Règle 2 — PUBLISH** : accord pilote requis.
+* Chrome/entrées/silence **opt-in** : ne pas casser le rendu historique.
+* Zéro secret ; zéro Python ; English only code/tests/features.
 
 == Routes documents clés
 
 |===
 | Document | Chemin
-| Rapport S-039 | `.agents/sessions/039-release-0.0.10.adoc`
-| Rapport S-038 | `.agents/sessions/038-hf-demo-quality-us4-us5-chrome-entrances.adoc`
-| Démo | `demo-video/` (+ `ATTRIBUTIONS.md`)
-| Doc DSL | `doc/PILOTAGE_HYPERFRAMES.adoc`
+| Rapport S-042 | `.agents/sessions/042-vk4-us4e-narration-silence.adoc`
+| Rapport S-041 | `.agents/sessions/041-release-0.0.11.adoc`
 | Backlog / règles | `BACKLOG.adoc` · `AGENT.adoc`
 | Noyau N1 | `../video-kernel-gradle/video-kernel-plugin/src/main/kotlin/video/kernel/`
 |===
