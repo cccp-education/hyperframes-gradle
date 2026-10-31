@@ -16,6 +16,7 @@ import org.gradle.api.tasks.PathSensitive
 import org.gradle.api.tasks.PathSensitivity
 import org.gradle.api.tasks.TaskAction
 import org.gradle.work.DisableCachingByDefault
+import video.kernel.publish.ChapterLineParser
 import video.kernel.publish.VideoDescriptionComposer
 import video.kernel.publish.VideoLink
 import video.kernel.publish.VideoLinks

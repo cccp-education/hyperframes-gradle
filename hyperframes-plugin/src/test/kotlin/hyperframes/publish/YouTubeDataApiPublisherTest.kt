@@ -4,9 +4,13 @@ import java.io.File
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
+import video.kernel.publish.HttpTransport
+import video.kernel.publish.PublishHttpRequest
+import video.kernel.publish.PublishHttpResponse
 import video.kernel.publish.VideoPublication
 import video.kernel.publish.VideoPublicationResult
 import video.kernel.publish.VideoVisibility
+import video.kernel.publish.YouTubeCredentials
 
 /**
  * HF-YOUTUBE-PUBLISH US-2 — [YouTubeDataApiPublisher] driven through a **fake

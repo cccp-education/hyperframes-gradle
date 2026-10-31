@@ -443,6 +443,16 @@ class HyperframesHtmlProcessor internal constructor(
                     "{ opacity: 1, y: 0, duration: 0.6, ease: \"power3.out\" }, 0.1);"
             )
         }
+        // HF-DEMO-QUALITY US-7 — opt-in slow media pan. The media is oversized
+        // by twice the amplitude so the movement never exposes an edge.
+        val parallax = scene.background?.parallax ?: 0.0
+        if (parallax > 0.0) {
+            val shift = number(parallax * 50)
+            appendLine(
+                "    t.fromTo(\"#$id .hf-bg-media\", { scale: ${number(1.0 + parallax * 2)}, yPercent: -$shift }, " +
+                    "{ yPercent: $shift, duration: ${number(dur)}, ease: \"none\" }, 0);"
+            )
+        }
         // A scene handing off to a transition must stay fully visible until the
         // boundary: the cover overlay (root timeline) owns the handoff, so the
         // historical pre-boundary fade would show the empty background too early.

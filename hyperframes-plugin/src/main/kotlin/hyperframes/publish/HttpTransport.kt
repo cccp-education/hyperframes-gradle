@@ -5,58 +5,17 @@ import java.net.http.HttpClient
 import java.net.http.HttpRequest as JdkHttpRequest
 import java.net.http.HttpResponse as JdkHttpResponse
 import java.time.Duration
+import video.kernel.publish.HttpTransport
+import video.kernel.publish.PublishHttpRequest
+import video.kernel.publish.PublishHttpResponse
 
 /**
- * A minimal, engine-neutral HTTP request the publisher sends to the YouTube Data
- * API (HF-YOUTUBE-PUBLISH US-2).
+ * Default N2 [HttpTransport] built on [`java.net.http.HttpClient`] (JDK 11+), so
+ * the plugin needs **no Google SDK and no extra dependency** (decision D3).
  *
- * @property method  HTTP verb (`GET`, `POST`, `PUT`).
- * @property url     absolute request URL.
- * @property headers request headers.
- * @property body    raw request body bytes (empty for a body-less request).
- */
-data class PublishHttpRequest(
-    val method: String,
-    val url: String,
-    val headers: Map<String, String> = emptyMap(),
-    val body: ByteArray = ByteArray(0),
-) {
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (other !is PublishHttpRequest) return false
-        return method == other.method && url == other.url &&
-            headers == other.headers && body.contentEquals(other.body)
-    }
-
-    override fun hashCode(): Int =
-        ((method.hashCode() * 31 + url.hashCode()) * 31 + headers.hashCode()) * 31 + body.contentHashCode()
-}
-
-/**
- * Outcome of a [PublishHttpRequest]: status code and response body (text).
- * Response headers are exposed because the resumable upload session URL is
- * returned in the `Location` header of the init response.
- */
-data class PublishHttpResponse(
-    val statusCode: Int,
-    val body: String = "",
-    val headers: Map<String, String> = emptyMap(),
-)
-
-/**
- * Seam over HTTP — test-injectable (pattern [hyperframes.post.CommandRunner]).
- *
- * The concrete [JdkHttpTransport] spawns a real request through the JDK client;
- * unit tests inject a fake that returns canned responses, so **no test ever
- * touches the network**.
- */
-fun interface HttpTransport {
-    fun send(request: PublishHttpRequest): PublishHttpResponse
-}
-
-/**
- * Default [HttpTransport] built on [`java.net.http.HttpClient`] (JDK 11+), so the
- * plugin needs **no Google SDK and no extra dependency** (decision D3).
+ * The seam, the request and the response are the shared N1 types
+ * (`video.kernel.publish`, PUBLISH-ADAPTER-N1); only the network implementation
+ * stays in this engine.
  *
  * Never throws: any I/O failure yields a synthetic `-1` status so the caller
  * degrades instead of crashing the build.

@@ -16,8 +16,8 @@ package hyperframes.media
  *
  * Tolerant by design (a typo never breaks the build): blank lines and `#`
  * comments are ignored, unknown keys are skipped, an invalid/out-of-range
- * opacity falls back to [BackgroundImage.DEFAULT_OPACITY]. A missing or blank
- * `file` cancels the background (`null`).
+ * opacity/parallax falls back to its default. A missing or blank `file` cancels
+ * the background (`null`).
  *
  * Pure — no I/O, no Gradle.
  */
@@ -45,6 +45,9 @@ object BackgroundImageParser {
             scrim = values["scrim"]?.let(::boolean) ?: true,
             grid = values["grid"]?.let(::boolean) ?: false,
             grain = values["grain"]?.let(::boolean) ?: false,
+            parallax = values["parallax"]?.toDoubleOrNull()
+                ?.takeIf { it in BackgroundImage.MIN_PARALLAX..BackgroundImage.MAX_PARALLAX }
+                ?: BackgroundImage.DEFAULT_PARALLAX,
         )
     }
 

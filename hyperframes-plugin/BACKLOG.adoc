@@ -2,7 +2,51 @@
 :toc:
 
 _Date création_ : 2026-05-31
-_Version_ : **0.0.12 (Central)** — HEAD S-043 publié ; catalogue/BOM ws **`0.0.113`**.
+_Version_ : **0.0.14 (Central)** — HEAD S-046 publié ; catalogue/BOM ws **`0.0.115`**.
+
+'''
+== ✅ Release `hyperframes-plugin 0.0.14` — Maven Central (S-046)
+
+DAG MEMPHIS `0.0.115` (`0e74a6a8`, propagation 200) → hyperframes re-pin
+`workspace-catalog/BOM 0.0.115` + toml `0.0.14` → **Central bundle `11eb9906`**
+(AUTOMATIC), propagation repo1 200 (plugin + marker). Contenu : adoption
+`video-kernel 0.7.0` (PUBLISH-ADAPTER-N1) + `youtube-auth-plugin 0.0.2` +
+`HF-DEMO-QUALITY US-7` parallaxe. Rapport
+`.agents/sessions/046-adoption-n1-us7-parallax-release-0.0.14.adoc`.
+
+'''
+== ✅ HF-DEMO-QUALITY US-7 — parallaxe du fond média (S-046)
+
+[cols="1,3,1", options="header"]
+|===
+| US | Livrable | Statut
+| US-7 | `BackgroundImage.parallax` (`0.0` défaut, `0.25` max) : média sur-échelonné (`1 + 2p`) + pan `yPercent` `-50p → +50p` sur la scène (`ease: none`), DSL `parallax: 0.1`. +3 UT domaine, +2 UT processeur, +1 assertion FT, +1 scénario BDD `@quality-background`. | ✅ S-046
+|===
+
+_Dogfooding_ : tween vérifié, `lint` 0/0, `check` passed (2 warnings Craft).
+CI `Test` à confirmer sur le commit de release.
+
+'''
+== ✅ Release `hyperframes-plugin 0.0.13` — Maven Central (S-045)
+
+DAG MEMPHIS `workspace-bom/catalog 0.0.114` (`55aa4fba`, propagation 200) →
+hyperframes re-pin `workspace-catalog/BOM 0.0.114` + toml `0.0.13` → **Central
+bundle `70d29242`** (AUTOMATIC), propagation repo1 200 (plugin + marker).
+Contenu : `HF-DEMO-QUALITY US-6` fond média par scène. **Règle 2 « accord
+toujours granted »** (décision pilote 2026-10-31). CI `Test` verte
+`41239612772`. Rapport `.agents/sessions/045-release-0.0.13.adoc`.
+
+'''
+== ✅ HF-DEMO-QUALITY US-6 — fond média par scène (S-044)
+
+[cols="1,3,1", options="header"]
+|===
+| US | Livrable | Statut
+| US-6 | Domaine pur `hyperframes.media` (`BackgroundImage`/`BackgroundImageParser`/`BackgroundImageHtml`), DSL `[.hyperframes-background]` (`file`, `opacity`, `scrim`, `grid`, `grain`), couche `hf-bg` plein cadre, CSS conditionnel backward compatible, asset copié. 15 UT + 2 FT TestKit + 4 BDD `@quality-background`. | ✅ S-044
+|===
+
+_Dogfooding_ : `lint` 0/0, `check` passed (Layout 0/9, Contrast 8/8 AA). CI verte
+`41236362098`. Rapport `.agents/sessions/044-hf-demo-quality-us6-background.adoc`.
 
 '''
 == ✅ Release `hyperframes-plugin 0.0.12` — Maven Central (S-043)

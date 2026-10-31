@@ -36,6 +36,11 @@ class HfDemoQualityBackgroundSteps {
         )
     }
 
+    @Given("a quality background document with an image and parallax")
+    fun documentWithParallax() {
+        source = document(block("file: assets/img/fiber.jpg\nparallax: 0.1"))
+    }
+
     @Given("a quality background document without a background block")
     fun documentWithoutBackground() {
         source = document("")
@@ -96,6 +101,16 @@ class HfDemoQualityBackgroundSteps {
             "expected the historical static background"
         }
         check(!enhanced.contains("hf-bg")) { "no media layer must be rendered" }
+    }
+
+    @Then("the quality background media layer pans across the scene")
+    fun mediaLayerPans() {
+        check(enhanced.contains("""t.fromTo("#hook .hf-bg-media", { scale: 1.20, yPercent: -5 }""")) {
+            "expected the parallax tween on the media layer"
+        }
+        check(enhanced.contains("""{ yPercent: 5, duration: 5, ease: "none" }, 0);""")) {
+            "expected the parallax pan to span the scene"
+        }
     }
 
     @Then("the quality background listing block is consumed")

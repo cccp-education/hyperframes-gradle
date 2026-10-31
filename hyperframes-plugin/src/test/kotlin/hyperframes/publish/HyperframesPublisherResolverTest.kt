@@ -4,6 +4,7 @@ import java.io.File
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
+import video.kernel.publish.DisabledVideoPublisher
 
 /**
  * HF-YOUTUBE-PUBLISH US-2 — resolver factory (fail-soft).

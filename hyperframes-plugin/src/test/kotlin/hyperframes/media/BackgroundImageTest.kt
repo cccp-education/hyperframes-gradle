@@ -64,6 +64,29 @@ class BackgroundImageTest {
     }
 
     @Test
+    fun `parses the parallax option`() {
+        val background = BackgroundImageParser.parse("file: a.jpg\nparallax: 0.1")
+
+        assertEquals(0.1, background?.parallax)
+    }
+
+    @Test
+    fun `keeps the default parallax when the value is invalid or out of range`() {
+        assertEquals(
+            BackgroundImage.DEFAULT_PARALLAX,
+            BackgroundImageParser.parse("file: a.jpg\nparallax: 0.9")?.parallax,
+        )
+        assertEquals(
+            BackgroundImage.DEFAULT_PARALLAX,
+            BackgroundImageParser.parse("file: a.jpg\nparallax: -0.1")?.parallax,
+        )
+        assertEquals(
+            BackgroundImage.DEFAULT_PARALLAX,
+            BackgroundImageParser.parse("file: a.jpg\nparallax: fast")?.parallax,
+        )
+    }
+
+    @Test
     fun `keeps the default opacity when the value is invalid or out of range`() {
         assertEquals(
             BackgroundImage.DEFAULT_OPACITY,
@@ -95,6 +118,8 @@ class BackgroundImageTest {
         assertFailsWith<IllegalArgumentException> { BackgroundImage(file = "   ") }
         assertFailsWith<IllegalArgumentException> { BackgroundImage(file = "a.jpg", opacity = 1.1) }
         assertFailsWith<IllegalArgumentException> { BackgroundImage(file = "a.jpg", opacity = -0.1) }
+        assertFailsWith<IllegalArgumentException> { BackgroundImage(file = "a.jpg", parallax = 0.3) }
+        assertFailsWith<IllegalArgumentException> { BackgroundImage(file = "a.jpg", parallax = -0.1) }
     }
 
     // ──────────────────────────────────────────────

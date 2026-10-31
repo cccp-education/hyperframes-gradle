@@ -1,6 +1,15 @@
 = COMPLETED_TASKS_ARCHIVE — hyperframes-gradle
 :date: 2026-05-31
-:last-updated: 2026-10-31 (session 045)
+:last-updated: 2026-10-31 (session 046)
+
+== Session 046 (2026-10-31) — Adoption N1 + US-7 parallaxe + release `0.0.14` ✅
+
+* [x] Adoption `video-kernel 0.7.0` (PUBLISH-ADAPTER-N1) — copies N2 supprimées.
+* [x] Adoption `youtube-auth-plugin 0.0.2` (tâche token ; upload gelé).
+* [x] US-7 parallaxe (`BackgroundImage.parallax`, pan `yPercent`), +6 tests/assertions +1 BDD.
+* [x] Dogfooding `lint` 0/0, `check` passed.
+* [x] Central bundle `11eb9906-f2d0-4ea0-82d6-9d7856106a61`, propagation 200.
+* [x] Rapport `.agents/sessions/046-adoption-n1-us7-parallax-release-0.0.14.adoc`.
 
 == Session 045 (2026-10-31) — Release `hyperframes-plugin 0.0.13` ✅
 

@@ -94,6 +94,38 @@ class HyperframesHtmlProcessorBackgroundTest {
     }
 
     @Test
+    fun `the parallax option animates the media layer across the scene`() {
+        val result = processor.enhance(
+            document(
+                """
+                <div class="sect1"><h2 id="one">One</h2>${backgroundBlock(
+                    """
+                    file: assets/img/fiber.jpg
+                    parallax: 0.1
+                    """.trimIndent()
+                )}</div>
+                """.trimIndent()
+            )
+        )
+
+        assertContains(result, """t.fromTo("#one .hf-bg-media", { scale: 1.20, yPercent: -5 }""")
+        assertContains(result, """{ yPercent: 5, duration: 5, ease: "none" }, 0);""")
+    }
+
+    @Test
+    fun `a media layer without parallax stays static`() {
+        val result = processor.enhance(
+            document(
+                """
+                <div class="sect1"><h2 id="one">One</h2>${backgroundBlock("file: assets/img/fiber.jpg")}</div>
+                """.trimIndent()
+            )
+        )
+
+        assertFalse(result.contains("""#one .hf-bg-media"""))
+    }
+
+    @Test
     fun `a scene without a background keeps the default scene background`() {
         val result = processor.enhance(
             document("""<div class="sect1"><h2 id="one">One</h2></div>""")

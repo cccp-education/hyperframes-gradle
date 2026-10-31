@@ -1,0 +1,54 @@
+= Session 046 — Adoption N1 + US-7 parallaxe + release `0.0.14`
+:session: 046
+:date: 2026-10-31
+:borough: Watts
+:epic: PUBLISH-ADAPTER-N1 / HF-DEMO-QUALITY
+:statut: ✅ TERMINÉE
+
+== Mission
+
+. Adopter `video-kernel 0.7.0` (PUBLISH-ADAPTER-N1) : supprimer les copies N2
+  des briques de publication pures.
+. Adopter `youtube-auth-plugin 0.0.2` (tâche `obtainYouTubeRefreshToken`).
+. Livrer `HF-DEMO-QUALITY US-7` : **parallaxe du fond média** (qualité vidéo).
+. Publier `hyperframes-plugin 0.0.14`.
+
+== 1. Adoption PUBLISH-ADAPTER-N1
+
+Supprimés (désormais N1 `video.kernel.publish`) : `ChapterLineParser`,
+`YouTubeCredentials`, `YouTubeCredentialsLoader`, `YouTubePublishCommand`,
+`DisabledVideoPublisher`. `HttpTransport.kt` ne garde que `JdkHttpTransport`
+(importe `HttpTransport`/`PublishHttpRequest`/`PublishHttpResponse` N1).
+`YouTubeDataApiPublisher` et le resolver importent les types N1. Tests déplacés
+au noyau (les doublons locaux sont supprimés) ; steps BDD ré-alignés.
+
+== 2. Adoption youtube-auth
+
+`plugins { alias(libs.plugins.youtube.auth) }` + toml `youtube-auth = "0.0.2"`
+(marker Central). YouTube reste gelé : seule la tâche d'obtention du token est
+disponible.
+
+== 3. US-7 — parallaxe du fond média
+
+`BackgroundImage.parallax` (`0.0` défaut, plafond `0.25`) : le média est
+sur-échelonné (`1 + 2p`) et `yPercent` pan de `-50p` à `+50p` sur la durée de
+la scène (`ease: none`), sans exposer de bord. DSL `parallax: 0.1`. Tests :
++3 unit domaine, +2 unit processeur, +1 assertion functional, +1 scénario BDD
+`@quality-background`. Dogfooding `/tmp` : tween vérifié, `lint` **0/0**,
+`check` **passed** (2 warnings Craft attendus).
+
+== 4. Release `0.0.14`
+
+DAG : MEMPHIS `0.0.115` (`0e74a6a8`, propagation 200) → hyperframes re-pin
+`workspace-catalog/BOM 0.0.115` + toml `0.0.14` → Central bundle
+**`11eb9906-f2d0-4ea0-82d6-9d7856106a61`** (AUTOMATIC), propagation repo1 200
+(plugin + marker).
+
+== Fichiers
+
+* `src/main/kotlin/hyperframes/media/BackgroundImage.kt`, `HyperframesHtmlProcessor.kt`.
+* `src/main/kotlin/hyperframes/publish/*` (suppressions + imports N1).
+* `settings.gradle.kts`, `build.gradle.kts`, `gradle/libs.versions.toml`.
+* Tests : `BackgroundImageTest`, `HyperframesHtmlProcessorBackgroundTest`,
+  `HyperframesBackgroundFunctionalTest`, `HfDemoQualityBackgroundSteps`,
+  `hf_demo_quality_background.feature`.

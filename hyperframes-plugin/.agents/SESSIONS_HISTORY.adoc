@@ -1,5 +1,17 @@
 = SESSIONS_HISTORY — hyperframes-gradle
 
+== Session 046 (2026-10-31) — Adoption N1 + US-7 parallaxe + release `0.0.14`
+
+**PUBLISH-ADAPTER-N1** : adoption `video-kernel 0.7.0` (ChapterLineParser,
+YouTubeCredentials + loader, YouTubePublishCommand **sans Jackson**,
+DisabledVideoPublisher, seam HTTP) ; copies N2 supprimées, `JdkHttpTransport` et
+`YouTubeDataApiPublisher` restent N2. **youtube-auth-plugin 0.0.2** adopté
+(`alias(libs.plugins.youtube.auth)`), upload toujours gelé. **US-7** :
+`BackgroundImage.parallax` (`0..0.25`), média sur-échelonné + pan `yPercent`
+déterministe ; +3 UT +2 UT processeur +1 FT +1 BDD. **Release `0.0.14`** : MEMPHIS
+`0.0.115` (`0e74a6a8`) → Central bundle `11eb9906`, propagation 200. Rapport
+`.agents/sessions/046-adoption-n1-us7-parallax-release-0.0.14.adoc`.
+
 == Session 045 (2026-10-31) — Release `hyperframes-plugin 0.0.13`
 
 DAG N0→N2 : MEMPHIS `workspace-bom/catalog 0.0.113 → 0.0.114` (catalogue

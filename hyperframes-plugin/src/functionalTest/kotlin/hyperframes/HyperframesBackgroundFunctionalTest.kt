@@ -80,13 +80,14 @@ class HyperframesBackgroundFunctionalTest {
 
     @Test
     fun `a declared background becomes a full-bleed layer and its asset is copied`() {
-        val projectDir = project("file: assets/img/bg.png\nopacity: 0.4\ngrid: true")
+        val projectDir = project("file: assets/img/bg.png\nopacity: 0.4\ngrid: true\nparallax: 0.1")
         val html = generate(projectDir)
 
         assertContains(html, """class="hf-bg"""")
         assertContains(html, """src="assets/img/bg.png"""")
         assertContains(html, """style="opacity:0.40"""")
         assertContains(html, """<div class="hf-bg-grid"></div>""")
+        assertContains(html, """hf-bg-media", { scale: 1.20""")
         assertFalse(html.contains("hyperframes-background"))
 
         val copied = projectDir.resolve("build/hyperframes/assets/img/bg.png")

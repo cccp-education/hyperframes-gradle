@@ -1,6 +1,18 @@
 = Test Coverage Analysis — hyperframes-gradle
 
-_Dernière mise à jour_ : 2026-10-31 (Session 044 — HF-DEMO-QUALITY US-6)
+_Dernière mise à jour_ : 2026-10-31 (Session 046 — US-7 parallaxe + adoption N1)
+
+== Couverture — 31 octobre 2026 (après session 046, US-7)
+
+.HF-DEMO-QUALITY US-7 — parallaxe du fond média
+|===
+| Élément | Nature | Tests
+
+| `BackgroundImage.parallax` | parse/default/bornes + invariant | +3 `BackgroundImageTest`
+| Processeur | tween `hf-bg-media` (scale + `yPercent`) présent avec parallaxe, absent sans | +2 `HyperframesHtmlProcessorBackgroundTest`
+| DSL → HTML | génération avec `parallax: 0.1` → tween dans le HTML | +1 assertion `HyperframesBackgroundFunctionalTest`
+| BDD | 1 scénario `@quality-background` (pan sur la scène) | `hf_demo_quality_background.feature` + step
+|===
 
 == Couverture — 31 octobre 2026 (après session 044, US-6)
 

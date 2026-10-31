@@ -1,18 +1,18 @@
 package hyperframes.scenarios
 
-import hyperframes.publish.ChapterLineParser
-import hyperframes.publish.DisabledVideoPublisher
-import hyperframes.publish.HttpTransport
-import hyperframes.publish.PublishHttpRequest
-import hyperframes.publish.PublishHttpResponse
-import hyperframes.publish.YouTubeCredentials
 import hyperframes.publish.YouTubeDataApiPublisher
 import io.cucumber.java.en.Given
 import io.cucumber.java.en.Then
 import io.cucumber.java.en.When
 import java.io.File
+import video.kernel.publish.ChapterLineParser
+import video.kernel.publish.DisabledVideoPublisher
+import video.kernel.publish.HttpTransport
+import video.kernel.publish.PublishHttpRequest
+import video.kernel.publish.PublishHttpResponse
 import video.kernel.publish.VideoPublication
 import video.kernel.publish.VideoPublicationResult
+import video.kernel.publish.YouTubeCredentials
 
 /**
  * HF-YOUTUBE-PUBLISH US-2 — steps for the YouTube publication flow.

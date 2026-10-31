@@ -1,9 +1,13 @@
 package hyperframes.publish
 
 import java.nio.charset.StandardCharsets
+import video.kernel.publish.HttpTransport
+import video.kernel.publish.PublishHttpRequest
 import video.kernel.publish.VideoPublication
 import video.kernel.publish.VideoPublicationResult
 import video.kernel.publish.VideoPublisher
+import video.kernel.publish.YouTubeCredentials
+import video.kernel.publish.YouTubePublishCommand
 
 /**
  * N2 implementation of the engine-neutral [VideoPublisher] port backed by the

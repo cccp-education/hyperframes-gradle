@@ -1,34 +1,36 @@
-= PROMPT_REPRISE — HyperFrames Gradle (Session 045 TERMINÉE → 046)
-:session: 046
+= PROMPT_REPRISE — HyperFrames Gradle (Session 046 TERMINÉE → 047)
+:session: 047
 :borough: Watts
-:session_precedente: 045 — Release `hyperframes-plugin 0.0.13` ✅
+:session_precedente: 046 — Adoption N1 + US-7 parallaxe + release `0.0.14` ✅
 _note_ : fichier canonique = `.agents/PROMPT_REPRISE.adoc`.
 
-== Session 045 (TERMINÉE) — Release `hyperframes-plugin 0.0.13`
+== Session 046 (TERMINÉE)
 
-DAG N0→N2 (Règle 2 « accord toujours granted », décision pilote 2026-10-31) :
+* **PUBLISH-ADAPTER-N1 adopté** : `video-kernel 0.7.0` fournit
+  `ChapterLineParser`, `YouTubeCredentials` (+ loader), `YouTubePublishCommand`
+  (sans Jackson), `DisabledVideoPublisher`, seam HTTP. Les copies N2 sont
+  supprimées ; `HttpTransport.kt` ne garde que `JdkHttpTransport`.
+* **`youtube-auth-plugin 0.0.2` adopté** (`alias(libs.plugins.youtube.auth)`) —
+  YouTube (upload) reste **gelé**.
+* **US-7 parallaxe** : `BackgroundImage.parallax` (`0..0.25`), média
+  sur-échelonné + pan `yPercent` déterministe ; +3 UT +2 UT processeur
+  +1 FT +1 BDD. Dogfooding `lint` 0/0, `check` passed.
+* **Release `0.0.14`** : MEMPHIS `0.0.115` → Central bundle `11eb9906`,
+  propagation 200 (plugin + marker).
 
-* MEMPHIS `workspace-bom/catalog 0.0.113 → 0.0.114` (bundle `55aa4fba`,
-  propagation repo1 200 ×2) ;
-* hyperframes re-pin `workspace-catalog/BOM 0.0.114` + toml `0.0.13` ;
-* Central bundle **`70d29242-5f54-410f-994e-40977ff93b40`** (AUTOMATIC),
-  propagation repo1 200 (plugin + marker).
-
-Contenu depuis 0.0.12 : `HF-DEMO-QUALITY US-6` — fond média par scène (session
-044, CI verte `41236362098`). Rapport `.agents/sessions/045-release-0.0.13.adoc`.
+Rapport `.agents/sessions/046-adoption-n1-us7-parallax-release-0.0.14.adoc`.
 
 == État
 
-* `hyperframes-plugin 0.0.13` (Central) ; catalogue/BOM workspace `0.0.114`.
-* `video-kernel 0.6.0` ; YouTube **gelé** (S-037).
-* `HF-DEMO-QUALITY` **TERMINÉ 6/6** ; aucun EPIC métier ouvert.
+* `hyperframes-plugin 0.0.14` (Central) ; catalogue/BOM ws `0.0.115`.
+* `video-kernel 0.7.0` ; `youtube-auth-plugin 0.0.2`.
+* `HF-DEMO-QUALITY` **TERMINÉ 7/7** ; **aucun EPIC métier ouvert**.
+* YouTube reste gelé (S-037).
 
-== Mission Session 046 — au choix pilote
+== Mission Session 047 — au choix pilote
 
-. CI du commit de release (preuve unit/functional/BDD) + dogfooding enrichi
-   (rendu MP4 réel avec fond média, `check` complet).
-. Candidats qualité ultérieurs : fond vidéo / parallaxe / `poster` (hors scope
-   US-6, à cadrer).
+. CI du commit de release (unit + functional + Cucumber + check).
+. Candidats qualité non cadrés : fond vidéo / `poster` (hors scope US-6/7).
 . Maintenance / re-pin éventuel.
 . YouTube : ne pas rouvrir sans décision explicite.
 

@@ -1,6 +1,7 @@
 [versions]
-hyperframes = "0.0.13"
-video-kernel = "0.6.0"
+hyperframes = "0.0.14"
+youtube-auth = "0.0.2"
+video-kernel = "0.7.0"
 kotlin = "2.4.10"
 asciidoctorj = "3.0.1"
 plugin-publish = "2.1.0"
@@ -23,5 +24,6 @@ cucumber-picocontainer = { module = "io.cucumber:cucumber-picocontainer" }
 
 [plugins]
 hyperframes = { id = "education.cccp.hyperframes", version.ref = "hyperframes" }
+youtube-auth = { id = "education.cccp.video.auth", version.ref = "youtube-auth" }
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 plugin-publish = { id = "com.gradle.plugin-publish", version.ref = "plugin-publish" }

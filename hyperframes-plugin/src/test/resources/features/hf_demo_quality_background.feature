@@ -25,6 +25,11 @@ Feature: HF-DEMO-QUALITY US-6 — per-scene background media
     When I enhance the quality background document with the HyperFrames processor
     Then the quality background scene keeps the static background
 
+  Scenario: The parallax option animates the media layer
+    Given a quality background document with an image and parallax
+    When I enhance the quality background document with the HyperFrames processor
+    Then the quality background media layer pans across the scene
+
   Scenario: An invalid background block is ignored
     Given a quality background document with an invalid background block
     When I enhance the quality background document with the HyperFrames processor
