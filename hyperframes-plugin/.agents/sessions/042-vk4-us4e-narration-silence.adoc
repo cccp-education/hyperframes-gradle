@@ -59,6 +59,11 @@ Tests écrits avant l'adapter :
 
 BUILD SUCCESSFUL (les suites s'exécutent en CI).
 
+**CI** : `Test` `41214467362` ✅ (unit + functional TestKit + Cucumber BDD +
+full check). Cross-borough : `video-kernel Test` `41214453154` ✅, MEMPHIS
+`runAllTests` `41214459791` ✅ 21/21, capsule `Test`/`Full Tests`
+`41214473820`/`41214473586` ✅ 25/25.
+
 == DAG / propagation
 
 [cols="2,3,2", options="header"]
