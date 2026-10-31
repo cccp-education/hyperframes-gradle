@@ -12,7 +12,7 @@
 == Pendant la session
 
 . [ ] Respecter la Règle — Git autorisé (décision 2026-09-17), zéro secret commité
-. [ ] Respecter Règle 2 — AUCUN publish sans permission
+. [ ] Respecter Règle 2 — publication autorisée (accord pilote permanent, décision 2026-10-31)
 . [ ] Respecter Règle 7 — HYPERFRAMES CONSOMME ASCIIDOC sans modifier la source
 . [ ] Respecter Règle 8 — Bridge Node.js par CLI, pas de couplage code
 . [ ] Respecter Règle 6 — ZERO secret en dur

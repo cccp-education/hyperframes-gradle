@@ -1,0 +1,40 @@
+= Session 045 — Release `hyperframes-plugin 0.0.13`
+:session: 045
+:date: 2026-10-31
+:borough: Watts
+:epic: HF-DEMO-QUALITY
+:statut: ✅ TERMINÉE
+
+== Mission
+
+Publier `hyperframes-plugin 0.0.13` (contenu `HF-DEMO-QUALITY US-6` : fond média
+par scène). Décision pilote 2026-10-31 : **Règle 2 révisée en « accord toujours
+granted »** — publication autorisée sans demande préalable, sous invariants.
+
+== DAG N0 → N2
+
+. MEMPHIS `workspace-bom`/`workspace-catalog` **`0.0.113 → 0.0.114`** (catalogue
+  `hyperframes-plugin = "0.0.13"`), Central bundle
+  `55aa4fba-76a8-481b-85b9-cad7a4d3dd63`, propagation repo1 200 ×2 (rapport
+  MEMPHIS `.agents/sessions/315-…`).
+. hyperframes re-pin `workspace-catalog:0.0.114` + platform
+   `workspace-bom:0.0.114` + toml local `hyperframes = "0.0.13"`.
+. `publishToMavenLocal` VERT (artefacts 0.0.13 signés GPG).
+. Central **bundle `70d29242-5f54-410f-994e-40977ff93b40`** (AUTOMATIC).
+. Propagation repo1 vérifiée : `hyperframes-plugin/0.0.13` **200** + marker
+   `education.cccp.hyperframes.gradle.plugin/0.0.13` **200**.
+
+== Contenu depuis 0.0.12
+
+`HF-DEMO-QUALITY US-6` — fond média par scène : domaine pur
+`hyperframes.media`, DSL `[.hyperframes-background]` (image + scrim/grille/grain),
+couche `hf-bg`, CSS conditionnel backward compatible, asset copié.
+
+Gates de la session fonctionnelle : CI verte `41236362098`. Aucun code produit
+modifié en 045 (pins + gouvernance seulement).
+
+== Fichiers
+
+* `gradle/libs.versions.toml`, `settings.gradle.kts`, `build.gradle.kts` (pins).
+* `AGENT.adoc` + `.agents/` (Règle 2, INDEX, PROMPT_REPRISE, SESSIONS_HISTORY,
+  archive, ce rapport).

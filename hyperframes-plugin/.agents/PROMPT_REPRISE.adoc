@@ -1,49 +1,40 @@
-= PROMPT_REPRISE — HyperFrames Gradle (Session 044 TERMINÉE → 045)
-:session: 045
+= PROMPT_REPRISE — HyperFrames Gradle (Session 045 TERMINÉE → 046)
+:session: 046
 :borough: Watts
-:session_precedente: 044 — HF-DEMO-QUALITY US-6 fond média par scène ✅
+:session_precedente: 045 — Release `hyperframes-plugin 0.0.13` ✅
 _note_ : fichier canonique = `.agents/PROMPT_REPRISE.adoc`.
 
-== Session 044 (TERMINÉE) — HF-DEMO-QUALITY US-6
+== Session 045 (TERMINÉE) — Release `hyperframes-plugin 0.0.13`
 
-Le DSL exprime désormais le **fond média par scène** (image plein cadre + scrim
-+ grille + grain), dernier écart avec la démo de référence :
+DAG N0→N2 (Règle 2 « accord toujours granted », décision pilote 2026-10-31) :
 
-* domaine pur `hyperframes.media` : `BackgroundImage`, `BackgroundImageParser`,
-  `BackgroundImageHtml` ;
-* DSL `[.hyperframes-background]` (`file`, `opacity`, `scrim`, `grid`, `grain`),
-  bloqué consommé par la scène, couche `hf-bg` ;
-* CSS émis **seulement** si un fond est déclaré (backward compatible : `.scene-bg`
-  et zéro token `hf-bg` sans bloc) ;
-* 15 unit + 2 functional TestKit + 4 scénarios BDD `@quality-background` ;
-* dogfooding `/tmp` : `lint` **0/0**, `check` **passed** (Layout 0/9,
-  Contrast 8/8 AA), asset copié ;
-* **CI `Test` verte** run `41236362098` (commit `15d0b85`).
+* MEMPHIS `workspace-bom/catalog 0.0.113 → 0.0.114` (bundle `55aa4fba`,
+  propagation repo1 200 ×2) ;
+* hyperframes re-pin `workspace-catalog/BOM 0.0.114` + toml `0.0.13` ;
+* Central bundle **`70d29242-5f54-410f-994e-40977ff93b40`** (AUTOMATIC),
+  propagation repo1 200 (plugin + marker).
 
-Rapport `.agents/sessions/044-hf-demo-quality-us6-background.adoc`.
-Cadrage `.agents/CADRAGE_EPIC_HF_DEMO_QUALITY_US6.adoc`.
+Contenu depuis 0.0.12 : `HF-DEMO-QUALITY US-6` — fond média par scène (session
+044, CI verte `41236362098`). Rapport `.agents/sessions/045-release-0.0.13.adoc`.
 
 == État
 
-* `hyperframes-plugin 0.0.12` (Central) ; code HEAD = 0.0.12 + US-6 non publiée.
-* `video-kernel 0.6.0` ; catalogue/BOM workspace `0.0.113`.
-* **YouTube gelé** (S-037) — US-4b dogfooding réel suspendu.
-* `HF-DEMO-QUALITY` **TERMINÉ 6/6**.
+* `hyperframes-plugin 0.0.13` (Central) ; catalogue/BOM workspace `0.0.114`.
+* `video-kernel 0.6.0` ; YouTube **gelé** (S-037).
+* `HF-DEMO-QUALITY` **TERMINÉ 6/6** ; aucun EPIC métier ouvert.
 
-== Mission Session 045 — au choix pilote
+== Mission Session 046 — au choix pilote
 
-. Release `hyperframes-plugin 0.0.13` (contenu US-6) — **accord pilote requis**
-   (Règle 2), DAG MEMPHIS → hyperframes.
-. Dogfooding enrichi (rendu MP4 réel avec fond média, `check` complet) —
-   la preuve CI S-044 est déjà verte.
+. CI du commit de release (preuve unit/functional/BDD) + dogfooding enrichi
+   (rendu MP4 réel avec fond média, `check` complet).
 . Candidats qualité ultérieurs : fond vidéo / parallaxe / `poster` (hors scope
    US-6, à cadrer).
+. Maintenance / re-pin éventuel.
 . YouTube : ne pas rouvrir sans décision explicite.
 
 == Points d'attention
 
 * **Local = Build, Tests = CI** : jamais `test`/`check` local.
-* **Règle 2 — PUBLISH** : publication uniquement sur accord pilote.
-* **Règle 2 — GIT** : commits/push autorisés (décision 2026-09-17).
+* **Règle 2 — PUBLISH** : accord pilote permanent (toujours granted, décision 2026-10-31).
 * Frontière : hyperframes reste N2 ; aucun vocabulaire métier privé.
 * Zéro secret ; zéro Python ; English only code/tests/features.

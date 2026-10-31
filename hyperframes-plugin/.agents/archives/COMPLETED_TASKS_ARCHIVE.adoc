@@ -1,6 +1,14 @@
 = COMPLETED_TASKS_ARCHIVE — hyperframes-gradle
 :date: 2026-05-31
-:last-updated: 2026-10-31 (session 044)
+:last-updated: 2026-10-31 (session 045)
+
+== Session 045 (2026-10-31) — Release `hyperframes-plugin 0.0.13` ✅
+
+* [x] DAG MEMPHIS `0.0.113 → 0.0.114` (`55aa4fba`, propagation 200) → hyperframes re-pin `workspace-catalog/BOM 0.0.114`.
+* [x] Central bundle `70d29242-5f54-410f-994e-40977ff93b40` (AUTOMATIC), propagation repo1 200 (plugin + marker).
+* [x] Contenu : `HF-DEMO-QUALITY US-6` fond média par scène.
+* [x] Règle 2 révisée « accord toujours granted » (décision pilote 2026-10-31).
+* [x] Rapport `.agents/sessions/045-release-0.0.13.adoc`.
 
 == Session 044 (2026-10-31) — HF-DEMO-QUALITY US-6 : fond média par scène ✅
 

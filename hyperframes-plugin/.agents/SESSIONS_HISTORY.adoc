@@ -1,5 +1,16 @@
 = SESSIONS_HISTORY — hyperframes-gradle
 
+== Session 045 (2026-10-31) — Release `hyperframes-plugin 0.0.13`
+
+DAG N0→N2 : MEMPHIS `workspace-bom/catalog 0.0.113 → 0.0.114` (catalogue
+`hyperframes-plugin = "0.0.13"`, bundle `55aa4fba`, propagation repo1 200 ×2) →
+hyperframes re-pin `workspace-catalog/BOM 0.0.114` + toml `0.0.13` → Central
+bundle `70d29242-5f54-410f-994e-40977ff93b40` (AUTOMATIC), propagation repo1
+200 (plugin + marker). Contenu : `HF-DEMO-QUALITY US-6` fond média par scène
+(session 044, CI verte `41236362098`). **Règle 2 révisée « accord toujours
+granted »** (décision pilote 2026-10-31). Rapport
+`.agents/sessions/045-release-0.0.13.adoc`.
+
 == Session 044 (2026-10-31) — HF-DEMO-QUALITY US-6 : fond média par scène
 
 Dernier écart qualité entre la démo de référence et le DSL : le **fond média
