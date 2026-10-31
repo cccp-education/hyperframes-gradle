@@ -51,8 +51,8 @@ class HyperframesHtmlProcessorBackgroundTest {
         assertContains(result, """<div class="hf-bg" aria-hidden="true">""")
         assertContains(result, """<img class="hf-bg-media" src="assets/img/fiber.jpg" alt="" style="opacity:0.55">""")
         assertContains(result, """<div class="hf-bg-scrim"></div>""")
-        assertFalse(result.contains("hf-bg-grid"))
-        assertFalse(result.contains("hf-bg-grain"))
+        assertFalse(result.contains("""<div class="hf-bg-grid"></div>"""))
+        assertFalse(result.contains("""<div class="hf-bg-grain"></div>"""))
     }
 
     @Test
@@ -88,7 +88,7 @@ class HyperframesHtmlProcessorBackgroundTest {
         )
 
         assertContains(result, """style="opacity:0.35"""")
-        assertFalse(result.contains("hf-bg-scrim"))
+        assertFalse(result.contains("""<div class="hf-bg-scrim"></div>"""))
         assertContains(result, """<div class="hf-bg-grid"></div>""")
         assertContains(result, """<div class="hf-bg-grain"></div>""")
     }

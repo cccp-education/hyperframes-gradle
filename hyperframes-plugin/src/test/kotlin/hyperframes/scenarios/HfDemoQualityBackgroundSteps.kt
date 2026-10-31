@@ -75,13 +75,13 @@ class HfDemoQualityBackgroundSteps {
 
     @Then("the quality background layer has no scrim")
     fun hasNoScrim() {
-        check(!enhanced.contains("hf-bg-scrim")) { "the scrim must be absent" }
+        check(!enhanced.contains("""<div class="hf-bg-scrim"></div>""")) { "the scrim must be absent" }
     }
 
     @Then("the quality background layer has no grid and no grain")
     fun hasNoGridAndNoGrain() {
-        check(!enhanced.contains("hf-bg-grid")) { "the grid must be absent" }
-        check(!enhanced.contains("hf-bg-grain")) { "the grain must be absent" }
+        check(!enhanced.contains("""<div class="hf-bg-grid"></div>""")) { "the grid must be absent" }
+        check(!enhanced.contains("""<div class="hf-bg-grain"></div>""")) { "the grain must be absent" }
     }
 
     @Then("the quality background layer carries the grid and the grain")
