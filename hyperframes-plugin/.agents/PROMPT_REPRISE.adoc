@@ -34,6 +34,12 @@ Rapport `.agents/sessions/046-adoption-n1-us7-parallax-release-0.0.14.adoc`.
 . Maintenance / re-pin éventuel.
 . YouTube : ne pas rouvrir sans décision explicite.
 
+== Prochaine session transverse
+
+Le backlog restant est côté **MEMPHIS** : publication `plantuml-contracts:0.0.1`,
+gardes `MEM-CI-CONSISTENCY` US-3/4/5, `CI-1.4` (Ollama qwen3), `MEM-3.5` (BDD
+i18n). Voir `workspace-bom/PROMPT_REPRISE.adoc`. YouTube (upload) reste gelé.
+
 == Points d'attention
 
 * **Local = Build, Tests = CI** : jamais `test`/`check` local.
