@@ -1,5 +1,19 @@
 = SESSIONS_HISTORY — hyperframes-gradle
 
+== Session 044 (2026-10-31) — HF-DEMO-QUALITY US-6 : fond média par scène
+
+Dernier écart qualité entre la démo de référence et le DSL : le **fond média
+plein cadre par scène** (image + scrim + grille + grain). Domaine pur
+`hyperframes.media` (`BackgroundImage` + `BackgroundImageParser` +
+`BackgroundImageHtml`), DSL `[.hyperframes-background]` consommé par la scène,
+couche `hf-bg` avec overlays opt-in, CSS émis **seulement** si un fond est
+déclaré (backward compatible : aucun token `hf-bg` sans bloc). Tests : 15 unit
+(9 domaine + 6 processeur), 2 functional TestKit (copie d'asset + backward
+compat), 4 scénarios BDD `@quality-background`. RED prouvé par compilation →
+GREEN. Dogfooding `/tmp` : `lint` **0/0**, `check` **passed** (Layout 0/9,
+Contrast 8/8 AA). YouTube gelé, zéro publication. Rapport
+`.agents/sessions/044-hf-demo-quality-us6-background.adoc`.
+
 == Session 043 (2026-10-31) — Release `hyperframes-plugin 0.0.12`
 
 DAG MEMPHIS `workspace-bom/catalog 0.0.113` (`455f513d`, propagation 200) →

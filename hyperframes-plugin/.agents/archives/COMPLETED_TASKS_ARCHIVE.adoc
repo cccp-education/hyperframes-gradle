@@ -1,6 +1,15 @@
 = COMPLETED_TASKS_ARCHIVE — hyperframes-gradle
 :date: 2026-05-31
-:last-updated: 2026-10-31 (session 043)
+:last-updated: 2026-10-31 (session 044)
+
+== Session 044 (2026-10-31) — HF-DEMO-QUALITY US-6 : fond média par scène ✅
+
+* [x] Domaine pur `hyperframes.media` : `BackgroundImage`, `BackgroundImageParser`, `BackgroundImageHtml`.
+* [x] DSL `[.hyperframes-background]` consommé par la scène ; couche `hf-bg` (image + scrim/grid/grain), CSS conditionnel (backward compatible).
+* [x] Tests : 15 unit + 2 functional TestKit + 4 scénarios BDD `@quality-background`.
+* [x] Dogfooding `/tmp` : `lint` 0/0, `check` passed (Layout 0/9, Contrast 8/8 AA), asset copié.
+* [x] YouTube gelé ; zéro publication (release 0.0.13 sur accord pilote).
+* [x] Rapport `.agents/sessions/044-hf-demo-quality-us6-background.adoc`.
 
 == Session 043 (2026-10-31) — Release `hyperframes-plugin 0.0.12` ✅
 

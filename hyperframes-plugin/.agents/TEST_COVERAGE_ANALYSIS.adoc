@@ -1,6 +1,20 @@
 = Test Coverage Analysis — hyperframes-gradle
 
-_Dernière mise à jour_ : 2026-10-26 (Session 038 — HF-DEMO-QUALITY US-4 + US-5)
+_Dernière mise à jour_ : 2026-10-31 (Session 044 — HF-DEMO-QUALITY US-6)
+
+== Couverture — 31 octobre 2026 (après session 044, US-6)
+
+.HF-DEMO-QUALITY US-6 — fond média par scène
+|===
+| Élément | Nature | Tests
+
+| `hyperframes.media` | `BackgroundImage` (invariants), `BackgroundImageParser` (clés/défauts/tolérance), `BackgroundImageHtml` (fragment + échappement) | 9 `BackgroundImageTest`
+| `HyperframesHtmlProcessor` | bloc `[.hyperframes-background]` consommé, couche `hf-bg` sur la scène propriétaire, overlays, `.scene-bg` sans fond, CSS conditionnel | 6 `HyperframesHtmlProcessorBackgroundTest`
+| DSL → HTML | `generateHyperframesHtml` : couche média + copie byte-identique de l'asset + backward compat | 2 `HyperframesBackgroundFunctionalTest` (TestKit)
+| BDD | 4 scénarios `@quality-background` (défauts, options, absence, invalide) | `hf_demo_quality_background.feature` + `HfDemoQualityBackgroundSteps`
+|===
+
+== Couverture — 26 octobre 2026 (après session 038, US-4 + US-5)
 
 == Couverture — 26 octobre 2026 (après session 038, US-4 + US-5)
 

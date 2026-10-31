@@ -1,0 +1,92 @@
+= Cadrage — HF-DEMO-QUALITY US-6 : fond média par scène
+:session: 044
+:date: 2026-10-31
+:borough: Watts
+:statut: 🟡 CADRÉ
+
+== Contexte
+
+`HF-DEMO-QUALITY` (US-1→US-5) a porté au DSL les capacités de la démo de
+référence : transitions (cover + chevauchement), médias référencés (images
+inline + audio), chrome de plateau, typographie display et entrées
+chorégraphiées.
+
+La démo (`hyperframes-gradle/demo-video`) utilise en plus un **fond média plein
+cadre par scène** : image de fond, scrim de lisibilité, grille technique et
+grain. Le processeur ne sait pas encore l'exprimer : chaque scène reçoit le
+même dégradé statique `.scene-bg`.
+
+Conséquence : une vidéo produite par le plugin reste visuellement pauvre dès
+qu'une scène doit porter une image d'ambiance (fibre, datacenter, texture),
+alors que le DSL sait déjà **copier** ces images (`ReferencedAssets`).
+
+== Décisions
+
+. **Périmètre US-6 = image de fond uniquement.** Les fonds vidéo (`<video>`
+  autoplay) restent hors scope : le runtime HyperFrames possède le cycle de vie
+  des médias temporels, les exposer dans une scène serait une seconde voie de
+  lecture non couverte par la CLI. Candidat US ultérieur si le besoin est réel.
+. **DSL par bloc de liste** `[.hyperframes-background]` (patron
+  `[.hyperframes-audio]`) — un bloc par scène, retiré du contenu de la scène.
+. **Clés tolérantes** : `file` (obligatoire), `opacity` (0..1, défaut `0.55`),
+  `scrim` (défaut `true`), `grid` (défaut `false`), `grain` (défaut `false`).
+  Une clé inconnue est ignorée ; un fichier absent/vide annule le fond (jamais
+  d'échec de build).
+. **Domaine pur `hyperframes.media`** : `BackgroundImage` (invariants),
+  `BackgroundImageParser` (liste → modèle), `BackgroundImageHtml` (modèle →
+  fragment HTML). Zéro I/O, zéro Gradle — testable en unit pur.
+. **Rendu** : le fragment remplace le `.scene-bg` de la scène ; il est un enfant
+  direct de la scène (z-index `0`), le `.scene-inner` garde `z-index: 2`.
+  Le média porte `alt=""` et `aria-hidden="true"`.
+. **Copie d'asset** : aucune modification de `ReferencedAssets` — le `<img>`
+  synthétisé est déjà couvert par le scan `<img src>` existant (US-3).
+. **Backward compatible** : sans bloc, la composition est byte-identique au
+  rendu antérieur (`.scene-bg` conservé).
+
+== DSL
+
+[source,asciidoc]
+----
+[.hyperframes-composition#hook]
+== Hook
+
+[.hyperframes-background]
+----
+file: assets/img/fiber.jpg
+opacity: 0.55
+scrim: true
+grid: true
+grain: false
+----
+
+Le document devient signal.
+----
+
+== Tests (baby-step DDD/TDD/BDD)
+
+[cols="1,3,2", options="header"]
+|===
+| Niveau | Preuve | Fichier
+
+| Unit domaine
+| Parse/validate/render purs (clés, défauts, tolérance, échappement)
+| `hyperframes/media/BackgroundImageTest.kt`
+
+| Unit processeur
+| Bloc → couche `hf-bg`, options, absence de bloc = `.scene-bg`, bloc retiré
+| `HyperframesHtmlProcessorBackgroundTest.kt`
+
+| Functional TestKit
+| `generateHyperframesHtml` copie l'asset et produit la couche dans la scène
+| `HyperframesBackgroundFunctionalTest.kt`
+
+| Cucumber BDD
+| 4 scénarios `@quality-background` (défauts, options, absence, invalide)
+| `hf_demo_quality_background.feature` + `HfDemoQualityBackgroundSteps`
+|===
+
+== Hors scope
+
+* Fond vidéo, parallaxe, `poster`.
+* Publication Maven Central / MEMPHIS (Règle 2 — accord pilote requis).
+* Déploiement YouTube (gelé, décision pilote S-037).

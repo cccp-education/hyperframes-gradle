@@ -1,0 +1,48 @@
+= PROMPT_REPRISE — HyperFrames Gradle (Session 044 TERMINÉE → 045)
+:session: 045
+:borough: Watts
+:session_precedente: 044 — HF-DEMO-QUALITY US-6 fond média par scène ✅
+_note_ : fichier canonique = `.agents/PROMPT_REPRISE.adoc`.
+
+== Session 044 (TERMINÉE) — HF-DEMO-QUALITY US-6
+
+Le DSL exprime désormais le **fond média par scène** (image plein cadre + scrim
++ grille + grain), dernier écart avec la démo de référence :
+
+* domaine pur `hyperframes.media` : `BackgroundImage`, `BackgroundImageParser`,
+  `BackgroundImageHtml` ;
+* DSL `[.hyperframes-background]` (`file`, `opacity`, `scrim`, `grid`, `grain`),
+  bloqué consommé par la scène, couche `hf-bg` ;
+* CSS émis **seulement** si un fond est déclaré (backward compatible : `.scene-bg`
+  et zéro token `hf-bg` sans bloc) ;
+* 15 unit + 2 functional TestKit + 4 scénarios BDD `@quality-background` ;
+* dogfooding `/tmp` : `lint` **0/0**, `check` **passed** (Layout 0/9,
+  Contrast 8/8 AA), asset copié.
+
+Rapport `.agents/sessions/044-hf-demo-quality-us6-background.adoc`.
+Cadrage `.agents/CADRAGE_EPIC_HF_DEMO_QUALITY_US6.adoc`.
+
+== État
+
+* `hyperframes-plugin 0.0.12` (Central) ; code HEAD = 0.0.12 + US-6 non publiée.
+* `video-kernel 0.6.0` ; catalogue/BOM workspace `0.0.113`.
+* **YouTube gelé** (S-037) — US-4b dogfooding réel suspendu.
+* `HF-DEMO-QUALITY` **TERMINÉ 6/6**.
+
+== Mission Session 045 — au choix pilote
+
+. Release `hyperframes-plugin 0.0.13` (contenu US-6) — **accord pilote requis**
+   (Règle 2), DAG MEMPHIS → hyperframes.
+. CI du commit S-044 (preuve unit/functional/BDD) + dogfooding enrichi
+   (rendu MP4 réel avec fond média, `check` complet).
+. Candidats qualité ultérieurs : fond vidéo / parallaxe / `poster` (hors scope
+   US-6, à cadrer).
+. YouTube : ne pas rouvrir sans décision explicite.
+
+== Points d'attention
+
+* **Local = Build, Tests = CI** : jamais `test`/`check` local.
+* **Règle 2 — PUBLISH** : publication uniquement sur accord pilote.
+* **Règle 2 — GIT** : commits/push autorisés (décision 2026-09-17).
+* Frontière : hyperframes reste N2 ; aucun vocabulaire métier privé.
+* Zéro secret ; zéro Python ; English only code/tests/features.

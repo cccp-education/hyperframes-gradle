@@ -5,6 +5,9 @@ import hyperframes.chrome.ChromeRenderer
 import hyperframes.chrome.TypographyConfig
 import hyperframes.entrance.EntranceConfig
 import hyperframes.entrance.SceneEntrancePlanner
+import hyperframes.media.BackgroundImage
+import hyperframes.media.BackgroundImageHtml
+import hyperframes.media.BackgroundImageParser
 import hyperframes.pronunciation.PronunciationDictionary
 import hyperframes.pronunciation.PronunciationHint
 import hyperframes.template.Caption
@@ -143,7 +146,8 @@ class HyperframesHtmlProcessor internal constructor(
         val scripts: List<String>,
         val trackIndex: Int,
         val transition: Transition? = null,
-        val allowOverlap: Boolean = false
+        val allowOverlap: Boolean = false,
+        val background: BackgroundImage? = null
     )
 
     /** A scene before its start time is assigned (overlap depends on the next scene). */
@@ -152,7 +156,8 @@ class HyperframesHtmlProcessor internal constructor(
         val duration: Double,
         val inner: String,
         val scripts: List<String>,
-        val transition: Transition?
+        val transition: Transition?,
+        val background: BackgroundImage? = null
     )
 
     /**
@@ -237,8 +242,13 @@ class HyperframesHtmlProcessor internal constructor(
             val id = sceneIdOf(section) ?: "scene-$auto"
             val duration = sceneDurationOf(section) ?: sceneDurationSeconds
             val scripts = extractScriptBodies(section)
-            val inner = sanitizeSceneInner(stripSceneWrapper(stripScripts(section))).trim()
-            rawScenes.add(RawScene(id, duration, inner, scripts, transitionOf(section)))
+            val body = stripSceneWrapper(stripScripts(section))
+            // HF-DEMO-QUALITY US-6 — the background block is consumed by the
+            // scene: it never reaches the visible content and only the owning
+            // scene carries the media layer.
+            val background = BackgroundImageParser.parse(backgroundListingOf(body))
+            val inner = sanitizeSceneInner(removeBackgroundBlock(body)).trim()
+            rawScenes.add(RawScene(id, duration, inner, scripts, transitionOf(section), background))
         }
 
         // HF-DEMO-QUALITY US-2b — an overlap transition pulls the next scene
@@ -253,14 +263,15 @@ class HyperframesHtmlProcessor internal constructor(
                         (index > 0 && rawScenes[index - 1].transition?.isOverlap == true)
                 val scene =
                     Scene(
-                        raw.id,
-                        cursor,
-                        raw.duration,
-                        raw.inner,
-                        raw.scripts,
-                        index,
-                        raw.transition,
-                        allowOverlap,
+                        id = raw.id,
+                        start = cursor,
+                        duration = raw.duration,
+                        inner = raw.inner,
+                        scripts = raw.scripts,
+                        trackIndex = index,
+                        transition = raw.transition,
+                        allowOverlap = allowOverlap,
+                        background = raw.background,
                     )
                 val overlap = if (hasNext) raw.transition?.overlapSeconds ?: 0.0 else 0.0
                 cursor += raw.duration - overlap
@@ -299,6 +310,7 @@ class HyperframesHtmlProcessor internal constructor(
         }
         val transitionsHtml = coverBoundaries.joinToString("\n") { renderTransitionOverlay(it) }
         val audioHtml = renderAudio(audioCues, total)
+        val hasBackground = scenes.any { it.background != null }
         val progressHtml = ChromeRenderer.progressBar(chrome)
         val progressTween = ChromeRenderer.rootProgressTween(chrome, total)
         // HF-CR4-suite — every scene is a **sub-composition host**: it carries
@@ -332,6 +344,9 @@ class HyperframesHtmlProcessor internal constructor(
             }
             if (chrome.enabled) {
                 appendLine(CHROME_CSS)
+            }
+            if (hasBackground) {
+                appendLine(BACKGROUND_CSS)
             }
             appendLine("</style>")
             appendLine("</head>")
@@ -379,7 +394,7 @@ class HyperframesHtmlProcessor internal constructor(
                 "data-start=\"${number(scene.start)}\" data-duration=\"${number(scene.duration)}\" " +
                 "data-track-index=\"${scene.trackIndex}\">"
         )
-        appendLine("  <div class=\"scene-bg\"></div>")
+        appendLine(renderSceneBackground(scene.background))
         // US-2b — an overlap transition intentionally puts two scenes on screen;
         // mark the inner container (a marker on the scene root is ignored by the
         // HyperFrames layout check) so a designed crossfade/push is not reported
@@ -395,6 +410,17 @@ class HyperframesHtmlProcessor internal constructor(
         }
         appendLine("</div>")
     }
+
+    /**
+     * The scene-background layer: the historical static gradient when no media
+     * is declared, the full-bleed [BackgroundImage] layer otherwise (US-6).
+     */
+    private fun renderSceneBackground(background: BackgroundImage?): String =
+        if (background == null) {
+            "  <div class=\"scene-bg\"></div>"
+        } else {
+            BackgroundImageHtml.render(background).prependIndent("  ")
+        }
 
     /**
      * Per-scene timeline: reuses the `window.__timelines[id]` created by the
@@ -678,6 +704,32 @@ class HyperframesHtmlProcessor internal constructor(
                 "data-track-index=\"${AUDIO_TRACK_INDEX + index}\" " +
                 "data-volume=\"${number(cue.volume)}\"></audio>"
         }.joinToString("\n")
+
+    // ──────────────────────────────────────────────────────────────────────
+    // Background image (HF-DEMO-QUALITY US-6)
+    // ──────────────────────────────────────────────────────────────────────
+
+    /**
+     * DSL (inside a composition section):
+     *
+     * ```
+     * [.hyperframes-background]
+     * ----
+     * file: assets/img/fiber.jpg
+     * opacity: 0.55
+     * scrim: true
+     * grid: true
+     * ----
+     * ```
+     *
+     * The listing is parsed by [BackgroundImageParser]; the block itself is
+     * removed from the scene so it never renders as visible content.
+     */
+    private fun backgroundListingOf(body: String): String =
+        BACKGROUND_BLOCK.find(body)?.groupValues?.get(1) ?: ""
+
+    private fun removeBackgroundBlock(body: String): String =
+        BACKGROUND_BLOCK.replace(body, "")
 
     // ──────────────────────────────────────────────────────────────────────
     // HTML structural helpers
@@ -1021,6 +1073,10 @@ class HyperframesHtmlProcessor internal constructor(
         val ROLE_FADE = Regex("""(?:^|\s)hf-transition-fade(?:\s|$)""")
         val ROLE_BLUR = Regex("""(?:^|\s)hf-transition-blur-crossfade(?:\s|$)""")
         val ROLE_PUSH = Regex("""(?:^|\s)hf-transition-vertical-push(?:\s|$)""")
+        val BACKGROUND_BLOCK = Regex(
+            """<div[^>]*class="[^"]*hyperframes-background[^"]*"[^>]*>\s*<div class="content">\s*<pre[^>]*>(.*?)</pre>\s*</div>\s*</div>""",
+            RegexOption.DOT_MATCHES_ALL
+        )
         val GRID_PALETTE = listOf("#f59e0b", "#38bdf8", "#f8fafc", "#1e293b", "#b45309")
 
         val DESIGN_CSS = """
@@ -1075,6 +1131,23 @@ html,body{width:__W__px;height:__H__px;overflow:hidden;background:var(--bg);
 .hf-shutter-top{top:0}
 .hf-shutter-bottom{top:50%}
 .hf-transition-fade{background:var(--bg);opacity:0}
+"""
+
+        /**
+         * HF-DEMO-QUALITY US-6 — background-media styles are emitted **only when
+         * at least one scene declares a background**, so an unconfigured
+         * composition stays byte-compatible with the historical render (no
+         * `hf-bg` token at all).
+         */
+        val BACKGROUND_CSS = """
+.hf-bg{position:absolute;inset:0;z-index:0;overflow:hidden;pointer-events:none}
+.hf-bg-media{display:block;width:100%;height:100%;object-fit:cover}
+.hf-bg-scrim{position:absolute;inset:0;background:linear-gradient(90deg,rgba(15,23,42,.96) 0%,rgba(15,23,42,.78) 48%,rgba(15,23,42,.35) 100%)}
+.hf-bg-grid{position:absolute;inset:0;
+  background-image:linear-gradient(to right,rgba(248,250,252,.055) 1px,transparent 1px),linear-gradient(to bottom,rgba(248,250,252,.055) 1px,transparent 1px);
+  background-size:120px 120px}
+.hf-bg-grain{position:absolute;inset:0;opacity:.06;
+  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/></filter><rect width='160' height='160' filter='url(%23n)'/></svg>")}
 """
 
         /**

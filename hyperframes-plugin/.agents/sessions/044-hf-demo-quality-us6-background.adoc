@@ -1,0 +1,113 @@
+= Session 044 — HF-DEMO-QUALITY US-6 : fond média par scène
+:session: 044
+:date: 2026-10-31
+:borough: Watts
+:epic: HF-DEMO-QUALITY
+:statut: ✅ TERMINÉE
+
+== Mission
+
+Poursuivre la **qualité vidéo** du borough (priorité actée S-036→S-043), sans
+rouvrir le déploiement YouTube (gelé, décision pilote S-037). Dernier écart
+identifié entre la démo de référence (`demo-video/`) et le DSL : le **fond média
+plein cadre par scène** (image + scrim de lisibilité + grille + grain).
+
+Cadrage : `.agents/CADRAGE_EPIC_HF_DEMO_QUALITY_US6.adoc`.
+
+== Décisions
+
+. Périmètre **image uniquement** : les fonds `<video>` restent hors scope (le
+  runtime possède le cycle de vie des médias temporels).
+. DSL par bloc de liste `[.hyperframes-background]` (patron
+  `[.hyperframes-audio]`), consommé par la scène (jamais rendu en contenu).
+. Clés tolérantes : `file` (obligatoire), `opacity` (0..1, défaut `0.55`),
+  `scrim` (`true`), `grid` (`false`), `grain` (`false`). Bloc invalide = fond
+  ignoré, jamais d'échec de build.
+. Domaine pur `hyperframes.media` : `BackgroundImage` (invariants),
+  `BackgroundImageParser` (liste → modèle), `BackgroundImageHtml` (modèle →
+  fragment) — zéro I/O, zéro Gradle.
+. **Backward compatible** : le CSS de fond est émis **uniquement** si au moins
+  une scène déclare un fond ; sans bloc, la composition reste byte-compatible
+  (`.scene-bg` historique, aucun token `hf-bg`).
+. **Aucune** modification de `ReferencedAssets` : le `<img>` synthétisé est déjà
+  couvert par le scan `<img src>` (US-3) — l'asset est copié à côté de la
+  composition.
+
+== Fait
+
+=== Domaine `hyperframes.media`
+
+* `BackgroundImage` — modèle immuable, invariants (`file` non blanc,
+  `opacity ∈ [0,1]`), défauts documentés.
+* `BackgroundImageParser` — `key: value` par ligne, commentaires `#`, clés
+  inconnues ignorées, opacité invalide/hors bornes → défaut, fichier absent →
+  `null`.
+* `BackgroundImageHtml` — fragment `hf-bg` (image `alt=""`,
+  `aria-hidden="true"`, `style="opacity:…"`) + overlays `hf-bg-scrim` /
+  `hf-bg-grid` / `hf-bg-grain`, échappement attribut.
+
+=== Processeur
+
+* Extraction du bloc par scène (retiré du contenu), parsing, portage du modèle
+  dans `RawScene`/`Scene`.
+* `renderSceneBackground` : `.scene-bg` historique, ou couche média si déclarée.
+* `BACKGROUND_CSS` conditionnel (opt-in strict).
+
+=== Tests (baby-step DDD/TDD/BDD)
+
+[cols="1,2,2", options="header"]
+|===
+| Niveau | Preuve | Fichier
+
+| Unit | 9 tests domaine (parse/défauts/options/tolérance/invariants/rendu/échappement) | `hyperframes/media/BackgroundImageTest.kt`
+| Unit | 6 tests processeur (couche, bloc consommé, options, scène sans fond, scène propriétaire unique, bloc invalide) | `HyperframesHtmlProcessorBackgroundTest.kt`
+| Functional | TestKit : HTML généré + copie byte-identique de l'asset + backward compat | `HyperframesBackgroundFunctionalTest.kt`
+| BDD | 4 scénarios `@quality-background` (défauts, options, absence, invalide) | `hf_demo_quality_background.feature` + `HfDemoQualityBackgroundSteps.kt`
+|===
+
+**RED prouvé** (`compileTestKotlin`, 22 `Unresolved reference` sur
+`BackgroundImage`/`BackgroundImageParser`/`BackgroundImageHtml`) → **GREEN**
+compilation des trois source sets.
+
+== Preuve réelle (dogfooding build, Local = Build)
+
+Consommateur `/tmp/opencode/hf-bg-dogfood` en `includeBuild`, sans publication.
+
+* `generateHyperframesHtml` : couche `hf-bg` sur la scène propriétaire,
+  `.scene-bg` sur les autres, **1 asset copié** (`assets/img/fiber.jpg`),
+  bloc `hyperframes-background` **absent** du HTML.
+* Sans bloc : **0 token `hf-bg`** (CSS conditionnel), `.scene-bg` historique.
+* `npx hyperframes@0.8.205 lint build/hyperframes` → **0 error / 0 warning**.
+* `npx hyperframes@0.8.205 check build/hyperframes` → **Check passed** :
+  Lint 0/0, Runtime 0/0, Layout **0 issue / 9 samples**, Motion 0/0,
+  Contrast **8/8 WCAG AA**. 3 warnings *Craft* attendus (document de
+  dogfooding minimal : first frame / dead stretches), sans rapport avec la
+  couche de fond.
+
+== Gates
+
+* **Local = Build** : `compileKotlin` / `compileTestKotlin` /
+  `compileFunctionalTestKotlin` / `assemble` / `validatePlugins` VERTS.
+* Tests (`test`, `functionalTest`, `cucumberTest`) délégués **CI**.
+* Cross-borough (aucune modification) : `capsule-plugin` et
+  `video-kernel-plugin` compilent VERTS.
+* Zéro secret ; zéro Python ; English only code/tests/features.
+
+== Fichiers
+
+* Créés : `src/main/kotlin/hyperframes/media/{BackgroundImage,BackgroundImageParser,BackgroundImageHtml}.kt`,
+  `src/test/kotlin/hyperframes/media/BackgroundImageTest.kt`,
+  `src/test/kotlin/hyperframes/HyperframesHtmlProcessorBackgroundTest.kt`,
+  `src/test/kotlin/hyperframes/scenarios/HfDemoQualityBackgroundSteps.kt`,
+  `src/test/resources/features/hf_demo_quality_background.feature`,
+  `src/functionalTest/kotlin/hyperframes/HyperframesBackgroundFunctionalTest.kt`,
+  `.agents/CADRAGE_EPIC_HF_DEMO_QUALITY_US6.adoc`.
+* Modifiés : `HyperframesHtmlProcessor.kt`, `demo-video/README.adoc` (écart
+  DSL resynchronisé).
+
+== Suivi
+
+* **Release `hyperframes-plugin 0.0.13`** : à planifier sur accord pilote
+  (Règle 2) — contenu depuis 0.0.12 : fond média US-6.
+* YouTube reste **gelé** (US-4b dogfooding réel suspendu).
+* Candidats ultérieurs : fond vidéo / parallaxe / poster (hors scope actuel).

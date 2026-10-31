@@ -70,12 +70,23 @@ Le processeur du plugin (`HyperframesHtmlProcessor`) sait aujourd'hui produire :
   `outputDir` (chemins préservés) et le bloc `[.hyperframes-audio]` émet des
   `<audio>` enfants directs de `#stage` (BGM + SFX, US-3).
 
+Le DSL a depuis rattrapé la référence (`HF-DEMO-QUALITY`) :
+
+* **transitions à chevauchement** : `hf-transition-blur-crossfade` et
+  `hf-transition-vertical-push` (US-2b) ;
+* **chrome de plateau + typographie display** : timecode, repères, barre de
+  progression, familles de polices (US-4) ;
+* **entrées chorégraphiées** par scène (`gsap.set` + tweens déterministes, US-5) ;
+* **fond média par scène** : bloc `[.hyperframes-background]` (image plein
+  cadre + scrim/grille/grain, US-6), avec copie de l'asset par
+  `ReferencedAssets`.
+
 Il **ne sait pas encore** exprimer :
 
-* les transitions **blur-crossfade** et **vertical-push** (chevauchement de
-  clips, US-2b) ;
-* la **typographie display** et le chrome de plateau (timecode, repères) (US-4) ;
-* les entrées chorégraphiées par scène (`gsap.set` + tweens) (US-5).
+* les fonds **vidéo** (`<video>` autoplay) et la parallaxe — hors scope US-6
+  (le runtime possède le cycle de vie des médias temporels) ;
+* un `poster` explicite pour un fond vidéo.
 
-Cette démo sert de **référence** : chaque capacité ci-dessus est un candidat
-d'US pour le DSL (`HF-DEMO-QUALITY`), avec tests unit/BDD côté plugin.
+Cette démo sert de **référence** : toute capacité restante est un candidat
+d'US pour le DSL (`HF-DEMO-QUALITY`), avec tests unit/functional/BDD côté
+plugin.
