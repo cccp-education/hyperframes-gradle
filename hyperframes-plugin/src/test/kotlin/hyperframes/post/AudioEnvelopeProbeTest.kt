@@ -61,7 +61,7 @@ class AudioEnvelopeProbeTest {
         val frames = injecting.probe(audio)
 
         assertTrue(frames != null && frames.size == 1, "expected one 20 ms frame, got $frames")
-        assertTrue(AudioSilenceDetector.analyze(frames!!).isSilent)
+        assertTrue(AudioSilenceDetector.analyze(frames).isSilent)
         // The non-injecting probe degrades (no PCM written by the fake).
         assertNull(probe.probe(audio))
     }

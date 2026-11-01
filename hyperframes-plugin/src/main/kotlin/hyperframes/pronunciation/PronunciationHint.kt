@@ -15,11 +15,26 @@ package hyperframes.pronunciation
  * @property language optional language tag to disambiguate the same word
  *           across languages (e.g. "dos" = "do" in French, "doss" in Spanish)
  */
-data class PronunciationHint private constructor(
+class PronunciationHint private constructor(
     val word: String,
     val phonetic: String,
     val language: String?,
 ) {
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is PronunciationHint) return false
+        return word == other.word && phonetic == other.phonetic && language == other.language
+    }
+
+    override fun hashCode(): Int {
+        var result = word.hashCode()
+        result = 31 * result + phonetic.hashCode()
+        result = 31 * result + (language?.hashCode() ?: 0)
+        return result
+    }
+
+    override fun toString(): String = "PronunciationHint(word=$word, phonetic=$phonetic, language=$language)"
+
     /**
      * Renders the hint as a compact JSON object.
      *
