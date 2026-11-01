@@ -1,14 +1,13 @@
 package hyperframes
 
-import java.io.File
-import java.nio.file.Path
-import kotlin.test.assertContains
-import kotlin.test.assertFalse
-import kotlin.test.assertTrue
 import org.gradle.testkit.runner.GradleRunner
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
+import java.io.File
+import java.nio.file.Path
+import kotlin.test.assertContains
+import kotlin.test.assertTrue
 
 /**
  * Functional acceptance for `publishHyperframesToYouTube` (HF-YOUTUBE-PUBLISH
@@ -18,7 +17,6 @@ import org.junit.jupiter.api.io.TempDir
  * transport).
  */
 class HyperframesPublishFunctionalTest {
-
     @TempDir
     lateinit var tempDir: Path
     private lateinit var projectDir: File
@@ -68,16 +66,17 @@ class HyperframesPublishFunctionalTest {
         val SKIPPED_TRUE = Regex(""""skipped"\s*:\s*true""")
     }
 
-    private fun renderedVideo(): File =
-        projectDir.resolve("build/hyperframes/test-video.mp4").apply { parentFile.mkdirs() }
+    private fun renderedVideo(): File = projectDir.resolve("build/hyperframes/test-video.mp4").apply { parentFile.mkdirs() }
 
     private fun report(): File = projectDir.resolve("build/hyperframes/publish/publication.json")
 
-    private fun runner(vararg args: String) = GradleRunner.create()
-        .withProjectDir(projectDir)
-        .withPluginClasspath()
-        .withArguments(*args)
-        .build()
+    private fun runner(vararg args: String) =
+        GradleRunner
+            .create()
+            .withProjectDir(projectDir)
+            .withPluginClasspath()
+            .withArguments(*args)
+            .build()
 
     private fun writeBuildFiles(
         projectDir: File,

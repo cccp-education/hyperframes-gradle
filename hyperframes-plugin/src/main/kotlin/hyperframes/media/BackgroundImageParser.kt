@@ -22,7 +22,6 @@ package hyperframes.media
  * Pure — no I/O, no Gradle.
  */
 object BackgroundImageParser {
-
     /** Parses [listing], or `null` when it does not declare a usable file. */
     fun parse(listing: String): BackgroundImage? {
         val values = LinkedHashMap<String, String>()
@@ -39,21 +38,26 @@ object BackgroundImageParser {
         val file = values["file"]?.takeIf { it.isNotBlank() } ?: return null
         return BackgroundImage(
             file = file,
-            opacity = values["opacity"]?.toDoubleOrNull()
-                ?.takeIf { it in BackgroundImage.MIN_OPACITY..BackgroundImage.MAX_OPACITY }
-                ?: BackgroundImage.DEFAULT_OPACITY,
+            opacity =
+                values["opacity"]
+                    ?.toDoubleOrNull()
+                    ?.takeIf { it in BackgroundImage.MIN_OPACITY..BackgroundImage.MAX_OPACITY }
+                    ?: BackgroundImage.DEFAULT_OPACITY,
             scrim = values["scrim"]?.let(::boolean) ?: true,
             grid = values["grid"]?.let(::boolean) ?: false,
             grain = values["grain"]?.let(::boolean) ?: false,
-            parallax = values["parallax"]?.toDoubleOrNull()
-                ?.takeIf { it in BackgroundImage.MIN_PARALLAX..BackgroundImage.MAX_PARALLAX }
-                ?: BackgroundImage.DEFAULT_PARALLAX,
+            parallax =
+                values["parallax"]
+                    ?.toDoubleOrNull()
+                    ?.takeIf { it in BackgroundImage.MIN_PARALLAX..BackgroundImage.MAX_PARALLAX }
+                    ?: BackgroundImage.DEFAULT_PARALLAX,
         )
     }
 
-    private fun boolean(value: String): Boolean? = when (value.trim().lowercase()) {
-        "true", "yes", "1" -> true
-        "false", "no", "0" -> false
-        else -> null
-    }
+    private fun boolean(value: String): Boolean? =
+        when (value.trim().lowercase()) {
+            "true", "yes", "1" -> true
+            "false", "no", "0" -> false
+            else -> null
+        }
 }

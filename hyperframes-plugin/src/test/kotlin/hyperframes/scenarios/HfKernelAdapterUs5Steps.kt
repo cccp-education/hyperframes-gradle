@@ -14,8 +14,9 @@ import org.assertj.core.api.Assertions.assertThat
  *
  * All steps are English (BDD Gherkin convention).
  */
-class HfKernelAdapterUs5Steps(private val world: HyperframesWorld) {
-
+class HfKernelAdapterUs5Steps(
+    private val world: HyperframesWorld,
+) {
     @Given("the source directory contains a plain AsciiDoc document")
     fun plainDocument() {
         world.createProject()

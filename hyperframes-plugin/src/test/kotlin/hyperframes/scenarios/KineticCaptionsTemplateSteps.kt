@@ -14,22 +14,28 @@ import kotlin.test.assertTrue
  *
  * All steps are English (BDD Gherkin convention — no `# language: fr`).
  */
-class KineticCaptionsTemplateSteps(private val world: HyperframesWorld) {
-
+class KineticCaptionsTemplateSteps(
+    private val world: HyperframesWorld,
+) {
     @Given("the source directory contains an AsciiDoc document using the kinetic-captions template")
     fun sourceContainsKineticCaptions() {
         world.writeKineticCaptionsAdoc(
             id = "intro-captions",
             title = "Intro captions",
-            captions = listOf(
-                Triple(0.0, 2.0, "Hello world"),
-                Triple(2.5, 4.5, "This is a kinetic caption")
-            )
+            captions =
+                listOf(
+                    Triple(0.0, 2.0, "Hello world"),
+                    Triple(2.5, 4.5, "This is a kinetic caption"),
+                ),
         )
     }
 
     @Then("the generated HTML contains a hf-kinetic-caption at {string} until {string} and text {string}")
-    fun htmlContainsCaptionWithAtUntilText(at: String, until: String, text: String) {
+    fun htmlContainsCaptionWithAtUntilText(
+        at: String,
+        until: String,
+        text: String,
+    ) {
         val html = world.generatedHtml()
         assertThat(html).contains("class=\"hf-kinetic-caption\"")
         assertThat(html).contains("data-at=\"$at\"")

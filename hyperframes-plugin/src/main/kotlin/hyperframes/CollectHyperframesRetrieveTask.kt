@@ -17,7 +17,6 @@ import java.time.Instant
 
 @DisableCachingByDefault(because = "Filesystem-bound: reads rendered MP4 + HTML and exports N3 contract")
 abstract class CollectHyperframesRetrieveTask : DefaultTask() {
-
     @get:OutputFile
     abstract val outputFile: RegularFileProperty
 
@@ -78,32 +77,34 @@ abstract class CollectHyperframesRetrieveTask : DefaultTask() {
         val startedAt = System.currentTimeMillis()
         val durationSeconds = FfprobeDurationProbe(ffprobeExecutable.orNull ?: "ffprobe").probeSeconds(mp4)
         val extractor = HyperframesContextExtractor(pluginVersion.get(), pronunciationDomain.orNull)
-        val context = extractor.extract(
-            html = htmlContent,
-            mp4 = mp4,
-            asciidocName = source,
-            renderedAt = Instant.now().toString(),
-            renderDurationMs = System.currentTimeMillis() - startedAt,
-            durationSeconds = durationSeconds
-        )
+        val context =
+            extractor.extract(
+                html = htmlContent,
+                mp4 = mp4,
+                asciidocName = source,
+                renderedAt = Instant.now().toString(),
+                renderDurationMs = System.currentTimeMillis() - startedAt,
+                durationSeconds = durationSeconds,
+            )
 
         mapper.writerWithDefaultPrettyPrinter().writeValue(output, context)
 
         Metadata.writeTo(
             outDir,
-            Metadata.forWatts(type = "retrieve", sessions = 1, dependencies = listOf("brooklyn"))
+            Metadata.forWatts(type = "retrieve", sessions = 1, dependencies = listOf("brooklyn")),
         )
 
         logger.lifecycle(
             "[hyperframes] collectHyperframesRetrieve — {}x{}, {} compositions, {} tracks → {}",
-            context.output.width, context.output.height,
-            context.source.compositions.size, context.source.tracks,
-            output.absolutePath
+            context.output.width,
+            context.output.height,
+            context.source.compositions.size,
+            context.source.tracks,
+            output.absolutePath,
         )
     }
 
-    private fun inferAsciidocName(outDir: File): String {
-        return outDir.listFiles()?.firstOrNull { it.extension.equals("adoc", ignoreCase = true) }?.name
+    private fun inferAsciidocName(outDir: File): String =
+        outDir.listFiles()?.firstOrNull { it.extension.equals("adoc", ignoreCase = true) }?.name
             ?: "unknown.adoc"
-    }
 }

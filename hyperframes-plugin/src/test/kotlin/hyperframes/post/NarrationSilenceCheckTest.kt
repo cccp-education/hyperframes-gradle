@@ -11,7 +11,6 @@ import kotlin.test.assertTrue
  * the shared N1 silence detector, fed by a fake envelope probe.
  */
 class NarrationSilenceCheckTest {
-
     private fun file(name: String) = File(name)
 
     @Test
@@ -41,11 +40,12 @@ class NarrationSilenceCheckTest {
     @Test
     fun `the result keeps the input order`() {
         val files = listOf(file("narration-1.wav"), file("narration-2.wav"), file("narration-3.wav"))
-        val silent = mapOf(
-            "narration-1.wav" to DoubleArray(1) { 0.0 },
-            "narration-2.wav" to DoubleArray(1) { 0.1 },
-            "narration-3.wav" to DoubleArray(1) { 0.0 },
-        )
+        val silent =
+            mapOf(
+                "narration-1.wav" to DoubleArray(1) { 0.0 },
+                "narration-2.wav" to DoubleArray(1) { 0.1 },
+                "narration-3.wav" to DoubleArray(1) { 0.0 },
+            )
 
         val result = NarrationSilenceCheck.silentFiles(files) { silent[it.name] }
 

@@ -19,19 +19,23 @@ import java.io.File
  *   skipped — the build never fails because of an asset.
  */
 object ReferencedAssets {
-
     private val SRC = Regex("""<(?:img|audio)\b[^>]*\bsrc="([^"]+)"""", RegexOption.IGNORE_CASE)
 
     /** Distinct relative asset paths referenced by the composition. */
     fun extract(html: String): List<String> =
-        SRC.findAll(html)
+        SRC
+            .findAll(html)
             .map { it.groupValues[1].trim() }
             .filter { it.isNotEmpty() && isRelative(it) }
             .distinct()
             .toList()
 
     /** Copies every referenced asset, preserving its relative path. */
-    fun copy(html: String, inputDir: File, outputDir: File): List<File> {
+    fun copy(
+        html: String,
+        inputDir: File,
+        outputDir: File,
+    ): List<File> {
         val inputRoot = inputDir.canonicalFile
         val outputRoot = outputDir.canonicalFile
         return extract(html).mapNotNull { relative ->

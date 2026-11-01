@@ -16,14 +16,14 @@ import kotlin.test.assertTrue
  * The GSAP timeline uses a stagger so bars rise one after another.
  */
 class DataChartTemplateTest {
-
     @Test
     fun `render produces a hyperframes-composition div with data-composition-id`() {
-        val template = DataChartTemplate(
-            id = "sales-chart",
-            title = "Quarterly sales",
-            dataPoints = listOf(DataPoint("Q1", 30.0), DataPoint("Q2", 50.0))
-        )
+        val template =
+            DataChartTemplate(
+                id = "sales-chart",
+                title = "Quarterly sales",
+                dataPoints = listOf(DataPoint("Q1", 30.0), DataPoint("Q2", 50.0)),
+            )
 
         val html = template.render()
 
@@ -33,12 +33,13 @@ class DataChartTemplateTest {
 
     @Test
     fun `render includes a hyperframes-track with start zero and configured duration`() {
-        val template = DataChartTemplate(
-            id = "demo",
-            title = "Demo",
-            dataPoints = listOf(DataPoint("A", 10.0)),
-            durationSeconds = 6.0
-        )
+        val template =
+            DataChartTemplate(
+                id = "demo",
+                title = "Demo",
+                dataPoints = listOf(DataPoint("A", 10.0)),
+                durationSeconds = 6.0,
+            )
 
         val html = template.render()
 
@@ -49,22 +50,24 @@ class DataChartTemplateTest {
 
     @Test
     fun `default duration is four seconds`() {
-        val template = DataChartTemplate(
-            id = "demo",
-            title = "Demo",
-            dataPoints = listOf(DataPoint("A", 10.0))
-        )
+        val template =
+            DataChartTemplate(
+                id = "demo",
+                title = "Demo",
+                dataPoints = listOf(DataPoint("A", 10.0)),
+            )
 
         assertEquals(4.0, template.durationSeconds)
     }
 
     @Test
     fun `render contains a chart container div`() {
-        val template = DataChartTemplate(
-            id = "demo",
-            title = "Demo",
-            dataPoints = listOf(DataPoint("A", 10.0))
-        )
+        val template =
+            DataChartTemplate(
+                id = "demo",
+                title = "Demo",
+                dataPoints = listOf(DataPoint("A", 10.0)),
+            )
 
         val html = template.render()
 
@@ -73,11 +76,12 @@ class DataChartTemplateTest {
 
     @Test
     fun `render contains one bar div per data point with label and value`() {
-        val template = DataChartTemplate(
-            id = "demo",
-            title = "Demo",
-            dataPoints = listOf(DataPoint("Q1", 30.0), DataPoint("Q2", 50.0), DataPoint("Q3", 75.0))
-        )
+        val template =
+            DataChartTemplate(
+                id = "demo",
+                title = "Demo",
+                dataPoints = listOf(DataPoint("Q1", 30.0), DataPoint("Q2", 50.0), DataPoint("Q3", 75.0)),
+            )
 
         val html = template.render()
 
@@ -91,11 +95,12 @@ class DataChartTemplateTest {
 
     @Test
     fun `bar height is proportional to its value relative to the max`() {
-        val template = DataChartTemplate(
-            id = "demo",
-            title = "Demo",
-            dataPoints = listOf(DataPoint("Small", 25.0), DataPoint("Max", 100.0))
-        )
+        val template =
+            DataChartTemplate(
+                id = "demo",
+                title = "Demo",
+                dataPoints = listOf(DataPoint("Small", 25.0), DataPoint("Max", 100.0)),
+            )
 
         val html = template.render()
 
@@ -105,11 +110,12 @@ class DataChartTemplateTest {
 
     @Test
     fun `render includes a GSAP timeline that animates bars from scaleY zero`() {
-        val template = DataChartTemplate(
-            id = "demo",
-            title = "Demo",
-            dataPoints = listOf(DataPoint("A", 10.0))
-        )
+        val template =
+            DataChartTemplate(
+                id = "demo",
+                title = "Demo",
+                dataPoints = listOf(DataPoint("A", 10.0)),
+            )
 
         val html = template.render()
 
@@ -121,11 +127,12 @@ class DataChartTemplateTest {
 
     @Test
     fun `bars are staggered so they rise one after another`() {
-        val template = DataChartTemplate(
-            id = "demo",
-            title = "Demo",
-            dataPoints = listOf(DataPoint("A", 10.0), DataPoint("B", 20.0))
-        )
+        val template =
+            DataChartTemplate(
+                id = "demo",
+                title = "Demo",
+                dataPoints = listOf(DataPoint("A", 10.0), DataPoint("B", 20.0)),
+            )
 
         val html = template.render()
 
@@ -134,11 +141,12 @@ class DataChartTemplateTest {
 
     @Test
     fun `render includes the chart title`() {
-        val template = DataChartTemplate(
-            id = "demo",
-            title = "Quarterly sales",
-            dataPoints = listOf(DataPoint("A", 10.0))
-        )
+        val template =
+            DataChartTemplate(
+                id = "demo",
+                title = "Quarterly sales",
+                dataPoints = listOf(DataPoint("A", 10.0)),
+            )
 
         val html = template.render()
 
@@ -148,11 +156,12 @@ class DataChartTemplateTest {
 
     @Test
     fun `render includes each label as visible text under its bar`() {
-        val template = DataChartTemplate(
-            id = "demo",
-            title = "Demo",
-            dataPoints = listOf(DataPoint("Q1", 30.0))
-        )
+        val template =
+            DataChartTemplate(
+                id = "demo",
+                title = "Demo",
+                dataPoints = listOf(DataPoint("Q1", 30.0)),
+            )
 
         val html = template.render()
 
@@ -162,11 +171,12 @@ class DataChartTemplateTest {
 
     @Test
     fun `empty data points renders an empty chart container without bars`() {
-        val template = DataChartTemplate(
-            id = "demo",
-            title = "Demo",
-            dataPoints = emptyList()
-        )
+        val template =
+            DataChartTemplate(
+                id = "demo",
+                title = "Demo",
+                dataPoints = emptyList(),
+            )
 
         val html = template.render()
 

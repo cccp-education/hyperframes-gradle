@@ -12,7 +12,6 @@ import kotlin.test.assertNull
  * the HTML fragment the composition embeds.
  */
 class BackgroundImageTest {
-
     // ──────────────────────────────────────────────
     // BackgroundImageParser
     // ──────────────────────────────────────────────
@@ -30,15 +29,16 @@ class BackgroundImageTest {
 
     @Test
     fun `parses every option`() {
-        val background = BackgroundImageParser.parse(
-            """
-            file: assets/img/datacenter.jpg
-            opacity: 0.35
-            scrim: false
-            grid: true
-            grain: true
-            """.trimIndent()
-        )
+        val background =
+            BackgroundImageParser.parse(
+                """
+                file: assets/img/datacenter.jpg
+                opacity: 0.35
+                scrim: false
+                grid: true
+                grain: true
+                """.trimIndent(),
+            )
 
         assertEquals("assets/img/datacenter.jpg", background?.file)
         assertEquals(0.35, background?.opacity)
@@ -49,15 +49,16 @@ class BackgroundImageTest {
 
     @Test
     fun `ignores blank lines comments and unknown keys`() {
-        val background = BackgroundImageParser.parse(
-            """
+        val background =
+            BackgroundImageParser.parse(
+                """
 
-            # technical background
-            grid: true
-            file: assets/img/hexagon.webp
-            focus: center
-            """.trimIndent()
-        )
+                # technical background
+                grid: true
+                file: assets/img/hexagon.webp
+                focus: center
+                """.trimIndent(),
+            )
 
         assertEquals("assets/img/hexagon.webp", background?.file)
         assertEquals(true, background?.grid)
@@ -128,9 +129,10 @@ class BackgroundImageTest {
 
     @Test
     fun `renders a full-bleed media layer with the scrim by default`() {
-        val html = BackgroundImageHtml.render(
-            BackgroundImage(file = "assets/img/fiber.jpg", opacity = 0.55)
-        )
+        val html =
+            BackgroundImageHtml.render(
+                BackgroundImage(file = "assets/img/fiber.jpg", opacity = 0.55),
+            )
 
         assertContains(html, """<div class="hf-bg" aria-hidden="true">""")
         assertContains(html, """<img class="hf-bg-media" src="assets/img/fiber.jpg" alt="" style="opacity:0.55">""")
@@ -141,9 +143,10 @@ class BackgroundImageTest {
 
     @Test
     fun `renders the optional grid and grain overlays`() {
-        val html = BackgroundImageHtml.render(
-            BackgroundImage(file = "a.jpg", scrim = false, grid = true, grain = true)
-        )
+        val html =
+            BackgroundImageHtml.render(
+                BackgroundImage(file = "a.jpg", scrim = false, grid = true, grain = true),
+            )
 
         assertFalse(html.contains("hf-bg-scrim"))
         assertContains(html, """<div class="hf-bg-grid"></div>""")
@@ -152,9 +155,10 @@ class BackgroundImageTest {
 
     @Test
     fun `escapes the file for the html attribute`() {
-        val html = BackgroundImageHtml.render(
-            BackgroundImage(file = """a&b"c.jpg""")
-        )
+        val html =
+            BackgroundImageHtml.render(
+                BackgroundImage(file = """a&b"c.jpg"""),
+            )
 
         assertContains(html, """src="a&amp;b&quot;c.jpg"""")
         assertFalse(html.contains("""a&b"c.jpg"""))

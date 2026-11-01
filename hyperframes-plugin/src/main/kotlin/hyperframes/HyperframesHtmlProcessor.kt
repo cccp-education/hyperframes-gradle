@@ -61,7 +61,7 @@ class HyperframesHtmlProcessor internal constructor(
     private val sceneDurationSeconds: Double,
     private val chrome: ChromeConfig = ChromeConfig(),
     private val typography: TypographyConfig = TypographyConfig(),
-    private val entrances: EntranceConfig = EntranceConfig()
+    private val entrances: EntranceConfig = EntranceConfig(),
 ) {
     /** Backward-compatible constructor — no domain dictionary, 5s scenes. */
     constructor(width: Int, height: Int, fps: Int, outputName: String) :
@@ -80,7 +80,15 @@ class HyperframesHtmlProcessor internal constructor(
      */
     fun withDomainDictionary(domain: PronunciationDictionary?): HyperframesHtmlProcessor =
         HyperframesHtmlProcessor(
-            width, height, fps, outputName, domain, sceneDurationSeconds, chrome, typography, entrances
+            width,
+            height,
+            fps,
+            outputName,
+            domain,
+            sceneDurationSeconds,
+            chrome,
+            typography,
+            entrances,
         )
 
     /**
@@ -90,7 +98,15 @@ class HyperframesHtmlProcessor internal constructor(
      */
     fun withChrome(chrome: ChromeConfig): HyperframesHtmlProcessor =
         HyperframesHtmlProcessor(
-            width, height, fps, outputName, domainDictionary, sceneDurationSeconds, chrome, typography, entrances
+            width,
+            height,
+            fps,
+            outputName,
+            domainDictionary,
+            sceneDurationSeconds,
+            chrome,
+            typography,
+            entrances,
         )
 
     /**
@@ -99,7 +115,15 @@ class HyperframesHtmlProcessor internal constructor(
      */
     fun withTypography(typography: TypographyConfig): HyperframesHtmlProcessor =
         HyperframesHtmlProcessor(
-            width, height, fps, outputName, domainDictionary, sceneDurationSeconds, chrome, typography, entrances
+            width,
+            height,
+            fps,
+            outputName,
+            domainDictionary,
+            sceneDurationSeconds,
+            chrome,
+            typography,
+            entrances,
         )
 
     /**
@@ -109,7 +133,15 @@ class HyperframesHtmlProcessor internal constructor(
      */
     fun withEntrances(entrances: EntranceConfig): HyperframesHtmlProcessor =
         HyperframesHtmlProcessor(
-            width, height, fps, outputName, domainDictionary, sceneDurationSeconds, chrome, typography, entrances
+            width,
+            height,
+            fps,
+            outputName,
+            domainDictionary,
+            sceneDurationSeconds,
+            chrome,
+            typography,
+            entrances,
         )
 
     /**
@@ -120,15 +152,16 @@ class HyperframesHtmlProcessor internal constructor(
         val inlineDictionary = extractInlineHints(html)
         val blockDictionary = PronunciationDictionary()
         val audioCues = mutableListOf<AudioCue>()
-        val expanded = html
-            .let { expandTitleCardBlocks(it) }
-            .let { expandCodeDiffBlocks(it) }
-            .let { expandDataChartBlocks(it) }
-            .let { expandKineticCaptionsBlocks(it) }
-            .let { expandPronunciationBlocks(it, blockDictionary) }
-            .let { expandAudioBlocks(it, audioCues) }
-            .let { stripInlineHintsFromTracks(it) }
-            .let { enhanceAnimationBlocks(it) }
+        val expanded =
+            html
+                .let { expandTitleCardBlocks(it) }
+                .let { expandCodeDiffBlocks(it) }
+                .let { expandDataChartBlocks(it) }
+                .let { expandKineticCaptionsBlocks(it) }
+                .let { expandPronunciationBlocks(it, blockDictionary) }
+                .let { expandAudioBlocks(it, audioCues) }
+                .let { stripInlineHintsFromTracks(it) }
+                .let { enhanceAnimationBlocks(it) }
         val composition = buildComposition(expanded, audioCues)
         return injectPronunciationIsland(composition, blockDictionary, inlineDictionary)
     }
@@ -147,7 +180,7 @@ class HyperframesHtmlProcessor internal constructor(
         val trackIndex: Int,
         val transition: Transition? = null,
         val allowOverlap: Boolean = false,
-        val background: BackgroundImage? = null
+        val background: BackgroundImage? = null,
     )
 
     /** A scene before its start time is assigned (overlap depends on the next scene). */
@@ -157,7 +190,7 @@ class HyperframesHtmlProcessor internal constructor(
         val inner: String,
         val scripts: List<String>,
         val transition: Transition?,
-        val background: BackgroundImage? = null
+        val background: BackgroundImage? = null,
     )
 
     /**
@@ -174,7 +207,7 @@ class HyperframesHtmlProcessor internal constructor(
         SHUTTER,
         FADE,
         BLUR_CROSSFADE,
-        VERTICAL_PUSH
+        VERTICAL_PUSH,
     }
 
     private data class Transition(
@@ -184,7 +217,7 @@ class HyperframesHtmlProcessor internal constructor(
                 DEFAULT_OVERLAP_SECONDS
             } else {
                 DEFAULT_TRANSITION_SECONDS
-            }
+            },
     ) {
         val isOverlap: Boolean
             get() = kind == TransitionKind.BLUR_CROSSFADE || kind == TransitionKind.VERTICAL_PUSH
@@ -199,7 +232,7 @@ class HyperframesHtmlProcessor internal constructor(
         val outgoingId: String,
         val incomingId: String,
         val time: Double,
-        val transition: Transition
+        val transition: Transition,
     )
 
     /** An overlap-transition boundary: the incoming clip starts before the outgoing ends. */
@@ -208,7 +241,7 @@ class HyperframesHtmlProcessor internal constructor(
         val incomingId: String,
         val start: Double,
         val overlapSeconds: Double,
-        val kind: TransitionKind
+        val kind: TransitionKind,
     )
 
     /** A BGM/SFX cue declared by an `[.hyperframes-audio]` block (US-3). */
@@ -216,10 +249,13 @@ class HyperframesHtmlProcessor internal constructor(
         val file: String,
         val start: Double,
         val volume: Double,
-        val kind: String
+        val kind: String,
     )
 
-    private fun buildComposition(html: String, audioCues: List<AudioCue> = emptyList()): String {
+    private fun buildComposition(
+        html: String,
+        audioCues: List<AudioCue> = emptyList(),
+    ): String {
         val contentInner = extractContentInner(html) ?: html
         val headerTitle = extractHeaderTitle(html)
 
@@ -232,7 +268,7 @@ class HyperframesHtmlProcessor internal constructor(
                     inner = "<h1 class=\"hf-doc-title\">$headerTitle</h1>",
                     scripts = emptyList(),
                     transition = null,
-                )
+                ),
             )
         }
 
@@ -279,35 +315,39 @@ class HyperframesHtmlProcessor internal constructor(
             }
         val total =
             if (scenes.isNotEmpty()) scenes.last().start + scenes.last().duration else sceneDurationSeconds
-        val scenesHtml = scenes.mapIndexed { index, scene ->
-            renderScene(scene, index + 1, scenes.size)
-        }.joinToString("\n")
+        val scenesHtml =
+            scenes
+                .mapIndexed { index, scene ->
+                    renderScene(scene, index + 1, scenes.size)
+                }.joinToString("\n")
         // A transition belongs to the **outgoing** scene and is only meaningful
         // when another scene follows (the last scene's role is ignored).
-        val coverBoundaries = scenes.mapIndexedNotNull { index, scene ->
-            val transition = scene.transition ?: return@mapIndexedNotNull null
-            if (transition.isOverlap) return@mapIndexedNotNull null
-            scenes.getOrNull(index + 1) ?: return@mapIndexedNotNull null
-            Boundary(
-                overlayId = "hf-transition-$index",
-                outgoingId = scene.id,
-                incomingId = scenes[index + 1].id,
-                time = scene.start + scene.duration,
-                transition = transition,
-            )
-        }
-        val overlapBoundaries = scenes.mapIndexedNotNull { index, scene ->
-            val transition = scene.transition ?: return@mapIndexedNotNull null
-            if (!transition.isOverlap) return@mapIndexedNotNull null
-            val incoming = scenes.getOrNull(index + 1) ?: return@mapIndexedNotNull null
-            OverlapBoundary(
-                outgoingId = scene.id,
-                incomingId = incoming.id,
-                start = incoming.start,
-                overlapSeconds = transition.durationSeconds,
-                kind = transition.kind,
-            )
-        }
+        val coverBoundaries =
+            scenes.mapIndexedNotNull { index, scene ->
+                val transition = scene.transition ?: return@mapIndexedNotNull null
+                if (transition.isOverlap) return@mapIndexedNotNull null
+                scenes.getOrNull(index + 1) ?: return@mapIndexedNotNull null
+                Boundary(
+                    overlayId = "hf-transition-$index",
+                    outgoingId = scene.id,
+                    incomingId = scenes[index + 1].id,
+                    time = scene.start + scene.duration,
+                    transition = transition,
+                )
+            }
+        val overlapBoundaries =
+            scenes.mapIndexedNotNull { index, scene ->
+                val transition = scene.transition ?: return@mapIndexedNotNull null
+                if (!transition.isOverlap) return@mapIndexedNotNull null
+                val incoming = scenes.getOrNull(index + 1) ?: return@mapIndexedNotNull null
+                OverlapBoundary(
+                    outgoingId = scene.id,
+                    incomingId = incoming.id,
+                    start = incoming.start,
+                    overlapSeconds = transition.durationSeconds,
+                    kind = transition.kind,
+                )
+            }
         val transitionsHtml = coverBoundaries.joinToString("\n") { renderTransitionOverlay(it) }
         val audioHtml = renderAudio(audioCues, total)
         val hasBackground = scenes.any { it.background != null }
@@ -318,8 +358,10 @@ class HyperframesHtmlProcessor internal constructor(
         // element (`nested_structure_needs_subcomposition`) and the runtime
         // auto-nests its dedicated `window.__timelines[id]` timeline. One scene per
         // track also removes `timeline_track_too_dense`.
-        val collectedScripts = scenes.flatMap { it.scripts }
-            .joinToString("\n") { script -> "(function(){\n$script\n})();" }
+        val collectedScripts =
+            scenes
+                .flatMap { it.scripts }
+                .joinToString("\n") { script -> "(function(){\n$script\n})();" }
         val sceneScripts = scenes.joinToString("\n") { sceneTimelineScript(it) }
 
         return buildString {
@@ -336,7 +378,7 @@ class HyperframesHtmlProcessor internal constructor(
                     .replace("__W__", width.toString())
                     .replace("__H__", height.toString())
                     .replace("__DISPLAY_FONT__", typography.displayFont)
-                    .replace("__MONO_FONT__", typography.monoFont)
+                    .replace("__MONO_FONT__", typography.monoFont),
             )
             val fontFaces = typography.fontFaceCss()
             if (fontFaces.isNotBlank()) {
@@ -354,7 +396,7 @@ class HyperframesHtmlProcessor internal constructor(
             appendLine(
                 "<div id=\"stage\" data-composition-id=\"root\" data-start=\"0\" " +
                     "data-duration=\"${number(total)}\" data-width=\"$width\" data-height=\"$height\" " +
-                    "data-fps=\"$fps\" data-output=\"${outputName}.mp4\">"
+                    "data-fps=\"$fps\" data-output=\"$outputName.mp4\">",
             )
             if (audioHtml.isNotBlank()) {
                 appendLine(audioHtml)
@@ -388,28 +430,33 @@ class HyperframesHtmlProcessor internal constructor(
     }
 
     /** Renders one scene as a full-bleed sub-composition host with a background child. */
-    private fun renderScene(scene: Scene, sceneNumber: Int, sceneTotal: Int): String = buildString {
-        appendLine(
-            "<div class=\"scene clip\" id=\"${scene.id}\" data-composition-id=\"${scene.id}\" " +
-                "data-start=\"${number(scene.start)}\" data-duration=\"${number(scene.duration)}\" " +
-                "data-track-index=\"${scene.trackIndex}\">"
-        )
-        appendLine(renderSceneBackground(scene.background))
-        // US-2b — an overlap transition intentionally puts two scenes on screen;
-        // mark the inner container (a marker on the scene root is ignored by the
-        // HyperFrames layout check) so a designed crossfade/push is not reported
-        // as an accidental text collision or canvas overflow.
-        val overlapAttrs =
-            if (scene.allowOverlap) " data-layout-allow-overlap data-layout-allow-overflow" else ""
-        appendLine("  <div class=\"scene-inner\"$overlapAttrs>")
-        appendLine(scene.inner)
-        appendLine("  </div>")
-        val chromeHtml = ChromeRenderer.sceneChrome(chrome, scene.start, fps, sceneNumber, sceneTotal)
-        if (chromeHtml.isNotBlank()) {
-            appendLine(chromeHtml)
+    private fun renderScene(
+        scene: Scene,
+        sceneNumber: Int,
+        sceneTotal: Int,
+    ): String =
+        buildString {
+            appendLine(
+                "<div class=\"scene clip\" id=\"${scene.id}\" data-composition-id=\"${scene.id}\" " +
+                    "data-start=\"${number(scene.start)}\" data-duration=\"${number(scene.duration)}\" " +
+                    "data-track-index=\"${scene.trackIndex}\">",
+            )
+            appendLine(renderSceneBackground(scene.background))
+            // US-2b — an overlap transition intentionally puts two scenes on screen;
+            // mark the inner container (a marker on the scene root is ignored by the
+            // HyperFrames layout check) so a designed crossfade/push is not reported
+            // as an accidental text collision or canvas overflow.
+            val overlapAttrs =
+                if (scene.allowOverlap) " data-layout-allow-overlap data-layout-allow-overflow" else ""
+            appendLine("  <div class=\"scene-inner\"$overlapAttrs>")
+            appendLine(scene.inner)
+            appendLine("  </div>")
+            val chromeHtml = ChromeRenderer.sceneChrome(chrome, scene.start, fps, sceneNumber, sceneTotal)
+            if (chromeHtml.isNotBlank()) {
+                appendLine(chromeHtml)
+            }
+            appendLine("</div>")
         }
-        appendLine("</div>")
-    }
 
     /**
      * The scene-background layer: the historical static gradient when no media
@@ -427,42 +474,43 @@ class HyperframesHtmlProcessor internal constructor(
      * template/author script (or creates it) and adds the entrance/exit tweens.
      * The timeline stays `paused` — the runtime drives it as a sub-composition.
      */
-    private fun sceneTimelineScript(scene: Scene): String = buildString {
-        val id = scene.id
-        val dur = scene.duration
-        appendLine("  (function () {")
-        appendLine("    var t = window.__timelines[\"$id\"] || gsap.timeline({ paused: true });")
-        appendLine("    t.pause();")
-        if (entrances.enabled) {
-            // US-5 — hide the atoms at load, then reveal them in document order.
-            appendLine(SceneEntrancePlanner.setupScript(id, entrances))
-            appendLine(SceneEntrancePlanner.tweenScript(id, entrances))
-        } else {
-            appendLine(
-                "    t.fromTo(\"#$id .scene-inner\", { opacity: 0, y: 30 }, " +
-                    "{ opacity: 1, y: 0, duration: 0.6, ease: \"power3.out\" }, 0.1);"
-            )
+    private fun sceneTimelineScript(scene: Scene): String =
+        buildString {
+            val id = scene.id
+            val dur = scene.duration
+            appendLine("  (function () {")
+            appendLine("    var t = window.__timelines[\"$id\"] || gsap.timeline({ paused: true });")
+            appendLine("    t.pause();")
+            if (entrances.enabled) {
+                // US-5 — hide the atoms at load, then reveal them in document order.
+                appendLine(SceneEntrancePlanner.setupScript(id, entrances))
+                appendLine(SceneEntrancePlanner.tweenScript(id, entrances))
+            } else {
+                appendLine(
+                    "    t.fromTo(\"#$id .scene-inner\", { opacity: 0, y: 30 }, " +
+                        "{ opacity: 1, y: 0, duration: 0.6, ease: \"power3.out\" }, 0.1);",
+                )
+            }
+            // HF-DEMO-QUALITY US-7 — opt-in slow media pan. The media is oversized
+            // by twice the amplitude so the movement never exposes an edge.
+            val parallax = scene.background?.parallax ?: 0.0
+            if (parallax > 0.0) {
+                val shift = number(parallax * 50)
+                appendLine(
+                    "    t.fromTo(\"#$id .hf-bg-media\", { scale: ${number(1.0 + parallax * 2)}, yPercent: -$shift }, " +
+                        "{ yPercent: $shift, duration: ${number(dur)}, ease: \"none\" }, 0);",
+                )
+            }
+            // A scene handing off to a transition must stay fully visible until the
+            // boundary: the cover overlay (root timeline) owns the handoff, so the
+            // historical pre-boundary fade would show the empty background too early.
+            if (scene.transition == null && dur - 0.45 > 0.7) {
+                appendLine("    t.to(\"#$id\", { opacity: 0, duration: 0.4, ease: \"power1.in\" }, ${number(dur - 0.45)});")
+            }
+            appendLine("    window.__timelines[\"$id\"] = t;")
+            appendLine("    t.seek(0);")
+            append("  })();")
         }
-        // HF-DEMO-QUALITY US-7 — opt-in slow media pan. The media is oversized
-        // by twice the amplitude so the movement never exposes an edge.
-        val parallax = scene.background?.parallax ?: 0.0
-        if (parallax > 0.0) {
-            val shift = number(parallax * 50)
-            appendLine(
-                "    t.fromTo(\"#$id .hf-bg-media\", { scale: ${number(1.0 + parallax * 2)}, yPercent: -$shift }, " +
-                    "{ yPercent: $shift, duration: ${number(dur)}, ease: \"none\" }, 0);"
-            )
-        }
-        // A scene handing off to a transition must stay fully visible until the
-        // boundary: the cover overlay (root timeline) owns the handoff, so the
-        // historical pre-boundary fade would show the empty background too early.
-        if (scene.transition == null && dur - 0.45 > 0.7) {
-            appendLine("    t.to(\"#$id\", { opacity: 0, duration: 0.4, ease: \"power1.in\" }, ${number(dur - 0.45)});")
-        }
-        appendLine("    window.__timelines[\"$id\"] = t;")
-        appendLine("    t.seek(0);")
-        append("  })();")
-    }
 
     // ──────────────────────────────────────────────────────────────────────
     // Scene transitions (HF-DEMO-QUALITY US-2 v1 — cover transitions)
@@ -491,46 +539,48 @@ class HyperframesHtmlProcessor internal constructor(
     private fun transitionOf(section: String): Transition? {
         val openTag = section.substringBefore('>')
         val classes = CLASS_ATTR.find(openTag)?.groupValues?.get(1) ?: return null
-        val kind = when {
-            ROLE_GRID.containsMatchIn(classes) -> TransitionKind.GRID_DISSOLVE
-            ROLE_SHUTTER.containsMatchIn(classes) -> TransitionKind.SHUTTER
-            ROLE_FADE.containsMatchIn(classes) -> TransitionKind.FADE
-            ROLE_BLUR.containsMatchIn(classes) -> TransitionKind.BLUR_CROSSFADE
-            ROLE_PUSH.containsMatchIn(classes) -> TransitionKind.VERTICAL_PUSH
-            else -> return null
-        }
+        val kind =
+            when {
+                ROLE_GRID.containsMatchIn(classes) -> TransitionKind.GRID_DISSOLVE
+                ROLE_SHUTTER.containsMatchIn(classes) -> TransitionKind.SHUTTER
+                ROLE_FADE.containsMatchIn(classes) -> TransitionKind.FADE
+                ROLE_BLUR.containsMatchIn(classes) -> TransitionKind.BLUR_CROSSFADE
+                ROLE_PUSH.containsMatchIn(classes) -> TransitionKind.VERTICAL_PUSH
+                else -> return null
+            }
         return Transition(kind)
     }
 
     /** Renders the overlay a cover transition drives on the root timeline. */
-    private fun renderTransitionOverlay(boundary: Boundary): String = buildString {
-        when (boundary.transition.kind) {
-            TransitionKind.GRID_DISSOLVE -> {
-                appendLine("<div class=\"hf-transition hf-transition-grid\" id=\"${boundary.overlayId}\" data-layout-allow-occlusion>")
-                repeat(GRID_CELLS) { i ->
-                    appendLine(
-                        "  <div class=\"hf-transition-cell\" " +
-                            "style=\"background:${GRID_PALETTE[i % GRID_PALETTE.size]}\"></div>"
-                    )
+    private fun renderTransitionOverlay(boundary: Boundary): String =
+        buildString {
+            when (boundary.transition.kind) {
+                TransitionKind.GRID_DISSOLVE -> {
+                    appendLine("<div class=\"hf-transition hf-transition-grid\" id=\"${boundary.overlayId}\" data-layout-allow-occlusion>")
+                    repeat(GRID_CELLS) { i ->
+                        appendLine(
+                            "  <div class=\"hf-transition-cell\" " +
+                                "style=\"background:${GRID_PALETTE[i % GRID_PALETTE.size]}\"></div>",
+                        )
+                    }
+                    append("</div>")
                 }
-                append("</div>")
+                TransitionKind.SHUTTER -> {
+                    appendLine("<div class=\"hf-transition hf-transition-shutter\" id=\"${boundary.overlayId}\" data-layout-allow-occlusion>")
+                    appendLine("  <div class=\"hf-shutter-top\" data-layout-allow-overflow></div>")
+                    appendLine("  <div class=\"hf-shutter-bottom\" data-layout-allow-overflow></div>")
+                    append("</div>")
+                }
+                TransitionKind.FADE -> {
+                    append("<div class=\"hf-transition hf-transition-fade\" id=\"${boundary.overlayId}\" data-layout-allow-occlusion></div>")
+                }
+                // Overlap transitions have no overlay: the two scene clips are both
+                // visible and the root timeline animates their wrappers.
+                TransitionKind.BLUR_CROSSFADE,
+                TransitionKind.VERTICAL_PUSH,
+                -> Unit
             }
-            TransitionKind.SHUTTER -> {
-                appendLine("<div class=\"hf-transition hf-transition-shutter\" id=\"${boundary.overlayId}\" data-layout-allow-occlusion>")
-                appendLine("  <div class=\"hf-shutter-top\" data-layout-allow-overflow></div>")
-                appendLine("  <div class=\"hf-shutter-bottom\" data-layout-allow-overflow></div>")
-                append("</div>")
-            }
-            TransitionKind.FADE -> {
-                append("<div class=\"hf-transition hf-transition-fade\" id=\"${boundary.overlayId}\" data-layout-allow-occlusion></div>")
-            }
-            // Overlap transitions have no overlay: the two scene clips are both
-            // visible and the root timeline animates their wrappers.
-            TransitionKind.BLUR_CROSSFADE,
-            TransitionKind.VERTICAL_PUSH,
-            -> Unit
         }
-    }
 
     /**
      * Root-timeline script: the **only** timeline that drives the transitions.
@@ -544,106 +594,107 @@ class HyperframesHtmlProcessor internal constructor(
         coverBoundaries: List<Boundary>,
         overlapBoundaries: List<OverlapBoundary>,
         progressTween: String,
-    ): String = buildString {
-        appendLine("  (function () {")
-        appendLine("    var rootTl = gsap.timeline({ paused: true });")
-        if (progressTween.isNotBlank()) {
-            appendLine(progressTween)
-        }
-        coverBoundaries.forEach { boundary ->
-            val id = boundary.overlayId
-            val time = boundary.time
-            val half = boundary.transition.durationSeconds / 2
-            when (boundary.transition.kind) {
-                TransitionKind.GRID_DISSOLVE -> {
-                    // Initial hidden state via gsap.set (immediate, outside the
-                    // timeline): the lint rejects a CSS `transform: scale(0)` that a
-                    // GSAP scale tween would overwrite.
-                    appendLine("    gsap.set(\"#$id .hf-transition-cell\", { scale: 0 });")
-                    appendLine(
-                        "    rootTl.to(\"#$id .hf-transition-cell\", { scale: 1, duration: ${number(half)}, " +
-                            "ease: \"power3.out\", stagger: 0.015 }, ${number(time - half)});"
-                    )
-                    appendLine(
-                        "    rootTl.to(\"#$id .hf-transition-cell\", { scale: 0, duration: ${number(half)}, " +
-                            "ease: \"power3.in\", stagger: 0.015 }, ${number(time + 0.02)});"
-                    )
-                }
-                TransitionKind.SHUTTER -> {
-                    // Panels rest OUTSIDE the frame (open shutter). gsap.set (not a
-                    // CSS transform) keeps the lint happy and the frame uncovered
-                    // outside the transition window.
-                    appendLine("    gsap.set(\"#$id .hf-shutter-top\", { yPercent: -100 });")
-                    appendLine("    gsap.set(\"#$id .hf-shutter-bottom\", { yPercent: 100 });")
-                    appendLine(
-                        "    rootTl.to(\"#$id .hf-shutter-top\", { yPercent: 0, duration: ${number(half)}, " +
-                            "ease: \"power3.in\" }, ${number(time - half)});"
-                    )
-                    appendLine(
-                        "    rootTl.to(\"#$id .hf-shutter-bottom\", { yPercent: 0, duration: ${number(half)}, " +
-                            "ease: \"power3.in\" }, ${number(time - half)});"
-                    )
-                    appendLine(
-                        "    rootTl.to(\"#$id .hf-shutter-top\", { yPercent: -100, duration: ${number(half)}, " +
-                            "ease: \"power3.out\" }, ${number(time + 0.02)});"
-                    )
-                    appendLine(
-                        "    rootTl.to(\"#$id .hf-shutter-bottom\", { yPercent: 100, duration: ${number(half)}, " +
-                            "ease: \"power3.out\" }, ${number(time + 0.02)});"
-                    )
-                }
-                TransitionKind.FADE -> {
-                    appendLine(
-                        "    rootTl.fromTo(\"#$id\", { opacity: 0 }, { opacity: 1, duration: ${number(half)}, " +
-                            "ease: \"power2.in\" }, ${number(time - half)});"
-                    )
-                    appendLine(
-                        "    rootTl.to(\"#$id\", { opacity: 0, duration: ${number(half)}, " +
-                            "ease: \"power2.out\" }, ${number(time + 0.02)});"
-                    )
-                }
-                // Overlap transitions are rendered by the loop below.
-                TransitionKind.BLUR_CROSSFADE,
-                TransitionKind.VERTICAL_PUSH,
-                -> Unit
+    ): String =
+        buildString {
+            appendLine("  (function () {")
+            appendLine("    var rootTl = gsap.timeline({ paused: true });")
+            if (progressTween.isNotBlank()) {
+                appendLine(progressTween)
             }
-        }
-        overlapBoundaries.forEach { boundary ->
-            val start = number(boundary.start)
-            val duration = number(boundary.overlapSeconds)
-            when (boundary.kind) {
-                TransitionKind.BLUR_CROSSFADE -> {
-                    // The incoming scene is transparent and blurred at its start;
-                    // the outgoing scene blurs/fades out over the shared window.
-                    appendLine("    gsap.set(\"#${boundary.incomingId}\", { opacity: 0, filter: \"blur(18px)\" });")
-                    appendLine(
-                        "    rootTl.to(\"#${boundary.outgoingId}\", { opacity: 0, filter: \"blur(18px)\", " +
-                            "duration: $duration, ease: \"power2.inOut\" }, $start);"
-                    )
-                    appendLine(
-                        "    rootTl.to(\"#${boundary.incomingId}\", { opacity: 1, filter: \"blur(0px)\", " +
-                            "duration: $duration, ease: \"power2.inOut\" }, $start);"
-                    )
+            coverBoundaries.forEach { boundary ->
+                val id = boundary.overlayId
+                val time = boundary.time
+                val half = boundary.transition.durationSeconds / 2
+                when (boundary.transition.kind) {
+                    TransitionKind.GRID_DISSOLVE -> {
+                        // Initial hidden state via gsap.set (immediate, outside the
+                        // timeline): the lint rejects a CSS `transform: scale(0)` that a
+                        // GSAP scale tween would overwrite.
+                        appendLine("    gsap.set(\"#$id .hf-transition-cell\", { scale: 0 });")
+                        appendLine(
+                            "    rootTl.to(\"#$id .hf-transition-cell\", { scale: 1, duration: ${number(half)}, " +
+                                "ease: \"power3.out\", stagger: 0.015 }, ${number(time - half)});",
+                        )
+                        appendLine(
+                            "    rootTl.to(\"#$id .hf-transition-cell\", { scale: 0, duration: ${number(half)}, " +
+                                "ease: \"power3.in\", stagger: 0.015 }, ${number(time + 0.02)});",
+                        )
+                    }
+                    TransitionKind.SHUTTER -> {
+                        // Panels rest OUTSIDE the frame (open shutter). gsap.set (not a
+                        // CSS transform) keeps the lint happy and the frame uncovered
+                        // outside the transition window.
+                        appendLine("    gsap.set(\"#$id .hf-shutter-top\", { yPercent: -100 });")
+                        appendLine("    gsap.set(\"#$id .hf-shutter-bottom\", { yPercent: 100 });")
+                        appendLine(
+                            "    rootTl.to(\"#$id .hf-shutter-top\", { yPercent: 0, duration: ${number(half)}, " +
+                                "ease: \"power3.in\" }, ${number(time - half)});",
+                        )
+                        appendLine(
+                            "    rootTl.to(\"#$id .hf-shutter-bottom\", { yPercent: 0, duration: ${number(half)}, " +
+                                "ease: \"power3.in\" }, ${number(time - half)});",
+                        )
+                        appendLine(
+                            "    rootTl.to(\"#$id .hf-shutter-top\", { yPercent: -100, duration: ${number(half)}, " +
+                                "ease: \"power3.out\" }, ${number(time + 0.02)});",
+                        )
+                        appendLine(
+                            "    rootTl.to(\"#$id .hf-shutter-bottom\", { yPercent: 100, duration: ${number(half)}, " +
+                                "ease: \"power3.out\" }, ${number(time + 0.02)});",
+                        )
+                    }
+                    TransitionKind.FADE -> {
+                        appendLine(
+                            "    rootTl.fromTo(\"#$id\", { opacity: 0 }, { opacity: 1, duration: ${number(half)}, " +
+                                "ease: \"power2.in\" }, ${number(time - half)});",
+                        )
+                        appendLine(
+                            "    rootTl.to(\"#$id\", { opacity: 0, duration: ${number(half)}, " +
+                                "ease: \"power2.out\" }, ${number(time + 0.02)});",
+                        )
+                    }
+                    // Overlap transitions are rendered by the loop below.
+                    TransitionKind.BLUR_CROSSFADE,
+                    TransitionKind.VERTICAL_PUSH,
+                    -> Unit
                 }
-                TransitionKind.VERTICAL_PUSH -> {
-                    // The incoming scene starts below the frame; both wrappers
-                    // translate together over the shared window.
-                    appendLine("    gsap.set(\"#${boundary.incomingId}\", { yPercent: 100 });")
-                    appendLine(
-                        "    rootTl.to(\"#${boundary.outgoingId}\", { yPercent: -100, " +
-                            "duration: $duration, ease: \"power2.inOut\" }, $start);"
-                    )
-                    appendLine(
-                        "    rootTl.to(\"#${boundary.incomingId}\", { yPercent: 0, " +
-                            "duration: $duration, ease: \"power2.inOut\" }, $start);"
-                    )
-                }
-                else -> Unit // cover transitions are handled above
             }
+            overlapBoundaries.forEach { boundary ->
+                val start = number(boundary.start)
+                val duration = number(boundary.overlapSeconds)
+                when (boundary.kind) {
+                    TransitionKind.BLUR_CROSSFADE -> {
+                        // The incoming scene is transparent and blurred at its start;
+                        // the outgoing scene blurs/fades out over the shared window.
+                        appendLine("    gsap.set(\"#${boundary.incomingId}\", { opacity: 0, filter: \"blur(18px)\" });")
+                        appendLine(
+                            "    rootTl.to(\"#${boundary.outgoingId}\", { opacity: 0, filter: \"blur(18px)\", " +
+                                "duration: $duration, ease: \"power2.inOut\" }, $start);",
+                        )
+                        appendLine(
+                            "    rootTl.to(\"#${boundary.incomingId}\", { opacity: 1, filter: \"blur(0px)\", " +
+                                "duration: $duration, ease: \"power2.inOut\" }, $start);",
+                        )
+                    }
+                    TransitionKind.VERTICAL_PUSH -> {
+                        // The incoming scene starts below the frame; both wrappers
+                        // translate together over the shared window.
+                        appendLine("    gsap.set(\"#${boundary.incomingId}\", { yPercent: 100 });")
+                        appendLine(
+                            "    rootTl.to(\"#${boundary.outgoingId}\", { yPercent: -100, " +
+                                "duration: $duration, ease: \"power2.inOut\" }, $start);",
+                        )
+                        appendLine(
+                            "    rootTl.to(\"#${boundary.incomingId}\", { yPercent: 0, " +
+                                "duration: $duration, ease: \"power2.inOut\" }, $start);",
+                        )
+                    }
+                    else -> Unit // cover transitions are handled above
+                }
+            }
+            appendLine("    window.__timelines[\"root\"] = rootTl;")
+            append("  })();")
         }
-        appendLine("    window.__timelines[\"root\"] = rootTl;")
-        append("  })();")
-    }
 
     // ──────────────────────────────────────────────────────────────────────
     // Audio cues (HF-DEMO-QUALITY US-3)
@@ -666,11 +717,15 @@ class HyperframesHtmlProcessor internal constructor(
      * Lines starting with `#` and blank lines are ignored. An invalid cue is
      * skipped (defensive: a typo never breaks the build).
      */
-    private fun expandAudioBlocks(html: String, cues: MutableList<AudioCue>): String {
-        val block = Regex(
-            """<div[^>]*class="[^"]*hyperframes-audio[^"]*"[^>]*>\s*<div class="content">\s*<pre>(.*?)</pre>\s*</div>\s*</div>""",
-            RegexOption.DOT_MATCHES_ALL
-        )
+    private fun expandAudioBlocks(
+        html: String,
+        cues: MutableList<AudioCue>,
+    ): String {
+        val block =
+            Regex(
+                """<div[^>]*class="[^"]*hyperframes-audio[^"]*"[^>]*>\s*<div class="content">\s*<pre>(.*?)</pre>\s*</div>\s*</div>""",
+                RegexOption.DOT_MATCHES_ALL,
+            )
         return block.replace(html) { match ->
             match.groupValues[1].lineSequence().forEach { line ->
                 parseAudioCue(line)?.let(cues::add)
@@ -682,14 +737,18 @@ class HyperframesHtmlProcessor internal constructor(
     private fun parseAudioCue(line: String): AudioCue? {
         val trimmed = line.trim()
         if (trimmed.isEmpty() || trimmed.startsWith("#")) return null
-        val kind = when {
-            trimmed.startsWith("bgm:") -> "bgm"
-            trimmed.startsWith("sfx:") -> "sfx"
-            else -> return null
-        }
+        val kind =
+            when {
+                trimmed.startsWith("bgm:") -> "bgm"
+                trimmed.startsWith("sfx:") -> "sfx"
+                else -> return null
+            }
         val tokens = trimmed.substringAfter(':').trim().split(Regex("""\s+"""))
-        val volume = tokens.firstOrNull { it.startsWith("volume=") }
-            ?.substringAfter('=')?.toDoubleOrNull() ?: AUDIO_DEFAULT_VOLUME
+        val volume =
+            tokens
+                .firstOrNull { it.startsWith("volume=") }
+                ?.substringAfter('=')
+                ?.toDoubleOrNull() ?: AUDIO_DEFAULT_VOLUME
         val args = tokens.filterNot { it.startsWith("volume=") }
         return if (kind == "bgm") {
             val file = args.firstOrNull() ?: return null
@@ -706,14 +765,18 @@ class HyperframesHtmlProcessor internal constructor(
      * drives direct root children). BGM is bounded to the composition duration;
      * SFX use their intrinsic length.
      */
-    private fun renderAudio(cues: List<AudioCue>, total: Double): String =
-        cues.mapIndexed { index, cue ->
-            val duration = if (cue.kind == "bgm") " data-duration=\"${number(total)}\"" else ""
-            "<audio id=\"hf-audio-$index\" src=\"${escapeText(cue.file)}\" " +
-                "data-start=\"${number(cue.start)}\"$duration " +
-                "data-track-index=\"${AUDIO_TRACK_INDEX + index}\" " +
-                "data-volume=\"${number(cue.volume)}\"></audio>"
-        }.joinToString("\n")
+    private fun renderAudio(
+        cues: List<AudioCue>,
+        total: Double,
+    ): String =
+        cues
+            .mapIndexed { index, cue ->
+                val duration = if (cue.kind == "bgm") " data-duration=\"${number(total)}\"" else ""
+                "<audio id=\"hf-audio-$index\" src=\"${escapeText(cue.file)}\" " +
+                    "data-start=\"${number(cue.start)}\"$duration " +
+                    "data-track-index=\"${AUDIO_TRACK_INDEX + index}\" " +
+                    "data-volume=\"${number(cue.volume)}\"></audio>"
+            }.joinToString("\n")
 
     // ──────────────────────────────────────────────────────────────────────
     // Background image (HF-DEMO-QUALITY US-6)
@@ -735,11 +798,9 @@ class HyperframesHtmlProcessor internal constructor(
      * The listing is parsed by [BackgroundImageParser]; the block itself is
      * removed from the scene so it never renders as visible content.
      */
-    private fun backgroundListingOf(body: String): String =
-        BACKGROUND_BLOCK.find(body)?.groupValues?.get(1) ?: ""
+    private fun backgroundListingOf(body: String): String = BACKGROUND_BLOCK.find(body)?.groupValues?.get(1) ?: ""
 
-    private fun removeBackgroundBlock(body: String): String =
-        BACKGROUND_BLOCK.replace(body, "")
+    private fun removeBackgroundBlock(body: String): String = BACKGROUND_BLOCK.replace(body, "")
 
     // ──────────────────────────────────────────────────────────────────────
     // HTML structural helpers
@@ -756,16 +817,22 @@ class HyperframesHtmlProcessor internal constructor(
     private fun extractContentInner(html: String): String? {
         val m = CONTENT_OPEN.find(html) ?: return null
         val start = m.range.last + 1
-        val end = listOf(
-            html.indexOf("<div id=\"footer\"", start),
-            html.indexOf("</body>", start)
-        ).filter { it >= 0 }.minOrNull() ?: html.length
+        val end =
+            listOf(
+                html.indexOf("<div id=\"footer\"", start),
+                html.indexOf("</body>", start),
+            ).filter { it >= 0 }.minOrNull() ?: html.length
         return html.substring(start, end)
     }
 
     /** Title of the Asciidoctor `#header` block, or null. */
     private fun extractHeaderTitle(html: String): String? =
-        HEADER_TITLE.find(html)?.groupValues?.get(1)?.trim()?.takeIf { it.isNotBlank() }
+        HEADER_TITLE
+            .find(html)
+            ?.groupValues
+            ?.get(1)
+            ?.trim()
+            ?.takeIf { it.isNotBlank() }
 
     /**
      * Splits the content container into its top-level `sect1` blocks.
@@ -793,7 +860,10 @@ class HyperframesHtmlProcessor internal constructor(
      * Index just past the `</div>` that closes the `<div>` opening at [start].
      * Returns [s.length] when unbalanced.
      */
-    private fun matchingDivEnd(s: String, start: Int): Int {
+    private fun matchingDivEnd(
+        s: String,
+        start: Int,
+    ): Int {
         var depth = 0
         var i = start
         while (i < s.length) {
@@ -822,17 +892,36 @@ class HyperframesHtmlProcessor internal constructor(
 
     /** The composition id carried by a block, or its inner heading id. */
     private fun sceneIdOf(section: String): String? {
-        COMPOSITION_ID.find(section)?.groupValues?.get(1)?.trim()?.takeIf { it.isNotBlank() }?.let { return it }
-        return HEADING_ID.find(section)?.groupValues?.get(1)?.trim()?.takeIf { it.isNotBlank() }
+        COMPOSITION_ID
+            .find(section)
+            ?.groupValues
+            ?.get(1)
+            ?.trim()
+            ?.takeIf { it.isNotBlank() }
+            ?.let { return it }
+        return HEADING_ID
+            .find(section)
+            ?.groupValues
+            ?.get(1)
+            ?.trim()
+            ?.takeIf { it.isNotBlank() }
     }
 
     /** The first `data-duration` carried by a block, in seconds, or null. */
     private fun sceneDurationOf(section: String): Double? =
-        DURATION_ATTR.find(section)?.groupValues?.get(1)?.toDoubleOrNull()
+        DURATION_ATTR
+            .find(section)
+            ?.groupValues
+            ?.get(1)
+            ?.toDoubleOrNull()
 
     /** All `<script>` bodies embedded in a block (author + template motion). */
     private fun extractScriptBodies(section: String): List<String> =
-        SCRIPT_TAG.findAll(section).map { it.groupValues[1].trim() }.filter { it.isNotBlank() }.toList()
+        SCRIPT_TAG
+            .findAll(section)
+            .map { it.groupValues[1].trim() }
+            .filter { it.isNotBlank() }
+            .toList()
 
     /** Removes every `<script>…</script>` from a block. */
     private fun stripScripts(section: String): String = SCRIPT_TAG.replace(section, "")
@@ -849,16 +938,13 @@ class HyperframesHtmlProcessor internal constructor(
      * was hidden — the whole scene rendered blank. The scene itself owns the
      * timing now, so the nested wrappers must drop the reserved attributes.
      */
-    private fun sanitizeSceneInner(inner: String): String =
-        RESERVED_TIMING_ATTR.replace(inner, "")
+    private fun sanitizeSceneInner(inner: String): String = RESERVED_TIMING_ATTR.replace(inner, "")
 
     /** Formats a double with a dot decimal separator (never the default locale). */
-    private fun number(value: Double): String =
-        if (value == value.toLong().toDouble()) value.toLong().toString() else String.format(Locale.US, "%.2f", value)
+    private fun number(value: Double): String = if (value == value.toLong().toDouble()) value.toLong().toString() else String.format(Locale.US, "%.2f", value)
 
     /** Escapes the minimal HTML text entities. */
-    private fun escapeText(value: String): String =
-        value.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
+    private fun escapeText(value: String): String = value.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
 
     // ──────────────────────────────────────────────────────────────
     // Inline pronunciation hints in narration (HF-7e)
@@ -869,10 +955,11 @@ class HyperframesHtmlProcessor internal constructor(
      */
     private fun extractInlineHints(html: String): PronunciationDictionary {
         val dictionary = PronunciationDictionary()
-        val trackBlockRegex = Regex(
-            """<div[^>]*class="[^"]*hyperframes-track[^"]*"[^>]*>.*?</div>""",
-            RegexOption.DOT_MATCHES_ALL
-        )
+        val trackBlockRegex =
+            Regex(
+                """<div[^>]*class="[^"]*hyperframes-track[^"]*"[^>]*>.*?</div>""",
+                RegexOption.DOT_MATCHES_ALL,
+            )
         val inlineHintRegex = Regex("""hf:pron\[([^,\]]+?),\s*([^\]]+?)\]""")
 
         trackBlockRegex.findAll(html).forEach { trackMatch ->
@@ -885,10 +972,11 @@ class HyperframesHtmlProcessor internal constructor(
 
     /** Strips `hf:pron[word, phonetic]` from track paragraphs, keeping the word. */
     private fun stripInlineHintsFromTracks(html: String): String {
-        val trackBlockRegex = Regex(
-            """(<div[^>]*class="[^"]*hyperframes-track[^"]*"[^>]*>)(.*?)(</div>)""",
-            RegexOption.DOT_MATCHES_ALL
-        )
+        val trackBlockRegex =
+            Regex(
+                """(<div[^>]*class="[^"]*hyperframes-track[^"]*"[^>]*>)(.*?)(</div>)""",
+                RegexOption.DOT_MATCHES_ALL,
+            )
         val inlineHintRegex = Regex("""hf:pron\[([^,\]]+?),\s*([^\]]+?)\]""")
 
         return trackBlockRegex.replace(html) { match ->
@@ -904,7 +992,7 @@ class HyperframesHtmlProcessor internal constructor(
     private fun injectPronunciationIsland(
         html: String,
         blockDictionary: PronunciationDictionary,
-        inlineDictionary: PronunciationDictionary
+        inlineDictionary: PronunciationDictionary,
     ): String {
         val author = inlineDictionary.merge(blockDictionary)
         val finalDictionary = if (domainDictionary != null) mergeAuthorOverDomain(author, domainDictionary) else author
@@ -919,12 +1007,14 @@ class HyperframesHtmlProcessor internal constructor(
 
     private fun mergeAuthorOverDomain(
         author: PronunciationDictionary,
-        domain: PronunciationDictionary
+        domain: PronunciationDictionary,
     ): PronunciationDictionary {
-        val authorWordsLanguageAgnostic: Set<String> = author.snapshot()
-            .filter { it.language == null }
-            .map { it.word }
-            .toSet()
+        val authorWordsLanguageAgnostic: Set<String> =
+            author
+                .snapshot()
+                .filter { it.language == null }
+                .map { it.word }
+                .toSet()
 
         val filteredDomain = PronunciationDictionary()
         domain.snapshot().forEach { hint ->
@@ -938,16 +1028,22 @@ class HyperframesHtmlProcessor internal constructor(
     // ──────────────────────────────────────────────────────────────
 
     private fun expandTitleCardBlocks(html: String): String {
-        val blockRegex = Regex(
-            """<div[^>]*class="[^"]*hyperframes-title-card[^"]*"[^>]*>\s*<h2[^>]*id="([^"]*)"[^>]*>([^<]*)</h2>\s*(<div class="sectionbody">.*?</div>)?\s*</div>""",
-            RegexOption.DOT_MATCHES_ALL
-        )
+        val blockRegex =
+            Regex(
+                """<div[^>]*class="[^"]*hyperframes-title-card[^"]*"[^>]*>\s*<h2[^>]*id="([^"]*)"[^>]*>([^<]*)</h2>\s*(<div class="sectionbody">.*?</div>)?\s*</div>""",
+                RegexOption.DOT_MATCHES_ALL,
+            )
         val paragraphRegex = Regex("""<div class="paragraph">\s*<p>(.*?)</p>\s*</div>""", RegexOption.DOT_MATCHES_ALL)
 
         return html.replace(blockRegex) { match ->
             val id = match.groupValues[1]
             val title = match.groupValues[2].trim()
-            val subtitle = paragraphRegex.find(match.groupValues[3])?.groupValues?.get(1)?.trim()
+            val subtitle =
+                paragraphRegex
+                    .find(match.groupValues[3])
+                    ?.groupValues
+                    ?.get(1)
+                    ?.trim()
             TitleCardTemplate(id = id, title = title, subtitle = subtitle).render()
         }
     }
@@ -957,14 +1053,16 @@ class HyperframesHtmlProcessor internal constructor(
     // ──────────────────────────────────────────────────────────────
 
     private fun expandCodeDiffBlocks(html: String): String {
-        val blockRegex = Regex(
-            """<div[^>]*class="[^"]*hyperframes-code-diff[^"]*"[^>]*>\s*<h2[^>]*id="([^"]*)"[^>]*>[^<]*</h2>\s*<div class="sectionbody">\s*(<div class="listingblock">.*?</div>\s*</div>\s*<div class="listingblock">.*?</div>\s*</div>)\s*</div>\s*</div>""",
-            RegexOption.DOT_MATCHES_ALL
-        )
-        val listingRegex = Regex(
-            """<div class="listingblock">\s*<div class="content">\s*<pre[^>]*><code[^>]*data-lang="([^"]*)"[^>]*>(.*?)</code></pre>\s*</div>\s*</div>""",
-            RegexOption.DOT_MATCHES_ALL
-        )
+        val blockRegex =
+            Regex(
+                """<div[^>]*class="[^"]*hyperframes-code-diff[^"]*"[^>]*>\s*<h2[^>]*id="([^"]*)"[^>]*>[^<]*</h2>\s*<div class="sectionbody">\s*(<div class="listingblock">.*?</div>\s*</div>\s*<div class="listingblock">.*?</div>\s*</div>)\s*</div>\s*</div>""",
+                RegexOption.DOT_MATCHES_ALL,
+            )
+        val listingRegex =
+            Regex(
+                """<div class="listingblock">\s*<div class="content">\s*<pre[^>]*><code[^>]*data-lang="([^"]*)"[^>]*>(.*?)</code></pre>\s*</div>\s*</div>""",
+                RegexOption.DOT_MATCHES_ALL,
+            )
 
         return html.replace(blockRegex) { match ->
             val id = match.groupValues[1]
@@ -974,7 +1072,7 @@ class HyperframesHtmlProcessor internal constructor(
                 id = id,
                 beforeCode = listings[0].groupValues[2].trim(),
                 afterCode = listings[1].groupValues[2].trim(),
-                lang = listings[0].groupValues[1]
+                lang = listings[0].groupValues[1],
             ).render()
         }
     }
@@ -984,18 +1082,22 @@ class HyperframesHtmlProcessor internal constructor(
     // ──────────────────────────────────────────────────────────────
 
     private fun expandDataChartBlocks(html: String): String {
-        val blockRegex = Regex(
-            """<div[^>]*class="[^"]*hyperframes-data-chart[^"]*"[^>]*>\s*<h2[^>]*id="([^"]*)"[^>]*>([^<]*)</h2>\s*<div class="sectionbody">\s*<div class="listingblock">\s*<div class="content">\s*<pre>(.*?)</pre>\s*</div>\s*</div>\s*</div>\s*</div>""",
-            RegexOption.DOT_MATCHES_ALL
-        )
+        val blockRegex =
+            Regex(
+                """<div[^>]*class="[^"]*hyperframes-data-chart[^"]*"[^>]*>\s*<h2[^>]*id="([^"]*)"[^>]*>([^<]*)</h2>\s*<div class="sectionbody">\s*<div class="listingblock">\s*<div class="content">\s*<pre>(.*?)</pre>\s*</div>\s*</div>\s*</div>\s*</div>""",
+                RegexOption.DOT_MATCHES_ALL,
+            )
         val lineRegex = Regex("""^\s*([^:]+?)\s*:\s*([0-9]+(?:\.[0-9]+)?)\s*$""")
 
         return html.replace(blockRegex) { match ->
             val id = match.groupValues[1]
             val title = match.groupValues[2].trim()
-            val dataPoints = match.groupValues[3].lineSequence().mapNotNull { line ->
-                lineRegex.find(line)?.let { DataPoint(it.groupValues[1].trim(), it.groupValues[2].toDouble()) }
-            }.toList()
+            val dataPoints =
+                match.groupValues[3]
+                    .lineSequence()
+                    .mapNotNull { line ->
+                        lineRegex.find(line)?.let { DataPoint(it.groupValues[1].trim(), it.groupValues[2].toDouble()) }
+                    }.toList()
             DataChartTemplate(id = id, title = title, dataPoints = dataPoints).render()
         }
     }
@@ -1005,17 +1107,21 @@ class HyperframesHtmlProcessor internal constructor(
     // ──────────────────────────────────────────────────────────────
 
     private fun expandKineticCaptionsBlocks(html: String): String {
-        val blockRegex = Regex(
-            """<div[^>]*class="[^"]*hyperframes-kinetic-captions[^"]*"[^>]*>\s*<h2[^>]*id="([^"]*)"[^>]*>([^<]*)</h2>\s*<div class="sectionbody">\s*<div class="listingblock">\s*<div class="content">\s*<pre>(.*?)</pre>\s*</div>\s*</div>\s*</div>\s*</div>""",
-            RegexOption.DOT_MATCHES_ALL
-        )
+        val blockRegex =
+            Regex(
+                """<div[^>]*class="[^"]*hyperframes-kinetic-captions[^"]*"[^>]*>\s*<h2[^>]*id="([^"]*)"[^>]*>([^<]*)</h2>\s*<div class="sectionbody">\s*<div class="listingblock">\s*<div class="content">\s*<pre>(.*?)</pre>\s*</div>\s*</div>\s*</div>\s*</div>""",
+                RegexOption.DOT_MATCHES_ALL,
+            )
         val lineRegex = Regex("""^\s*([0-9]+(?:\.[0-9]+)?)\s*(?:-&gt;|&#8594;|->)\s*([0-9]+(?:\.[0-9]+)?)\s*:\s*(.+?)\s*$""")
 
         return html.replace(blockRegex) { match ->
             val id = match.groupValues[1]
-            val captions = match.groupValues[3].lineSequence().mapNotNull { line ->
-                lineRegex.find(line)?.let { Caption(it.groupValues[1].toDouble(), it.groupValues[2].toDouble(), it.groupValues[3]) }
-            }.toList()
+            val captions =
+                match.groupValues[3]
+                    .lineSequence()
+                    .mapNotNull { line ->
+                        lineRegex.find(line)?.let { Caption(it.groupValues[1].toDouble(), it.groupValues[2].toDouble(), it.groupValues[3]) }
+                    }.toList()
             KineticCaptionsTemplate(id = id, captions = captions).render()
         }
     }
@@ -1024,11 +1130,15 @@ class HyperframesHtmlProcessor internal constructor(
     // Pronunciation block (HF-7c)
     // ──────────────────────────────────────────────────────────────
 
-    private fun expandPronunciationBlocks(html: String, dictionary: PronunciationDictionary): String {
-        val blockRegex = Regex(
-            """<div[^>]*class="[^"]*hyperframes-pronunciation[^"]*"[^>]*>\s*<div class="content">\s*<pre>(.*?)</pre>\s*</div>\s*</div>""",
-            RegexOption.DOT_MATCHES_ALL
-        )
+    private fun expandPronunciationBlocks(
+        html: String,
+        dictionary: PronunciationDictionary,
+    ): String {
+        val blockRegex =
+            Regex(
+                """<div[^>]*class="[^"]*hyperframes-pronunciation[^"]*"[^>]*>\s*<div class="content">\s*<pre>(.*?)</pre>\s*</div>\s*</div>""",
+                RegexOption.DOT_MATCHES_ALL,
+            )
         val lineRegex = Regex("""^\s*([^:]+?)\s*:\s*(.+?)\s*$""")
 
         return html.replace(blockRegex) { match ->
@@ -1046,10 +1156,11 @@ class HyperframesHtmlProcessor internal constructor(
     // ──────────────────────────────────────────────────────────────
 
     private fun enhanceAnimationBlocks(html: String): String {
-        val regex = Regex(
-            """<div[^>]*class="[^"]*hyperframes-animation[^"]*"[^>]*>\s*<div class="content">\s*<pre>(.*?)</pre>\s*</div>\s*</div>""",
-            RegexOption.DOT_MATCHES_ALL
-        )
+        val regex =
+            Regex(
+                """<div[^>]*class="[^"]*hyperframes-animation[^"]*"[^>]*>\s*<div class="content">\s*<pre>(.*?)</pre>\s*</div>\s*</div>""",
+                RegexOption.DOT_MATCHES_ALL,
+            )
         return html.replace(regex) { match ->
             val code = match.groupValues[1].trim()
             buildString {
@@ -1083,10 +1194,11 @@ class HyperframesHtmlProcessor internal constructor(
         val ROLE_FADE = Regex("""(?:^|\s)hf-transition-fade(?:\s|$)""")
         val ROLE_BLUR = Regex("""(?:^|\s)hf-transition-blur-crossfade(?:\s|$)""")
         val ROLE_PUSH = Regex("""(?:^|\s)hf-transition-vertical-push(?:\s|$)""")
-        val BACKGROUND_BLOCK = Regex(
-            """<div[^>]*class="[^"]*hyperframes-background[^"]*"[^>]*>\s*<div class="content">\s*<pre[^>]*>(.*?)</pre>\s*</div>\s*</div>""",
-            RegexOption.DOT_MATCHES_ALL
-        )
+        val BACKGROUND_BLOCK =
+            Regex(
+                """<div[^>]*class="[^"]*hyperframes-background[^"]*"[^>]*>\s*<div class="content">\s*<pre[^>]*>(.*?)</pre>\s*</div>\s*</div>""",
+                RegexOption.DOT_MATCHES_ALL,
+            )
         val GRID_PALETTE = listOf("#f59e0b", "#38bdf8", "#f8fafc", "#1e293b", "#b45309")
 
         val DESIGN_CSS = """

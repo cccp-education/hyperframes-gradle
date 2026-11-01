@@ -3,7 +3,6 @@ package hyperframes
 import org.junit.jupiter.api.Test
 import kotlin.test.assertContains
 import kotlin.test.assertFalse
-import kotlin.test.assertTrue
 
 /**
  * Tests unitaires pour [HyperframesHtmlProcessor] (HF-CR4).
@@ -14,16 +13,17 @@ import kotlin.test.assertTrue
  * un design system embarqué. Ces tests pinnent ce contrat.
  */
 class HyperframesHtmlProcessorTest {
-
-    private val processor = HyperframesHtmlProcessor(
-        width = 1920,
-        height = 1080,
-        fps = 30,
-        outputName = "test-video"
-    )
+    private val processor =
+        HyperframesHtmlProcessor(
+            width = 1920,
+            height = 1080,
+            fps = 30,
+            outputName = "test-video",
+        )
 
     /** Minimal Asciidoctor-shaped document with one plain section. */
-    private fun asciidoctorDocument(section: String): String = """
+    private fun asciidoctorDocument(section: String): String =
+        """
         <!DOCTYPE html>
         <html>
         <head><title>Test</title></head>
@@ -35,7 +35,7 @@ class HyperframesHtmlProcessorTest {
         <div id="footer"><div id="footer-text">last updated</div></div>
         </body>
         </html>
-    """.trimIndent()
+        """.trimIndent()
 
     // ──────────────────────────────────────────────
     // 1. Root composition
@@ -76,16 +76,17 @@ class HyperframesHtmlProcessorTest {
 
     @Test
     fun `each top-level section becomes a full-bleed scene clip`() {
-        val result = processor.enhance(
-            asciidoctorDocument(
-                """
-                <div class="sect1">
-                <h2 id="intro">Introduction</h2>
-                <div class="sectionbody"><div class="paragraph"><p>Content</p></div></div>
-                </div>
-                """.trimIndent()
+        val result =
+            processor.enhance(
+                asciidoctorDocument(
+                    """
+                    <div class="sect1">
+                    <h2 id="intro">Introduction</h2>
+                    <div class="sectionbody"><div class="paragraph"><p>Content</p></div></div>
+                    </div>
+                    """.trimIndent(),
+                ),
             )
-        )
 
         assertContains(result, """class="scene clip" id="intro"""")
         assertContains(result, """data-composition-id="intro"""")
@@ -96,9 +97,10 @@ class HyperframesHtmlProcessorTest {
 
     @Test
     fun `the document header becomes a leading title scene`() {
-        val result = processor.enhance(
-            asciidoctorDocument("""<div class="sect1"><h2 id="a">A</h2></div>""")
-        )
+        val result =
+            processor.enhance(
+                asciidoctorDocument("""<div class="sect1"><h2 id="a">A</h2></div>"""),
+            )
 
         assertContains(result, """class="scene clip" id="hf-title"""")
         assertContains(result, "Doc title")
@@ -106,11 +108,12 @@ class HyperframesHtmlProcessorTest {
 
     @Test
     fun `an explicit composition id wins over the heading id`() {
-        val result = processor.enhance(
-            asciidoctorDocument(
-                """<div class="sect1 hyperframes-composition" data-composition-id="intro"><h2 id="legacy">Intro</h2></div>"""
+        val result =
+            processor.enhance(
+                asciidoctorDocument(
+                    """<div class="sect1 hyperframes-composition" data-composition-id="intro"><h2 id="legacy">Intro</h2></div>""",
+                ),
             )
-        )
 
         assertContains(result, """class="scene clip" id="intro"""")
     }
@@ -119,23 +122,24 @@ class HyperframesHtmlProcessorTest {
     fun `reserved clip-timing attributes are stripped from nested content`() {
         // A legacy .hyperframes-track wrapper must not keep data-start/duration:
         // the runtime would hide it outside its (absolute) window and blank the scene.
-        val result = processor.enhance(
-            asciidoctorDocument(
-                """
-                <div class="sect1">
-                <h2 id="a">A</h2>
-                <div class="sectionbody">
-                <div class="paragraph hyperframes-track" data-track-index="0" data-start="0" data-duration="6"><p>Track content</p></div>
-                </div>
-                </div>
-                """.trimIndent()
+        val result =
+            processor.enhance(
+                asciidoctorDocument(
+                    """
+                    <div class="sect1">
+                    <h2 id="a">A</h2>
+                    <div class="sectionbody">
+                    <div class="paragraph hyperframes-track" data-track-index="0" data-start="0" data-duration="6"><p>Track content</p></div>
+                    </div>
+                    </div>
+                    """.trimIndent(),
+                ),
             )
-        )
 
         assertContains(result, "Track content")
         assertFalse(
             result.contains("hyperframes-track\" data-track-index"),
-            "nested track wrappers must drop the reserved timing attributes"
+            "nested track wrappers must drop the reserved timing attributes",
         )
     }
 
@@ -165,18 +169,19 @@ class HyperframesHtmlProcessorTest {
 
     @Test
     fun `author animation code is collected and reused by the scene timeline`() {
-        val result = processor.enhance(
-            asciidoctorDocument(
-                """
-                <div class="sect1">
-                <h2 id="anim">Anim</h2>
-                <div class="listingblock hyperframes-animation"><div class="content"><pre>const tl = gsap.timeline({ paused: true });
-                tl.from("#anim", { opacity: 0, duration: 0.8 }, 0);
-                window.__timelines["anim"] = tl;</pre></div></div>
-                </div>
-                """.trimIndent()
+        val result =
+            processor.enhance(
+                asciidoctorDocument(
+                    """
+                    <div class="sect1">
+                    <h2 id="anim">Anim</h2>
+                    <div class="listingblock hyperframes-animation"><div class="content"><pre>const tl = gsap.timeline({ paused: true });
+                    tl.from("#anim", { opacity: 0, duration: 0.8 }, 0);
+                    window.__timelines["anim"] = tl;</pre></div></div>
+                    </div>
+                    """.trimIndent(),
+                ),
             )
-        )
 
         // Author motion registered first, then reused (not recreated) by the scene.
         assertContains(result, """tl.from("#anim"""")
@@ -190,16 +195,17 @@ class HyperframesHtmlProcessorTest {
 
     @Test
     fun `title-card block expands into a designed title scene`() {
-        val result = processor.enhance(
-            asciidoctorDocument(
-                """
-                <div class="sect1 hyperframes-title-card">
-                <h2 id="intro">My Presentation</h2>
-                <div class="sectionbody"><div class="paragraph"><p>Module 01</p></div></div>
-                </div>
-                """.trimIndent()
+        val result =
+            processor.enhance(
+                asciidoctorDocument(
+                    """
+                    <div class="sect1 hyperframes-title-card">
+                    <h2 id="intro">My Presentation</h2>
+                    <div class="sectionbody"><div class="paragraph"><p>Module 01</p></div></div>
+                    </div>
+                    """.trimIndent(),
+                ),
             )
-        )
 
         assertContains(result, "hf-title-card-title\">My Presentation</span>")
         assertContains(result, "hf-title-card-subtitle\">Module 01</span>")
@@ -207,19 +213,20 @@ class HyperframesHtmlProcessorTest {
 
     @Test
     fun `code-diff block expands into a scene with before and after pre blocks`() {
-        val result = processor.enhance(
-            asciidoctorDocument(
-                """
-                <div class="sect1 hyperframes-code-diff">
-                <h2 id="refactor-demo">Refactoring demo</h2>
-                <div class="sectionbody">
-                <div class="listingblock"><div class="content"><pre class="highlight"><code class="language-kotlin" data-lang="kotlin">val x = oldFunc()</code></pre></div></div>
-                <div class="listingblock"><div class="content"><pre class="highlight"><code class="language-kotlin" data-lang="kotlin">val x = newFunc()</code></pre></div></div>
-                </div>
-                </div>
-                """.trimIndent()
+        val result =
+            processor.enhance(
+                asciidoctorDocument(
+                    """
+                    <div class="sect1 hyperframes-code-diff">
+                    <h2 id="refactor-demo">Refactoring demo</h2>
+                    <div class="sectionbody">
+                    <div class="listingblock"><div class="content"><pre class="highlight"><code class="language-kotlin" data-lang="kotlin">val x = oldFunc()</code></pre></div></div>
+                    <div class="listingblock"><div class="content"><pre class="highlight"><code class="language-kotlin" data-lang="kotlin">val x = newFunc()</code></pre></div></div>
+                    </div>
+                    </div>
+                    """.trimIndent(),
+                ),
             )
-        )
 
         assertContains(result, """class="scene clip" id="refactor-demo"""")
         assertContains(result, "hf-code-diff-before")
@@ -230,17 +237,18 @@ class HyperframesHtmlProcessorTest {
 
     @Test
     fun `data-chart block expands into a scene with proportional bars`() {
-        val result = processor.enhance(
-            asciidoctorDocument(
-                """
-                <div class="sect1 hyperframes-data-chart">
-                <h2 id="sales">Sales</h2>
-                <div class="sectionbody"><div class="listingblock"><div class="content"><pre>Q1: 30
-                Q2: 60</pre></div></div></div>
-                </div>
-                """.trimIndent()
+        val result =
+            processor.enhance(
+                asciidoctorDocument(
+                    """
+                    <div class="sect1 hyperframes-data-chart">
+                    <h2 id="sales">Sales</h2>
+                    <div class="sectionbody"><div class="listingblock"><div class="content"><pre>Q1: 30
+                    Q2: 60</pre></div></div></div>
+                    </div>
+                    """.trimIndent(),
+                ),
             )
-        )
 
         assertContains(result, "hf-data-chart-bar")
         assertContains(result, """style="height:100%"""")
@@ -252,38 +260,43 @@ class HyperframesHtmlProcessorTest {
 
     @Test
     fun `a grid transition on the outgoing scene emits a cover overlay and root tweens`() {
-        val result = processor.enhance(
-            asciidoctorDocument(
-                """
-                <div class="sect1 hyperframes-composition hf-transition-grid" id="one"><h2 id="s1">One</h2></div>
-                <div class="sect1"><h2 id="s2">Two</h2></div>
-                """.trimIndent()
+        val result =
+            processor.enhance(
+                asciidoctorDocument(
+                    """
+                    <div class="sect1 hyperframes-composition hf-transition-grid" id="one"><h2 id="s1">One</h2></div>
+                    <div class="sect1"><h2 id="s2">Two</h2></div>
+                    """.trimIndent(),
+                ),
             )
-        )
 
         assertContains(result, """class="hf-transition hf-transition-grid" id="hf-transition-1"""")
-        assertEquals(12, Regex("""class="hf-transition-cell"""").findAll(result).count(),
-            "the grid dissolve covers the frame with 12 cells")
+        assertEquals(
+            12,
+            Regex("""class="hf-transition-cell"""").findAll(result).count(),
+            "the grid dissolve covers the frame with 12 cells",
+        )
         assertContains(result, """rootTl.to("#hf-transition-1 .hf-transition-cell"""")
         assertContains(result, """window.__timelines["root"] = rootTl;""")
         assertFalse(
             result.contains("""window.__timelines["root"] = gsap.timeline({ paused: true });"""),
-            "a transition must replace the historical empty root timeline"
+            "a transition must replace the historical empty root timeline",
         )
         assertFalse(result.contains("data-layout-allow-overlap"), "a cover transition does not overlap the scenes")
     }
 
     @Test
     fun `shutter and fade roles emit their own overlays`() {
-        val result = processor.enhance(
-            asciidoctorDocument(
-                """
-                <div class="sect1 hyperframes-composition hf-transition-shutter" id="one"><h2 id="s1">One</h2></div>
-                <div class="sect1 hyperframes-composition hf-transition-fade" id="two"><h2 id="s2">Two</h2></div>
-                <div class="sect1"><h2 id="s3">Three</h2></div>
-                """.trimIndent()
+        val result =
+            processor.enhance(
+                asciidoctorDocument(
+                    """
+                    <div class="sect1 hyperframes-composition hf-transition-shutter" id="one"><h2 id="s1">One</h2></div>
+                    <div class="sect1 hyperframes-composition hf-transition-fade" id="two"><h2 id="s2">Two</h2></div>
+                    <div class="sect1"><h2 id="s3">Three</h2></div>
+                    """.trimIndent(),
+                ),
             )
-        )
 
         assertContains(result, """class="hf-transition hf-transition-shutter" id="hf-transition-1"""")
         assertContains(result, """class="hf-shutter-top"""")
@@ -295,31 +308,33 @@ class HyperframesHtmlProcessorTest {
 
     @Test
     fun `a transitioned scene does not fade out before its boundary`() {
-        val result = processor.enhance(
-            asciidoctorDocument(
-                """
-                <div class="sect1 hyperframes-composition hf-transition-grid" id="one"><h2 id="s1">One</h2></div>
-                <div class="sect1"><h2 id="s2">Two</h2></div>
-                """.trimIndent()
+        val result =
+            processor.enhance(
+                asciidoctorDocument(
+                    """
+                    <div class="sect1 hyperframes-composition hf-transition-grid" id="one"><h2 id="s1">One</h2></div>
+                    <div class="sect1"><h2 id="s2">Two</h2></div>
+                    """.trimIndent(),
+                ),
             )
-        )
 
         assertFalse(
             result.contains("""t.to("#s1", { opacity: 0"""),
-            "the cover overlay owns the handoff; the scene must stay visible until the boundary"
+            "the cover overlay owns the handoff; the scene must stay visible until the boundary",
         )
     }
 
     @Test
     fun `no transition keeps the historical empty root timeline`() {
-        val result = processor.enhance(
-            asciidoctorDocument(
-                """
-                <div class="sect1"><h2 id="s1">One</h2></div>
-                <div class="sect1"><h2 id="s2">Two</h2></div>
-                """.trimIndent()
+        val result =
+            processor.enhance(
+                asciidoctorDocument(
+                    """
+                    <div class="sect1"><h2 id="s1">One</h2></div>
+                    <div class="sect1"><h2 id="s2">Two</h2></div>
+                    """.trimIndent(),
+                ),
             )
-        )
 
         assertContains(result, """window.__timelines["root"] = gsap.timeline({ paused: true });""")
         assertFalse(result.contains("""class="hf-transition hf-transition-"""), "no overlay without a role")
@@ -327,13 +342,14 @@ class HyperframesHtmlProcessorTest {
 
     @Test
     fun `a transition on the last scene is ignored`() {
-        val result = processor.enhance(
-            asciidoctorDocument(
-                """
-                <div class="sect1 hyperframes-composition hf-transition-grid" id="one"><h2 id="s1">One</h2></div>
-                """.trimIndent()
+        val result =
+            processor.enhance(
+                asciidoctorDocument(
+                    """
+                    <div class="sect1 hyperframes-composition hf-transition-grid" id="one"><h2 id="s1">One</h2></div>
+                    """.trimIndent(),
+                ),
             )
-        )
 
         assertFalse(result.contains("""class="hf-transition hf-transition-"""), "nothing to transition to")
         assertContains(result, """window.__timelines["root"] = gsap.timeline({ paused: true });""")
@@ -345,14 +361,15 @@ class HyperframesHtmlProcessorTest {
 
     @Test
     fun `a blur-crossfade pulls the incoming scene earlier and animates both wrappers`() {
-        val result = processor.enhance(
-            asciidoctorDocument(
-                """
-                <div class="sect1 hyperframes-composition hf-transition-blur-crossfade" id="one" data-composition-id="one" data-duration="2"><h2 id="s1">One</h2></div>
-                <div class="sect1" id="two" data-composition-id="two" data-duration="2"><h2 id="s2">Two</h2></div>
-                """.trimIndent()
+        val result =
+            processor.enhance(
+                asciidoctorDocument(
+                    """
+                    <div class="sect1 hyperframes-composition hf-transition-blur-crossfade" id="one" data-composition-id="one" data-duration="2"><h2 id="s1">One</h2></div>
+                    <div class="sect1" id="two" data-composition-id="two" data-duration="2"><h2 id="s2">Two</h2></div>
+                    """.trimIndent(),
+                ),
             )
-        )
 
         assertContains(result, """id="two" data-composition-id="two" data-start="6.40"""")
         assertContains(result, """gsap.set("#two", { opacity: 0, filter: "blur(18px)" });""")
@@ -368,14 +385,15 @@ class HyperframesHtmlProcessorTest {
 
     @Test
     fun `a vertical-push overlaps the scenes and translates both wrappers`() {
-        val result = processor.enhance(
-            asciidoctorDocument(
-                """
-                <div class="sect1 hyperframes-composition hf-transition-vertical-push" id="one" data-composition-id="one" data-duration="2"><h2 id="s1">One</h2></div>
-                <div class="sect1" id="two" data-composition-id="two" data-duration="2"><h2 id="s2">Two</h2></div>
-                """.trimIndent()
+        val result =
+            processor.enhance(
+                asciidoctorDocument(
+                    """
+                    <div class="sect1 hyperframes-composition hf-transition-vertical-push" id="one" data-composition-id="one" data-duration="2"><h2 id="s1">One</h2></div>
+                    <div class="sect1" id="two" data-composition-id="two" data-duration="2"><h2 id="s2">Two</h2></div>
+                    """.trimIndent(),
+                ),
             )
-        )
 
         assertContains(result, """id="two" data-composition-id="two" data-start="6.40"""")
         assertContains(result, """gsap.set("#two", { yPercent: 100 });""")
@@ -391,14 +409,15 @@ class HyperframesHtmlProcessorTest {
 
     @Test
     fun `an overlap transition shortens the composition by its shared window`() {
-        val result = processor.enhance(
-            asciidoctorDocument(
-                """
-                <div class="sect1 hyperframes-composition hf-transition-blur-crossfade" id="one" data-composition-id="one" data-duration="2"><h2 id="s1">One</h2></div>
-                <div class="sect1" id="two" data-composition-id="two" data-duration="2"><h2 id="s2">Two</h2></div>
-                """.trimIndent()
+        val result =
+            processor.enhance(
+                asciidoctorDocument(
+                    """
+                    <div class="sect1 hyperframes-composition hf-transition-blur-crossfade" id="one" data-composition-id="one" data-duration="2"><h2 id="s1">One</h2></div>
+                    <div class="sect1" id="two" data-composition-id="two" data-duration="2"><h2 id="s2">Two</h2></div>
+                    """.trimIndent(),
+                ),
             )
-        )
 
         // title 5 + scene one 2 + scene two 2 - overlap 0.6 = 8.4
         assertContains(result, """data-composition-id="root" data-start="0" data-duration="8.40"""")
@@ -410,16 +429,17 @@ class HyperframesHtmlProcessorTest {
 
     @Test
     fun `an audio block emits direct audio children with start and volume`() {
-        val result = processor.enhance(
-            asciidoctorDocument(
-                """
-                <div class="sect1"><h2 id="a">A</h2>
-                <div class="listingblock hyperframes-audio"><div class="content"><pre>bgm: assets/audio/bgm.mp3 volume=0.3
-                sfx: 6.0 assets/audio/whoosh.mp3 volume=0.25</pre></div></div>
-                </div>
-                """.trimIndent()
+        val result =
+            processor.enhance(
+                asciidoctorDocument(
+                    """
+                    <div class="sect1"><h2 id="a">A</h2>
+                    <div class="listingblock hyperframes-audio"><div class="content"><pre>bgm: assets/audio/bgm.mp3 volume=0.3
+                    sfx: 6.0 assets/audio/whoosh.mp3 volume=0.25</pre></div></div>
+                    </div>
+                    """.trimIndent(),
+                ),
             )
-        )
 
         assertContains(result, """<audio id="hf-audio-0" src="assets/audio/bgm.mp3" """)
         assertContains(result, """data-start="0" data-duration="10"""")
@@ -429,22 +449,23 @@ class HyperframesHtmlProcessorTest {
         assertContains(result, """data-volume="0.25"""")
         assertFalse(
             result.contains("listingblock hyperframes-audio"),
-            "the audio block must be removed from the scene content"
+            "the audio block must be removed from the scene content",
         )
     }
 
     @Test
     fun `an invalid audio line is skipped and an empty block emits nothing`() {
-        val result = processor.enhance(
-            asciidoctorDocument(
-                """
-                <div class="sect1"><h2 id="a">A</h2>
-                <div class="listingblock hyperframes-audio"><div class="content"><pre>bad: nope
-                sfx: not-a-time file.mp3</pre></div></div>
-                </div>
-                """.trimIndent()
+        val result =
+            processor.enhance(
+                asciidoctorDocument(
+                    """
+                    <div class="sect1"><h2 id="a">A</h2>
+                    <div class="listingblock hyperframes-audio"><div class="content"><pre>bad: nope
+                    sfx: not-a-time file.mp3</pre></div></div>
+                    </div>
+                    """.trimIndent(),
+                ),
             )
-        )
 
         assertFalse(result.contains("""<audio"""), "no cue must be emitted from invalid lines")
     }
@@ -456,7 +477,11 @@ class HyperframesHtmlProcessorTest {
         assertFalse(result.contains("""<audio"""), "no audio by default")
     }
 
-    private fun assertEquals(expected: Int, actual: Int, message: String) {
+    private fun assertEquals(
+        expected: Int,
+        actual: Int,
+        message: String,
+    ) {
         kotlin.test.assertEquals(expected, actual, message)
     }
 }

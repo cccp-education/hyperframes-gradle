@@ -1,7 +1,5 @@
 package hyperframes
 
-import video.kernel.FileVisualSource
-import video.kernel.VideoRenderRequest
 import hyperframes.contract.FfprobeDurationProbe
 import hyperframes.kernel.HyperFramesEngine
 import hyperframes.kernel.HyperFramesEngineConfig
@@ -13,6 +11,8 @@ import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.OutputDirectory
 import org.gradle.api.tasks.TaskAction
 import org.gradle.work.DisableCachingByDefault
+import video.kernel.FileVisualSource
+import video.kernel.VideoRenderRequest
 import java.io.File
 import java.util.concurrent.TimeUnit
 
@@ -20,7 +20,9 @@ import java.util.concurrent.TimeUnit
  * Exception lancée par le pipeline HyperFrames.
  * Gradle traite RuntimeException comme échec de tâche.
  */
-private class HyperframesException(message: String) : RuntimeException(message)
+private class HyperframesException(
+    message: String,
+) : RuntimeException(message)
 
 /**
  * Tâche Gradle qui rend le HTML HyperFrames en MP4 via le **noyau partagé**.
@@ -38,7 +40,6 @@ private class HyperframesException(message: String) : RuntimeException(message)
  */
 @DisableCachingByDefault(because = "External process-bound: calls Node.js HyperFrames CLI")
 abstract class RenderHyperframesTask : DefaultTask() {
-
     @get:OutputDirectory
     abstract val outputDir: DirectoryProperty
 
@@ -106,30 +107,32 @@ abstract class RenderHyperframesTask : DefaultTask() {
         // US-3 (S-018) — delegate the whole-document render to the shared-kernel
         // adapter (`HyperFramesEngine : video.kernel.VideoEngine`). The task owns
         // the Gradle-facing diagnostics; the engine owns the CLI invocation.
-        val engine = HyperFramesEngine(
-            HyperFramesEngineConfig(
-                nodeExecutable = nodeExe.absolutePath,
-                cliScript = cliScriptFile.absolutePath,
-                timeoutMillis = renderTimeoutMs.get(),
-                width = width.get(),
-                height = height.get(),
-                durationProbe = { file ->
-                    FfprobeDurationProbe(ffprobeExecutable.orNull ?: "ffprobe").probeSeconds(file)
-                },
+        val engine =
+            HyperFramesEngine(
+                HyperFramesEngineConfig(
+                    nodeExecutable = nodeExe.absolutePath,
+                    cliScript = cliScriptFile.absolutePath,
+                    timeoutMillis = renderTimeoutMs.get(),
+                    width = width.get(),
+                    height = height.get(),
+                    durationProbe = { file ->
+                        FfprobeDurationProbe(ffprobeExecutable.orNull ?: "ffprobe").probeSeconds(file)
+                    },
+                ),
             )
-        )
-        val request = VideoRenderRequest(
-            name = outputName.get(),
-            visual = FileVisualSource(htmlFile),
-            outputDir = outputDirFile,
-            timeoutMillis = renderTimeoutMs.get(),
-        )
+        val request =
+            VideoRenderRequest(
+                name = outputName.get(),
+                visual = FileVisualSource(htmlFile),
+                outputDir = outputDirFile,
+                timeoutMillis = renderTimeoutMs.get(),
+            )
         val process = engine.renderDetailed(request).process
 
         if (process.timedOut) {
             throw HyperframesException(
                 "HyperFrames CLI timed out after ${renderTimeoutMs.get()}ms. " +
-                    "Increase renderTimeoutMs in the hyperframes extension."
+                    "Increase renderTimeoutMs in the hyperframes extension.",
             )
         }
 
@@ -142,20 +145,20 @@ abstract class RenderHyperframesTask : DefaultTask() {
                         appendLine("Output:")
                         appendLine(process.output)
                     }
-                }
+                },
             )
         }
 
         // Vérifier que le fichier MP4 a été produit
         if (!outputMp4.exists()) {
             throw HyperframesException(
-                "HyperFrames CLI completed but output MP4 not found: ${outputMp4.absolutePath}"
+                "HyperFrames CLI completed but output MP4 not found: ${outputMp4.absolutePath}",
             )
         }
 
         if (outputMp4.length() == 0L) {
             throw HyperframesException(
-                "HyperFrames CLI completed but output MP4 is empty: ${outputMp4.absolutePath}"
+                "HyperFrames CLI completed but output MP4 is empty: ${outputMp4.absolutePath}",
             )
         }
 
@@ -178,11 +181,13 @@ abstract class RenderHyperframesTask : DefaultTask() {
             return script
         }
         // Chemin par défaut : node_modules/.bin/hyperframes
-        val defaultScript = outputDir.asFile.get()
-            .parentFile
-            .resolve("node_modules")
-            .resolve(".bin")
-            .resolve("hyperframes")
+        val defaultScript =
+            outputDir.asFile
+                .get()
+                .parentFile
+                .resolve("node_modules")
+                .resolve(".bin")
+                .resolve("hyperframes")
         require(defaultScript.exists()) {
             buildString {
                 appendLine("HyperFrames CLI script not found at default path: ${defaultScript.absolutePath}")
@@ -212,11 +217,12 @@ abstract class RenderHyperframesTask : DefaultTask() {
         }
 
         // 2. Plugin Gradle Node — répertoire node downloadé
-        val gradleNodeDir = project.layout.buildDirectory
-            .map { it.asFile }
-            .getOrElse(project.projectDir)
-            .resolve("node")
-            .resolve("bin")
+        val gradleNodeDir =
+            project.layout.buildDirectory
+                .map { it.asFile }
+                .getOrElse(project.projectDir)
+                .resolve("node")
+                .resolve("bin")
         val gradleNodeExe = gradleNodeDir.resolve("node")
         if (gradleNodeExe.exists()) {
             return gradleNodeExe
@@ -225,11 +231,12 @@ abstract class RenderHyperframesTask : DefaultTask() {
         // 3. Cache Gradle Node (sous ~/.gradle)
         val gradleCacheNodeDir = File(project.gradle.gradleUserHomeDir, "nodejs")
         if (gradleCacheNodeDir.exists()) {
-            val cachedNode = gradleCacheNodeDir
-                .listFiles()
-                ?.firstOrNull { it.isDirectory && it.name.startsWith("node-v") }
-                ?.resolve("bin")
-                ?.resolve("node")
+            val cachedNode =
+                gradleCacheNodeDir
+                    .listFiles()
+                    ?.firstOrNull { it.isDirectory && it.name.startsWith("node-v") }
+                    ?.resolve("bin")
+                    ?.resolve("node")
             if (cachedNode?.exists() == true) {
                 return cachedNode
             }
@@ -237,16 +244,23 @@ abstract class RenderHyperframesTask : DefaultTask() {
 
         // 4. Fallback : PATH système
         try {
-            val process = ProcessBuilder("which", "node")
-                .redirectErrorStream(true)
-                .start()
+            val process =
+                ProcessBuilder("which", "node")
+                    .redirectErrorStream(true)
+                    .start()
             process.waitFor(2, TimeUnit.SECONDS)
-            val nodePath = process.inputStream.bufferedReader().readText().trim()
+            val nodePath =
+                process.inputStream
+                    .bufferedReader()
+                    .readText()
+                    .trim()
             if (nodePath.isNotBlank()) {
                 val systemNode = File(nodePath)
                 if (systemNode.exists()) {
-                    logger.warn("Using system Node.js at ${systemNode.absolutePath}. " +
-                        "Set nodeExecutable in the hyperframes extension for reproducible builds.")
+                    logger.warn(
+                        "Using system Node.js at ${systemNode.absolutePath}. " +
+                            "Set nodeExecutable in the hyperframes extension for reproducible builds.",
+                    )
                     return systemNode
                 }
             }
@@ -257,7 +271,7 @@ abstract class RenderHyperframesTask : DefaultTask() {
         throw HyperframesException(
             "Node.js executable not found. " +
                 "Install node on the PATH or set nodeExecutable " +
-                "in the hyperframes extension."
+                "in the hyperframes extension.",
         )
     }
 }

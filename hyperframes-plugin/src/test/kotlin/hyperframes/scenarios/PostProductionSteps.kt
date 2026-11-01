@@ -1,7 +1,7 @@
 package hyperframes.scenarios
 
-import hyperframes.post.CommandRunner
 import hyperframes.post.CommandResult
+import hyperframes.post.CommandRunner
 import hyperframes.post.EspeakTextToSpeech
 import hyperframes.post.HyperframesAudioPostCommand
 import hyperframes.post.HyperframesSubtitleCommand
@@ -9,11 +9,11 @@ import hyperframes.post.NarrationTrackExtractor
 import io.cucumber.java.en.Given
 import io.cucumber.java.en.Then
 import io.cucumber.java.en.When
+import video.kernel.AudioPostSettings
 import java.io.File
 import kotlin.test.assertContains
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
-import video.kernel.AudioPostSettings
 
 /**
  * Steps for the shared post-production / narration ports (VK-4 US-4b→d).
@@ -22,7 +22,6 @@ import video.kernel.AudioPostSettings
  * Pure-domain: the fake runner never spawns a process.
  */
 class PostProductionSteps {
-
     private var settings: AudioPostSettings = AudioPostSettings()
     private var hasBed: Boolean = false
     private var filterGraph: String = ""
@@ -62,9 +61,13 @@ class PostProductionSteps {
 
     @When("I build the hyperframes subtitle command for {string}")
     fun buildSubtitle(subtitles: String) {
-        subtitleArgv = HyperframesSubtitleCommand.buildArgv(
-            File("/v/in.mp4"), File(subtitles), File("/v/out.mp4"), "ffmpeg",
-        )
+        subtitleArgv =
+            HyperframesSubtitleCommand.buildArgv(
+                File("/v/in.mp4"),
+                File(subtitles),
+                File("/v/out.mp4"),
+                "ffmpeg",
+            )
     }
 
     @Then("the subtitle argv contains {string}")
@@ -74,17 +77,25 @@ class PostProductionSteps {
 
     @Given("a post production fake command runner that writes the output")
     fun fakeRunner() {
-        runner = CommandRunner { argv, _, _ ->
-            val w = argv.indexOf("-w")
-            val out = if (w >= 0) argv[w + 1] else argv.last()
-            File(out).apply { parentFile?.mkdirs() }.writeText("produced")
-            CommandResult(exitCode = 0)
-        }
+        runner =
+            CommandRunner { argv, _, _ ->
+                val w = argv.indexOf("-w")
+                val out = if (w >= 0) argv[w + 1] else argv.last()
+                File(out).apply { parentFile?.mkdirs() }.writeText("produced")
+                CommandResult(exitCode = 0)
+            }
     }
 
     @When("I synthesize narration {string} into {string}")
-    fun synthesize(text: String, fileName: String) {
-        val output = File.createTempFile("hf-narration-", "-$fileName").let { it.delete(); File(it.parentFile, fileName) }
+    fun synthesize(
+        text: String,
+        fileName: String,
+    ) {
+        val output =
+            File.createTempFile("hf-narration-", "-$fileName").let {
+                it.delete()
+                File(it.parentFile, fileName)
+            }
         synthesized = EspeakTextToSpeech(runner = runner).synthesize(text, output)
         output.delete()
     }

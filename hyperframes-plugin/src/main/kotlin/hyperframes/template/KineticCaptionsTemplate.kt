@@ -16,9 +16,8 @@ package hyperframes.template
 data class KineticCaptionsTemplate(
     val id: String,
     val captions: List<Caption>,
-    val durationSeconds: Double = 5.0
+    val durationSeconds: Double = 5.0,
 ) {
-
     /**
      * Renders the HyperFrames HTML fragment.
      *
@@ -28,35 +27,38 @@ data class KineticCaptionsTemplate(
      * via `display:none`), and a GSAP timeline that fades each caption in
      * at its start time and out at its end time.
      */
-    fun render(): String = buildString {
-        val durationInt = durationSeconds.toInt()
-        appendLine("<div class=\"sect1 hyperframes-composition\" data-composition-id=\"$id\">")
-        appendLine("  <div class=\"sectionbody\">")
-        appendLine("    <div class=\"paragraph hyperframes-track\" data-track-index=\"0\" data-start=\"0\" data-duration=\"$durationInt\">")
-        appendLine("      <div class=\"hf-kinetic-captions\">")
-        if (captions.isEmpty()) {
-            appendLine("        <div class=\"hf-kinetic-captions-empty\"></div>")
-        } else {
-            captions.forEach { caption ->
-                appendLine("        <div class=\"hf-kinetic-caption\" data-at=\"${caption.start}\" data-until=\"${caption.end}\" style=\"opacity:0\">${caption.text}</div>")
+    fun render(): String =
+        buildString {
+            val durationInt = durationSeconds.toInt()
+            appendLine("<div class=\"sect1 hyperframes-composition\" data-composition-id=\"$id\">")
+            appendLine("  <div class=\"sectionbody\">")
+            appendLine("    <div class=\"paragraph hyperframes-track\" data-track-index=\"0\" data-start=\"0\" data-duration=\"$durationInt\">")
+            appendLine("      <div class=\"hf-kinetic-captions\">")
+            if (captions.isEmpty()) {
+                appendLine("        <div class=\"hf-kinetic-captions-empty\"></div>")
+            } else {
+                captions.forEach { caption ->
+                    appendLine(
+                        "        <div class=\"hf-kinetic-caption\" data-at=\"${caption.start}\" data-until=\"${caption.end}\" style=\"opacity:0\">${caption.text}</div>",
+                    )
+                }
             }
+            appendLine("      </div>")
+            appendLine("    </div>")
+            appendLine("    <script type=\"text/javascript\">")
+            appendLine("      window.__timelines = window.__timelines || {};")
+            appendLine("      (function () {")
+            appendLine("        const tl = gsap.timeline({ paused: true });")
+            captions.forEach { caption ->
+                appendLine("        tl.to(\"#$id .hf-kinetic-caption[data-at=\\\"${caption.start}\\\"]\", { opacity: 1, duration: 0.2 }, ${caption.start});")
+                appendLine("        tl.to(\"#$id .hf-kinetic-caption[data-until=\\\"${caption.end}\\\"]\", { opacity: 0, duration: 0.2 }, ${caption.end});")
+            }
+            appendLine("        window.__timelines[\"$id\"] = tl;")
+            appendLine("      })();")
+            appendLine("    </script>")
+            appendLine("  </div>")
+            append("</div>")
         }
-        appendLine("      </div>")
-        appendLine("    </div>")
-        appendLine("    <script type=\"text/javascript\">")
-        appendLine("      window.__timelines = window.__timelines || {};")
-        appendLine("      (function () {")
-        appendLine("        const tl = gsap.timeline({ paused: true });")
-        captions.forEach { caption ->
-            appendLine("        tl.to(\"#$id .hf-kinetic-caption[data-at=\\\"${caption.start}\\\"]\", { opacity: 1, duration: 0.2 }, ${caption.start});")
-            appendLine("        tl.to(\"#$id .hf-kinetic-caption[data-until=\\\"${caption.end}\\\"]\", { opacity: 0, duration: 0.2 }, ${caption.end});")
-        }
-        appendLine("        window.__timelines[\"$id\"] = tl;")
-        appendLine("      })();")
-        appendLine("    </script>")
-        appendLine("  </div>")
-        append("</div>")
-    }
 }
 
 /**
@@ -69,7 +71,7 @@ data class KineticCaptionsTemplate(
 data class Caption(
     val start: Double,
     val end: Double,
-    val text: String
+    val text: String,
 ) {
     init {
         require(start >= 0.0) { "Caption start must be non-negative (got $start)" }

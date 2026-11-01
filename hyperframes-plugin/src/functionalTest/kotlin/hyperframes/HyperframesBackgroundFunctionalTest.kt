@@ -17,7 +17,6 @@ import kotlin.test.assertFalse
  * composition, so the CLI resolves a real file).
  */
 class HyperframesBackgroundFunctionalTest {
-
     @TempDir
     lateinit var tempDir: Path
 
@@ -31,7 +30,7 @@ class HyperframesBackgroundFunctionalTest {
                 repositories { mavenLocal(); gradlePluginPortal(); mavenCentral() }
             }
             rootProject.name = "background-functional-test"
-            """.trimIndent()
+            """.trimIndent(),
         )
         projectDir.resolve("build.gradle.kts").writeText(
             """
@@ -45,7 +44,7 @@ class HyperframesBackgroundFunctionalTest {
                 fps.set(30)
                 outputName.set("background-video")
             }
-            """.trimIndent()
+            """.trimIndent(),
         )
         val srcDir = projectDir.resolve("src/docs")
         srcDir.resolve("assets/img").mkdirs()
@@ -64,13 +63,14 @@ class HyperframesBackgroundFunctionalTest {
                     appendLine()
                 }
                 appendLine("The document becomes signal.")
-            }
+            },
         )
         return projectDir
     }
 
     private fun generate(projectDir: File): String {
-        GradleRunner.create()
+        GradleRunner
+            .create()
             .withProjectDir(projectDir)
             .withPluginClasspath()
             .withArguments("generateHyperframesHtml")

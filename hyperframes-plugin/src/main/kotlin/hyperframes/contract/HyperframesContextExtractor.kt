@@ -18,7 +18,6 @@ class HyperframesContextExtractor(
     private val pluginVersion: String,
     private val pronunciationDomain: String? = null,
 ) {
-
     /**
      * Extracts the N3 context from the HyperFrames HTML and the rendered MP4.
      *
@@ -36,7 +35,7 @@ class HyperframesContextExtractor(
         asciidocName: String,
         renderedAt: String,
         renderDurationMs: Long,
-        durationSeconds: Double = 0.0
+        durationSeconds: Double = 0.0,
     ): HyperframesParseContext {
         val stage = parseStage(html)
         val compositions = parseCompositions(html)
@@ -45,49 +44,78 @@ class HyperframesContextExtractor(
 
         return HyperframesParseContext(
             version = pluginVersion,
-            output = HyperframesVideoOutput(
-                video = mp4.name,
-                path = mp4.absolutePath,
-                sizeBytes = if (mp4.exists()) mp4.length() else 0L,
-                durationSeconds = durationSeconds,
-                width = stage.width,
-                height = stage.height,
-                fps = stage.fps
-            ),
-            source = HyperframesAsciidocSource(
-                asciidoc = asciidocName,
-                compositions = compositions,
-                tracks = tracks
-            ),
+            output =
+                HyperframesVideoOutput(
+                    video = mp4.name,
+                    path = mp4.absolutePath,
+                    sizeBytes = if (mp4.exists()) mp4.length() else 0L,
+                    durationSeconds = durationSeconds,
+                    width = stage.width,
+                    height = stage.height,
+                    fps = stage.fps,
+                ),
+            source =
+                HyperframesAsciidocSource(
+                    asciidoc = asciidocName,
+                    compositions = compositions,
+                    tracks = tracks,
+                ),
             // US-2 (S-019) — neutral-model segments: one addressable unit per
             // composition boundary (whole-document engine).
             segments = compositions.mapIndexed { index, id -> HyperframesSegment(index = index, id = id) },
             pronunciation = pronunciation,
             renderedAt = renderedAt,
-            renderDurationMs = renderDurationMs
+            renderDurationMs = renderDurationMs,
         )
     }
 
-    private data class StageAttributes(val width: Int, val height: Int, val fps: Int)
+    private data class StageAttributes(
+        val width: Int,
+        val height: Int,
+        val fps: Int,
+    )
 
     private fun parseStage(html: String): StageAttributes {
         val stageRegex = Regex("""<div[^>]*id="stage"[^>]*>""")
         val stageMatch = stageRegex.find(html) ?: return StageAttributes(1920, 1080, 30)
         val openTag = stageMatch.value
-        val width = Regex("""data-width="(\d+)"""").find(openTag)?.groupValues?.get(1)?.toIntOrNull() ?: 1920
-        val height = Regex("""data-height="(\d+)"""").find(openTag)?.groupValues?.get(1)?.toIntOrNull() ?: 1080
-        val fps = Regex("""data-fps="(\d+)"""").find(openTag)?.groupValues?.get(1)?.toIntOrNull() ?: 30
+        val width =
+            Regex("""data-width="(\d+)"""")
+                .find(openTag)
+                ?.groupValues
+                ?.get(1)
+                ?.toIntOrNull() ?: 1920
+        val height =
+            Regex("""data-height="(\d+)"""")
+                .find(openTag)
+                ?.groupValues
+                ?.get(1)
+                ?.toIntOrNull() ?: 1080
+        val fps =
+            Regex("""data-fps="(\d+)"""")
+                .find(openTag)
+                ?.groupValues
+                ?.get(1)
+                ?.toIntOrNull() ?: 30
         return StageAttributes(width, height, fps)
     }
 
     private fun parseCompositions(html: String): List<String> {
         val regex = Regex("""data-composition-id="([^"]*)"""")
-        return regex.findAll(html).map { it.groupValues[1] }.distinct().toList()
+        return regex
+            .findAll(html)
+            .map { it.groupValues[1] }
+            .distinct()
+            .toList()
     }
 
     private fun parseTracks(html: String): Int {
         val regex = Regex("""data-track-index="(\d+)"""")
-        return regex.findAll(html).map { it.groupValues[1].toInt() }.distinct().count()
+        return regex
+            .findAll(html)
+            .map { it.groupValues[1].toInt() }
+            .distinct()
+            .count()
     }
 
     /**
@@ -98,31 +126,36 @@ class HyperframesContextExtractor(
      * `domain` field (it was previously always `null`).
      */
     private fun parsePronunciation(html: String): HyperframesPronunciationContext? {
-        val islandRegex = Regex(
-            """<script type="application/json" id="hf-pronunciation">\[(.*?)\]</script>""",
-            RegexOption.DOT_MATCHES_ALL
-        )
+        val islandRegex =
+            Regex(
+                """<script type="application/json" id="hf-pronunciation">\[(.*?)\]</script>""",
+                RegexOption.DOT_MATCHES_ALL,
+            )
         val match = islandRegex.find(html) ?: return null
         val arrayContent = match.groupValues[1].trim()
         if (arrayContent.isEmpty()) {
             return HyperframesPronunciationContext(domain = pronunciationDomain, hintsCount = 0, hints = emptyList())
         }
 
-        val entryRegex = Regex(
-            """\{"word":"([^"]+)","phonetic":"([^"]+)"(?:,"language":"([^"]+)")?\}"""
-        )
-        val entries = entryRegex.findAll(arrayContent).map { m ->
-            HyperframesPronunciationEntry(
-                word = m.groupValues[1],
-                phonetic = m.groupValues[2],
-                language = m.groupValues[3].ifEmpty { null }
+        val entryRegex =
+            Regex(
+                """\{"word":"([^"]+)","phonetic":"([^"]+)"(?:,"language":"([^"]+)")?\}""",
             )
-        }.toList()
+        val entries =
+            entryRegex
+                .findAll(arrayContent)
+                .map { m ->
+                    HyperframesPronunciationEntry(
+                        word = m.groupValues[1],
+                        phonetic = m.groupValues[2],
+                        language = m.groupValues[3].ifEmpty { null },
+                    )
+                }.toList()
 
         return HyperframesPronunciationContext(
             domain = pronunciationDomain,
             hintsCount = entries.size,
-            hints = entries
+            hints = entries,
         )
     }
 }

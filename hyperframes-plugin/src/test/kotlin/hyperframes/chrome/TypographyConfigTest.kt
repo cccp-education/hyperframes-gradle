@@ -10,7 +10,6 @@ import kotlin.test.assertFalse
  * HF-DEMO-QUALITY US-4 — typography configuration guard.
  */
 class TypographyConfigTest {
-
     @Test
     fun `defaults follow the reference demo direction`() {
         val typography = TypographyConfig()
@@ -48,10 +47,11 @@ class TypographyConfigTest {
 
     @Test
     fun `font faces are deduplicated`() {
-        val css = TypographyConfig(
-            displayFont = "Inter, Inter, sans-serif",
-            monoFont = "Inter, monospace",
-        ).fontFaceCss()
+        val css =
+            TypographyConfig(
+                displayFont = "Inter, Inter, sans-serif",
+                monoFont = "Inter, monospace",
+            ).fontFaceCss()
 
         assertEquals(1, Regex("""font-family:'Inter'""").findAll(css).count())
     }

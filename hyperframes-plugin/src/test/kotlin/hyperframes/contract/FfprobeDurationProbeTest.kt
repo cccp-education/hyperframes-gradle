@@ -15,7 +15,6 @@ import kotlin.test.assertNull
  * of the probe (missing executable / failure / timeout → `0.0`, never a throw).
  */
 class FfprobeDurationProbeTest {
-
     @TempDir
     lateinit var tempDir: Path
 
@@ -60,7 +59,10 @@ class FfprobeDurationProbeTest {
     // FfprobeDurationProbe — with injected runner
     // ──────────────────────────────────────────────
 
-    private fun writeMp4(name: String = "video.mp4", size: Int = 256): File {
+    private fun writeMp4(
+        name: String = "video.mp4",
+        size: Int = 256,
+    ): File {
         val f = tempDir.toFile().resolve(name)
         f.writeBytes(ByteArray(size))
         return f
@@ -69,10 +71,11 @@ class FfprobeDurationProbeTest {
     @Test
     fun `probe returns the parsed duration`() {
         val seenArgs = mutableListOf<List<String>>()
-        val probe = FfprobeDurationProbe("ffprobe", runner = { argv, _ ->
-            seenArgs.add(argv)
-            "12.5\n"
-        })
+        val probe =
+            FfprobeDurationProbe("ffprobe", runner = { argv, _ ->
+                seenArgs.add(argv)
+                "12.5\n"
+            })
 
         assertEquals(12.5, probe.probeSeconds(writeMp4()))
         assertEquals("ffprobe", seenArgs.first().first())
@@ -88,10 +91,11 @@ class FfprobeDurationProbeTest {
     @Test
     fun `probe degrades to zero when the file is missing`() {
         var invoked = false
-        val probe = FfprobeDurationProbe("ffprobe", runner = { _, _ ->
-            invoked = true
-            "12.5"
-        })
+        val probe =
+            FfprobeDurationProbe("ffprobe", runner = { _, _ ->
+                invoked = true
+                "12.5"
+            })
 
         assertEquals(0.0, probe.probeSeconds(tempDir.toFile().resolve("missing.mp4")))
         assertEquals(false, invoked, "the runner must not be called for a missing file")

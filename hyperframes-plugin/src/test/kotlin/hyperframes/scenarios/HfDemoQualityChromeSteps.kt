@@ -14,18 +14,18 @@ import io.cucumber.java.en.When
  * Steps are prefixed (`quality chrome …`) to avoid glue collisions (S-088).
  */
 class HfDemoQualityChromeSteps {
-
     private var source: String = ""
     private var enhanced: String = ""
 
     @Given("a quality chrome document with two scenes")
     fun documentWithTwoScenes() {
-        source = document(
-            """
-            <div class="sect1"><h2 id="one">One</h2></div>
-            <div class="sect1"><h2 id="two">Two</h2></div>
-            """.trimIndent(),
-        )
+        source =
+            document(
+                """
+                <div class="sect1"><h2 id="one">One</h2></div>
+                <div class="sect1"><h2 id="two">Two</h2></div>
+                """.trimIndent(),
+            )
     }
 
     @When("I enhance the quality chrome document with a label {string} and chrome enabled")
@@ -39,17 +39,22 @@ class HfDemoQualityChromeSteps {
     }
 
     @When("I enhance the quality chrome document with display font {string} and mono font {string}")
-    fun enhanceWithTypography(displayFont: String, monoFont: String) {
-        enhanced = processor()
-            .withTypography(TypographyConfig(displayFont = displayFont, monoFont = monoFont))
-            .enhance(source)
+    fun enhanceWithTypography(
+        displayFont: String,
+        monoFont: String,
+    ) {
+        enhanced =
+            processor()
+                .withTypography(TypographyConfig(displayFont = displayFont, monoFont = monoFont))
+                .enhance(source)
     }
 
     @When("I enhance the quality chrome document with chrome enabled and the progress bar disabled")
     fun enhanceWithoutProgressBar() {
-        enhanced = processor()
-            .withChrome(ChromeConfig(enabled = true, progressBar = false))
-            .enhance(source)
+        enhanced =
+            processor()
+                .withChrome(ChromeConfig(enabled = true, progressBar = false))
+                .enhance(source)
     }
 
     @Then("the quality chrome has one chrome block per scene")
@@ -77,9 +82,10 @@ class HfDemoQualityChromeSteps {
 
     @Then("the quality chrome renders four corner marks per scene")
     fun cornerMarksPerScene() {
-        val blocks = Regex(
-            """class="hf-chrome-marks"[^>]*>\s*(?:<span></span>\s*){4}</div>"""
-        ).findAll(enhanced).count()
+        val blocks =
+            Regex(
+                """class="hf-chrome-marks"[^>]*>\s*(?:<span></span>\s*){4}</div>""",
+            ).findAll(enhanced).count()
         check(blocks == 2) { "expected two scenes with four corner marks each, was $blocks" }
     }
 
@@ -154,14 +160,16 @@ class HfDemoQualityChromeSteps {
         }
     }
 
-    private fun processor() = HyperframesHtmlProcessor(
-        width = 1920,
-        height = 1080,
-        fps = 30,
-        outputName = "quality-chrome-demo",
-    )
+    private fun processor() =
+        HyperframesHtmlProcessor(
+            width = 1920,
+            height = 1080,
+            fps = 30,
+            outputName = "quality-chrome-demo",
+        )
 
-    private fun document(sections: String): String = """
+    private fun document(sections: String): String =
+        """
         <!DOCTYPE html>
         <html>
         <head><title>Quality chrome</title></head>
@@ -171,5 +179,5 @@ class HfDemoQualityChromeSteps {
         </div>
         </body>
         </html>
-    """.trimIndent()
+        """.trimIndent()
 }

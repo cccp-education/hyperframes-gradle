@@ -7,10 +7,8 @@ import org.junit.jupiter.api.io.TempDir
 import java.io.File
 import java.nio.file.Path
 import kotlin.test.assertContains
-import kotlin.test.assertTrue
 
 class SimpleCollectHyperframesTest {
-
     @TempDir
     lateinit var tempDir: Path
     private lateinit var projectDir: File
@@ -24,18 +22,21 @@ class SimpleCollectHyperframesTest {
     @Test
     fun `collectHyperframesRetrieve task can be registered`() {
         // Act
-        val result = GradleRunner.create()
-            .withProjectDir(projectDir)
-            .withPluginClasspath()
-            .withArguments("tasks", "--all")
-            .build()
+        val result =
+            GradleRunner
+                .create()
+                .withProjectDir(projectDir)
+                .withPluginClasspath()
+                .withArguments("tasks", "--all")
+                .build()
 
         // Assert
         assertContains(result.output, "collectHyperframesRetrieve")
     }
 
     private fun writeBasicBuildFiles(projectDir: File) {
-        projectDir.resolve("settings.gradle.kts").writeText("""
+        projectDir.resolve("settings.gradle.kts").writeText(
+            """
             pluginManagement {
                 repositories {
                     mavenLocal()
@@ -44,12 +45,15 @@ class SimpleCollectHyperframesTest {
                 }
             }
             rootProject.name = "test-hyperframes-simple"
-        """.trimIndent())
+            """.trimIndent(),
+        )
 
-        projectDir.resolve("build.gradle.kts").writeText("""
+        projectDir.resolve("build.gradle.kts").writeText(
+            """
             plugins {
                 id("education.cccp.hyperframes")
             }
-        """.trimIndent())
+            """.trimIndent(),
+        )
     }
 }

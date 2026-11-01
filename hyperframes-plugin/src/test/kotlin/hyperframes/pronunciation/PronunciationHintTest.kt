@@ -18,7 +18,6 @@ import kotlin.test.assertTrue
  * [PronunciationDictionary] (HF-7b).
  */
 class PronunciationHintTest {
-
     @Test
     fun `hint renders a valid JSON object with word and phonetic`() {
         val hint = PronunciationHint.of(word = "dos", phonetic = "do")

@@ -14,8 +14,9 @@ import org.assertj.core.api.Assertions.assertThat
  *
  * All steps are English (BDD Gherkin convention — no `# language: fr`).
  */
-class PronunciationDomainSteps(private val world: HyperframesWorld) {
-
+class PronunciationDomainSteps(
+    private val world: HyperframesWorld,
+) {
     @Given("the project uses the pronunciation domain {string}")
     fun projectUsesPronunciationDomain(domain: String) {
         world.pronunciationDomain = domain

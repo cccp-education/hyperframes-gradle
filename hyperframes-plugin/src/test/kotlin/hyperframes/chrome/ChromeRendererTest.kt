@@ -10,7 +10,6 @@ import kotlin.test.assertTrue
  * HF-DEMO-QUALITY US-4 — pure chrome renderer contract.
  */
 class ChromeRendererTest {
-
     @Test
     fun `timecode formats hours minutes seconds and frames`() {
         assertEquals("00:00:00:00", ChromeRenderer.formatTimecode(0.0, 30))
@@ -33,13 +32,14 @@ class ChromeRendererTest {
 
     @Test
     fun `enabled chrome renders four marks a timecode and the scene counter`() {
-        val html = ChromeRenderer.sceneChrome(
-            ChromeConfig(enabled = true, label = "HYP-FRAMES / LAB"),
-            sceneStartSeconds = 10.0,
-            fps = 30,
-            sceneNumber = 2,
-            sceneTotal = 5,
-        )
+        val html =
+            ChromeRenderer.sceneChrome(
+                ChromeConfig(enabled = true, label = "HYP-FRAMES / LAB"),
+                sceneStartSeconds = 10.0,
+                fps = 30,
+                sceneNumber = 2,
+                sceneTotal = 5,
+            )
 
         assertEquals(4, Regex("<span></span>").findAll(html).count())
         assertContains(html, """class="hf-chrome"""")
@@ -50,13 +50,14 @@ class ChromeRendererTest {
 
     @Test
     fun `chrome can hide the timecode or the corner marks`() {
-        val html = ChromeRenderer.sceneChrome(
-            ChromeConfig(enabled = true, timecode = false, cornerMarks = false),
-            sceneStartSeconds = 3.0,
-            fps = 24,
-            sceneNumber = 1,
-            sceneTotal = 2,
-        )
+        val html =
+            ChromeRenderer.sceneChrome(
+                ChromeConfig(enabled = true, timecode = false, cornerMarks = false),
+                sceneStartSeconds = 3.0,
+                fps = 24,
+                sceneNumber = 1,
+                sceneTotal = 2,
+            )
 
         assertFalse(html.contains("hf-chrome-timecode"))
         assertFalse(html.contains("hf-chrome-marks"))
@@ -69,7 +70,7 @@ class ChromeRendererTest {
         assertContains(ChromeRenderer.progressBar(config), """id="hf-chrome-progress"""")
         assertContains(
             ChromeRenderer.rootProgressTween(config, 12.0),
-            """rootTl.fromTo("#hf-chrome-progress span", { scaleX: 0 }, { scaleX: 1, duration: 12, ease: "none" }, 0);"""
+            """rootTl.fromTo("#hf-chrome-progress span", { scaleX: 0 }, { scaleX: 1, duration: 12, ease: "none" }, 0);""",
         )
     }
 
@@ -82,13 +83,14 @@ class ChromeRendererTest {
 
     @Test
     fun `label is escaped`() {
-        val html = ChromeRenderer.sceneChrome(
-            ChromeConfig(enabled = true, label = "<script>"),
-            sceneStartSeconds = 0.0,
-            fps = 30,
-            sceneNumber = 1,
-            sceneTotal = 1,
-        )
+        val html =
+            ChromeRenderer.sceneChrome(
+                ChromeConfig(enabled = true, label = "<script>"),
+                sceneStartSeconds = 0.0,
+                fps = 30,
+                sceneNumber = 1,
+                sceneTotal = 1,
+            )
 
         assertFalse(html.contains("<script>"))
         assertTrue(html.contains("&lt;script&gt;"))

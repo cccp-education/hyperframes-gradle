@@ -13,7 +13,6 @@ import kotlin.test.assertTrue
  * that the HyperFrames CLI consumes to correct TTS phonetics.
  */
 class PronunciationDictionaryTest {
-
     @Test
     fun `empty dictionary renders an empty JSON array island`() {
         val dict = PronunciationDictionary()
@@ -22,7 +21,7 @@ class PronunciationDictionaryTest {
 
         assertEquals(
             """<script type="application/json" id="hf-pronunciation">[]</script>""",
-            html
+            html,
         )
     }
 

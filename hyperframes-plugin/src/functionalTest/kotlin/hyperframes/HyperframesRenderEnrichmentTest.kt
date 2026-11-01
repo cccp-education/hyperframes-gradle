@@ -1,13 +1,13 @@
 package hyperframes
 
-import java.io.File
-import java.nio.file.Path
-import kotlin.test.assertContains
-import kotlin.test.assertTrue
 import org.gradle.testkit.runner.GradleRunner
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
+import java.io.File
+import java.nio.file.Path
+import kotlin.test.assertContains
+import kotlin.test.assertTrue
 
 /**
  * HF-CR3 suite (B) — hermetic coverage of a *rich* enriched HTML: several
@@ -16,7 +16,6 @@ import org.junit.jupiter.api.io.TempDir
  * against the real CLI; this test pins the enrichment itself in the required CI.
  */
 class HyperframesRenderEnrichmentTest {
-
     @TempDir
     lateinit var tempDir: Path
     private lateinit var projectDir: File
@@ -32,14 +31,20 @@ class HyperframesRenderEnrichmentTest {
         val srcDir = projectDir.resolve("src/docs").apply { mkdirs() }
         srcDir.resolve("index.adoc").writeText(renderableDoc())
 
-        val result = GradleRunner.create()
-            .withProjectDir(projectDir)
-            .withPluginClasspath()
-            .withArguments("generateHyperframesHtml")
-            .build()
+        val result =
+            GradleRunner
+                .create()
+                .withProjectDir(projectDir)
+                .withPluginClasspath()
+                .withArguments("generateHyperframesHtml")
+                .build()
 
         assertTrue(
-            result.task(":generateHyperframesHtml")?.outcome?.toString()?.contains("SUCCESS") == true,
+            result
+                .task(":generateHyperframesHtml")
+                ?.outcome
+                ?.toString()
+                ?.contains("SUCCESS") == true,
         )
 
         val html = projectDir.resolve("build/hyperframes/index.html").readText()
@@ -51,29 +56,30 @@ class HyperframesRenderEnrichmentTest {
         assertTrue(!html.contains("cdnjs.cloudflare.com"), "no external GSAP CDN reference")
     }
 
-    private fun renderableDoc(): String = buildString {
-        appendLine("= Enrichment demo")
-        appendLine(":hyperframes-width: 1920")
-        appendLine(":hyperframes-height: 1080")
-        appendLine(":hyperframes-fps: 30")
-        appendLine()
-        appendLine("[.hyperframes-composition#intro]")
-        appendLine("== Intro")
-        appendLine()
-        appendLine("Hello.")
-        appendLine()
-        appendLine("[.hyperframes-animation, type=gsap]")
-        appendLine("----")
-        appendLine("window.__timelines = window.__timelines || {};")
-        appendLine("const tl = gsap.timeline({ paused: true });")
-        appendLine("window.__timelines[\"intro\"] = tl;")
-        appendLine("----")
-        appendLine()
-        appendLine("[.hyperframes-composition#outro]")
-        appendLine("== Outro")
-        appendLine()
-        appendLine("Bye.")
-    }
+    private fun renderableDoc(): String =
+        buildString {
+            appendLine("= Enrichment demo")
+            appendLine(":hyperframes-width: 1920")
+            appendLine(":hyperframes-height: 1080")
+            appendLine(":hyperframes-fps: 30")
+            appendLine()
+            appendLine("[.hyperframes-composition#intro]")
+            appendLine("== Intro")
+            appendLine()
+            appendLine("Hello.")
+            appendLine()
+            appendLine("[.hyperframes-animation, type=gsap]")
+            appendLine("----")
+            appendLine("window.__timelines = window.__timelines || {};")
+            appendLine("const tl = gsap.timeline({ paused: true });")
+            appendLine("window.__timelines[\"intro\"] = tl;")
+            appendLine("----")
+            appendLine()
+            appendLine("[.hyperframes-composition#outro]")
+            appendLine("== Outro")
+            appendLine()
+            appendLine("Bye.")
+        }
 
     private fun writeBuildFiles(projectDir: File) {
         projectDir.resolve("settings.gradle.kts").writeText(

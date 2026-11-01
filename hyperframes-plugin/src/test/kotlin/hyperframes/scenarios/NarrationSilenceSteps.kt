@@ -4,8 +4,8 @@ import hyperframes.post.NarrationSilenceCheck
 import io.cucumber.java.en.Given
 import io.cucumber.java.en.Then
 import io.cucumber.java.en.When
-import java.io.File
 import org.junit.jupiter.api.Assertions.assertEquals
+import java.io.File
 
 /**
  * BDD steps for `narration_silence.feature` (VK-4 US-4e).
@@ -14,17 +14,20 @@ import org.junit.jupiter.api.Assertions.assertEquals
  * "narration silence" (S-088 — the Cucumber glue is classpath-wide).
  */
 class NarrationSilenceSteps {
-
     private val envelopes = linkedMapOf<String, DoubleArray?>()
     private var flagged: List<String> = emptyList()
 
     @Given("a narration silence file {string} with an envelope of {string}")
-    fun aNarrationSilenceFile(name: String, kind: String) {
-        envelopes[name] = when (kind) {
-            "silence" -> DoubleArray(20) { 0.0 }
-            "audible" -> DoubleArray(20) { 0.1 }
-            else -> error("unknown envelope kind: $kind")
-        }
+    fun aNarrationSilenceFile(
+        name: String,
+        kind: String,
+    ) {
+        envelopes[name] =
+            when (kind) {
+                "silence" -> DoubleArray(20) { 0.0 }
+                "audible" -> DoubleArray(20) { 0.1 }
+                else -> error("unknown envelope kind: $kind")
+            }
     }
 
     @Given("a narration silence file {string} with an unavailable envelope")

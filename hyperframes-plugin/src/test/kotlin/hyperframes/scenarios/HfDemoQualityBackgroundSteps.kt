@@ -12,7 +12,6 @@ import io.cucumber.java.en.When
  * test). Steps are prefixed (`quality background …`) to avoid glue collisions.
  */
 class HfDemoQualityBackgroundSteps {
-
     private var source: String = ""
     private var enhanced: String = ""
 
@@ -23,17 +22,18 @@ class HfDemoQualityBackgroundSteps {
 
     @Given("a quality background document with an image and custom options")
     fun documentWithCustomOptions() {
-        source = document(
-            block(
-                """
-                file: assets/img/datacenter.jpg
-                opacity: 0.35
-                scrim: false
-                grid: true
-                grain: true
-                """.trimIndent()
+        source =
+            document(
+                block(
+                    """
+                    file: assets/img/datacenter.jpg
+                    opacity: 0.35
+                    scrim: false
+                    grid: true
+                    grain: true
+                    """.trimIndent(),
+                ),
             )
-        )
     }
 
     @Given("a quality background document with an image and parallax")
@@ -53,12 +53,13 @@ class HfDemoQualityBackgroundSteps {
 
     @When("I enhance the quality background document with the HyperFrames processor")
     fun enhanceDocument() {
-        enhanced = HyperframesHtmlProcessor(
-            width = 1920,
-            height = 1080,
-            fps = 30,
-            outputName = "quality-background-demo",
-        ).enhance(source)
+        enhanced =
+            HyperframesHtmlProcessor(
+                width = 1920,
+                height = 1080,
+                fps = 30,
+                outputName = "quality-background-demo",
+            ).enhance(source)
     }
 
     @Then("the quality background composition has a media layer at opacity {double}")
@@ -125,7 +126,8 @@ class HfDemoQualityBackgroundSteps {
         <div class="listingblock hyperframes-background"><div class="content"><pre>$listing</pre></div></div>
         """.trimIndent()
 
-    private fun document(background: String): String = """
+    private fun document(background: String): String =
+        """
         <!DOCTYPE html>
         <html>
         <head><title>Quality background</title></head>
@@ -136,5 +138,5 @@ class HfDemoQualityBackgroundSteps {
         </div>
         </body>
         </html>
-    """.trimIndent()
+        """.trimIndent()
 }

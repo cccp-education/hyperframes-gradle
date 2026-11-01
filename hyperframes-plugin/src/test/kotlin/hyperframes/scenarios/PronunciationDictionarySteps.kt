@@ -16,8 +16,9 @@ import kotlin.test.assertEquals
  *
  * All steps are English (BDD Gherkin convention — no `# language: fr`).
  */
-class PronunciationDictionarySteps(private val world: HyperframesWorld) {
-
+class PronunciationDictionarySteps(
+    private val world: HyperframesWorld,
+) {
     private var dictionary: PronunciationDictionary = PronunciationDictionary()
     private var domainDictionary: PronunciationDictionary = PronunciationDictionary()
     private var authorDictionary: PronunciationDictionary = PronunciationDictionary()
@@ -25,25 +26,38 @@ class PronunciationDictionarySteps(private val world: HyperframesWorld) {
     private var rendered: String = ""
 
     @Given("a pronunciation dictionary with a hint for word {string} speaking {string}")
-    fun dictionaryWithHint(word: String, phonetic: String) {
+    fun dictionaryWithHint(
+        word: String,
+        phonetic: String,
+    ) {
         dictionary = PronunciationDictionary()
         dictionary.add(PronunciationHint.of(word, phonetic))
     }
 
     @Given("a pronunciation dictionary with a hint for word {string} speaking {string} in language {string}")
-    fun dictionaryWithHintInLanguage(word: String, phonetic: String, language: String) {
+    fun dictionaryWithHintInLanguage(
+        word: String,
+        phonetic: String,
+        language: String,
+    ) {
         dictionary = PronunciationDictionary()
         dictionary.add(PronunciationHint.of(word, phonetic, language = language))
     }
 
     @Given("a domain dictionary with a hint for word {string} speaking {string}")
-    fun domainDictionaryWithHint(word: String, phonetic: String) {
+    fun domainDictionaryWithHint(
+        word: String,
+        phonetic: String,
+    ) {
         domainDictionary = PronunciationDictionary()
         domainDictionary.add(PronunciationHint.of(word, phonetic))
     }
 
     @Given("an author dictionary with a hint for word {string} speaking {string}")
-    fun authorDictionaryWithHint(word: String, phonetic: String) {
+    fun authorDictionaryWithHint(
+        word: String,
+        phonetic: String,
+    ) {
         authorDictionary = PronunciationDictionary()
         authorDictionary.add(PronunciationHint.of(word, phonetic))
     }
@@ -59,7 +73,11 @@ class PronunciationDictionarySteps(private val world: HyperframesWorld) {
     }
 
     @When("I add another hint for word {string} speaking {string} in language {string}")
-    fun addAnotherHint(word: String, phonetic: String, language: String) {
+    fun addAnotherHint(
+        word: String,
+        phonetic: String,
+        language: String,
+    ) {
         dictionary.add(PronunciationHint.of(word, phonetic, language = language))
     }
 
@@ -90,7 +108,10 @@ class PronunciationDictionarySteps(private val world: HyperframesWorld) {
     }
 
     @Then("the merged dictionary speaks {string} for word {string}")
-    fun mergedSpeaks(phonetic: String, word: String) {
+    fun mergedSpeaks(
+        phonetic: String,
+        word: String,
+    ) {
         assertEquals(phonetic, mergedDictionary.find(word)?.phonetic)
     }
 

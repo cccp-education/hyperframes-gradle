@@ -4,7 +4,6 @@ import io.cucumber.java.en.Given
 import io.cucumber.java.en.Then
 import org.assertj.core.api.Assertions.assertThat
 import kotlin.test.assertFalse
-import kotlin.test.assertTrue
 
 /**
  * Cucumber steps for HF-7g — pronunciation end-to-end integration.
@@ -19,8 +18,9 @@ import kotlin.test.assertTrue
  *
  * All steps are English (BDD Gherkin convention — no `# language: fr`).
  */
-class PronunciationE2ESteps(private val world: HyperframesWorld) {
-
+class PronunciationE2ESteps(
+    private val world: HyperframesWorld,
+) {
     @Given("the source directory contains an AsciiDoc document with a pronunciation block having two entries")
     fun sourceContainsPronunciationTwoEntries() {
         world.writePronunciationTwoEntriesAdoc()
@@ -42,7 +42,7 @@ class PronunciationE2ESteps(private val world: HyperframesWorld) {
         val html = world.generatedHtml()
         assertFalse(
             html.contains("hf:pron["),
-            "inline hint syntax should be stripped from rendered text"
+            "inline hint syntax should be stripped from rendered text",
         )
     }
 }

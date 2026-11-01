@@ -11,8 +11,9 @@ import org.assertj.core.api.Assertions.assertThat
  *
  * All steps are English (BDD Gherkin convention).
  */
-class HfKernelAdapterUs1Steps(private val world: HyperframesWorld) {
-
+class HfKernelAdapterUs1Steps(
+    private val world: HyperframesWorld,
+) {
     @Given("a stub ffprobe reporting {string} seconds")
     fun aStubFfprobe(seconds: String) {
         world.createProject()

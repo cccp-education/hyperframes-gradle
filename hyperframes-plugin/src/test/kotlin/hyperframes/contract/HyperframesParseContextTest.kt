@@ -13,7 +13,6 @@ import kotlin.test.assertTrue
  * `renderDurationMs`, and nested video/source descriptors.
  */
 class HyperframesParseContextTest {
-
     private val mapper = jacksonObjectMapper()
 
     @Test
@@ -38,9 +37,10 @@ class HyperframesParseContextTest {
 
     @Test
     fun `serializes the engine identity and neutral segments`() {
-        val ctx = sampleContext().copy(
-            segments = listOf(HyperframesSegment(0, "intro"), HyperframesSegment(1, "outro"))
-        )
+        val ctx =
+            sampleContext().copy(
+                segments = listOf(HyperframesSegment(0, "intro"), HyperframesSegment(1, "outro")),
+            )
         val tree = mapper.readTree(mapper.writeValueAsString(ctx))
 
         assertEquals("hyperframes", tree["engine"].asText())
@@ -91,23 +91,26 @@ class HyperframesParseContextTest {
         assertEquals(ctx, back)
     }
 
-    private fun sampleContext() = HyperframesParseContext(
-        version = "0.0.1",
-        output = HyperframesVideoOutput(
-            video = "docker-kubernetes.mp4",
-            path = "/output/docker-kubernetes.mp4",
-            sizeBytes = 25165824L,
-            durationSeconds = 60.0,
-            width = 1920,
-            height = 1080,
-            fps = 30
-        ),
-        source = HyperframesAsciidocSource(
-            asciidoc = "my-presentation.adoc",
-            compositions = listOf("intro", "comparison"),
-            tracks = 5
-        ),
-        renderedAt = "2026-05-31T14:30:00Z",
-        renderDurationMs = 45230L
-    )
+    private fun sampleContext() =
+        HyperframesParseContext(
+            version = "0.0.1",
+            output =
+                HyperframesVideoOutput(
+                    video = "docker-kubernetes.mp4",
+                    path = "/output/docker-kubernetes.mp4",
+                    sizeBytes = 25165824L,
+                    durationSeconds = 60.0,
+                    width = 1920,
+                    height = 1080,
+                    fps = 30,
+                ),
+            source =
+                HyperframesAsciidocSource(
+                    asciidoc = "my-presentation.adoc",
+                    compositions = listOf("intro", "comparison"),
+                    tracks = 5,
+                ),
+            renderedAt = "2026-05-31T14:30:00Z",
+            renderDurationMs = 45230L,
+        )
 }

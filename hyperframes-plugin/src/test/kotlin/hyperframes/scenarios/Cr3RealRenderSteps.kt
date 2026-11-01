@@ -19,8 +19,9 @@ import java.io.File
  * Step names are prefixed ("real-render") to avoid glue collisions (pattern S-088).
  * All steps are English (BDD Gherkin convention).
  */
-class Cr3RealRenderSteps(private val world: HyperframesWorld) {
-
+class Cr3RealRenderSteps(
+    private val world: HyperframesWorld,
+) {
     private var cliPath: String = ""
     private var nodePath: String = ""
     private var ffprobePath: String = ""
@@ -98,12 +99,19 @@ class Cr3RealRenderSteps(private val world: HyperframesWorld) {
         assertThat(codec).`as`("the MP4 must expose a readable first video stream").isNotBlank()
     }
 
-    private fun envOrPath(env: String, command: String): String? {
+    private fun envOrPath(
+        env: String,
+        command: String,
+    ): String? {
         System.getenv(env)?.takeIf { it.isNotBlank() }?.let { return it }
         return try {
             val process = ProcessBuilder("which", command).redirectErrorStream(true).start()
             process.waitFor()
-            process.inputStream.bufferedReader().readText().trim().ifBlank { null }
+            process.inputStream
+                .bufferedReader()
+                .readText()
+                .trim()
+                .ifBlank { null }
         } catch (e: Exception) {
             null
         }

@@ -11,8 +11,9 @@ import org.assertj.core.api.Assertions.assertThat
  *
  * All steps are English (BDD Gherkin convention).
  */
-class HfKernelAdapterUs3Steps(private val world: HyperframesWorld) {
-
+class HfKernelAdapterUs3Steps(
+    private val world: HyperframesWorld,
+) {
     @Given("a stub HyperFrames CLI that renders the MP4")
     fun stubCliOk() {
         world.createProject()

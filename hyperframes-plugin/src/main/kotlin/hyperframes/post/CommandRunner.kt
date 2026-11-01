@@ -12,7 +12,11 @@ import java.util.concurrent.TimeUnit
  * instead of throwing (the shared N1 ports never throw).
  */
 fun interface CommandRunner {
-    fun run(argv: List<String>, workingDir: File, timeoutMillis: Long): CommandResult
+    fun run(
+        argv: List<String>,
+        workingDir: File,
+        timeoutMillis: Long,
+    ): CommandResult
 }
 
 /** Outcome of an external command invocation. */
@@ -24,13 +28,17 @@ data class CommandResult(
 
 /** Default [CommandRunner] — spawns the process via [ProcessBuilder]. */
 class ProcessBuilderCommandRunner : CommandRunner {
-
-    override fun run(argv: List<String>, workingDir: File, timeoutMillis: Long): CommandResult {
-        return try {
-            val process = ProcessBuilder(argv)
-                .directory(workingDir)
-                .redirectErrorStream(true)
-                .start()
+    override fun run(
+        argv: List<String>,
+        workingDir: File,
+        timeoutMillis: Long,
+    ): CommandResult =
+        try {
+            val process =
+                ProcessBuilder(argv)
+                    .directory(workingDir)
+                    .redirectErrorStream(true)
+                    .start()
             val completed = process.waitFor(timeoutMillis, TimeUnit.MILLISECONDS)
             if (!completed) {
                 process.destroyForcibly()
@@ -41,5 +49,4 @@ class ProcessBuilderCommandRunner : CommandRunner {
         } catch (e: Exception) {
             CommandResult(exitCode = -1, output = e.message ?: "")
         }
-    }
 }

@@ -12,38 +12,40 @@ import io.cucumber.java.en.When
  * Steps are prefixed (`quality transition …`) to avoid glue collisions.
  */
 class HfDemoQualityTransitionSteps {
-
     private var source: String = ""
     private var enhanced: String = ""
 
     @Given("a quality transition document whose first scene declares {string}")
     fun documentWithTransition(kind: String) {
-        source = document(
-            """
-            <div class="sect1 hyperframes-composition hf-transition-$kind" id="one"><h2 id="one">One</h2></div>
-            <div class="sect1"><h2 id="two">Two</h2></div>
-            """.trimIndent(),
-        )
+        source =
+            document(
+                """
+                <div class="sect1 hyperframes-composition hf-transition-$kind" id="one"><h2 id="one">One</h2></div>
+                <div class="sect1"><h2 id="two">Two</h2></div>
+                """.trimIndent(),
+            )
     }
 
     @Given("a quality transition document without any transition")
     fun documentWithoutTransition() {
-        source = document(
-            """
-            <div class="sect1"><h2 id="one">One</h2></div>
-            <div class="sect1"><h2 id="two">Two</h2></div>
-            """.trimIndent(),
-        )
+        source =
+            document(
+                """
+                <div class="sect1"><h2 id="one">One</h2></div>
+                <div class="sect1"><h2 id="two">Two</h2></div>
+                """.trimIndent(),
+            )
     }
 
     @When("I enhance the quality transition document with the HyperFrames processor")
     fun enhanceDocument() {
-        enhanced = HyperframesHtmlProcessor(
-            width = 1920,
-            height = 1080,
-            fps = 30,
-            outputName = "quality-transition-demo",
-        ).enhance(source)
+        enhanced =
+            HyperframesHtmlProcessor(
+                width = 1920,
+                height = 1080,
+                fps = 30,
+                outputName = "quality-transition-demo",
+            ).enhance(source)
     }
 
     @Then("the quality transition overlay is {string}")
@@ -109,7 +111,8 @@ class HfDemoQualityTransitionSteps {
         }
     }
 
-    private fun document(sections: String): String = """
+    private fun document(sections: String): String =
+        """
         <!DOCTYPE html>
         <html>
         <head><title>Quality transition</title></head>
@@ -120,5 +123,5 @@ class HfDemoQualityTransitionSteps {
         </div>
         </body>
         </html>
-    """.trimIndent()
+        """.trimIndent()
 }

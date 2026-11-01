@@ -11,14 +11,15 @@ import kotlin.test.assertTrue
  * Cucumber steps for HF-5a — title-card template expansion.
  * All steps are English (BDD Gherkin convention — no `# language: fr`).
  */
-class TitleCardTemplateSteps(private val world: HyperframesWorld) {
-
+class TitleCardTemplateSteps(
+    private val world: HyperframesWorld,
+) {
     @Given("the source directory contains an AsciiDoc document using the title-card template")
     fun sourceContainsTitleCard() {
         world.writeTitleCardAdoc(
             id = "intro",
             title = "My Presentation",
-            subtitle = "Module 01"
+            subtitle = "Module 01",
         )
     }
 
@@ -27,7 +28,7 @@ class TitleCardTemplateSteps(private val world: HyperframesWorld) {
         world.writeTitleCardAdoc(
             id = "solo",
             title = "Solo Title",
-            subtitle = null
+            subtitle = null,
         )
     }
 

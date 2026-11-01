@@ -9,7 +9,6 @@ import kotlin.test.assertFalse
  * HF-DEMO-QUALITY US-5 — pure entrance planner contract.
  */
 class SceneEntrancePlannerTest {
-
     @Test
     fun `disabled planner emits no script`() {
         assertEquals("", SceneEntrancePlanner.setupScript("scene", EntranceConfig()))
@@ -38,10 +37,11 @@ class SceneEntrancePlannerTest {
 
     @Test
     fun `tween reveals the atoms with a deterministic stagger`() {
-        val script = SceneEntrancePlanner.tweenScript(
-            "intro",
-            EntranceConfig(enabled = true, staggerSeconds = 0.08, durationSeconds = 0.4, offsetSeconds = 0.2),
-        )
+        val script =
+            SceneEntrancePlanner.tweenScript(
+                "intro",
+                EntranceConfig(enabled = true, staggerSeconds = 0.08, durationSeconds = 0.4, offsetSeconds = 0.2),
+            )
 
         assertContains(script, "opacity: 1, y: 0")
         assertContains(script, "duration: 0.40")

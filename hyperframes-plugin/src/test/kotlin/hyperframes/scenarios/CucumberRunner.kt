@@ -10,10 +10,10 @@ import org.junit.platform.suite.api.Suite
 @SelectClasspathResource("features")
 @ConfigurationParameter(
     key = "cucumber.junit-platform.naming-strategy",
-    value = "long"
+    value = "long",
 )
 @ConfigurationParameter(
     key = "cucumber.glue",
-    value = "hyperframes.scenarios"
+    value = "hyperframes.scenarios",
 )
 class CucumberRunner

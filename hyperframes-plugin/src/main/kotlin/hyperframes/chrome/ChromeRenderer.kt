@@ -11,7 +11,6 @@ import kotlin.math.roundToLong
  * HTML is deterministic and seek-safe.
  */
 object ChromeRenderer {
-
     /**
      * Renders the chrome of a single scene.
      *
@@ -45,7 +44,7 @@ object ChromeRenderer {
             appendLine("  <div class=\"hf-chrome-topbar\" data-layout-allow-occlusion>")
             if (config.timecode) {
                 appendLine(
-                    "    <span class=\"hf-chrome-timecode\">${formatTimecode(sceneStartSeconds, fps)}</span>"
+                    "    <span class=\"hf-chrome-timecode\">${formatTimecode(sceneStartSeconds, fps)}</span>",
                 )
             } else {
                 appendLine("    <span></span>")
@@ -73,7 +72,10 @@ object ChromeRenderer {
      *
      * @return an empty string when chrome or the progress bar is disabled.
      */
-    fun rootProgressTween(config: ChromeConfig, totalSeconds: Double): String {
+    fun rootProgressTween(
+        config: ChromeConfig,
+        totalSeconds: Double,
+    ): String {
         if (!config.enabled || !config.progressBar) return ""
         val duration = number(totalSeconds)
         return "    rootTl.fromTo(\"#$PROGRESS_ID span\", { scaleX: 0 }, " +
@@ -85,7 +87,10 @@ object ChromeRenderer {
      *
      * Negative values clamp to zero; frame counts round to the nearest frame.
      */
-    fun formatTimecode(seconds: Double, fps: Int): String {
+    fun formatTimecode(
+        seconds: Double,
+        fps: Int,
+    ): String {
         require(fps > 0) { "fps must be positive" }
         val totalFrames = (seconds * fps).roundToLong().coerceAtLeast(0L)
         val frames = totalFrames % fps
@@ -98,11 +103,13 @@ object ChromeRenderer {
 
     /** Formats a double with a dot decimal separator (never the default locale). */
     private fun number(value: Double): String =
-        if (value == value.toLong().toDouble()) value.toLong().toString()
-        else String.format(Locale.US, "%.2f", value)
+        if (value == value.toLong().toDouble()) {
+            value.toLong().toString()
+        } else {
+            String.format(Locale.US, "%.2f", value)
+        }
 
-    private fun escapeText(value: String): String =
-        value.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
+    private fun escapeText(value: String): String = value.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
 
     private const val CORNER_MARKS = 4
     private const val PROGRESS_ID = "hf-chrome-progress"

@@ -4,7 +4,6 @@ import hyperframes.post.AudioEnvelopeProbe
 import hyperframes.post.EspeakTextToSpeech
 import hyperframes.post.NarrationSilenceCheck
 import hyperframes.post.NarrationTrackExtractor
-import java.io.File
 import org.gradle.api.DefaultTask
 import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.provider.Property
@@ -17,6 +16,7 @@ import org.gradle.api.tasks.PathSensitivity
 import org.gradle.api.tasks.TaskAction
 import org.gradle.work.DisableCachingByDefault
 import video.kernel.TextToSpeech
+import java.io.File
 
 /**
  * Synthesizes narration audio from the enriched HyperFrames HTML through the
@@ -33,7 +33,6 @@ import video.kernel.TextToSpeech
  */
 @DisableCachingByDefault(because = "External process-bound: calls a TTS binary (espeak)")
 abstract class GenerateHyperframesNarrationTask : DefaultTask() {
-
     /** Generated HyperFrames HTML directory (contains `index.html`). */
     @get:InputDirectory
     @get:PathSensitive(PathSensitivity.RELATIVE)
@@ -71,10 +70,11 @@ abstract class GenerateHyperframesNarrationTask : DefaultTask() {
             return
         }
 
-        val tts: TextToSpeech = EspeakTextToSpeech(
-            executable = ttsExecutable.orNull ?: "espeak",
-            voice = ttsVoice.orNull ?: "",
-        )
+        val tts: TextToSpeech =
+            EspeakTextToSpeech(
+                executable = ttsExecutable.orNull ?: "espeak",
+                voice = ttsVoice.orNull ?: "",
+            )
 
         var produced = 0
         narrations.forEachIndexed { index, text ->
@@ -86,17 +86,21 @@ abstract class GenerateHyperframesNarrationTask : DefaultTask() {
             if (tts.synthesize(text, output)) produced++
         }
         if (produced < narrations.size) {
-            logger.warn("generateHyperframesNarration: {} of {} narration tracks synthesized (TTS unavailable/failed)",
-                produced, narrations.size)
+            logger.warn(
+                "generateHyperframesNarration: {} of {} narration tracks synthesized (TTS unavailable/failed)",
+                produced,
+                narrations.size,
+            )
         }
 
         // VK-4 US-4e — a mute take is a content defect: use the shared N1
         // silence detector on every produced narration file. The probe is N2
         // (ffmpeg); when it is unavailable the check is skipped, never read as
         // clean.
-        val narrationFiles = narrations.indices
-            .map { File(outDir, "narration-${it + 1}.wav") }
-            .filter { it.isFile && it.length() > 0L }
+        val narrationFiles =
+            narrations.indices
+                .map { File(outDir, "narration-${it + 1}.wav") }
+                .filter { it.isFile && it.length() > 0L }
         val probe = AudioEnvelopeProbe(ffmpegPath = ffmpegExecutable.getOrElse("ffmpeg"))
         val silent = NarrationSilenceCheck.silentFiles(narrationFiles) { probe.probe(it) }
         silent.forEach { file ->

@@ -1,26 +1,26 @@
 package hyperframes.post
 
-import java.io.File
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
-import java.nio.file.Path
 import video.kernel.AudioPostSettings
+import java.io.File
+import java.nio.file.Path
 
 /**
  * N2 adapters of the shared N1 ports (VK-4 US-4b→d) — hermetic, via a fake
  * [CommandRunner] (never a real FFmpeg / espeak).
  */
 class PostProductionAdaptersTest {
-
     @TempDir
     lateinit var tmp: Path
 
     /** Fake runner that writes the intended output file and returns exit 0. */
-    private fun writingRunner(): CommandRunner = CommandRunner { argv, _, _ ->
-        File(outputOf(argv)).apply { parentFile?.mkdirs() }.writeText("produced")
-        CommandResult(exitCode = 0)
-    }
+    private fun writingRunner(): CommandRunner =
+        CommandRunner { argv, _, _ ->
+            File(outputOf(argv)).apply { parentFile?.mkdirs() }.writeText("produced")
+            CommandResult(exitCode = 0)
+        }
 
     /** The output path of an adapter command: after `-w` (TTS), else the last argv item. */
     private fun outputOf(argv: List<String>): String {
@@ -46,7 +46,7 @@ class PostProductionAdaptersTest {
 
         assertThat(
             FfmpegSubtitleBurnIn(runner = writingRunner())
-                .burnIn(tmp.resolve("absent.mp4").toFile(), tmp.resolve("s.vtt").toFile(), output)
+                .burnIn(tmp.resolve("absent.mp4").toFile(), tmp.resolve("s.vtt").toFile(), output),
         ).isFalse()
     }
 
@@ -57,7 +57,7 @@ class PostProductionAdaptersTest {
 
         assertThat(
             FfmpegSubtitleBurnIn(runner = failingRunner())
-                .burnIn(video, subs, tmp.resolve("out.mp4").toFile())
+                .burnIn(video, subs, tmp.resolve("out.mp4").toFile()),
         ).isFalse()
     }
 
@@ -76,7 +76,7 @@ class PostProductionAdaptersTest {
 
         assertThat(
             FfmpegAudioPostProduction(runner = writingRunner())
-                .process(video, tmp.resolve("out.mp4").toFile(), AudioPostSettings(bgmEnabled = true, bgmFile = "/absent.mp3"))
+                .process(video, tmp.resolve("out.mp4").toFile(), AudioPostSettings(bgmEnabled = true, bgmFile = "/absent.mp3")),
         ).isFalse()
     }
 
@@ -84,7 +84,7 @@ class PostProductionAdaptersTest {
     fun `audio post degrades on missing video`() {
         assertThat(
             FfmpegAudioPostProduction(runner = writingRunner())
-                .process(tmp.resolve("absent.mp4").toFile(), tmp.resolve("out.mp4").toFile(), AudioPostSettings())
+                .process(tmp.resolve("absent.mp4").toFile(), tmp.resolve("out.mp4").toFile(), AudioPostSettings()),
         ).isFalse()
     }
 

@@ -1,10 +1,10 @@
 package hyperframes.publish
 
-import java.io.File
 import video.kernel.publish.DisabledVideoPublisher
 import video.kernel.publish.HttpTransport
 import video.kernel.publish.VideoPublisher
 import video.kernel.publish.YouTubeCredentialsLoader
+import java.io.File
 
 /**
  * Resolves the [VideoPublisher] for the HyperFrames publish step
@@ -22,7 +22,6 @@ import video.kernel.publish.YouTubeCredentialsLoader
  * 5. otherwise                              → [YouTubeDataApiPublisher]
  */
 object HyperframesPublisherResolver {
-
     const val YOUTUBE_PLATFORM: String = "youtube"
 
     fun resolve(
@@ -38,8 +37,9 @@ object HyperframesPublisherResolver {
         if (!platform.equals(YOUTUBE_PLATFORM, ignoreCase = true)) {
             return DisabledVideoPublisher("unsupported publish platform '$platform' (only '$YOUTUBE_PLATFORM')")
         }
-        val credentials = YouTubeCredentialsLoader.load(credentialsFile)
-            ?: return DisabledVideoPublisher("credentials file not found or empty: ${credentialsFile.name}")
+        val credentials =
+            YouTubeCredentialsLoader.load(credentialsFile)
+                ?: return DisabledVideoPublisher("credentials file not found or empty: ${credentialsFile.name}")
         if (!credentials.canUpload()) {
             return DisabledVideoPublisher(
                 "credentials incomplete in ${credentialsFile.name}: missing " +

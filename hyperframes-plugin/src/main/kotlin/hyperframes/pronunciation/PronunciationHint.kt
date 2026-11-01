@@ -18,7 +18,7 @@ package hyperframes.pronunciation
 data class PronunciationHint private constructor(
     val word: String,
     val phonetic: String,
-    val language: String?
+    val language: String?,
 ) {
     /**
      * Renders the hint as a compact JSON object.
@@ -26,17 +26,18 @@ data class PronunciationHint private constructor(
      * Without language: `{"word":"dos","phonetic":"do"}`
      * With language:    `{"word":"dos","phonetic":"do","language":"fr"}`
      */
-    fun render(): String = buildString {
-        append("{")
-        append(""""word":"$word"""")
-        append(",")
-        append(""""phonetic":"$phonetic"""")
-        if (language != null) {
+    fun render(): String =
+        buildString {
+            append("{")
+            append(""""word":"$word"""")
             append(",")
-            append(""""language":"$language"""")
+            append(""""phonetic":"$phonetic"""")
+            if (language != null) {
+                append(",")
+                append(""""language":"$language"""")
+            }
+            append("}")
         }
-        append("}")
-    }
 
     /**
      * Deduplication key (word + language) used by [PronunciationDictionary].
@@ -49,13 +50,17 @@ data class PronunciationHint private constructor(
          *
          * @throws IllegalArgumentException if the word or phonetic is empty/blank
          */
-        fun of(word: String, phonetic: String, language: String? = null): PronunciationHint {
+        fun of(
+            word: String,
+            phonetic: String,
+            language: String? = null,
+        ): PronunciationHint {
             require(word.trim().isNotEmpty()) { "word must not be empty or blank" }
             require(phonetic.trim().isNotEmpty()) { "phonetic must not be empty or blank" }
             return PronunciationHint(
                 word = word.trim().lowercase(),
                 phonetic = phonetic.trim(),
-                language = language
+                language = language,
             )
         }
     }

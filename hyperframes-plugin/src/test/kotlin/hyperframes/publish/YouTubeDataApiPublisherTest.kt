@@ -1,6 +1,5 @@
 package hyperframes.publish
 
-import java.io.File
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
@@ -11,6 +10,7 @@ import video.kernel.publish.VideoPublication
 import video.kernel.publish.VideoPublicationResult
 import video.kernel.publish.VideoVisibility
 import video.kernel.publish.YouTubeCredentials
+import java.io.File
 
 /**
  * HF-YOUTUBE-PUBLISH US-2 — [YouTubeDataApiPublisher] driven through a **fake
@@ -18,41 +18,48 @@ import video.kernel.publish.YouTubeCredentials
  * without touching the network.
  */
 class YouTubeDataApiPublisherTest {
-
     @TempDir
     lateinit var tempDir: File
 
     /** Queued fake transport: returns [responses] in order and records [requests]. */
-    private class FakeTransport(private val responses: MutableList<PublishHttpResponse>) : HttpTransport {
+    private class FakeTransport(
+        private val responses: MutableList<PublishHttpResponse>,
+    ) : HttpTransport {
         val requests = mutableListOf<PublishHttpRequest>()
+
         override fun send(request: PublishHttpRequest): PublishHttpResponse {
             requests += request
-            return if (responses.isEmpty()) PublishHttpResponse(500, "no canned response")
-            else responses.removeAt(0)
+            return if (responses.isEmpty()) {
+                PublishHttpResponse(500, "no canned response")
+            } else {
+                responses.removeAt(0)
+            }
         }
     }
 
-    private fun publication(thumbnail: File? = null) = VideoPublication(
-        videoFile = File(tempDir, "video.mp4").apply { writeText("video-bytes") },
-        title = "Title",
-        description = "Body",
-        tags = listOf("a"),
-        visibility = VideoVisibility.PRIVATE,
-        categoryId = "27",
-        thumbnailFile = thumbnail,
-    )
+    private fun publication(thumbnail: File? = null) =
+        VideoPublication(
+            videoFile = File(tempDir, "video.mp4").apply { writeText("video-bytes") },
+            title = "Title",
+            description = "Body",
+            tags = listOf("a"),
+            visibility = VideoVisibility.PRIVATE,
+            categoryId = "27",
+            thumbnailFile = thumbnail,
+        )
 
     private fun credentials() = YouTubeCredentials("cid", "secret", "refresh", channelId = "UC1")
 
     @Test
     fun `happy path publishes and returns the video url`() {
-        val transport = FakeTransport(
-            mutableListOf(
-                PublishHttpResponse(200, """{"access_token":"AT"}"""),
-                PublishHttpResponse(200, "", mapOf("location" to "https://session")),
-                PublishHttpResponse(200, """{"id":"VID"}"""),
-            ),
-        )
+        val transport =
+            FakeTransport(
+                mutableListOf(
+                    PublishHttpResponse(200, """{"access_token":"AT"}"""),
+                    PublishHttpResponse(200, "", mapOf("location" to "https://session")),
+                    PublishHttpResponse(200, """{"id":"VID"}"""),
+                ),
+            )
 
         val result = YouTubeDataApiPublisher(credentials(), transport).publish(publication())
 
@@ -63,14 +70,15 @@ class YouTubeDataApiPublisherTest {
     @Test
     fun `thumbnail is set best-effort when provided`() {
         val thumbnail = File(tempDir, "thumb.png").apply { writeBytes(byteArrayOf(1)) }
-        val transport = FakeTransport(
-            mutableListOf(
-                PublishHttpResponse(200, """{"access_token":"AT"}"""),
-                PublishHttpResponse(200, "", mapOf("location" to "https://session")),
-                PublishHttpResponse(200, """{"id":"VID"}"""),
-                PublishHttpResponse(200, "{}"),
-            ),
-        )
+        val transport =
+            FakeTransport(
+                mutableListOf(
+                    PublishHttpResponse(200, """{"access_token":"AT"}"""),
+                    PublishHttpResponse(200, "", mapOf("location" to "https://session")),
+                    PublishHttpResponse(200, """{"id":"VID"}"""),
+                    PublishHttpResponse(200, "{}"),
+                ),
+            )
 
         val result = YouTubeDataApiPublisher(credentials(), transport).publish(publication(thumbnail))
 
@@ -82,14 +90,15 @@ class YouTubeDataApiPublisherTest {
     @Test
     fun `a thumbnail refusal still keeps the published video`() {
         val thumbnail = File(tempDir, "thumb.png").apply { writeBytes(byteArrayOf(1)) }
-        val transport = FakeTransport(
-            mutableListOf(
-                PublishHttpResponse(200, """{"access_token":"AT"}"""),
-                PublishHttpResponse(200, "", mapOf("location" to "https://session")),
-                PublishHttpResponse(200, """{"id":"VID"}"""),
-                PublishHttpResponse(403, "forbidden"),
-            ),
-        )
+        val transport =
+            FakeTransport(
+                mutableListOf(
+                    PublishHttpResponse(200, """{"access_token":"AT"}"""),
+                    PublishHttpResponse(200, "", mapOf("location" to "https://session")),
+                    PublishHttpResponse(200, """{"id":"VID"}"""),
+                    PublishHttpResponse(403, "forbidden"),
+                ),
+            )
 
         val result = YouTubeDataApiPublisher(credentials(), transport).publish(publication(thumbnail))
 
@@ -108,12 +117,13 @@ class YouTubeDataApiPublisherTest {
 
     @Test
     fun `a missing session url fails`() {
-        val transport = FakeTransport(
-            mutableListOf(
-                PublishHttpResponse(200, """{"access_token":"AT"}"""),
-                PublishHttpResponse(200, "", emptyMap()),
-            ),
-        )
+        val transport =
+            FakeTransport(
+                mutableListOf(
+                    PublishHttpResponse(200, """{"access_token":"AT"}"""),
+                    PublishHttpResponse(200, "", emptyMap()),
+                ),
+            )
 
         val result = YouTubeDataApiPublisher(credentials(), transport).publish(publication())
 
@@ -122,13 +132,14 @@ class YouTubeDataApiPublisherTest {
 
     @Test
     fun `a missing video id fails`() {
-        val transport = FakeTransport(
-            mutableListOf(
-                PublishHttpResponse(200, """{"access_token":"AT"}"""),
-                PublishHttpResponse(200, "", mapOf("location" to "https://session")),
-                PublishHttpResponse(200, "{}"),
-            ),
-        )
+        val transport =
+            FakeTransport(
+                mutableListOf(
+                    PublishHttpResponse(200, """{"access_token":"AT"}"""),
+                    PublishHttpResponse(200, "", mapOf("location" to "https://session")),
+                    PublishHttpResponse(200, "{}"),
+                ),
+            )
 
         val result = YouTubeDataApiPublisher(credentials(), transport).publish(publication())
 

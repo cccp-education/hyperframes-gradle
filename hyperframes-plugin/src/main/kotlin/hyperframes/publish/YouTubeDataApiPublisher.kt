@@ -1,6 +1,5 @@
 package hyperframes.publish
 
-import java.nio.charset.StandardCharsets
 import video.kernel.publish.HttpTransport
 import video.kernel.publish.PublishHttpRequest
 import video.kernel.publish.VideoPublication
@@ -8,6 +7,7 @@ import video.kernel.publish.VideoPublicationResult
 import video.kernel.publish.VideoPublisher
 import video.kernel.publish.YouTubeCredentials
 import video.kernel.publish.YouTubePublishCommand
+import java.nio.charset.StandardCharsets
 
 /**
  * N2 implementation of the engine-neutral [VideoPublisher] port backed by the
@@ -33,7 +33,6 @@ class YouTubeDataApiPublisher(
     private val transport: HttpTransport = JdkHttpTransport(),
     private val onLog: (String) -> Unit = {},
 ) : VideoPublisher {
-
     override fun publish(publication: VideoPublication): VideoPublicationResult {
         if (!publication.videoFile.exists() || publication.videoFile.length() == 0L) {
             return VideoPublicationResult.Degraded("no rendered video to publish: ${publication.videoFile.name}")
@@ -42,14 +41,17 @@ class YouTubeDataApiPublisher(
             return VideoPublicationResult.Degraded("YouTube OAuth credentials incomplete (clientId/clientSecret/refreshToken)")
         }
 
-        val accessToken = refreshAccessToken()
-            ?: return VideoPublicationResult.Failed("YouTube OAuth token refresh failed")
+        val accessToken =
+            refreshAccessToken()
+                ?: return VideoPublicationResult.Failed("YouTube OAuth token refresh failed")
 
-        val sessionUrl = initiateUpload(accessToken, publication)
-            ?: return VideoPublicationResult.Failed("YouTube resumable upload init failed (no session URL)")
+        val sessionUrl =
+            initiateUpload(accessToken, publication)
+                ?: return VideoPublicationResult.Failed("YouTube resumable upload init failed (no session URL)")
 
-        val videoId = uploadContent(sessionUrl, publication)
-            ?: return VideoPublicationResult.Failed("YouTube upload failed (no video id returned)")
+        val videoId =
+            uploadContent(sessionUrl, publication)
+                ?: return VideoPublicationResult.Failed("YouTube upload failed (no video id returned)")
 
         setThumbnail(accessToken, videoId, publication)
 
@@ -58,12 +60,13 @@ class YouTubeDataApiPublisher(
     }
 
     private fun refreshAccessToken(): String? {
-        val request = PublishHttpRequest(
-            method = "POST",
-            url = YouTubePublishCommand.TOKEN_URL,
-            headers = mapOf("Content-Type" to "application/x-www-form-urlencoded"),
-            body = YouTubePublishCommand.tokenRequestBody(credentials).toByteArray(StandardCharsets.UTF_8),
-        )
+        val request =
+            PublishHttpRequest(
+                method = "POST",
+                url = YouTubePublishCommand.TOKEN_URL,
+                headers = mapOf("Content-Type" to "application/x-www-form-urlencoded"),
+                body = YouTubePublishCommand.tokenRequestBody(credentials).toByteArray(StandardCharsets.UTF_8),
+            )
         val response = transport.send(request)
         if (response.statusCode !in 200..299) {
             onLog("YouTube token refresh refused (status ${response.statusCode})")
@@ -72,7 +75,10 @@ class YouTubeDataApiPublisher(
         return YouTubePublishCommand.parseAccessToken(response.body)
     }
 
-    private fun initiateUpload(accessToken: String, publication: VideoPublication): String? {
+    private fun initiateUpload(
+        accessToken: String,
+        publication: VideoPublication,
+    ): String? {
         val response = transport.send(YouTubePublishCommand.initRequest(accessToken, publication))
         if (response.statusCode !in 200..299) {
             onLog("YouTube upload init refused (status ${response.statusCode})")
@@ -81,7 +87,10 @@ class YouTubeDataApiPublisher(
         return response.headers["location"]?.takeIf { it.isNotBlank() }
     }
 
-    private fun uploadContent(sessionUrl: String, publication: VideoPublication): String? {
+    private fun uploadContent(
+        sessionUrl: String,
+        publication: VideoPublication,
+    ): String? {
         val response = transport.send(YouTubePublishCommand.contentRequest(sessionUrl, publication.videoFile))
         if (response.statusCode !in 200..299) {
             onLog("YouTube content upload refused (status ${response.statusCode})")
@@ -90,7 +99,11 @@ class YouTubeDataApiPublisher(
         return YouTubePublishCommand.parseVideoId(response.body)
     }
 
-    private fun setThumbnail(accessToken: String, videoId: String, publication: VideoPublication) {
+    private fun setThumbnail(
+        accessToken: String,
+        videoId: String,
+        publication: VideoPublication,
+    ) {
         val thumbnail = publication.thumbnailFile ?: return
         if (!thumbnail.exists()) return
         val response = transport.send(YouTubePublishCommand.thumbnailRequest(accessToken, videoId, thumbnail))

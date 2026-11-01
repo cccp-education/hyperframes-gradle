@@ -14,7 +14,6 @@ import org.gradle.api.tasks.Optional
  * Propriétés configurables dans le bloc `hyperframes { }` du build.gradle.kts.
  */
 abstract class HyperframesExtension {
-
     /** Répertoire contenant le ou les fichiers AsciiDoc source */
     @get:InputDirectory
     abstract val inputDir: DirectoryProperty

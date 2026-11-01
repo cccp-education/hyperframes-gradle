@@ -17,7 +17,6 @@ import kotlin.test.assertTrue
  * - the external CDN is never referenced.
  */
 class GsapLibraryTest {
-
     @Test
     fun `reports the vendored GSAP version`() {
         assertEquals("3.12.5", GsapLibrary.VERSION)

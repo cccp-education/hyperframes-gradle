@@ -27,7 +27,7 @@ class HyperframesPluginPublicationTest {
             System.getProperty("hyperframes.publishedCatalog.pluginVersion")
                 ?: error(
                     "hyperframes.publishedCatalog.pluginVersion is not set — run through Gradle " +
-                        "(build.gradle.kts injects the published ws catalog version)"
+                        "(build.gradle.kts injects the published ws catalog version)",
                 )
 
     private val publishedBomVersion: String
@@ -35,28 +35,28 @@ class HyperframesPluginPublicationTest {
             System.getProperty("hyperframes.publishedCatalog.bomVersion")
                 ?: error(
                     "hyperframes.publishedCatalog.bomVersion is not set — run through Gradle " +
-                        "(build.gradle.kts injects the published ws catalog version)"
+                        "(build.gradle.kts injects the published ws catalog version)",
                 )
 
     @Test
     fun `plugin version matches root consumer catalog version`() {
         val buildScript = pluginDir.resolve("build.gradle.kts").readText(UTF_8)
-        val versionLine =
-            buildScript
-                .lineSequence()
-                .first { it.trimStart().startsWith("version =") }
 
         // MEM-CAT-ROLLOUT-4 (D3) — self version derived from the published workspace catalog.
-        assertThat(versionLine)
+        // LINT-ADOPT-5 (S-327) — whitespace-insensitive: ktlint reflows the chained
+        // assignment over several lines (`version =` / `ws.versions...`), which broke
+        // the former line-by-line guard (S-244/S-325 F34 trap).
+        assertThat(compact(buildScript))
             .withFailMessage("build.gradle.kts version must derive from the published workspace catalog (ws.versions.hyperframes.plugin)")
-            .contains("ws.versions.hyperframes.plugin.get()")
+            .contains("version=ws.versions.hyperframes.plugin.get()")
 
         // Hygiene (D5): local toml self version must match the published ws catalog version.
         val pluginCatalogVersion = hyperframesVersionFrom(pluginDir.resolve("gradle/libs.versions.toml").readText(UTF_8))
 
         assertThat(pluginCatalogVersion)
-            .withFailMessage("plugin catalog hyperframes-plugin version ($pluginCatalogVersion) must match ws catalog hyperframes-plugin version ($publishedPluginVersion)")
-            .isEqualTo(publishedPluginVersion)
+            .withFailMessage(
+                "plugin catalog hyperframes-plugin version ($pluginCatalogVersion) must match ws catalog hyperframes-plugin version ($publishedPluginVersion)",
+            ).isEqualTo(publishedPluginVersion)
     }
 
     @Test
@@ -67,6 +67,9 @@ class HyperframesPluginPublicationTest {
             .withFailMessage("workspace-bom platform pin must use the ws catalog BOM version ($publishedBomVersion)")
             .contains("""platform("education.cccp:workspace-bom:$publishedBomVersion")""")
     }
+
+    /** Collapses every whitespace run so a reflowed assignment still matches. */
+    private fun compact(content: String): String = content.replace(Regex("\\s+"), "")
 
     private fun hyperframesVersionFrom(content: String): String =
         content

@@ -19,9 +19,8 @@ data class DataChartTemplate(
     val id: String,
     val title: String,
     val dataPoints: List<DataPoint>,
-    val durationSeconds: Double = 4.0
+    val durationSeconds: Double = 4.0,
 ) {
-
     /**
      * Renders the HyperFrames HTML fragment.
      *
@@ -32,42 +31,45 @@ data class DataChartTemplate(
      * timeline that animates bars from `scaleY: 0` to `scaleY: 1` with a
      * stagger so they rise one after another.
      */
-    fun render(): String = buildString {
-        val durationInt = durationSeconds.toInt()
-        val maxValue = dataPoints.maxOfOrNull { it.value } ?: 0.0
-        appendLine("<div class=\"sect1 hyperframes-composition\" data-composition-id=\"$id\">")
-        appendLine("  <div class=\"sectionbody\">")
-        appendLine("    <div class=\"paragraph hyperframes-track\" data-track-index=\"0\" data-start=\"0\" data-duration=\"$durationInt\">")
-        appendLine("      <div class=\"hf-data-chart\">")
-        appendLine("        <span class=\"hf-data-chart-title\">$title</span>")
-        if (dataPoints.isEmpty()) {
-            appendLine("        <div class=\"hf-data-chart-plot hf-data-chart-empty\"></div>")
-        } else {
-            appendLine("        <div class=\"hf-data-chart-plot\">")
-            dataPoints.forEach { point ->
-                val heightPercent = if (maxValue > 0) (point.value / maxValue * 100).toInt() else 0
-                appendLine("          <div class=\"hf-data-chart-col\">")
-                appendLine("            <div class=\"hf-data-chart-bar\" data-label=\"${point.label}\" data-value=\"${point.value}\" style=\"height:${heightPercent}%\"></div>")
-                appendLine("            <span class=\"hf-data-chart-label\">${point.label}</span>")
-                appendLine("          </div>")
+    fun render(): String =
+        buildString {
+            val durationInt = durationSeconds.toInt()
+            val maxValue = dataPoints.maxOfOrNull { it.value } ?: 0.0
+            appendLine("<div class=\"sect1 hyperframes-composition\" data-composition-id=\"$id\">")
+            appendLine("  <div class=\"sectionbody\">")
+            appendLine("    <div class=\"paragraph hyperframes-track\" data-track-index=\"0\" data-start=\"0\" data-duration=\"$durationInt\">")
+            appendLine("      <div class=\"hf-data-chart\">")
+            appendLine("        <span class=\"hf-data-chart-title\">$title</span>")
+            if (dataPoints.isEmpty()) {
+                appendLine("        <div class=\"hf-data-chart-plot hf-data-chart-empty\"></div>")
+            } else {
+                appendLine("        <div class=\"hf-data-chart-plot\">")
+                dataPoints.forEach { point ->
+                    val heightPercent = if (maxValue > 0) (point.value / maxValue * 100).toInt() else 0
+                    appendLine("          <div class=\"hf-data-chart-col\">")
+                    appendLine(
+                        "            <div class=\"hf-data-chart-bar\" data-label=\"${point.label}\" data-value=\"${point.value}\" style=\"height:$heightPercent%\"></div>",
+                    )
+                    appendLine("            <span class=\"hf-data-chart-label\">${point.label}</span>")
+                    appendLine("          </div>")
+                }
+                appendLine("        </div>")
             }
-            appendLine("        </div>")
+            appendLine("      </div>")
+            appendLine("    </div>")
+            appendLine("    <script type=\"text/javascript\">")
+            appendLine("      window.__timelines = window.__timelines || {};")
+            appendLine("      (function () {")
+            appendLine("        const tl = gsap.timeline({ paused: true });")
+            if (dataPoints.isNotEmpty()) {
+                appendLine("        tl.from(\"#$id .hf-data-chart-bar\", { scaleY: 0, duration: 0.6, stagger: 0.15, transformOrigin: \"bottom\" }, 0.2);")
+            }
+            appendLine("        window.__timelines[\"$id\"] = tl;")
+            appendLine("      })();")
+            appendLine("    </script>")
+            appendLine("  </div>")
+            append("</div>")
         }
-        appendLine("      </div>")
-        appendLine("    </div>")
-        appendLine("    <script type=\"text/javascript\">")
-        appendLine("      window.__timelines = window.__timelines || {};")
-        appendLine("      (function () {")
-        appendLine("        const tl = gsap.timeline({ paused: true });")
-        if (dataPoints.isNotEmpty()) {
-            appendLine("        tl.from(\"#$id .hf-data-chart-bar\", { scaleY: 0, duration: 0.6, stagger: 0.15, transformOrigin: \"bottom\" }, 0.2);")
-        }
-        appendLine("        window.__timelines[\"$id\"] = tl;")
-        appendLine("      })();")
-        appendLine("    </script>")
-        appendLine("  </div>")
-        append("</div>")
-    }
 }
 
 /**
@@ -79,7 +81,7 @@ data class DataChartTemplate(
  */
 data class DataPoint(
     val label: String,
-    val value: Double
+    val value: Double,
 ) {
     init {
         require(label.isNotBlank()) { "DataPoint label must not be blank" }

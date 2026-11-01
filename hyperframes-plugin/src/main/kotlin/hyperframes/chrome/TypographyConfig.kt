@@ -47,7 +47,8 @@ data class TypographyConfig(
             }
 
     private fun familiesOf(stack: String): List<String> =
-        stack.split(',')
+        stack
+            .split(',')
             .map { it.trim().trim('"', '\'').trim() }
             .filter { it.isNotBlank() }
 
@@ -62,10 +63,23 @@ data class TypographyConfig(
          */
         private val SAFE_FONT_STACK = Regex("""^[A-Za-z0-9 ,"'_\-]+$""")
 
-        private val GENERIC_FAMILIES = setOf(
-            "serif", "sans-serif", "monospace", "cursive", "fantasy",
-            "system-ui", "ui-serif", "ui-sans-serif", "ui-monospace", "ui-rounded",
-            "emoji", "math", "fangsong", "-apple-system", "blinkmacsystemfont",
-        )
+        private val GENERIC_FAMILIES =
+            setOf(
+                "serif",
+                "sans-serif",
+                "monospace",
+                "cursive",
+                "fantasy",
+                "system-ui",
+                "ui-serif",
+                "ui-sans-serif",
+                "ui-monospace",
+                "ui-rounded",
+                "emoji",
+                "math",
+                "fangsong",
+                "-apple-system",
+                "blinkmacsystemfont",
+            )
     }
 }

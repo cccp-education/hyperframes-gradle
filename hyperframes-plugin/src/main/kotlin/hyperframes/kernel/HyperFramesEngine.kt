@@ -12,7 +12,11 @@ import java.util.concurrent.TimeUnit
  * Seam over the external HyperFrames CLI process (test-injectable).
  */
 fun interface HyperFramesRenderRunner {
-    fun run(argv: List<String>, workingDir: File, timeoutMillis: Long): HyperFramesProcessResult
+    fun run(
+        argv: List<String>,
+        workingDir: File,
+        timeoutMillis: Long,
+    ): HyperFramesProcessResult
 }
 
 /** Outcome of an external CLI invocation. */
@@ -73,11 +77,9 @@ open class HyperFramesEngine(
     private val config: HyperFramesEngineConfig,
     private val runner: HyperFramesRenderRunner = ProcessBuilderHyperFramesRunner(),
 ) : VideoEngine {
-
     override fun name(): String = "hyperframes"
 
-    override fun isAvailable(): Boolean =
-        File(config.cliScript).exists() && File(config.nodeExecutable).exists()
+    override fun isAvailable(): Boolean = File(config.cliScript).exists() && File(config.nodeExecutable).exists()
 
     /**
      * US-3 (S-018) — the shared port entry point. Delegates to [renderDetailed]
@@ -99,31 +101,35 @@ open class HyperFramesEngine(
         // S-022 (dogfooding) — the real CLI is `hyperframes render [DIR] -o <out>`:
         // DIR is the project directory containing `index.html` (no `--input` flag).
         val projectDir = htmlFile.parentFile ?: outputDir
-        val argv = listOf(
-            config.nodeExecutable,
-            config.cliScript,
-            "render",
-            projectDir.absolutePath,
-            "--output", outputMp4.absolutePath,
-        )
-        val process = runner.run(argv, outputDir, timeout)
-        val produced = if (process.exitCode == 0 && outputMp4.exists() && outputMp4.length() > 0L) {
-            outputMp4
-        } else {
-            null
-        }
-        val outcome = produced?.let {
-            // US-4 (S-021) — the CLI does not report the duration; the injected
-            // probe measures it so the neutral outcome is complete for a generic
-            // orchestrator (parity with capsule's reveal adapter).
-            VideoOutcome(
-                durationSeconds = config.durationProbe.probeSeconds(it),
-                width = config.width,
-                height = config.height,
-                sizeBytes = it.length(),
-                codec = config.codec,
+        val argv =
+            listOf(
+                config.nodeExecutable,
+                config.cliScript,
+                "render",
+                projectDir.absolutePath,
+                "--output",
+                outputMp4.absolutePath,
             )
-        }
+        val process = runner.run(argv, outputDir, timeout)
+        val produced =
+            if (process.exitCode == 0 && outputMp4.exists() && outputMp4.length() > 0L) {
+                outputMp4
+            } else {
+                null
+            }
+        val outcome =
+            produced?.let {
+                // US-4 (S-021) — the CLI does not report the duration; the injected
+                // probe measures it so the neutral outcome is complete for a generic
+                // orchestrator (parity with capsule's reveal adapter).
+                VideoOutcome(
+                    durationSeconds = config.durationProbe.probeSeconds(it),
+                    width = config.width,
+                    height = config.height,
+                    sizeBytes = it.length(),
+                    codec = config.codec,
+                )
+            }
         return HyperFramesRenderOutcome(
             result = VideoRenderResult(produced = produced, outcome = outcome),
             process = process,
@@ -138,12 +144,16 @@ open class HyperFramesEngine(
  * bounded by [HyperFramesEngineConfig.timeoutMillis].
  */
 class ProcessBuilderHyperFramesRunner : HyperFramesRenderRunner {
-
-    override fun run(argv: List<String>, workingDir: File, timeoutMillis: Long): HyperFramesProcessResult {
-        val process = ProcessBuilder(argv)
-            .directory(workingDir)
-            .redirectErrorStream(true)
-            .start()
+    override fun run(
+        argv: List<String>,
+        workingDir: File,
+        timeoutMillis: Long,
+    ): HyperFramesProcessResult {
+        val process =
+            ProcessBuilder(argv)
+                .directory(workingDir)
+                .redirectErrorStream(true)
+                .start()
         val completed = process.waitFor(timeoutMillis, TimeUnit.MILLISECONDS)
         if (!completed) {
             process.destroyForcibly()

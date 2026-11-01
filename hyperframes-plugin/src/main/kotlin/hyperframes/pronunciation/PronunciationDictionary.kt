@@ -12,7 +12,6 @@ package hyperframes.pronunciation
  * the power to fix it without touching the engine.
  */
 class PronunciationDictionary {
-
     private val hints: MutableMap<String, PronunciationHint> = LinkedHashMap()
 
     /**
@@ -33,7 +32,10 @@ class PronunciationDictionary {
      *                 otherwise falls back to the language-agnostic hint,
      *                 then to any hint for that word.
      */
-    fun find(word: String, language: String? = null): PronunciationHint? {
+    fun find(
+        word: String,
+        language: String? = null,
+    ): PronunciationHint? {
         val normalized = word.trim().lowercase()
         if (language != null) {
             val keyed = hints["$normalized|$language"]
@@ -62,13 +64,14 @@ class PronunciationDictionary {
      * Empty: `<script type="application/json" id="hf-pronunciation">[]</script>`
      * Non-empty: the array holds the JSON object of each hint.
      */
-    fun render(): String = buildString {
-        append("""<script type="application/json" id="hf-pronunciation">""")
-        append("[")
-        hints.values.joinTo(this, separator = ",") { it.render() }
-        append("]")
-        append("</script>")
-    }
+    fun render(): String =
+        buildString {
+            append("""<script type="application/json" id="hf-pronunciation">""")
+            append("[")
+            hints.values.joinTo(this, separator = ",") { it.render() }
+            append("]")
+            append("</script>")
+        }
 
     /** Immutable snapshot of the hints (for N3 traceability / metadata.json). */
     fun snapshot(): List<PronunciationHint> = hints.values.toList()

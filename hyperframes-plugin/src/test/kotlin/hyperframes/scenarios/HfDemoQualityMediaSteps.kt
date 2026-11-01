@@ -13,32 +13,33 @@ import io.cucumber.java.en.When
  * Steps are prefixed (`quality media …`) to avoid glue collisions.
  */
 class HfDemoQualityMediaSteps {
-
     private var source: String = ""
     private var enhanced: String = ""
 
     @Given("a quality media document with a bgm and an sfx cue")
     fun documentWithTwoCues() {
-        source = document(
-            """
-            <div class="sect1"><h2 id="one">One</h2>
-            <div class="listingblock hyperframes-audio"><div class="content"><pre>bgm: assets/audio/bgm.mp3 volume=0.3
-            sfx: 6.0 assets/audio/whoosh.mp3 volume=0.25</pre></div></div>
-            </div>
-            """.trimIndent(),
-        )
+        source =
+            document(
+                """
+                <div class="sect1"><h2 id="one">One</h2>
+                <div class="listingblock hyperframes-audio"><div class="content"><pre>bgm: assets/audio/bgm.mp3 volume=0.3
+                sfx: 6.0 assets/audio/whoosh.mp3 volume=0.25</pre></div></div>
+                </div>
+                """.trimIndent(),
+            )
     }
 
     @Given("a quality media document with only invalid audio lines")
     fun documentWithInvalidCues() {
-        source = document(
-            """
-            <div class="sect1"><h2 id="one">One</h2>
-            <div class="listingblock hyperframes-audio"><div class="content"><pre>bad: nope
-            sfx: not-a-time file.mp3</pre></div></div>
-            </div>
-            """.trimIndent(),
-        )
+        source =
+            document(
+                """
+                <div class="sect1"><h2 id="one">One</h2>
+                <div class="listingblock hyperframes-audio"><div class="content"><pre>bad: nope
+                sfx: not-a-time file.mp3</pre></div></div>
+                </div>
+                """.trimIndent(),
+            )
     }
 
     @Given("a quality media document without an audio block")
@@ -48,12 +49,13 @@ class HfDemoQualityMediaSteps {
 
     @When("I enhance the quality media document with the HyperFrames processor")
     fun enhanceDocument() {
-        enhanced = HyperframesHtmlProcessor(
-            width = 1920,
-            height = 1080,
-            fps = 30,
-            outputName = "quality-media-demo",
-        ).enhance(source)
+        enhanced =
+            HyperframesHtmlProcessor(
+                width = 1920,
+                height = 1080,
+                fps = 30,
+                outputName = "quality-media-demo",
+            ).enhance(source)
     }
 
     @Then("the quality media composition has {int} audio elements")
@@ -86,7 +88,8 @@ class HfDemoQualityMediaSteps {
         }
     }
 
-    private fun document(section: String): String = """
+    private fun document(section: String): String =
+        """
         <!DOCTYPE html>
         <html>
         <head><title>Quality media</title></head>
@@ -96,5 +99,5 @@ class HfDemoQualityMediaSteps {
         </div>
         </body>
         </html>
-    """.trimIndent()
+        """.trimIndent()
 }

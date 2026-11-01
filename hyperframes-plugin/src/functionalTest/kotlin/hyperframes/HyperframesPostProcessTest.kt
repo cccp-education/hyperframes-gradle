@@ -1,15 +1,15 @@
 package hyperframes
 
-import java.io.File
-import java.nio.file.Path
-import java.util.concurrent.TimeUnit
-import kotlin.test.assertContains
-import kotlin.test.assertTrue
 import org.gradle.testkit.runner.GradleRunner
 import org.junit.jupiter.api.Assumptions.assumeTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
+import java.io.File
+import java.nio.file.Path
+import java.util.concurrent.TimeUnit
+import kotlin.test.assertContains
+import kotlin.test.assertTrue
 
 /**
  * Functional acceptance for the shared post-production / narration tasks
@@ -17,7 +17,6 @@ import org.junit.jupiter.api.io.TempDir
  * degrades gracefully (pass-through / no-op) when the tool is absent.
  */
 class HyperframesPostProcessTest {
-
     @TempDir
     lateinit var tempDir: Path
     private lateinit var projectDir: File
@@ -56,11 +55,13 @@ class HyperframesPostProcessTest {
         // The render dir must exist (input-directory validation); it is empty.
         projectDir.resolve("build/hyperframes").mkdirs()
 
-        val result = GradleRunner.create()
-            .withProjectDir(projectDir)
-            .withPluginClasspath()
-            .withArguments("postProcessHyperframes")
-            .buildAndFail()
+        val result =
+            GradleRunner
+                .create()
+                .withProjectDir(projectDir)
+                .withPluginClasspath()
+                .withArguments("postProcessHyperframes")
+                .buildAndFail()
 
         assertContains(result.output, "No rendered MP4 found")
     }
@@ -99,23 +100,33 @@ class HyperframesPostProcessTest {
         }
 
     private fun generateSilentWav(output: File) {
-        val process = ProcessBuilder(
-            "ffmpeg", "-v", "error", "-y",
-            "-f", "lavfi", "-i", "anullsrc=r=16000:cl=mono",
-            "-t", "1",
-            output.absolutePath,
-        ).redirectErrorStream(true).start()
+        val process =
+            ProcessBuilder(
+                "ffmpeg",
+                "-v",
+                "error",
+                "-y",
+                "-f",
+                "lavfi",
+                "-i",
+                "anullsrc=r=16000:cl=mono",
+                "-t",
+                "1",
+                output.absolutePath,
+            ).redirectErrorStream(true).start()
         val finished = process.waitFor(60, TimeUnit.SECONDS)
         assumeTrue(finished && process.exitValue() == 0) {
             "ffmpeg could not produce a silent wav — narration silence check not exercised here"
         }
     }
 
-    private fun runner(vararg args: String) = GradleRunner.create()
-        .withProjectDir(projectDir)
-        .withPluginClasspath()
-        .withArguments(*args)
-        .build()
+    private fun runner(vararg args: String) =
+        GradleRunner
+            .create()
+            .withProjectDir(projectDir)
+            .withPluginClasspath()
+            .withArguments(*args)
+            .build()
 
     private fun writeBuildFiles(projectDir: File) {
         projectDir.resolve("settings.gradle.kts").writeText(

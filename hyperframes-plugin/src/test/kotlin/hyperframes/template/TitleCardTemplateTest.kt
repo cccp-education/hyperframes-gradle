@@ -12,14 +12,14 @@ import kotlin.test.assertTrue
  * with fade-in animation, logo, title and subtitle.
  */
 class TitleCardTemplateTest {
-
     @Test
     fun `render produces a hyperframes-composition div with data-composition-id`() {
-        val template = TitleCardTemplate(
-            id = "intro",
-            title = "My Presentation",
-            subtitle = "Module 01"
-        )
+        val template =
+            TitleCardTemplate(
+                id = "intro",
+                title = "My Presentation",
+                subtitle = "Module 01",
+            )
 
         val html = template.render()
 
@@ -29,11 +29,12 @@ class TitleCardTemplateTest {
 
     @Test
     fun `render includes title and subtitle text`() {
-        val template = TitleCardTemplate(
-            id = "intro",
-            title = "My Presentation",
-            subtitle = "Module 01"
-        )
+        val template =
+            TitleCardTemplate(
+                id = "intro",
+                title = "My Presentation",
+                subtitle = "Module 01",
+            )
 
         val html = template.render()
 
@@ -43,11 +44,12 @@ class TitleCardTemplateTest {
 
     @Test
     fun `render includes a fade-in GSAP animation timeline`() {
-        val template = TitleCardTemplate(
-            id = "intro",
-            title = "My Presentation",
-            subtitle = "Module 01"
-        )
+        val template =
+            TitleCardTemplate(
+                id = "intro",
+                title = "My Presentation",
+                subtitle = "Module 01",
+            )
 
         val html = template.render()
 
@@ -58,12 +60,13 @@ class TitleCardTemplateTest {
 
     @Test
     fun `render includes a track with start zero and configured duration`() {
-        val template = TitleCardTemplate(
-            id = "intro",
-            title = "My Presentation",
-            subtitle = "Module 01",
-            durationSeconds = 3.0
-        )
+        val template =
+            TitleCardTemplate(
+                id = "intro",
+                title = "My Presentation",
+                subtitle = "Module 01",
+                durationSeconds = 3.0,
+            )
 
         val html = template.render()
 
@@ -74,11 +77,12 @@ class TitleCardTemplateTest {
 
     @Test
     fun `render without logo omits img tag`() {
-        val template = TitleCardTemplate(
-            id = "intro",
-            title = "My Presentation",
-            subtitle = "Module 01"
-        )
+        val template =
+            TitleCardTemplate(
+                id = "intro",
+                title = "My Presentation",
+                subtitle = "Module 01",
+            )
 
         val html = template.render()
 
@@ -87,12 +91,13 @@ class TitleCardTemplateTest {
 
     @Test
     fun `render with logo includes img tag with the logo path`() {
-        val template = TitleCardTemplate(
-            id = "intro",
-            title = "My Presentation",
-            subtitle = "Module 01",
-            logoPath = "assets/logo.png"
-        )
+        val template =
+            TitleCardTemplate(
+                id = "intro",
+                title = "My Presentation",
+                subtitle = "Module 01",
+                logoPath = "assets/logo.png",
+            )
 
         val html = template.render()
 
@@ -101,11 +106,12 @@ class TitleCardTemplateTest {
 
     @Test
     fun `default duration is two seconds`() {
-        val template = TitleCardTemplate(
-            id = "intro",
-            title = "My Presentation",
-            subtitle = "Module 01"
-        )
+        val template =
+            TitleCardTemplate(
+                id = "intro",
+                title = "My Presentation",
+                subtitle = "Module 01",
+            )
 
         assertEquals(2.0, template.durationSeconds)
     }

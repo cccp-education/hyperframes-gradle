@@ -1,28 +1,28 @@
 package hyperframes
 
-import java.io.File
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
+import java.io.File
 
 /**
  * HF-DEMO-QUALITY US-3 — referenced asset extraction and copy.
  */
 class ReferencedAssetsTest {
-
     @TempDir
     lateinit var tempDir: File
 
     @Test
     fun `extract collects distinct relative img and audio sources`() {
-        val html = """
+        val html =
+            """
             <img src="images/a.png" alt="a">
             <audio src="assets/tone.mp3" data-start="0"></audio>
             <img src="images/a.png" alt="duplicate">
             <img src="https://example.com/remote.png" alt="remote">
             <img src="data:image/png;base64,AAAA" alt="inline">
             <img src="/absolute.png" alt="absolute">
-        """.trimIndent()
+            """.trimIndent()
 
         assertThat(ReferencedAssets.extract(html))
             .containsExactly("images/a.png", "assets/tone.mp3")

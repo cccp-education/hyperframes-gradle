@@ -11,7 +11,6 @@ import kotlin.test.assertFalse
  * HF-DEMO-QUALITY US-4 — TestKit acceptance for the DSL chrome + typography.
  */
 class HyperframesChromeFunctionalTest {
-
     @TempDir
     lateinit var tempDir: Path
 
@@ -23,7 +22,7 @@ class HyperframesChromeFunctionalTest {
                 repositories { mavenLocal(); gradlePluginPortal(); mavenCentral() }
             }
             rootProject.name = "chrome-functional-test"
-            """.trimIndent()
+            """.trimIndent(),
         )
         projectDir.resolve("build.gradle.kts").writeText(
             """
@@ -41,7 +40,7 @@ class HyperframesChromeFunctionalTest {
                 displayFont.set("\"League Gothic\", Impact, sans-serif")
                 monoFont.set("\"IBM Plex Mono\", monospace")
             }
-            """.trimIndent()
+            """.trimIndent(),
         )
         val srcDir = projectDir.resolve("src/docs")
         srcDir.mkdirs()
@@ -54,13 +53,14 @@ class HyperframesChromeFunctionalTest {
             == Conclusion
 
             Second scene body.
-            """.trimIndent()
+            """.trimIndent(),
         )
         return projectDir
     }
 
     private fun generate(projectDir: java.io.File): String =
-        GradleRunner.create()
+        GradleRunner
+            .create()
             .withProjectDir(projectDir)
             .withPluginClasspath()
             .withArguments("generateHyperframesHtml")

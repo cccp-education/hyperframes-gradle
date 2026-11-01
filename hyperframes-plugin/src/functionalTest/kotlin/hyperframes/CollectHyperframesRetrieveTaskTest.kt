@@ -10,7 +10,6 @@ import kotlin.test.assertContains
 import kotlin.test.assertTrue
 
 class CollectHyperframesRetrieveTaskTest {
-
     @TempDir
     lateinit var tempDir: Path
     private lateinit var projectDir: File
@@ -26,11 +25,13 @@ class CollectHyperframesRetrieveTaskTest {
         writeBuildFiles(projectDir)
 
         // Act
-        val result = GradleRunner.create()
-            .withProjectDir(projectDir)
-            .withPluginClasspath()
-            .withArguments("tasks", "--all")
-            .build()
+        val result =
+            GradleRunner
+                .create()
+                .withProjectDir(projectDir)
+                .withPluginClasspath()
+                .withArguments("tasks", "--all")
+                .build()
 
         // Assert
         val output = result.output
@@ -44,16 +45,24 @@ class CollectHyperframesRetrieveTaskTest {
         writeBuildFiles(projectDir)
 
         // Act
-        val result = GradleRunner.create()
-            .withProjectDir(projectDir)
-            .withPluginClasspath()
-            .withArguments("collectHyperframesRetrieve", "--info")
-            .build()
+        val result =
+            GradleRunner
+                .create()
+                .withProjectDir(projectDir)
+                .withPluginClasspath()
+                .withArguments("collectHyperframesRetrieve", "--info")
+                .build()
 
         // Assert — task succeeds but writes no composite-context.json
         // (nothing has been rendered yet; no MP4/HTML to extract from)
-        assertTrue(result.task(":collectHyperframesRetrieve")?.outcome?.toString()?.contains("SUCCESS") == true,
-            "Task should succeed even with no artifacts")
+        assertTrue(
+            result
+                .task(":collectHyperframesRetrieve")
+                ?.outcome
+                ?.toString()
+                ?.contains("SUCCESS") == true,
+            "Task should succeed even with no artifacts",
+        )
         assertContains(result.output, "no MP4/HTML artifacts")
     }
 
@@ -78,20 +87,26 @@ class CollectHyperframesRetrieveTaskTest {
                 <div class="paragraph hyperframes-track" data-track-index="0" data-start="0" data-duration="5"></div>
             </div>
             </body></html>
-            """.trimIndent()
+            """.trimIndent(),
         )
 
         // Act
-        val result = GradleRunner.create()
-            .withProjectDir(projectDir)
-            .withPluginClasspath()
-            .withArguments("collectHyperframesRetrieve", "--info")
-            .build()
+        val result =
+            GradleRunner
+                .create()
+                .withProjectDir(projectDir)
+                .withPluginClasspath()
+                .withArguments("collectHyperframesRetrieve", "--info")
+                .build()
 
         // Assert
         assertTrue(
-            result.task(":collectHyperframesRetrieve")?.outcome?.toString()?.contains("SUCCESS") == true,
-            "Task should succeed"
+            result
+                .task(":collectHyperframesRetrieve")
+                ?.outcome
+                ?.toString()
+                ?.contains("SUCCESS") == true,
+            "Task should succeed",
         )
 
         val contextFile = projectDir.resolve("build/hyperframes/composite-context.json")
@@ -137,16 +152,22 @@ class CollectHyperframesRetrieveTaskTest {
         buildDir.resolve("index.html").writeText(stageHtml())
 
         // Act
-        val result = GradleRunner.create()
-            .withProjectDir(projectDir)
-            .withPluginClasspath()
-            .withArguments("collectHyperframesRetrieve", "--info")
-            .build()
+        val result =
+            GradleRunner
+                .create()
+                .withProjectDir(projectDir)
+                .withPluginClasspath()
+                .withArguments("collectHyperframesRetrieve", "--info")
+                .build()
 
         // Assert
         assertTrue(
-            result.task(":collectHyperframesRetrieve")?.outcome?.toString()?.contains("SUCCESS") == true,
-            "Task should succeed"
+            result
+                .task(":collectHyperframesRetrieve")
+                ?.outcome
+                ?.toString()
+                ?.contains("SUCCESS") == true,
+            "Task should succeed",
         )
         val contextContent = projectDir.resolve("build/hyperframes/composite-context.json").readText()
         assertContains(contextContent, "\"durationSeconds\" : 12.5")
@@ -163,7 +184,8 @@ class CollectHyperframesRetrieveTaskTest {
         buildDir.resolve("index.html").writeText(stageHtml())
 
         // Act
-        GradleRunner.create()
+        GradleRunner
+            .create()
             .withProjectDir(projectDir)
             .withPluginClasspath()
             .withArguments("collectHyperframesRetrieve", "--info")
@@ -180,11 +202,13 @@ class CollectHyperframesRetrieveTaskTest {
         writeBuildFiles(projectDir, strict = true)
 
         // Act
-        val result = GradleRunner.create()
-            .withProjectDir(projectDir)
-            .withPluginClasspath()
-            .withArguments("collectHyperframesRetrieve", "--info")
-            .buildAndFail()
+        val result =
+            GradleRunner
+                .create()
+                .withProjectDir(projectDir)
+                .withPluginClasspath()
+                .withArguments("collectHyperframesRetrieve", "--info")
+                .buildAndFail()
 
         // Assert
         assertContains(result.output, "strict mode is enabled")
@@ -196,11 +220,13 @@ class CollectHyperframesRetrieveTaskTest {
         writeBuildFiles(projectDir)
 
         // Act — dry-run only: no render, no node required.
-        val result = GradleRunner.create()
-            .withProjectDir(projectDir)
-            .withPluginClasspath()
-            .withArguments("hyperframesPipeline", "--dry-run")
-            .build()
+        val result =
+            GradleRunner
+                .create()
+                .withProjectDir(projectDir)
+                .withPluginClasspath()
+                .withArguments("hyperframesPipeline", "--dry-run")
+                .build()
 
         // Assert — generate < render < collect in the execution plan.
         val output = result.output
@@ -209,16 +235,17 @@ class CollectHyperframesRetrieveTaskTest {
         val collect = output.indexOf(":collectHyperframesRetrieve")
         assertTrue(
             generate in 0 until render && render < collect,
-            "expected pipeline order generate($generate) < render($render) < collect($collect) in:\n$output"
+            "expected pipeline order generate($generate) < render($render) < collect($collect) in:\n$output",
         )
     }
 
     private fun writeBuildFiles(
         projectDir: File,
         ffprobeScript: String = "",
-        strict: Boolean = false
+        strict: Boolean = false,
     ) {
-        projectDir.resolve("settings.gradle.kts").writeText("""
+        projectDir.resolve("settings.gradle.kts").writeText(
+            """
             pluginManagement {
                 repositories {
                     mavenLocal()
@@ -227,9 +254,11 @@ class CollectHyperframesRetrieveTaskTest {
                 }
             }
             rootProject.name = "test-hyperframes-retrieve"
-        """.trimIndent())
+            """.trimIndent(),
+        )
 
-        projectDir.resolve("build.gradle.kts").writeText("""
+        projectDir.resolve("build.gradle.kts").writeText(
+            """
             plugins {
                 id("education.cccp.hyperframes")
             }
@@ -244,26 +273,33 @@ class CollectHyperframesRetrieveTaskTest {
                 ${if (ffprobeScript.isNotEmpty()) """ffprobeExecutable.set("$ffprobeScript")""" else ""}
                 strict.set($strict)
             }
-        """.trimIndent())
+            """.trimIndent(),
+        )
     }
 
     /**
      * Creates a stub `ffprobe` that prints the given duration and exits 0,
      * emulating `-show_entries format=duration`.
      */
-    private fun createStubFfprobe(projectDir: File, seconds: String): File {
+    private fun createStubFfprobe(
+        projectDir: File,
+        seconds: String,
+    ): File {
         val script = projectDir.resolve("stub-ffprobe.sh")
         val dollar = "${'$'}"
-        script.writeText("""
+        script.writeText(
+            """
             #!/bin/bash
             echo "$seconds"
             exit 0
-        """.trimIndent())
+            """.trimIndent(),
+        )
         script.setExecutable(true)
         return script
     }
 
-    private fun stageHtml() = """
+    private fun stageHtml() =
+        """
         <html><body>
         <div id="stage" data-width="1920" data-height="1080" data-fps="30" data-output="test-video.mp4">
             <div class="sect1 hyperframes-composition" data-composition-id="intro">
@@ -272,5 +308,5 @@ class CollectHyperframesRetrieveTaskTest {
             <div class="paragraph hyperframes-track" data-track-index="0" data-start="0" data-duration="5"></div>
         </div>
         </body></html>
-    """.trimIndent()
+        """.trimIndent()
 }

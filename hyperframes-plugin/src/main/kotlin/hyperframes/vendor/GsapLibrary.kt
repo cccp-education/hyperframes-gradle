@@ -18,7 +18,6 @@ package hyperframes.vendor
  * than silently degrading the render.
  */
 object GsapLibrary {
-
     /** The vendored GSAP version. */
     const val VERSION = "3.12.5"
 
@@ -64,7 +63,8 @@ object GsapLibrary {
     fun externalScript(): String = "<script src=\"$FILE_NAME\"></script>"
 
     private fun loadSource(): String =
-        GsapLibrary::class.java.getResourceAsStream(RESOURCE_PATH)
+        GsapLibrary::class.java
+            .getResourceAsStream(RESOURCE_PATH)
             ?.bufferedReader(Charsets.UTF_8)
             ?.use { it.readText() }
             ?: error("Vendored GSAP resource not found on the classpath: $RESOURCE_PATH")

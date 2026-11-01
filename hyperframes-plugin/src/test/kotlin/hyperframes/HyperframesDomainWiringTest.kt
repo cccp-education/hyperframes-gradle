@@ -2,7 +2,6 @@ package hyperframes
 
 import hyperframes.pronunciation.PronunciationDictionary
 import hyperframes.pronunciation.PronunciationDomainLoader
-import hyperframes.pronunciation.PronunciationHint
 import org.junit.jupiter.api.Test
 import kotlin.test.assertContains
 import kotlin.test.assertFalse
@@ -23,7 +22,6 @@ import kotlin.test.assertTrue
  * to the processor — the processor stays a pure function of (html, domain).
  */
 class HyperframesDomainWiringTest {
-
     private val videoFr = PronunciationDomainLoader.load("video-fr")
     private val videoEn = PronunciationDomainLoader.load("video-en")
 
@@ -48,7 +46,7 @@ class HyperframesDomainWiringTest {
         assertContains(result, """"phonetic":"my-override"""")
         assertFalse(
             result.contains(""""phonetic":"na-ra-syon""""),
-            "author hint should override the domain phonetic for 'narration'"
+            "author hint should override the domain phonetic for 'narration'",
         )
     }
 
@@ -141,7 +139,7 @@ class HyperframesDomainWiringTest {
         assertContains(result, """"phonetic":"over-ride"""")
         assertFalse(
             result.contains(""""phonetic":"na-ra-syon""""),
-            "inline hint should override the domain phonetic for 'narration'"
+            "inline hint should override the domain phonetic for 'narration'",
         )
     }
 

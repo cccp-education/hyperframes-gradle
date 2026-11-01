@@ -7,10 +7,10 @@ import org.junit.jupiter.api.Test
  * Pure narration extraction from the enriched HyperFrames HTML (VK-4 US-4d).
  */
 class NarrationTrackExtractorTest {
-
     @Test
     fun `extracts the paragraph of each narration track in document order`() {
-        val html = """
+        val html =
+            """
             <div id="stage">
               <div class="paragraph hyperframes-track" data-track-index="0" data-start="0" data-duration="4">
                 <p>Première narration.</p>
@@ -19,7 +19,7 @@ class NarrationTrackExtractorTest {
                 <p>Seconde narration.</p>
               </div>
             </div>
-        """.trimIndent()
+            """.trimIndent()
 
         assertThat(NarrationTrackExtractor.extract(html))
             .containsExactly("Première narration.", "Seconde narration.")
@@ -27,25 +27,27 @@ class NarrationTrackExtractorTest {
 
     @Test
     fun `ignores media-only tracks without a paragraph`() {
-        val html = """
+        val html =
+            """
             <div class="paragraph hyperframes-track" data-track-index="0">
               <audio src="music.mp3"></audio>
             </div>
-        """.trimIndent()
+            """.trimIndent()
 
         assertThat(NarrationTrackExtractor.extract(html)).isEmpty()
     }
 
     @Test
     fun `strips inline tags and skips blank narrations`() {
-        val html = """
+        val html =
+            """
             <div class="paragraph hyperframes-track">
               <p>Hello <strong>world</strong></p>
             </div>
             <div class="paragraph hyperframes-track">
               <p>   </p>
             </div>
-        """.trimIndent()
+            """.trimIndent()
 
         assertThat(NarrationTrackExtractor.extract(html)).containsExactly("Hello world")
     }

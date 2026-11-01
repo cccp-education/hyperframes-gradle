@@ -11,7 +11,6 @@ import java.nio.file.Files
  * Holds the temp project, its build files, and the rendered artifacts.
  */
 class HyperframesWorld {
-
     lateinit var projectDir: File
     lateinit var buildDir: File
     var buildResult: org.gradle.testkit.runner.BuildResult? = null
@@ -32,7 +31,7 @@ class HyperframesWorld {
                 repositories { mavenLocal(); gradlePluginPortal(); mavenCentral() }
             }
             rootProject.name = "cucumber-hyperframes"
-            """.trimIndent()
+            """.trimIndent(),
         )
         writeBuildScript()
         buildDir = projectDir.resolve("build/hyperframes")
@@ -58,10 +57,16 @@ class HyperframesWorld {
                 ${if (pronunciationDomain != null) """pronunciationDomain.set("$pronunciationDomain")""" else ""}
                 ${if (ffprobeExecutable != null) """ffprobeExecutable.set("$ffprobeExecutable")""" else ""}
                 ${if (cliScript != null) """cliScript.set("$cliScript")""" else ""}
-                ${if (nodeExecutable != null) """nodeExecutable.set("$nodeExecutable")""" else if (cliScript != null) """nodeExecutable.set("$cliScript")""" else ""}
+                ${if (nodeExecutable != null) {
+                """nodeExecutable.set("$nodeExecutable")"""
+            } else if (cliScript != null) {
+                """nodeExecutable.set("$cliScript")"""
+            } else {
+                ""
+            }}
                 strict.set($strictMode)
             }
-            """.trimIndent()
+            """.trimIndent(),
         )
     }
 
@@ -77,7 +82,7 @@ class HyperframesWorld {
             """
             #!/bin/bash
             OUTPUT_FILE=""
-            while [[ ${dollar}# -gt 0 ]]; do
+            while [[ $dollar# -gt 0 ]]; do
                 case ${dollar}1 in
                     --output) OUTPUT_FILE="${dollar}2"; shift 2 ;;
                     *) shift ;;
@@ -88,7 +93,7 @@ class HyperframesWorld {
             fi
             echo "Mock HyperFrames CLI: render complete"
             exit $exitCode
-            """.trimIndent()
+            """.trimIndent(),
         )
         script.setExecutable(true)
         cliScript = script.absolutePath
@@ -105,7 +110,7 @@ class HyperframesWorld {
             #!/bin/bash
             echo "$seconds"
             exit 0
-            """.trimIndent()
+            """.trimIndent(),
         )
         script.setExecutable(true)
         ffprobeExecutable = script.absolutePath
@@ -133,22 +138,32 @@ class HyperframesWorld {
             </div>
             <script type="application/json" id="hf-pronunciation">[{"word":"dos","phonetic":"do"}]</script>
             </body></html>
-            """.trimIndent()
+            """.trimIndent(),
         )
     }
 
-    fun writeMp4(name: String, bytes: ByteArray = ByteArray(1024)) {
+    fun writeMp4(
+        name: String,
+        bytes: ByteArray = ByteArray(1024),
+    ) {
         buildDir.resolve(name).writeBytes(bytes)
     }
 
-    fun writeHtml(width: Int = 1920, height: Int = 1080, fps: Int = 30,
-                  compositions: List<String> = listOf("intro"), tracks: Int = 1) {
-        val compDivs = compositions.joinToString("\n") { id ->
-            """<div class="sect1 hyperframes-composition" data-composition-id="$id"><h2 id="$id">$id</h2></div>"""
-        }
-        val trackDivs = (0 until tracks).joinToString("\n") { idx ->
-            """<div class="paragraph hyperframes-track" data-track-index="$idx" data-start="0" data-duration="5"></div>"""
-        }
+    fun writeHtml(
+        width: Int = 1920,
+        height: Int = 1080,
+        fps: Int = 30,
+        compositions: List<String> = listOf("intro"),
+        tracks: Int = 1,
+    ) {
+        val compDivs =
+            compositions.joinToString("\n") { id ->
+                """<div class="sect1 hyperframes-composition" data-composition-id="$id"><h2 id="$id">$id</h2></div>"""
+            }
+        val trackDivs =
+            (0 until tracks).joinToString("\n") { idx ->
+                """<div class="paragraph hyperframes-track" data-track-index="$idx" data-start="0" data-duration="5"></div>"""
+            }
         buildDir.resolve("index.html").writeText(
             """
             <html><body>
@@ -157,7 +172,7 @@ class HyperframesWorld {
             $trackDivs
             </div>
             </body></html>
-            """.trimIndent()
+            """.trimIndent(),
         )
     }
 
@@ -173,7 +188,7 @@ class HyperframesWorld {
         title: String,
         subtitle: String? = null,
         logoPath: String? = null,
-        duration: Int? = null
+        duration: Int? = null,
     ) {
         // Reset build artifacts so the generate task is not UP-TO-DATE.
         buildDir.deleteRecursively()
@@ -181,19 +196,22 @@ class HyperframesWorld {
         val srcDir = projectDir.resolve("src/docs")
         srcDir.deleteRecursively()
         srcDir.mkdirs()
-        val doc = buildString {
-            appendLine("= Title-card demo")
-            appendLine(":hyperframes-width: 1920")
-            appendLine(":hyperframes-height: 1080")
-            appendLine(":hyperframes-fps: 30")
-            appendLine()
-            appendLine("[.hyperframes-title-card#$id${if (logoPath != null) ", logo=\"$logoPath\"" else ""}${if (duration != null) ", duration=$duration" else ""}]")
-            appendLine("== $title")
-            if (subtitle != null) {
+        val doc =
+            buildString {
+                appendLine("= Title-card demo")
+                appendLine(":hyperframes-width: 1920")
+                appendLine(":hyperframes-height: 1080")
+                appendLine(":hyperframes-fps: 30")
                 appendLine()
-                appendLine(subtitle)
+                appendLine(
+                    "[.hyperframes-title-card#$id${if (logoPath != null) ", logo=\"$logoPath\"" else ""}${if (duration != null) ", duration=$duration" else ""}]",
+                )
+                appendLine("== $title")
+                if (subtitle != null) {
+                    appendLine()
+                    appendLine(subtitle)
+                }
             }
-        }
         srcDir.resolve("index.adoc").writeText(doc)
     }
 
@@ -202,7 +220,7 @@ class HyperframesWorld {
         beforeCode: String,
         afterCode: String,
         lang: String = "kotlin",
-        duration: Int? = null
+        duration: Int? = null,
     ) {
         // Reset build artifacts so the generate task is not UP-TO-DATE.
         buildDir.deleteRecursively()
@@ -210,25 +228,26 @@ class HyperframesWorld {
         val srcDir = projectDir.resolve("src/docs")
         srcDir.deleteRecursively()
         srcDir.mkdirs()
-        val doc = buildString {
-            appendLine("= Code-diff demo")
-            appendLine(":hyperframes-width: 1920")
-            appendLine(":hyperframes-height: 1080")
-            appendLine(":hyperframes-fps: 30")
-            appendLine()
-            appendLine("[.hyperframes-code-diff#$id, lang=\"$lang\"${if (duration != null) ", duration=$duration" else ""}]")
-            appendLine("== Refactoring demo")
-            appendLine()
-            appendLine("[source,$lang]")
-            appendLine("----")
-            appendLine(beforeCode)
-            appendLine("----")
-            appendLine()
-            appendLine("[source,$lang]")
-            appendLine("----")
-            appendLine(afterCode)
-            appendLine("----")
-        }
+        val doc =
+            buildString {
+                appendLine("= Code-diff demo")
+                appendLine(":hyperframes-width: 1920")
+                appendLine(":hyperframes-height: 1080")
+                appendLine(":hyperframes-fps: 30")
+                appendLine()
+                appendLine("[.hyperframes-code-diff#$id, lang=\"$lang\"${if (duration != null) ", duration=$duration" else ""}]")
+                appendLine("== Refactoring demo")
+                appendLine()
+                appendLine("[source,$lang]")
+                appendLine("----")
+                appendLine(beforeCode)
+                appendLine("----")
+                appendLine()
+                appendLine("[source,$lang]")
+                appendLine("----")
+                appendLine(afterCode)
+                appendLine("----")
+            }
         srcDir.resolve("index.adoc").writeText(doc)
     }
 
@@ -236,7 +255,7 @@ class HyperframesWorld {
         id: String,
         title: String,
         dataPoints: List<Pair<String, Double>>,
-        duration: Int? = null
+        duration: Int? = null,
     ) {
         // Reset build artifacts so the generate task is not UP-TO-DATE.
         buildDir.deleteRecursively()
@@ -244,21 +263,22 @@ class HyperframesWorld {
         val srcDir = projectDir.resolve("src/docs")
         srcDir.deleteRecursively()
         srcDir.mkdirs()
-        val doc = buildString {
-            appendLine("= Data-chart demo")
-            appendLine(":hyperframes-width: 1920")
-            appendLine(":hyperframes-height: 1080")
-            appendLine(":hyperframes-fps: 30")
-            appendLine()
-            appendLine("[.hyperframes-data-chart#$id${if (duration != null) ", duration=$duration" else ""}]")
-            appendLine("== $title")
-            appendLine()
-            appendLine("----")
-            dataPoints.forEach { (label, value) ->
-                appendLine("$label: $value")
+        val doc =
+            buildString {
+                appendLine("= Data-chart demo")
+                appendLine(":hyperframes-width: 1920")
+                appendLine(":hyperframes-height: 1080")
+                appendLine(":hyperframes-fps: 30")
+                appendLine()
+                appendLine("[.hyperframes-data-chart#$id${if (duration != null) ", duration=$duration" else ""}]")
+                appendLine("== $title")
+                appendLine()
+                appendLine("----")
+                dataPoints.forEach { (label, value) ->
+                    appendLine("$label: $value")
+                }
+                appendLine("----")
             }
-            appendLine("----")
-        }
         srcDir.resolve("index.adoc").writeText(doc)
     }
 
@@ -266,7 +286,7 @@ class HyperframesWorld {
         id: String,
         title: String,
         captions: List<Triple<Double, Double, String>>,
-        duration: Int? = null
+        duration: Int? = null,
     ) {
         // Reset build artifacts so the generate task is not UP-TO-DATE.
         buildDir.deleteRecursively()
@@ -274,21 +294,22 @@ class HyperframesWorld {
         val srcDir = projectDir.resolve("src/docs")
         srcDir.deleteRecursively()
         srcDir.mkdirs()
-        val doc = buildString {
-            appendLine("= Kinetic-captions demo")
-            appendLine(":hyperframes-width: 1920")
-            appendLine(":hyperframes-height: 1080")
-            appendLine(":hyperframes-fps: 30")
-            appendLine()
-            appendLine("[.hyperframes-kinetic-captions#$id${if (duration != null) ", duration=$duration" else ""}]")
-            appendLine("== $title")
-            appendLine()
-            appendLine("----")
-            captions.forEach { (start, end, text) ->
-                appendLine("$start -> $end: $text")
+        val doc =
+            buildString {
+                appendLine("= Kinetic-captions demo")
+                appendLine(":hyperframes-width: 1920")
+                appendLine(":hyperframes-height: 1080")
+                appendLine(":hyperframes-fps: 30")
+                appendLine()
+                appendLine("[.hyperframes-kinetic-captions#$id${if (duration != null) ", duration=$duration" else ""}]")
+                appendLine("== $title")
+                appendLine()
+                appendLine("----")
+                captions.forEach { (start, end, text) ->
+                    appendLine("$start -> $end: $text")
+                }
+                appendLine("----")
             }
-            appendLine("----")
-        }
         srcDir.resolve("index.adoc").writeText(doc)
     }
 
@@ -298,17 +319,18 @@ class HyperframesWorld {
         val srcDir = projectDir.resolve("src/docs")
         srcDir.deleteRecursively()
         srcDir.mkdirs()
-        val doc = buildString {
-            appendLine("= Pronunciation demo")
-            appendLine(":hyperframes-width: 1920")
-            appendLine(":hyperframes-height: 1080")
-            appendLine(":hyperframes-fps: 30")
-            appendLine()
-            appendLine("[.hyperframes-pronunciation]")
-            appendLine("----")
-            entries.forEach { (word, phon) -> appendLine("$word: $phon") }
-            appendLine("----")
-        }
+        val doc =
+            buildString {
+                appendLine("= Pronunciation demo")
+                appendLine(":hyperframes-width: 1920")
+                appendLine(":hyperframes-height: 1080")
+                appendLine(":hyperframes-fps: 30")
+                appendLine()
+                appendLine("[.hyperframes-pronunciation]")
+                appendLine("----")
+                entries.forEach { (word, phon) -> appendLine("$word: $phon") }
+                appendLine("----")
+            }
         srcDir.resolve("index.adoc").writeText(doc)
     }
 
@@ -318,14 +340,15 @@ class HyperframesWorld {
         val srcDir = projectDir.resolve("src/docs")
         srcDir.deleteRecursively()
         srcDir.mkdirs()
-        val doc = buildString {
-            appendLine("= Plain demo")
-            appendLine(":hyperframes-width: 1920")
-            appendLine(":hyperframes-height: 1080")
-            appendLine(":hyperframes-fps: 30")
-            appendLine()
-            appendLine("Le conteneur isole l'application.")
-        }
+        val doc =
+            buildString {
+                appendLine("= Plain demo")
+                appendLine(":hyperframes-width: 1920")
+                appendLine(":hyperframes-height: 1080")
+                appendLine(":hyperframes-fps: 30")
+                appendLine()
+                appendLine("Le conteneur isole l'application.")
+            }
         srcDir.resolve("index.adoc").writeText(doc)
     }
 
@@ -333,7 +356,11 @@ class HyperframesWorld {
      * HF-CR3-3 — wires the *real* HyperFrames CLI and Node executable into the
      * consumer build (used by the skip-guarded real-render scenario).
      */
-    fun useRealCli(cliPath: String, nodePath: String, ffprobePath: String? = null) {
+    fun useRealCli(
+        cliPath: String,
+        nodePath: String,
+        ffprobePath: String? = null,
+    ) {
         cliScript = cliPath
         nodeExecutable = nodePath
         if (ffprobePath != null) ffprobeExecutable = ffprobePath
@@ -351,49 +378,58 @@ class HyperframesWorld {
         val srcDir = projectDir.resolve("src/docs")
         srcDir.deleteRecursively()
         srcDir.mkdirs()
-        val doc = buildString {
-            appendLine("= Real-render demo")
-            appendLine(":hyperframes-width: 1920")
-            appendLine(":hyperframes-height: 1080")
-            appendLine(":hyperframes-fps: 30")
-            appendLine()
-            appendLine("[.hyperframes-composition#intro]")
-            appendLine("== Real render")
-            appendLine()
-            appendLine("HF-CR3-3 real render.")
-            appendLine()
-            appendLine("[.hyperframes-animation, type=gsap]")
-            appendLine("----")
-            appendLine("window.__timelines = window.__timelines || {};")
-            appendLine("const tl = gsap.timeline({ paused: true });")
-            appendLine("tl.from(\"#intro\", { opacity: 0, duration: 0.5 }, 0);")
-            appendLine("window.__timelines[\"intro\"] = tl;")
-            appendLine("----")
-            appendLine()
-            appendLine("[.hyperframes-composition#outro]")
-            appendLine("== Outro")
-            appendLine()
-            appendLine("Merci.")
-        }
+        val doc =
+            buildString {
+                appendLine("= Real-render demo")
+                appendLine(":hyperframes-width: 1920")
+                appendLine(":hyperframes-height: 1080")
+                appendLine(":hyperframes-fps: 30")
+                appendLine()
+                appendLine("[.hyperframes-composition#intro]")
+                appendLine("== Real render")
+                appendLine()
+                appendLine("HF-CR3-3 real render.")
+                appendLine()
+                appendLine("[.hyperframes-animation, type=gsap]")
+                appendLine("----")
+                appendLine("window.__timelines = window.__timelines || {};")
+                appendLine("const tl = gsap.timeline({ paused: true });")
+                appendLine("tl.from(\"#intro\", { opacity: 0, duration: 0.5 }, 0);")
+                appendLine("window.__timelines[\"intro\"] = tl;")
+                appendLine("----")
+                appendLine()
+                appendLine("[.hyperframes-composition#outro]")
+                appendLine("== Outro")
+                appendLine()
+                appendLine("Merci.")
+            }
         srcDir.resolve("index.adoc").writeText(doc)
     }
 
     /** First rendered MP4 found in the consumer build directory, if any. */
-    fun renderedMp4(): File? =
-        buildDir.listFiles()?.firstOrNull { it.extension.equals("mp4", ignoreCase = true) }
+    fun renderedMp4(): File? = buildDir.listFiles()?.firstOrNull { it.extension.equals("mp4", ignoreCase = true) }
 
     /** Probes the MP4 duration with [ffprobePath] (seconds; 0.0 on any failure). */
     fun probeDurationSeconds(ffprobePath: String): Double {
         val mp4 = renderedMp4() ?: return 0.0
         return try {
-            val process = ProcessBuilder(
-                ffprobePath, "-v", "error",
-                "-show_entries", "format=duration",
-                "-of", "default=nw=1:nk=1",
-                mp4.absolutePath
-            ).redirectErrorStream(true).start()
+            val process =
+                ProcessBuilder(
+                    ffprobePath,
+                    "-v",
+                    "error",
+                    "-show_entries",
+                    "format=duration",
+                    "-of",
+                    "default=nw=1:nk=1",
+                    mp4.absolutePath,
+                ).redirectErrorStream(true).start()
             process.waitFor()
-            process.inputStream.bufferedReader().readText().trim().toDoubleOrNull() ?: 0.0
+            process.inputStream
+                .bufferedReader()
+                .readText()
+                .trim()
+                .toDoubleOrNull() ?: 0.0
         } catch (e: Exception) {
             0.0
         }
@@ -403,15 +439,24 @@ class HyperframesWorld {
     fun probeFirstVideoCodec(ffprobePath: String): String {
         val mp4 = renderedMp4() ?: return ""
         return try {
-            val process = ProcessBuilder(
-                ffprobePath, "-v", "error",
-                "-select_streams", "v:0",
-                "-show_entries", "stream=codec_name",
-                "-of", "default=nw=1:nk=1",
-                mp4.absolutePath
-            ).redirectErrorStream(true).start()
+            val process =
+                ProcessBuilder(
+                    ffprobePath,
+                    "-v",
+                    "error",
+                    "-select_streams",
+                    "v:0",
+                    "-show_entries",
+                    "stream=codec_name",
+                    "-of",
+                    "default=nw=1:nk=1",
+                    mp4.absolutePath,
+                ).redirectErrorStream(true).start()
             process.waitFor()
-            process.inputStream.bufferedReader().readText().trim()
+            process.inputStream
+                .bufferedReader()
+                .readText()
+                .trim()
         } catch (e: Exception) {
             ""
         }
@@ -430,18 +475,19 @@ class HyperframesWorld {
         val srcDir = projectDir.resolve("src/docs")
         srcDir.deleteRecursively()
         srcDir.mkdirs()
-        val doc = buildString {
-            appendLine("= Pronunciation demo")
-            appendLine(":hyperframes-width: 1920")
-            appendLine(":hyperframes-height: 1080")
-            appendLine(":hyperframes-fps: 30")
-            appendLine()
-            appendLine("[.hyperframes-pronunciation]")
-            appendLine("----")
-            appendLine("dos: do")
-            appendLine("kubernetes: koobernetayz")
-            appendLine("----")
-        }
+        val doc =
+            buildString {
+                appendLine("= Pronunciation demo")
+                appendLine(":hyperframes-width: 1920")
+                appendLine(":hyperframes-height: 1080")
+                appendLine(":hyperframes-fps: 30")
+                appendLine()
+                appendLine("[.hyperframes-pronunciation]")
+                appendLine("----")
+                appendLine("dos: do")
+                appendLine("kubernetes: koobernetayz")
+                appendLine("----")
+            }
         srcDir.resolve("index.adoc").writeText(doc)
     }
 
@@ -451,24 +497,27 @@ class HyperframesWorld {
         val srcDir = projectDir.resolve("src/docs")
         srcDir.deleteRecursively()
         srcDir.mkdirs()
-        val doc = buildString {
-            appendLine("= Inline hint demo")
-            appendLine(":hyperframes-width: 1920")
-            appendLine(":hyperframes-height: 1080")
-            appendLine(":hyperframes-fps: 30")
-            appendLine()
-            appendLine("[.hyperframes-track]")
-            appendLine("Le conteneur hf:pron[dos, do] isole l'application.")
-        }
+        val doc =
+            buildString {
+                appendLine("= Inline hint demo")
+                appendLine(":hyperframes-width: 1920")
+                appendLine(":hyperframes-height: 1080")
+                appendLine(":hyperframes-fps: 30")
+                appendLine()
+                appendLine("[.hyperframes-track]")
+                appendLine("Le conteneur hf:pron[dos, do] isole l'application.")
+            }
         srcDir.resolve("index.adoc").writeText(doc)
     }
 
     fun runTask(taskName: String) {
-        buildResult = GradleRunner.create()
-            .withProjectDir(projectDir)
-            .withPluginClasspath()
-            .withArguments(taskName, "--info", "--rerun-tasks")
-            .build()
+        buildResult =
+            GradleRunner
+                .create()
+                .withProjectDir(projectDir)
+                .withPluginClasspath()
+                .withArguments(taskName, "--info", "--rerun-tasks")
+                .build()
     }
 
     /**
@@ -476,11 +525,13 @@ class HyperframesWorld {
      * build result instead of throwing.
      */
     fun runTaskExpectingFailure(taskName: String) {
-        buildResult = GradleRunner.create()
-            .withProjectDir(projectDir)
-            .withPluginClasspath()
-            .withArguments(taskName, "--info", "--rerun-tasks")
-            .buildAndFail()
+        buildResult =
+            GradleRunner
+                .create()
+                .withProjectDir(projectDir)
+                .withPluginClasspath()
+                .withArguments(taskName, "--info", "--rerun-tasks")
+                .buildAndFail()
     }
 
     fun generatedHtml(): String {

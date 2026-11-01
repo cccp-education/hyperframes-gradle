@@ -2,7 +2,6 @@ package hyperframes
 
 import hyperframes.post.FfmpegAudioPostProduction
 import hyperframes.post.FfmpegSubtitleBurnIn
-import java.io.File
 import org.gradle.api.DefaultTask
 import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.provider.Property
@@ -15,6 +14,7 @@ import org.gradle.api.tasks.PathSensitivity
 import org.gradle.api.tasks.TaskAction
 import org.gradle.work.DisableCachingByDefault
 import video.kernel.AudioPostSettings
+import java.io.File
 
 /**
  * Applies the shared N1 post-production ports to the MP4 produced by
@@ -35,7 +35,6 @@ import video.kernel.AudioPostSettings
  */
 @DisableCachingByDefault(because = "External process-bound: calls FFmpeg for burn-in / audio post")
 abstract class PostProcessHyperframesTask : DefaultTask() {
-
     /** Render output directory (contains `<outputName>.mp4` and `index.html`). */
     @get:InputDirectory
     @get:PathSensitive(PathSensitivity.RELATIVE)
@@ -104,13 +103,14 @@ abstract class PostProcessHyperframesTask : DefaultTask() {
 
         // 2. Audio post-production (shared port AudioPostProduction).
         if (audioPostEnabled.get()) {
-            val settings = AudioPostSettings(
-                bgmEnabled = bgmFile.orNull?.isNotBlank() == true,
-                bgmFile = bgmFile.orNull ?: "",
-                bgmLevelDb = bgmLevelDb.get(),
-                loudnessTargetLufs = loudnessTargetLufs.get(),
-                duckingEnabled = duckingEnabled.get(),
-            )
+            val settings =
+                AudioPostSettings(
+                    bgmEnabled = bgmFile.orNull?.isNotBlank() == true,
+                    bgmFile = bgmFile.orNull ?: "",
+                    bgmLevelDb = bgmLevelDb.get(),
+                    loudnessTargetLufs = loudnessTargetLufs.get(),
+                    duckingEnabled = duckingEnabled.get(),
+                )
             val processed = File(tmpDir, "$name.audio.mp4")
             if (FfmpegAudioPostProduction(ffmpeg).process(current, processed, settings)) {
                 current = processed

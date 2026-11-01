@@ -15,40 +15,62 @@ import java.util.Locale
  * other's content. No I/O, no Gradle, no clock.
  */
 object SceneEntrancePlanner {
-
     /**
      * Content atoms animated independently. Structural wrappers
      * (`.sectionbody`, `.paragraph`, `ul`) are deliberately excluded: animating
      * both a wrapper and its children would double the motion and desynchronise
      * the reveal.
      */
-    val ATOM_SELECTORS: List<String> = listOf(
-        "h1", "h2", "h3", "h4", "h5", "h6",
-        "p", "li", "pre", "blockquote", "img", "table", "figure",
-        ".hf-title-card-logo", ".hf-title-card-title", ".hf-title-card-subtitle",
-        ".hf-data-chart-title", ".hf-data-chart-col",
-        ".hf-kinetic-caption",
-    )
+    val ATOM_SELECTORS: List<String> =
+        listOf(
+            "h1",
+            "h2",
+            "h3",
+            "h4",
+            "h5",
+            "h6",
+            "p",
+            "li",
+            "pre",
+            "blockquote",
+            "img",
+            "table",
+            "figure",
+            ".hf-title-card-logo",
+            ".hf-title-card-title",
+            ".hf-title-card-subtitle",
+            ".hf-data-chart-title",
+            ".hf-data-chart-col",
+            ".hf-kinetic-caption",
+        )
 
     /** `gsap.set` statement establishing the hidden start state at load time. */
-    fun setupScript(sceneId: String, config: EntranceConfig): String {
+    fun setupScript(
+        sceneId: String,
+        config: EntranceConfig,
+    ): String {
         if (!config.enabled) return ""
         return "    var items = gsap.utils.toArray(\"${selector(sceneId)}\");\n" +
             "    gsap.set(items, { opacity: 0, y: ${number(config.yOffset)} });"
     }
 
     /** Staggered `t.to` statement revealing the atoms in document order. */
-    fun tweenScript(sceneId: String, config: EntranceConfig): String {
+    fun tweenScript(
+        sceneId: String,
+        config: EntranceConfig,
+    ): String {
         if (!config.enabled) return ""
         return "    t.to(items, { opacity: 1, y: 0, duration: ${number(config.durationSeconds)}, " +
             "ease: \"power3.out\", stagger: ${number(config.staggerSeconds)} }, ${number(config.offsetSeconds)});"
     }
 
     /** Scene-scoped selector list (one entry per atom kind). */
-    fun selector(sceneId: String): String =
-        ATOM_SELECTORS.joinToString(", ") { "#$sceneId .scene-inner $it" }
+    fun selector(sceneId: String): String = ATOM_SELECTORS.joinToString(", ") { "#$sceneId .scene-inner $it" }
 
     private fun number(value: Double): String =
-        if (value == value.toLong().toDouble()) value.toLong().toString()
-        else String.format(Locale.US, "%.2f", value)
+        if (value == value.toLong().toDouble()) {
+            value.toLong().toString()
+        } else {
+            String.format(Locale.US, "%.2f", value)
+        }
 }

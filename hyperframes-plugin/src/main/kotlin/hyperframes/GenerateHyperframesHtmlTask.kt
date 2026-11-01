@@ -1,5 +1,14 @@
 package hyperframes
 
+import hyperframes.chrome.ChromeConfig
+import hyperframes.chrome.TypographyConfig
+import hyperframes.entrance.EntranceConfig
+import hyperframes.pronunciation.PronunciationDomainLoader
+import hyperframes.vendor.GsapLibrary
+import org.asciidoctor.Asciidoctor
+import org.asciidoctor.Attributes
+import org.asciidoctor.Options
+import org.asciidoctor.SafeMode
 import org.gradle.api.DefaultTask
 import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.provider.Property
@@ -8,18 +17,9 @@ import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputDirectory
 import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.OutputDirectory
-import org.gradle.api.tasks.TaskAction
 import org.gradle.api.tasks.PathSensitive
 import org.gradle.api.tasks.PathSensitivity
-import org.asciidoctor.Asciidoctor
-import org.asciidoctor.Attributes
-import org.asciidoctor.Options
-import org.asciidoctor.SafeMode
-import hyperframes.chrome.ChromeConfig
-import hyperframes.chrome.TypographyConfig
-import hyperframes.entrance.EntranceConfig
-import hyperframes.pronunciation.PronunciationDomainLoader
-import hyperframes.vendor.GsapLibrary
+import org.gradle.api.tasks.TaskAction
 import java.io.File
 
 /**
@@ -38,7 +38,6 @@ import java.io.File
  */
 @CacheableTask
 abstract class GenerateHyperframesHtmlTask : DefaultTask() {
-
     @get:InputDirectory
     @get:PathSensitive(PathSensitivity.RELATIVE)
     abstract val inputDir: DirectoryProperty
@@ -110,19 +109,23 @@ abstract class GenerateHyperframesHtmlTask : DefaultTask() {
 
         val asciidoctor = Asciidoctor.Factory.create()
         try {
-            val attrs = Attributes.builder()
-                .attribute("hyperframes-width", width.get().toString())
-                .attribute("hyperframes-height", height.get().toString())
-                .attribute("hyperframes-fps", fps.get().toString())
-                .attribute("hyperframes-output", "${outputName.get()}.mp4")
-                .build()
+            val attrs =
+                Attributes
+                    .builder()
+                    .attribute("hyperframes-width", width.get().toString())
+                    .attribute("hyperframes-height", height.get().toString())
+                    .attribute("hyperframes-fps", fps.get().toString())
+                    .attribute("hyperframes-output", "${outputName.get()}.mp4")
+                    .build()
 
-            val options = Options.builder()
-                .backend("html5")
-                .safe(SafeMode.UNSAFE)
-                .toDir(outputFile)
-                .attributes(attrs)
-                .build()
+            val options =
+                Options
+                    .builder()
+                    .backend("html5")
+                    .safe(SafeMode.UNSAFE)
+                    .toDir(outputFile)
+                    .attributes(attrs)
+                    .build()
 
             // Step 1: AsciiDoc -> HTML conversion (AsciidoctorJ)
             asciidoctor.convertFile(sourceFile, options)
@@ -135,29 +138,27 @@ abstract class GenerateHyperframesHtmlTask : DefaultTask() {
             // Step 2: HyperFrames post-processing (stage, data-*, GSAP)
             val rawHtml = generatedHtml.readText()
             val domainDictionary = pronunciationDomain.orNull?.let { PronunciationDomainLoader.load(it) }
-            val processor = HyperframesHtmlProcessor(
-                width = width.get(),
-                height = height.get(),
-                fps = fps.get(),
-                outputName = outputName.get()
-            )
-                .withChrome(
+            val processor =
+                HyperframesHtmlProcessor(
+                    width = width.get(),
+                    height = height.get(),
+                    fps = fps.get(),
+                    outputName = outputName.get(),
+                ).withChrome(
                     ChromeConfig(
                         enabled = chromeEnabled.get(),
                         timecode = chromeTimecode.get(),
                         cornerMarks = chromeCornerMarks.get(),
                         progressBar = chromeProgressBar.get(),
                         label = chromeLabel.orNull.orEmpty(),
-                    )
-                )
-                .withTypography(
+                    ),
+                ).withTypography(
                     TypographyConfig(
                         displayFont = displayFont.get(),
                         monoFont = monoFont.get(),
-                    )
-                )
-                .withEntrances(EntranceConfig(enabled = entrancesEnabled.get()))
-                .withDomainDictionary(domainDictionary)
+                    ),
+                ).withEntrances(EntranceConfig(enabled = entrancesEnabled.get()))
+                    .withDomainDictionary(domainDictionary)
             val enhancedHtml = processor.enhance(rawHtml)
             generatedHtml.writeText(enhancedHtml)
 

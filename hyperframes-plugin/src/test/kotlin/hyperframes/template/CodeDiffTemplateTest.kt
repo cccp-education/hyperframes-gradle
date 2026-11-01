@@ -14,14 +14,14 @@ import kotlin.test.assertTrue
  * that fades out the before block then fades in the after block.
  */
 class CodeDiffTemplateTest {
-
     @Test
     fun `render produces a hyperframes-composition div with data-composition-id`() {
-        val template = CodeDiffTemplate(
-            id = "refactor-demo",
-            beforeCode = "val x = oldFunc()",
-            afterCode = "val x = newFunc()"
-        )
+        val template =
+            CodeDiffTemplate(
+                id = "refactor-demo",
+                beforeCode = "val x = oldFunc()",
+                afterCode = "val x = newFunc()",
+            )
 
         val html = template.render()
 
@@ -31,12 +31,13 @@ class CodeDiffTemplateTest {
 
     @Test
     fun `render includes a hyperframes-track with start zero and configured duration`() {
-        val template = CodeDiffTemplate(
-            id = "demo",
-            beforeCode = "val x = 1",
-            afterCode = "val x = 2",
-            durationSeconds = 5.0
-        )
+        val template =
+            CodeDiffTemplate(
+                id = "demo",
+                beforeCode = "val x = 1",
+                afterCode = "val x = 2",
+                durationSeconds = 5.0,
+            )
 
         val html = template.render()
 
@@ -47,22 +48,24 @@ class CodeDiffTemplateTest {
 
     @Test
     fun `default duration is three seconds`() {
-        val template = CodeDiffTemplate(
-            id = "demo",
-            beforeCode = "a",
-            afterCode = "b"
-        )
+        val template =
+            CodeDiffTemplate(
+                id = "demo",
+                beforeCode = "a",
+                afterCode = "b",
+            )
 
         assertEquals(3.0, template.durationSeconds)
     }
 
     @Test
     fun `render contains before and after code in distinct pre blocks`() {
-        val template = CodeDiffTemplate(
-            id = "demo",
-            beforeCode = "val x = oldFunc()",
-            afterCode = "val x = newFunc()"
-        )
+        val template =
+            CodeDiffTemplate(
+                id = "demo",
+                beforeCode = "val x = oldFunc()",
+                afterCode = "val x = newFunc()",
+            )
 
         val html = template.render()
 
@@ -74,11 +77,12 @@ class CodeDiffTemplateTest {
 
     @Test
     fun `after block is hidden by default via inline style display none`() {
-        val template = CodeDiffTemplate(
-            id = "demo",
-            beforeCode = "a",
-            afterCode = "b"
-        )
+        val template =
+            CodeDiffTemplate(
+                id = "demo",
+                beforeCode = "a",
+                afterCode = "b",
+            )
 
         val html = template.render()
 
@@ -88,11 +92,12 @@ class CodeDiffTemplateTest {
 
     @Test
     fun `render includes a GSAP timeline that fades out before and fades in after`() {
-        val template = CodeDiffTemplate(
-            id = "demo",
-            beforeCode = "a",
-            afterCode = "b"
-        )
+        val template =
+            CodeDiffTemplate(
+                id = "demo",
+                beforeCode = "a",
+                afterCode = "b",
+            )
 
         val html = template.render()
 
@@ -105,11 +110,12 @@ class CodeDiffTemplateTest {
 
     @Test
     fun `render escapes HTML special characters in code blocks`() {
-        val template = CodeDiffTemplate(
-            id = "demo",
-            beforeCode = "val list = listOf<Int>()",
-            afterCode = "val set = setOf<String>()"
-        )
+        val template =
+            CodeDiffTemplate(
+                id = "demo",
+                beforeCode = "val list = listOf<Int>()",
+                afterCode = "val set = setOf<String>()",
+            )
 
         val html = template.render()
 
@@ -120,12 +126,13 @@ class CodeDiffTemplateTest {
 
     @Test
     fun `kotlin keywords are wrapped in span hf-kw`() {
-        val template = CodeDiffTemplate(
-            id = "demo",
-            beforeCode = "val x = 1",
-            afterCode = "fun foo() {}",
-            lang = "kotlin"
-        )
+        val template =
+            CodeDiffTemplate(
+                id = "demo",
+                beforeCode = "val x = 1",
+                afterCode = "fun foo() {}",
+                lang = "kotlin",
+            )
 
         val html = template.render()
 
@@ -135,12 +142,13 @@ class CodeDiffTemplateTest {
 
     @Test
     fun `unknown lang does not wrap keywords but still escapes HTML`() {
-        val template = CodeDiffTemplate(
-            id = "demo",
-            beforeCode = "val x = 1",
-            afterCode = "fun foo()",
-            lang = "brainfuck"
-        )
+        val template =
+            CodeDiffTemplate(
+                id = "demo",
+                beforeCode = "val x = 1",
+                afterCode = "fun foo()",
+                lang = "brainfuck",
+            )
 
         val html = template.render()
 
@@ -150,12 +158,13 @@ class CodeDiffTemplateTest {
 
     @Test
     fun `render exposes the lang class on both pre blocks`() {
-        val template = CodeDiffTemplate(
-            id = "demo",
-            beforeCode = "a",
-            afterCode = "b",
-            lang = "python"
-        )
+        val template =
+            CodeDiffTemplate(
+                id = "demo",
+                beforeCode = "a",
+                afterCode = "b",
+                lang = "python",
+            )
 
         val html = template.render()
 

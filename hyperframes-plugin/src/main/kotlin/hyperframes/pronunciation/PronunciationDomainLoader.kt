@@ -19,7 +19,6 @@ import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
  * author hints override domain hints on conflict (word + language).
  */
 object PronunciationDomainLoader {
-
     private val mapper = jacksonObjectMapper()
 
     /**
@@ -32,16 +31,18 @@ object PronunciationDomainLoader {
      */
     fun load(name: String): PronunciationDictionary {
         val resourcePath = "domain/$name.json"
-        val resource = PronunciationDomainLoader::class.java
-            .classLoader
-            .getResourceAsStream(resourcePath)
-            ?: throw IllegalArgumentException("Unknown pronunciation domain: '$name' (resource '$resourcePath' not found on classpath)")
+        val resource =
+            PronunciationDomainLoader::class.java
+                .classLoader
+                .getResourceAsStream(resourcePath)
+                ?: throw IllegalArgumentException("Unknown pronunciation domain: '$name' (resource '$resourcePath' not found on classpath)")
 
         val json = resource.bufferedReader().use { it.readText() }
-        val entries: List<HintEntry> = mapper.readValue(
-            json,
-            mapper.typeFactory.constructCollectionType(List::class.java, HintEntry::class.java)
-        )
+        val entries: List<HintEntry> =
+            mapper.readValue(
+                json,
+                mapper.typeFactory.constructCollectionType(List::class.java, HintEntry::class.java),
+            )
 
         val dictionary = PronunciationDictionary()
         entries.forEach { entry ->
@@ -49,8 +50,8 @@ object PronunciationDomainLoader {
                 PronunciationHint.of(
                     word = entry.word,
                     phonetic = entry.phonetic,
-                    language = entry.language
-                )
+                    language = entry.language,
+                ),
             )
         }
         require(dictionary.size() > 0) { "Domain '$name' is empty — resource '$resourcePath' contains no valid hints" }
@@ -61,6 +62,6 @@ object PronunciationDomainLoader {
     private data class HintEntry(
         val word: String,
         val phonetic: String,
-        val language: String? = null
+        val language: String? = null,
     )
 }

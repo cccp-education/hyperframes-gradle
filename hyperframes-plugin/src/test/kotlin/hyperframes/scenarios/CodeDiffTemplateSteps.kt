@@ -13,15 +13,16 @@ import org.assertj.core.api.Assertions.assertThat
  *
  * All steps are English (BDD Gherkin convention — no `# language: fr`).
  */
-class CodeDiffTemplateSteps(private val world: HyperframesWorld) {
-
+class CodeDiffTemplateSteps(
+    private val world: HyperframesWorld,
+) {
     @Given("the source directory contains an AsciiDoc document using the code-diff template")
     fun sourceContainsCodeDiff() {
         world.writeCodeDiffAdoc(
             id = "refactor-demo",
             beforeCode = "val x = oldFunc()",
             afterCode = "val x = newFunc()",
-            lang = "kotlin"
+            lang = "kotlin",
         )
     }
 

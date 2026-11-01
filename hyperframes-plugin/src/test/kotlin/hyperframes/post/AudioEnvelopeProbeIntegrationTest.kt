@@ -1,13 +1,13 @@
 package hyperframes.post
 
+import org.junit.jupiter.api.Assumptions.assumeTrue
+import org.junit.jupiter.api.io.TempDir
+import video.kernel.audio.AudioSilenceDetector
 import java.io.File
 import java.util.concurrent.TimeUnit
 import kotlin.test.Test
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
-import org.junit.jupiter.api.Assumptions.assumeTrue
-import org.junit.jupiter.api.io.TempDir
-import video.kernel.audio.AudioSilenceDetector
 
 /**
  * Functional test for [AudioEnvelopeProbe] (VK-4 US-4e) — real ffmpeg, real
@@ -17,7 +17,6 @@ import video.kernel.audio.AudioSilenceDetector
  * of the build.
  */
 class AudioEnvelopeProbeIntegrationTest {
-
     @field:TempDir
     lateinit var tempDir: File
 
@@ -26,14 +25,25 @@ class AudioEnvelopeProbeIntegrationTest {
             File(entry, "ffmpeg").let { it.isFile && it.canExecute() }
         }
 
-    private fun generate(fileName: String, source: String) {
+    private fun generate(
+        fileName: String,
+        source: String,
+    ) {
         val output = File(tempDir, fileName)
-        val process = ProcessBuilder(
-            "ffmpeg", "-v", "error", "-y",
-            "-f", "lavfi", "-i", source,
-            "-t", "1",
-            output.absolutePath,
-        ).redirectErrorStream(true).start()
+        val process =
+            ProcessBuilder(
+                "ffmpeg",
+                "-v",
+                "error",
+                "-y",
+                "-f",
+                "lavfi",
+                "-i",
+                source,
+                "-t",
+                "1",
+                output.absolutePath,
+            ).redirectErrorStream(true).start()
         val finished = process.waitFor(60, TimeUnit.SECONDS)
         assumeTrue(finished && process.exitValue() == 0) {
             "ffmpeg could not produce $fileName — envelope functional check not exercised here"

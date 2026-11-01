@@ -1,7 +1,7 @@
 package hyperframes.post
 
-import java.io.File
 import video.kernel.audio.AudioSilenceDetector
+import java.io.File
 
 /**
  * Pure consumer of the shared N1 silence detector for HyperFrames narration
@@ -16,16 +16,19 @@ import video.kernel.audio.AudioSilenceDetector
  * must never be read as "silent".
  */
 object NarrationSilenceCheck {
-
     /**
      * @param files the narration files to inspect.
      * @param probe per-file RMS envelope provider (`null` when unavailable).
      * @return the silent files, in input order.
      */
-    fun silentFiles(files: List<File>, probe: (File) -> DoubleArray?): List<File> =
-        files.filter { file -> isSilent(file, probe) }
+    fun silentFiles(
+        files: List<File>,
+        probe: (File) -> DoubleArray?,
+    ): List<File> = files.filter { file -> isSilent(file, probe) }
 
     /** `true` only when a usable envelope proves the file silent. */
-    fun isSilent(file: File, probe: (File) -> DoubleArray?): Boolean =
-        probe(file)?.let { frames -> AudioSilenceDetector.analyze(frames).isSilent } == true
+    fun isSilent(
+        file: File,
+        probe: (File) -> DoubleArray?,
+    ): Boolean = probe(file)?.let { frames -> AudioSilenceDetector.analyze(frames).isSilent } == true
 }

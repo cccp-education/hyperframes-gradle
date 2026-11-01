@@ -15,7 +15,6 @@ import kotlin.test.assertTrue
  * tracks count, MP4 file metadata, AsciiDoc source descriptor.
  */
 class HyperframesContextExtractorTest {
-
     @TempDir
     lateinit var tempDir: Path
 
@@ -25,13 +24,14 @@ class HyperframesContextExtractorTest {
     fun `extracts stage dimensions from data-width height fps`() {
         val html = sampleHtml(width = 1280, height = 720, fps = 24)
         val mp4 = fakeMp4("intro.mp4")
-        val ctx = extractor.extract(
-            html = html,
-            mp4 = mp4,
-            asciidocName = "intro.adoc",
-            renderedAt = "2026-05-31T14:30:00Z",
-            renderDurationMs = 1000L
-        )
+        val ctx =
+            extractor.extract(
+                html = html,
+                mp4 = mp4,
+                asciidocName = "intro.adoc",
+                renderedAt = "2026-05-31T14:30:00Z",
+                renderDurationMs = 1000L,
+            )
         assertEquals(1280, ctx.output.width)
         assertEquals(720, ctx.output.height)
         assertEquals(24, ctx.output.fps)
@@ -111,9 +111,11 @@ class HyperframesContextExtractorTest {
 
     @Test
     fun `pronunciation section is extracted from the JSON island`() {
-        val html = sampleHtml() + """
-            <script type="application/json" id="hf-pronunciation">[{"word":"dos","phonetic":"do"}]</script>
-        """.trimIndent()
+        val html =
+            sampleHtml() +
+                """
+                <script type="application/json" id="hf-pronunciation">[{"word":"dos","phonetic":"do"}]</script>
+                """.trimIndent()
         val mp4 = fakeMp4("v.mp4")
         val ctx = extractor.extract(html, mp4, "x.adoc", "2026-05-31T14:30:00Z", 0L)
 
@@ -126,20 +128,30 @@ class HyperframesContextExtractorTest {
 
     @Test
     fun `pronunciation section with language tags extracts the language field`() {
-        val html = sampleHtml() + """
-            <script type="application/json" id="hf-pronunciation">[{"word":"dos","phonetic":"do","language":"fr"}]</script>
-        """.trimIndent()
+        val html =
+            sampleHtml() +
+                """
+                <script type="application/json" id="hf-pronunciation">[{"word":"dos","phonetic":"do","language":"fr"}]</script>
+                """.trimIndent()
         val mp4 = fakeMp4("v.mp4")
         val ctx = extractor.extract(html, mp4, "x.adoc", "2026-05-31T14:30:00Z", 0L)
 
-        assertEquals("fr", ctx.pronunciation?.hints?.get(0)?.language)
+        assertEquals(
+            "fr",
+            ctx.pronunciation
+                ?.hints
+                ?.get(0)
+                ?.language,
+        )
     }
 
     @Test
     fun `pronunciation section hints count matches the number of hints`() {
-        val html = sampleHtml() + """
-            <script type="application/json" id="hf-pronunciation">[{"word":"dos","phonetic":"do"},{"word":"kubernetes","phonetic":"koobernetayz"}]</script>
-        """.trimIndent()
+        val html =
+            sampleHtml() +
+                """
+                <script type="application/json" id="hf-pronunciation">[{"word":"dos","phonetic":"do"},{"word":"kubernetes","phonetic":"koobernetayz"}]</script>
+                """.trimIndent()
         val mp4 = fakeMp4("v.mp4")
         val ctx = extractor.extract(html, mp4, "x.adoc", "2026-05-31T14:30:00Z", 0L)
 
@@ -149,9 +161,11 @@ class HyperframesContextExtractorTest {
 
     @Test
     fun `pronunciation section empty island yields zero hints`() {
-        val html = sampleHtml() + """
-            <script type="application/json" id="hf-pronunciation">[]</script>
-        """.trimIndent()
+        val html =
+            sampleHtml() +
+                """
+                <script type="application/json" id="hf-pronunciation">[]</script>
+                """.trimIndent()
         val mp4 = fakeMp4("v.mp4")
         val ctx = extractor.extract(html, mp4, "x.adoc", "2026-05-31T14:30:00Z", 0L)
 
@@ -180,18 +194,22 @@ class HyperframesContextExtractorTest {
     @Test
     fun `configured pronunciation domain is echoed into the N3 descriptor`() {
         val domainExtractor = HyperframesContextExtractor(pluginVersion = "0.0.1", pronunciationDomain = "video-fr")
-        val html = sampleHtml() + """
-            <script type="application/json" id="hf-pronunciation">[{"word":"dos","phonetic":"do"}]</script>
-        """.trimIndent()
+        val html =
+            sampleHtml() +
+                """
+                <script type="application/json" id="hf-pronunciation">[{"word":"dos","phonetic":"do"}]</script>
+                """.trimIndent()
         val ctx = domainExtractor.extract(html, fakeMp4("v.mp4"), "x.adoc", "2026-05-31T14:30:00Z", 0L)
         assertEquals("video-fr", ctx.pronunciation?.domain)
     }
 
     @Test
     fun `pronunciation domain is null when no domain is configured`() {
-        val html = sampleHtml() + """
-            <script type="application/json" id="hf-pronunciation">[{"word":"dos","phonetic":"do"}]</script>
-        """.trimIndent()
+        val html =
+            sampleHtml() +
+                """
+                <script type="application/json" id="hf-pronunciation">[{"word":"dos","phonetic":"do"}]</script>
+                """.trimIndent()
         val ctx = extractor.extract(html, fakeMp4("v.mp4"), "x.adoc", "2026-05-31T14:30:00Z", 0L)
         assertNull(ctx.pronunciation?.domain)
     }
@@ -219,7 +237,10 @@ class HyperframesContextExtractorTest {
         assertEquals("comparison", ctx.segments[1].id)
     }
 
-    private fun fakeMp4(name: String, content: ByteArray = ByteArray(256)): File {
+    private fun fakeMp4(
+        name: String,
+        content: ByteArray = ByteArray(256),
+    ): File {
         val f = tempDir.toFile().resolve(name)
         f.writeBytes(content)
         return f
@@ -230,14 +251,16 @@ class HyperframesContextExtractorTest {
         height: Int = 1080,
         fps: Int = 30,
         compositions: List<String> = listOf("intro"),
-        tracksCount: Int = 1
+        tracksCount: Int = 1,
     ): String {
-        val compDivs = compositions.joinToString("\n") { id ->
-            """<div class="sect1 hyperframes-composition" data-composition-id="$id"><h2 id="$id">$id</h2></div>"""
-        }
-        val trackDivs = (0 until tracksCount).joinToString("\n") { idx ->
-            """<div class="paragraph hyperframes-track" data-track-index="$idx" data-start="0" data-duration="5"></div>"""
-        }
+        val compDivs =
+            compositions.joinToString("\n") { id ->
+                """<div class="sect1 hyperframes-composition" data-composition-id="$id"><h2 id="$id">$id</h2></div>"""
+            }
+        val trackDivs =
+            (0 until tracksCount).joinToString("\n") { idx ->
+                """<div class="paragraph hyperframes-track" data-track-index="$idx" data-start="0" data-duration="5"></div>"""
+            }
         return """
             <html><body>
             <div id="stage" data-width="$width" data-height="$height" data-fps="$fps" data-output="video.mp4">
@@ -245,6 +268,6 @@ class HyperframesContextExtractorTest {
             $trackDivs
             </div>
             </body></html>
-        """.trimIndent()
+            """.trimIndent()
     }
 }

@@ -1,13 +1,13 @@
 package hyperframes.kernel
 
-import video.kernel.FileVisualSource
-import video.kernel.VideoRenderRequest
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
+import video.kernel.FileVisualSource
+import video.kernel.VideoRenderRequest
 import java.io.File
 
 /**
@@ -16,16 +16,16 @@ import java.io.File
  * engine with no segments/durations/viewport.
  */
 class HyperFramesEngineTest {
-
     @TempDir
     lateinit var tempDir: File
 
-    private fun config() = HyperFramesEngineConfig(
-        nodeExecutable = "/fake/node",
-        cliScript = "/fake/hyperframes",
-        width = 1920,
-        height = 1080,
-    )
+    private fun config() =
+        HyperFramesEngineConfig(
+            nodeExecutable = "/fake/node",
+            cliScript = "/fake/hyperframes",
+            width = 1920,
+            height = 1080,
+        )
 
     private fun request(): VideoRenderRequest {
         val html = File(tempDir, "index.html").apply { writeText("<html><body>hi</body></html>") }
@@ -38,12 +38,16 @@ class HyperFramesEngineTest {
 
     @Test
     fun `renders the whole document to an MP4 and returns it as produced`() {
-        val engine = HyperFramesEngine(config(), runner = { argv, workingDir, _ ->
-            // The real CLI writes the file named by --output; emulate it.
-            val outputPath = argv[argv.indexOf("--output") + 1]
-            File(outputPath).apply { parentFile?.mkdirs(); writeText("fake-mp4") }
-            HyperFramesProcessResult(exitCode = 0)
-        })
+        val engine =
+            HyperFramesEngine(config(), runner = { argv, workingDir, _ ->
+                // The real CLI writes the file named by --output; emulate it.
+                val outputPath = argv[argv.indexOf("--output") + 1]
+                File(outputPath).apply {
+                    parentFile?.mkdirs()
+                    writeText("fake-mp4")
+                }
+                HyperFramesProcessResult(exitCode = 0)
+            })
 
         val result = engine.render(request())
 
@@ -58,9 +62,10 @@ class HyperFramesEngineTest {
 
     @Test
     fun `a failing CLI yields no produced video, without throwing`() {
-        val engine = HyperFramesEngine(config(), runner = { _, _, _ ->
-            HyperFramesProcessResult(exitCode = 1, output = "boom")
-        })
+        val engine =
+            HyperFramesEngine(config(), runner = { _, _, _ ->
+                HyperFramesProcessResult(exitCode = 1, output = "boom")
+            })
 
         val result = engine.render(request())
 
@@ -79,10 +84,11 @@ class HyperFramesEngineTest {
     @Test
     fun `the request timeout is forwarded to the runner, zero means the engine default`() {
         val seen = mutableListOf<Long>()
-        val engine = HyperFramesEngine(config(), runner = { _, _, timeout ->
-            seen.add(timeout)
-            HyperFramesProcessResult(exitCode = 1)
-        })
+        val engine =
+            HyperFramesEngine(config(), runner = { _, _, timeout ->
+                seen.add(timeout)
+                HyperFramesProcessResult(exitCode = 1)
+            })
 
         engine.render(request().copy(timeoutMillis = 1_234))
         engine.render(request().copy(timeoutMillis = 0))
@@ -97,9 +103,10 @@ class HyperFramesEngineTest {
 
     @Test
     fun `renderDetailed exposes the raw process outcome of a failing CLI`() {
-        val engine = HyperFramesEngine(config(), runner = { _, _, _ ->
-            HyperFramesProcessResult(exitCode = 7, output = "boom")
-        })
+        val engine =
+            HyperFramesEngine(config(), runner = { _, _, _ ->
+                HyperFramesProcessResult(exitCode = 7, output = "boom")
+            })
 
         val outcome = engine.renderDetailed(request())
 
@@ -111,9 +118,10 @@ class HyperFramesEngineTest {
 
     @Test
     fun `renderDetailed exposes a timed out CLI`() {
-        val engine = HyperFramesEngine(config(), runner = { _, _, _ ->
-            HyperFramesProcessResult(exitCode = -1, timedOut = true)
-        })
+        val engine =
+            HyperFramesEngine(config(), runner = { _, _, _ ->
+                HyperFramesProcessResult(exitCode = -1, timedOut = true)
+            })
 
         val outcome = engine.renderDetailed(request())
 
@@ -123,11 +131,15 @@ class HyperFramesEngineTest {
 
     @Test
     fun `render returns the same result as renderDetailed`() {
-        val engine = HyperFramesEngine(config(), runner = { argv, _, _ ->
-            val outputPath = argv[argv.indexOf("--output") + 1]
-            File(outputPath).apply { parentFile?.mkdirs(); writeText("fake-mp4") }
-            HyperFramesProcessResult(exitCode = 0)
-        })
+        val engine =
+            HyperFramesEngine(config(), runner = { argv, _, _ ->
+                val outputPath = argv[argv.indexOf("--output") + 1]
+                File(outputPath).apply {
+                    parentFile?.mkdirs()
+                    writeText("fake-mp4")
+                }
+                HyperFramesProcessResult(exitCode = 0)
+            })
 
         val direct = engine.render(request())
         val detailed = engine.renderDetailed(request()).result
@@ -142,26 +154,46 @@ class HyperFramesEngineTest {
 
     @Test
     fun `renderDetailed fills the outcome duration from the injected probe`() {
-        val engine = HyperFramesEngine(
-            config().copy(durationProbe = { 42.5 }),
-            runner = { argv, _, _ ->
-                val outputPath = argv[argv.indexOf("--output") + 1]
-                File(outputPath).apply { parentFile?.mkdirs(); writeText("fake-mp4") }
-                HyperFramesProcessResult(exitCode = 0)
-            },
-        )
+        val engine =
+            HyperFramesEngine(
+                config().copy(durationProbe = { 42.5 }),
+                runner = { argv, _, _ ->
+                    val outputPath = argv[argv.indexOf("--output") + 1]
+                    File(outputPath).apply {
+                        parentFile?.mkdirs()
+                        writeText("fake-mp4")
+                    }
+                    HyperFramesProcessResult(exitCode = 0)
+                },
+            )
 
-        assertEquals(42.5, engine.renderDetailed(request()).result.outcome?.durationSeconds)
+        assertEquals(
+            42.5,
+            engine
+                .renderDetailed(request())
+                .result.outcome
+                ?.durationSeconds,
+        )
     }
 
     @Test
     fun `renderDetailed reports zero duration when no probe is wired (degraded)`() {
-        val engine = HyperFramesEngine(config(), runner = { argv, _, _ ->
-            val outputPath = argv[argv.indexOf("--output") + 1]
-            File(outputPath).apply { parentFile?.mkdirs(); writeText("fake-mp4") }
-            HyperFramesProcessResult(exitCode = 0)
-        })
+        val engine =
+            HyperFramesEngine(config(), runner = { argv, _, _ ->
+                val outputPath = argv[argv.indexOf("--output") + 1]
+                File(outputPath).apply {
+                    parentFile?.mkdirs()
+                    writeText("fake-mp4")
+                }
+                HyperFramesProcessResult(exitCode = 0)
+            })
 
-        assertEquals(0.0, engine.renderDetailed(request()).result.outcome?.durationSeconds)
+        assertEquals(
+            0.0,
+            engine
+                .renderDetailed(request())
+                .result.outcome
+                ?.durationSeconds,
+        )
     }
 }

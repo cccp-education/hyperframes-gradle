@@ -13,18 +13,18 @@ import io.cucumber.java.en.When
  * Steps are prefixed (`quality entrance …`) to avoid glue collisions (S-088).
  */
 class HfDemoQualityEntranceSteps {
-
     private var source: String = ""
     private var enhanced: String = ""
 
     @Given("a quality entrance document with two scenes")
     fun documentWithTwoScenes() {
-        source = document(
-            """
-            <div class="sect1"><h2 id="one">One</h2><div class="sectionbody"><div class="paragraph"><p>Body</p></div></div></div>
-            <div class="sect1"><h2 id="two">Two</h2><div class="sectionbody"><div class="paragraph"><p>Body</p></div></div></div>
-            """.trimIndent(),
-        )
+        source =
+            document(
+                """
+                <div class="sect1"><h2 id="one">One</h2><div class="sectionbody"><div class="paragraph"><p>Body</p></div></div></div>
+                <div class="sect1"><h2 id="two">Two</h2><div class="sectionbody"><div class="paragraph"><p>Body</p></div></div></div>
+                """.trimIndent(),
+            )
     }
 
     @When("I enhance the quality entrance document without entrances")
@@ -39,9 +39,10 @@ class HfDemoQualityEntranceSteps {
 
     @When("I enhance the quality entrance document with a {string} second offset")
     fun enhanceWithOffset(offset: String) {
-        enhanced = processor()
-            .withEntrances(EntranceConfig(enabled = true, offsetSeconds = offset.toDouble()))
-            .enhance(source)
+        enhanced =
+            processor()
+                .withEntrances(EntranceConfig(enabled = true, offsetSeconds = offset.toDouble()))
+                .enhance(source)
     }
 
     @Then("the quality entrance keeps the grouped scene animation")
@@ -96,14 +97,16 @@ class HfDemoQualityEntranceSteps {
         }
     }
 
-    private fun processor() = HyperframesHtmlProcessor(
-        width = 1920,
-        height = 1080,
-        fps = 30,
-        outputName = "quality-entrance-demo",
-    )
+    private fun processor() =
+        HyperframesHtmlProcessor(
+            width = 1920,
+            height = 1080,
+            fps = 30,
+            outputName = "quality-entrance-demo",
+        )
 
-    private fun document(sections: String): String = """
+    private fun document(sections: String): String =
+        """
         <!DOCTYPE html>
         <html>
         <head><title>Quality entrances</title></head>
@@ -113,5 +116,5 @@ class HfDemoQualityEntranceSteps {
         </div>
         </body>
         </html>
-    """.trimIndent()
+        """.trimIndent()
 }

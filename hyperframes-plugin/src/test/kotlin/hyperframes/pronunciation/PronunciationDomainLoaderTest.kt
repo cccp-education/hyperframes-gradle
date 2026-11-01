@@ -19,7 +19,6 @@ import kotlin.test.assertTrue
  * their own domain dictionary via configuration.
  */
 class PronunciationDomainLoaderTest {
-
     @Test
     fun `loadDomain video-fr returns a non-empty dictionary`() {
         val domain = PronunciationDomainLoader.load("video-fr")

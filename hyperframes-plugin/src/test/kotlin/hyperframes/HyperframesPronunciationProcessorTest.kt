@@ -3,7 +3,6 @@ package hyperframes
 import org.junit.jupiter.api.Test
 import kotlin.test.assertContains
 import kotlin.test.assertFalse
-import kotlin.test.assertTrue
 
 /**
  * TDD functional tests for HF-7c — pronunciation DSL processor.
@@ -13,13 +12,13 @@ import kotlin.test.assertTrue
  * consumed by the HyperFrames CLI to correct TTS phonetics.
  */
 class HyperframesPronunciationProcessorTest {
-
-    private val processor = HyperframesHtmlProcessor(
-        width = 1920,
-        height = 1080,
-        fps = 30,
-        outputName = "test-video"
-    )
+    private val processor =
+        HyperframesHtmlProcessor(
+            width = 1920,
+            height = 1080,
+            fps = 30,
+            outputName = "test-video",
+        )
 
     @Test
     fun `pronunciation block is expanded into a JSON island script tag`() {
@@ -42,7 +41,7 @@ kubernetes: koobernetayz</pre>
         assertContains(result, "</script>")
         assertFalse(
             result.contains("class=\"listingblock hyperframes-pronunciation\""),
-            "pronunciation block wrapper should be replaced by the JSON island"
+            "pronunciation block wrapper should be replaced by the JSON island",
         )
     }
 
@@ -145,7 +144,7 @@ kubernetes: koobernetayz</pre>
 
         assertFalse(
             result.contains("id=\"hf-pronunciation\""),
-            "an empty pronunciation block collects no hints — no JSON island should be injected"
+            "an empty pronunciation block collects no hints — no JSON island should be injected",
         )
     }
 

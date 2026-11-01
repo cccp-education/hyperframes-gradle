@@ -19,7 +19,6 @@ import kotlin.test.assertTrue
  * silently reappear.
  */
 class HyperframesExtensionContractTest {
-
     private fun getter(name: String) = HyperframesExtension::class.java.getMethod(name)
 
     @Test
@@ -28,7 +27,7 @@ class HyperframesExtensionContractTest {
 
         assertFalse(
             outputDir.isAnnotationPresent(InputDirectory::class.java),
-            "HyperframesExtension.outputDir must NOT be annotated @InputDirectory (D-A regression)"
+            "HyperframesExtension.outputDir must NOT be annotated @InputDirectory (D-A regression)",
         )
     }
 
@@ -38,7 +37,7 @@ class HyperframesExtensionContractTest {
 
         assertFalse(
             outputDir.isAnnotationPresent(OutputDirectory::class.java),
-            "HyperframesExtension.outputDir must NOT be annotated @OutputDirectory (S-026: task I/O belongs on tasks)"
+            "HyperframesExtension.outputDir must NOT be annotated @OutputDirectory (S-026: task I/O belongs on tasks)",
         )
     }
 
@@ -48,7 +47,7 @@ class HyperframesExtensionContractTest {
 
         assertTrue(
             inputDir.isAnnotationPresent(InputDirectory::class.java),
-            "HyperframesExtension.inputDir must stay annotated @InputDirectory"
+            "HyperframesExtension.inputDir must stay annotated @InputDirectory",
         )
     }
 }

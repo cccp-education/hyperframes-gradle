@@ -16,13 +16,13 @@ import kotlin.test.assertTrue
  * caption according to its time window.
  */
 class KineticCaptionsTemplateTest {
-
     @Test
     fun `render produces a hyperframes-composition div with data-composition-id`() {
-        val template = KineticCaptionsTemplate(
-            id = "intro-captions",
-            captions = listOf(Caption(0.0, 2.0, "Hello world"))
-        )
+        val template =
+            KineticCaptionsTemplate(
+                id = "intro-captions",
+                captions = listOf(Caption(0.0, 2.0, "Hello world")),
+            )
 
         val html = template.render()
 
@@ -32,11 +32,12 @@ class KineticCaptionsTemplateTest {
 
     @Test
     fun `render includes a hyperframes-track with start zero and configured duration`() {
-        val template = KineticCaptionsTemplate(
-            id = "demo",
-            captions = listOf(Caption(0.0, 2.0, "A")),
-            durationSeconds = 7.0
-        )
+        val template =
+            KineticCaptionsTemplate(
+                id = "demo",
+                captions = listOf(Caption(0.0, 2.0, "A")),
+                durationSeconds = 7.0,
+            )
 
         val html = template.render()
 
@@ -47,20 +48,22 @@ class KineticCaptionsTemplateTest {
 
     @Test
     fun `default duration is five seconds`() {
-        val template = KineticCaptionsTemplate(
-            id = "demo",
-            captions = listOf(Caption(0.0, 2.0, "A"))
-        )
+        val template =
+            KineticCaptionsTemplate(
+                id = "demo",
+                captions = listOf(Caption(0.0, 2.0, "A")),
+            )
 
         assertEquals(5.0, template.durationSeconds)
     }
 
     @Test
     fun `render contains a kinetic-captions container div`() {
-        val template = KineticCaptionsTemplate(
-            id = "demo",
-            captions = listOf(Caption(0.0, 2.0, "A"))
-        )
+        val template =
+            KineticCaptionsTemplate(
+                id = "demo",
+                captions = listOf(Caption(0.0, 2.0, "A")),
+            )
 
         val html = template.render()
 
@@ -69,13 +72,15 @@ class KineticCaptionsTemplateTest {
 
     @Test
     fun `render contains one caption div per caption with data-at and data-until`() {
-        val template = KineticCaptionsTemplate(
-            id = "demo",
-            captions = listOf(
-                Caption(0.0, 2.0, "Hello"),
-                Caption(2.5, 4.5, "World")
+        val template =
+            KineticCaptionsTemplate(
+                id = "demo",
+                captions =
+                    listOf(
+                        Caption(0.0, 2.0, "Hello"),
+                        Caption(2.5, 4.5, "World"),
+                    ),
             )
-        )
 
         val html = template.render()
 
@@ -88,10 +93,11 @@ class KineticCaptionsTemplateTest {
 
     @Test
     fun `render includes the caption text inside each caption div`() {
-        val template = KineticCaptionsTemplate(
-            id = "demo",
-            captions = listOf(Caption(0.0, 2.0, "Hello world"))
-        )
+        val template =
+            KineticCaptionsTemplate(
+                id = "demo",
+                captions = listOf(Caption(0.0, 2.0, "Hello world")),
+            )
 
         val html = template.render()
 
@@ -100,10 +106,11 @@ class KineticCaptionsTemplateTest {
 
     @Test
     fun `captions are hidden by default via inline opacity zero`() {
-        val template = KineticCaptionsTemplate(
-            id = "demo",
-            captions = listOf(Caption(0.0, 2.0, "A"))
-        )
+        val template =
+            KineticCaptionsTemplate(
+                id = "demo",
+                captions = listOf(Caption(0.0, 2.0, "A")),
+            )
 
         val html = template.render()
 
@@ -112,10 +119,11 @@ class KineticCaptionsTemplateTest {
 
     @Test
     fun `render includes a GSAP timeline that shows and hides captions`() {
-        val template = KineticCaptionsTemplate(
-            id = "demo",
-            captions = listOf(Caption(0.0, 2.0, "A"))
-        )
+        val template =
+            KineticCaptionsTemplate(
+                id = "demo",
+                captions = listOf(Caption(0.0, 2.0, "A")),
+            )
 
         val html = template.render()
 
@@ -128,13 +136,15 @@ class KineticCaptionsTemplateTest {
 
     @Test
     fun `timeline shows each caption at its start time`() {
-        val template = KineticCaptionsTemplate(
-            id = "demo",
-            captions = listOf(
-                Caption(1.5, 3.0, "Late"),
-                Caption(0.0, 1.0, "Early")
+        val template =
+            KineticCaptionsTemplate(
+                id = "demo",
+                captions =
+                    listOf(
+                        Caption(1.5, 3.0, "Late"),
+                        Caption(0.0, 1.0, "Early"),
+                    ),
             )
-        )
 
         val html = template.render()
 
@@ -144,10 +154,11 @@ class KineticCaptionsTemplateTest {
 
     @Test
     fun `timeline hides each caption at its end minus start offset`() {
-        val template = KineticCaptionsTemplate(
-            id = "demo",
-            captions = listOf(Caption(0.0, 2.0, "A"))
-        )
+        val template =
+            KineticCaptionsTemplate(
+                id = "demo",
+                captions = listOf(Caption(0.0, 2.0, "A")),
+            )
 
         val html = template.render()
 
@@ -156,10 +167,11 @@ class KineticCaptionsTemplateTest {
 
     @Test
     fun `empty captions renders an empty container without caption divs`() {
-        val template = KineticCaptionsTemplate(
-            id = "demo",
-            captions = emptyList()
-        )
+        val template =
+            KineticCaptionsTemplate(
+                id = "demo",
+                captions = emptyList(),
+            )
 
         val html = template.render()
 

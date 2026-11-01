@@ -11,7 +11,6 @@ import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
 class HyperframesPluginTest {
-
     @TempDir
     lateinit var tempDir: Path
     private lateinit var projectDir: File
@@ -27,11 +26,13 @@ class HyperframesPluginTest {
         writeBuildFiles(projectDir)
 
         // Act
-        val result = GradleRunner.create()
-            .withProjectDir(projectDir)
-            .withPluginClasspath()
-            .withArguments("tasks", "--group=hyperframes")
-            .build()
+        val result =
+            GradleRunner
+                .create()
+                .withProjectDir(projectDir)
+                .withPluginClasspath()
+                .withArguments("tasks", "--group=hyperframes")
+                .build()
 
         // Assert
         val output = result.output
@@ -46,7 +47,8 @@ class HyperframesPluginTest {
 
         val srcDir = projectDir.resolve("src/docs")
         srcDir.mkdirs()
-        srcDir.resolve("index.adoc").writeText("""
+        srcDir.resolve("index.adoc").writeText(
+            """
             = Test Document HyperFrames
             :hyperframes-width: 1920
             :hyperframes-height: 1080
@@ -58,19 +60,28 @@ class HyperframesPluginTest {
             == Contenu
 
             Le parse AsciidoctorJ convertit cet AsciiDoc en HTML.
-        """.trimIndent())
+            """.trimIndent(),
+        )
 
         // Act
-        val result = GradleRunner.create()
-            .withProjectDir(projectDir)
-            .withPluginClasspath()
-            .withArguments("generateHyperframesHtml", "--info")
-            .build()
+        val result =
+            GradleRunner
+                .create()
+                .withProjectDir(projectDir)
+                .withPluginClasspath()
+                .withArguments("generateHyperframesHtml", "--info")
+                .build()
 
         // Assert
         assertContains(result.output, "generateHyperframesHtml")
-        assertTrue(result.task(":generateHyperframesHtml")?.outcome?.toString()?.contains("SUCCESS") == true,
-            "Task generateHyperframesHtml should succeed")
+        assertTrue(
+            result
+                .task(":generateHyperframesHtml")
+                ?.outcome
+                ?.toString()
+                ?.contains("SUCCESS") == true,
+            "Task generateHyperframesHtml should succeed",
+        )
 
         // Vérifie que le fichier HTML a été généré
         val htmlFile = projectDir.resolve("build/hyperframes/index.html")
@@ -84,11 +95,13 @@ class HyperframesPluginTest {
         writeBuildFiles(projectDir)
 
         // Act
-        val result = GradleRunner.create()
-            .withProjectDir(projectDir)
-            .withPluginClasspath()
-            .withArguments("renderHyperframes", "--info")
-            .buildAndFail()
+        val result =
+            GradleRunner
+                .create()
+                .withProjectDir(projectDir)
+                .withPluginClasspath()
+                .withArguments("renderHyperframes", "--info")
+                .buildAndFail()
 
         // Assert
         assertContains(result.output, "No HyperFrames HTML found")
@@ -106,11 +119,13 @@ class HyperframesPluginTest {
         createFakeHtml(projectDir)
 
         // Act
-        val result = GradleRunner.create()
-            .withProjectDir(projectDir)
-            .withPluginClasspath()
-            .withArguments("renderHyperframes", "--info")
-            .build()
+        val result =
+            GradleRunner
+                .create()
+                .withProjectDir(projectDir)
+                .withPluginClasspath()
+                .withArguments("renderHyperframes", "--info")
+                .build()
 
         // Assert
         assertContains(result.output, "HyperFrames CLI completed")
@@ -127,11 +142,13 @@ class HyperframesPluginTest {
         createFakeHtml(projectDir)
 
         // Act
-        val result = GradleRunner.create()
-            .withProjectDir(projectDir)
-            .withPluginClasspath()
-            .withArguments("renderHyperframes", "--info")
-            .buildAndFail()
+        val result =
+            GradleRunner
+                .create()
+                .withProjectDir(projectDir)
+                .withPluginClasspath()
+                .withArguments("renderHyperframes", "--info")
+                .buildAndFail()
 
         // Assert
         assertContains(result.output, "HyperFrames CLI failed")
@@ -145,11 +162,13 @@ class HyperframesPluginTest {
         createFakeHtml(projectDir)
 
         // Act
-        val result = GradleRunner.create()
-            .withProjectDir(projectDir)
-            .withPluginClasspath()
-            .withArguments("renderHyperframes", "--info")
-            .buildAndFail()
+        val result =
+            GradleRunner
+                .create()
+                .withProjectDir(projectDir)
+                .withPluginClasspath()
+                .withArguments("renderHyperframes", "--info")
+                .buildAndFail()
 
         // Assert
         assertContains(result.output, "HyperFrames CLI script not found")
@@ -162,16 +181,18 @@ class HyperframesPluginTest {
         writeBuildFiles(
             projectDir,
             cliScript = mockCli.absolutePath,
-            renderTimeoutMs = "500"
+            renderTimeoutMs = "500",
         )
         createFakeHtml(projectDir)
 
         // Act
-        val result = GradleRunner.create()
-            .withProjectDir(projectDir)
-            .withPluginClasspath()
-            .withArguments("renderHyperframes", "--info")
-            .buildAndFail()
+        val result =
+            GradleRunner
+                .create()
+                .withProjectDir(projectDir)
+                .withPluginClasspath()
+                .withArguments("renderHyperframes", "--info")
+                .buildAndFail()
 
         // Assert
         assertContains(result.output, "timed out")
@@ -185,20 +206,32 @@ class HyperframesPluginTest {
     fun `generateHyperframesHtml adds stage div with data attributes`() {
         // Arrange
         writeBuildFiles(projectDir)
-        writeDocWithComposition(projectDir, compositionBody = """
-            == Test
-            Simple content.
-        """.trimIndent())
+        writeDocWithComposition(
+            projectDir,
+            compositionBody =
+                """
+                == Test
+                Simple content.
+                """.trimIndent(),
+        )
 
         // Act
-        val result = GradleRunner.create()
-            .withProjectDir(projectDir)
-            .withPluginClasspath()
-            .withArguments("generateHyperframesHtml", "--info")
-            .build()
+        val result =
+            GradleRunner
+                .create()
+                .withProjectDir(projectDir)
+                .withPluginClasspath()
+                .withArguments("generateHyperframesHtml", "--info")
+                .build()
 
         // Assert
-        assertTrue(result.task(":generateHyperframesHtml")?.outcome?.toString()?.contains("SUCCESS") == true)
+        assertTrue(
+            result
+                .task(":generateHyperframesHtml")
+                ?.outcome
+                ?.toString()
+                ?.contains("SUCCESS") == true,
+        )
         val html = projectDir.resolve("build/hyperframes/index.html").readText()
         assertContains(html, """id="stage"""")
         assertContains(html, """data-width="1920"""")
@@ -210,22 +243,34 @@ class HyperframesPluginTest {
     fun `generateHyperframesHtml turns the heading id into a scene clip id`() {
         // Arrange
         writeBuildFiles(projectDir)
-        writeDocWithComposition(projectDir, compositionBody = buildString {
-            // Syntaxe AsciiDoc : [role#id] avant le heading
-            appendLine("[.hyperframes-composition#intro]")
-            appendLine("== Introduction")
-            append("Content for intro.")
-        })
+        writeDocWithComposition(
+            projectDir,
+            compositionBody =
+                buildString {
+                    // Syntaxe AsciiDoc : [role#id] avant le heading
+                    appendLine("[.hyperframes-composition#intro]")
+                    appendLine("== Introduction")
+                    append("Content for intro.")
+                },
+        )
 
         // Act
-        val result = GradleRunner.create()
-            .withProjectDir(projectDir)
-            .withPluginClasspath()
-            .withArguments("generateHyperframesHtml", "--info")
-            .build()
+        val result =
+            GradleRunner
+                .create()
+                .withProjectDir(projectDir)
+                .withPluginClasspath()
+                .withArguments("generateHyperframesHtml", "--info")
+                .build()
 
         // Assert
-        assertTrue(result.task(":generateHyperframesHtml")?.outcome?.toString()?.contains("SUCCESS") == true)
+        assertTrue(
+            result
+                .task(":generateHyperframesHtml")
+                ?.outcome
+                ?.toString()
+                ?.contains("SUCCESS") == true,
+        )
         val html = projectDir.resolve("build/hyperframes/index.html").readText()
         assertContains(html, """class="scene clip" id="intro"""")
     }
@@ -234,29 +279,41 @@ class HyperframesPluginTest {
     fun `generateHyperframesHtml keeps track content in a scene and strips reserved timing attributes`() {
         // Arrange
         writeBuildFiles(projectDir)
-        writeDocWithComposition(projectDir, compositionBody = buildString {
-            appendLine("[.hyperframes-composition#tracked]")
-            appendLine("== Tracked")
-            appendLine()
-            appendLine("[.hyperframes-track]")
-            append("Track content here.")
-        })
+        writeDocWithComposition(
+            projectDir,
+            compositionBody =
+                buildString {
+                    appendLine("[.hyperframes-composition#tracked]")
+                    appendLine("== Tracked")
+                    appendLine()
+                    appendLine("[.hyperframes-track]")
+                    append("Track content here.")
+                },
+        )
 
         // Act
-        val result = GradleRunner.create()
-            .withProjectDir(projectDir)
-            .withPluginClasspath()
-            .withArguments("generateHyperframesHtml", "--info")
-            .build()
+        val result =
+            GradleRunner
+                .create()
+                .withProjectDir(projectDir)
+                .withPluginClasspath()
+                .withArguments("generateHyperframesHtml", "--info")
+                .build()
 
         // Assert
-        assertTrue(result.task(":generateHyperframesHtml")?.outcome?.toString()?.contains("SUCCESS") == true)
+        assertTrue(
+            result
+                .task(":generateHyperframesHtml")
+                ?.outcome
+                ?.toString()
+                ?.contains("SUCCESS") == true,
+        )
         val html = projectDir.resolve("build/hyperframes/index.html").readText()
         assertContains(html, "Track content here.")
         assertContains(html, """class="scene clip" id="tracked"""")
         assertTrue(
             !html.contains("hyperframes-track\" data-track-index"),
-            "the nested legacy track wrapper must not keep the reserved timing attributes"
+            "the nested legacy track wrapper must not keep the reserved timing attributes",
         )
     }
 
@@ -264,25 +321,37 @@ class HyperframesPluginTest {
     fun `generateHyperframesHtml loads the vendored GSAP as an offline external script`() {
         // Arrange
         writeBuildFiles(projectDir)
-        writeDocWithComposition(projectDir, compositionBody = buildString {
-            appendLine("== Test")
-            append("Simple content.")
-        })
+        writeDocWithComposition(
+            projectDir,
+            compositionBody =
+                buildString {
+                    appendLine("== Test")
+                    append("Simple content.")
+                },
+        )
 
         // Act
-        val result = GradleRunner.create()
-            .withProjectDir(projectDir)
-            .withPluginClasspath()
-            .withArguments("generateHyperframesHtml", "--info")
-            .build()
+        val result =
+            GradleRunner
+                .create()
+                .withProjectDir(projectDir)
+                .withPluginClasspath()
+                .withArguments("generateHyperframesHtml", "--info")
+                .build()
 
         // Assert — HF-CR4: vendored GSAP written beside the page, loaded offline, no CDN.
-        assertTrue(result.task(":generateHyperframesHtml")?.outcome?.toString()?.contains("SUCCESS") == true)
+        assertTrue(
+            result
+                .task(":generateHyperframesHtml")
+                ?.outcome
+                ?.toString()
+                ?.contains("SUCCESS") == true,
+        )
         val html = projectDir.resolve("build/hyperframes/index.html").readText()
         assertContains(html, """<script src="gsap-3.12.5.min.js"></script>""")
         assertTrue(
             projectDir.resolve("build/hyperframes/gsap-3.12.5.min.js").exists(),
-            "the vendored GSAP runtime must be written next to the composition"
+            "the vendored GSAP runtime must be written next to the composition",
         )
         assertFalse(html.contains("cdnjs.cloudflare.com"), "the CDN must no longer be referenceable")
     }
@@ -294,14 +363,22 @@ class HyperframesPluginTest {
         writeFullDslDoc(projectDir)
 
         // Act
-        val result = GradleRunner.create()
-            .withProjectDir(projectDir)
-            .withPluginClasspath()
-            .withArguments("generateHyperframesHtml", "--info")
-            .build()
+        val result =
+            GradleRunner
+                .create()
+                .withProjectDir(projectDir)
+                .withPluginClasspath()
+                .withArguments("generateHyperframesHtml", "--info")
+                .build()
 
         // Assert
-        assertTrue(result.task(":generateHyperframesHtml")?.outcome?.toString()?.contains("SUCCESS") == true)
+        assertTrue(
+            result
+                .task(":generateHyperframesHtml")
+                ?.outcome
+                ?.toString()
+                ?.contains("SUCCESS") == true,
+        )
         val html = projectDir.resolve("build/hyperframes/index.html").readText()
 
         // Stage
@@ -333,27 +410,37 @@ class HyperframesPluginTest {
         writeBuildFiles(projectDir)
         val srcDir = projectDir.resolve("src/docs")
         srcDir.mkdirs()
-        srcDir.resolve("index.adoc").writeText(buildString {
-            appendLine("= Title-card demo")
-            appendLine(":hyperframes-width: 1920")
-            appendLine(":hyperframes-height: 1080")
-            appendLine(":hyperframes-fps: 30")
-            appendLine()
-            appendLine("[.hyperframes-title-card#intro]")
-            appendLine("== My Presentation")
-            appendLine()
-            append("Module 01")
-        })
+        srcDir.resolve("index.adoc").writeText(
+            buildString {
+                appendLine("= Title-card demo")
+                appendLine(":hyperframes-width: 1920")
+                appendLine(":hyperframes-height: 1080")
+                appendLine(":hyperframes-fps: 30")
+                appendLine()
+                appendLine("[.hyperframes-title-card#intro]")
+                appendLine("== My Presentation")
+                appendLine()
+                append("Module 01")
+            },
+        )
 
         // Act
-        val result = GradleRunner.create()
-            .withProjectDir(projectDir)
-            .withPluginClasspath()
-            .withArguments("generateHyperframesHtml", "--info")
-            .build()
+        val result =
+            GradleRunner
+                .create()
+                .withProjectDir(projectDir)
+                .withPluginClasspath()
+                .withArguments("generateHyperframesHtml", "--info")
+                .build()
 
         // Assert
-        assertTrue(result.task(":generateHyperframesHtml")?.outcome?.toString()?.contains("SUCCESS") == true)
+        assertTrue(
+            result
+                .task(":generateHyperframesHtml")
+                ?.outcome
+                ?.toString()
+                ?.contains("SUCCESS") == true,
+        )
         val html = projectDir.resolve("build/hyperframes/index.html").readText()
         assertContains(html, "class=\"scene clip\" id=\"intro\"")
         assertContains(html, "hf-title-card-title\">My Presentation</span>")
@@ -368,22 +455,32 @@ class HyperframesPluginTest {
         writeBuildFiles(projectDir)
         val srcDir = projectDir.resolve("src/docs")
         srcDir.mkdirs()
-        srcDir.resolve("index.adoc").writeText(buildString {
-            appendLine("= Title-card demo")
-            appendLine()
-            appendLine("[.hyperframes-title-card#solo]")
-            append("== Solo Title")
-        })
+        srcDir.resolve("index.adoc").writeText(
+            buildString {
+                appendLine("= Title-card demo")
+                appendLine()
+                appendLine("[.hyperframes-title-card#solo]")
+                append("== Solo Title")
+            },
+        )
 
         // Act
-        val result = GradleRunner.create()
-            .withProjectDir(projectDir)
-            .withPluginClasspath()
-            .withArguments("generateHyperframesHtml", "--info")
-            .build()
+        val result =
+            GradleRunner
+                .create()
+                .withProjectDir(projectDir)
+                .withPluginClasspath()
+                .withArguments("generateHyperframesHtml", "--info")
+                .build()
 
         // Assert
-        assertTrue(result.task(":generateHyperframesHtml")?.outcome?.toString()?.contains("SUCCESS") == true)
+        assertTrue(
+            result
+                .task(":generateHyperframesHtml")
+                ?.outcome
+                ?.toString()
+                ?.contains("SUCCESS") == true,
+        )
         val html = projectDir.resolve("build/hyperframes/index.html").readText()
         assertContains(html, "hf-title-card-title\">Solo Title</span>")
         assertFalse(html.contains("hf-title-card-subtitle\""), "No subtitle span when subtitle is absent")
@@ -397,14 +494,18 @@ class HyperframesPluginTest {
      * Creates a mock CLI script that simulates HyperFrames render.
      * Writes a fake MP4 and exits with given code.
      */
-    private fun createMockCliScript(projectDir: File, exitCode: Int): File {
+    private fun createMockCliScript(
+        projectDir: File,
+        exitCode: Int,
+    ): File {
         val script = projectDir.resolve("mock-hyperframes-cli.sh")
         val dollar = "${'$'}"
-        script.writeText("""
+        script.writeText(
+            """
             #!/bin/bash
             # Mock HyperFrames CLI pour tests HF-2
             OUTPUT_FILE=""
-            while [[ ${dollar}# -gt 0 ]]; do
+            while [[ $dollar# -gt 0 ]]; do
                 case ${dollar}1 in
                     --output) OUTPUT_FILE="${dollar}2"; shift 2 ;;
                     *) shift ;;
@@ -415,7 +516,8 @@ class HyperframesPluginTest {
             fi
             echo "Mock HyperFrames CLI: render complete"
             exit $exitCode
-        """.trimIndent())
+            """.trimIndent(),
+        )
         script.setExecutable(true)
         return script
     }
@@ -423,16 +525,21 @@ class HyperframesPluginTest {
     /**
      * Creates a slow mock CLI that delays before exiting.
      */
-    private fun createSlowMockCliScript(projectDir: File, delayMs: Long): File {
+    private fun createSlowMockCliScript(
+        projectDir: File,
+        delayMs: Long,
+    ): File {
         val script = projectDir.resolve("mock-hyperframes-slow.sh")
         val dollar = "${'$'}"
-        script.writeText("""
+        script.writeText(
+            """
             #!/bin/bash
             # Mock slow CLI pour test timeout
-            sleep ${dollar}(( $delayMs / 1000 + 1 ))
+            sleep $dollar(( $delayMs / 1000 + 1 ))
             echo "Mock slow CLI: done (too late)"
             exit 0
-        """.trimIndent())
+            """.trimIndent(),
+        )
         script.setExecutable(true)
         return script
     }
@@ -453,18 +560,22 @@ class HyperframesPluginTest {
     /**
      * Écrit un document AsciiDoc avec contenu additionnel dans src/docs/index.adoc.
      */
-    private fun writeDocWithComposition(projectDir: File, compositionBody: String) {
+    private fun writeDocWithComposition(
+        projectDir: File,
+        compositionBody: String,
+    ) {
         val srcDir = projectDir.resolve("src/docs")
         srcDir.mkdirs()
         // Construit l'AsciiDoc sans trimIndent pour éviter les problèmes d'indentation
-        val doc = buildString {
-            appendLine("= Test HyperFrames DSL")
-            appendLine(":hyperframes-width: 1920")
-            appendLine(":hyperframes-height: 1080")
-            appendLine(":hyperframes-fps: 30")
-            appendLine()
-            appendLine(compositionBody.trimStart())
-        }
+        val doc =
+            buildString {
+                appendLine("= Test HyperFrames DSL")
+                appendLine(":hyperframes-width: 1920")
+                appendLine(":hyperframes-height: 1080")
+                appendLine(":hyperframes-fps: 30")
+                appendLine()
+                appendLine(compositionBody.trimStart())
+            }
         srcDir.resolve("index.adoc").writeText(doc)
     }
 
@@ -474,24 +585,25 @@ class HyperframesPluginTest {
     private fun writeFullDslDoc(projectDir: File) {
         val srcDir = projectDir.resolve("src/docs")
         srcDir.mkdirs()
-        val doc = buildString {
-            appendLine("= Test HyperFrames DSL Complet")
-            appendLine(":hyperframes-width: 1920")
-            appendLine(":hyperframes-height: 1080")
-            appendLine(":hyperframes-fps: 30")
-            appendLine()
-            appendLine("[.hyperframes-composition#intro]")
-            appendLine("== Introduction")
-            appendLine()
-            appendLine("[.hyperframes-track]")
-            appendLine("Ceci est un track de test.")
-            appendLine()
-            appendLine("[.hyperframes-animation]")
-            appendLine("----")
-            appendLine("const tl = gsap.timeline({ paused: true });")
-            appendLine("tl.from(\"#title\", { opacity: 0, y: 40, duration: 0.8 }, 1);")
-            appendLine("----")
-        }
+        val doc =
+            buildString {
+                appendLine("= Test HyperFrames DSL Complet")
+                appendLine(":hyperframes-width: 1920")
+                appendLine(":hyperframes-height: 1080")
+                appendLine(":hyperframes-fps: 30")
+                appendLine()
+                appendLine("[.hyperframes-composition#intro]")
+                appendLine("== Introduction")
+                appendLine()
+                appendLine("[.hyperframes-track]")
+                appendLine("Ceci est un track de test.")
+                appendLine()
+                appendLine("[.hyperframes-animation]")
+                appendLine("----")
+                appendLine("const tl = gsap.timeline({ paused: true });")
+                appendLine("tl.from(\"#title\", { opacity: 0, y: 40, duration: 0.8 }, 1);")
+                appendLine("----")
+            }
         srcDir.resolve("index.adoc").writeText(doc)
     }
 
@@ -499,9 +611,10 @@ class HyperframesPluginTest {
         projectDir: File,
         cliScript: String = "",
         renderTimeoutMs: String = "300000",
-        pronunciationDomain: String = ""
+        pronunciationDomain: String = "",
     ) {
-        projectDir.resolve("settings.gradle.kts").writeText("""
+        projectDir.resolve("settings.gradle.kts").writeText(
+            """
             pluginManagement {
                 repositories {
                     mavenLocal()
@@ -510,9 +623,11 @@ class HyperframesPluginTest {
                 }
             }
             rootProject.name = "test-hyperframes"
-        """.trimIndent())
+            """.trimIndent(),
+        )
 
-        projectDir.resolve("build.gradle.kts").writeText("""
+        projectDir.resolve("build.gradle.kts").writeText(
+            """
             plugins {
                 id("education.cccp.hyperframes")
             }
@@ -529,7 +644,8 @@ class HyperframesPluginTest {
                 renderTimeoutMs.set($renderTimeoutMs)
                 ${if (pronunciationDomain.isNotEmpty()) """pronunciationDomain.set("$pronunciationDomain")""" else ""}
             }
-        """.trimIndent())
+            """.trimIndent(),
+        )
     }
 
     // ──────────────────────────────────────────────────
@@ -542,24 +658,34 @@ class HyperframesPluginTest {
 
         val srcDir = projectDir.resolve("src/docs")
         srcDir.mkdirs()
-        srcDir.resolve("index.adoc").writeText(buildString {
-            appendLine("= Domain baseline demo")
-            appendLine(":hyperframes-width: 1920")
-            appendLine(":hyperframes-height: 1080")
-            appendLine(":hyperframes-fps: 30")
-            appendLine()
-            appendLine("== Introduction")
-            appendLine()
-            append("Le rendu de la narration.")
-        })
+        srcDir.resolve("index.adoc").writeText(
+            buildString {
+                appendLine("= Domain baseline demo")
+                appendLine(":hyperframes-width: 1920")
+                appendLine(":hyperframes-height: 1080")
+                appendLine(":hyperframes-fps: 30")
+                appendLine()
+                appendLine("== Introduction")
+                appendLine()
+                append("Le rendu de la narration.")
+            },
+        )
 
-        val result = GradleRunner.create()
-            .withProjectDir(projectDir)
-            .withPluginClasspath()
-            .withArguments("generateHyperframesHtml", "--info")
-            .build()
+        val result =
+            GradleRunner
+                .create()
+                .withProjectDir(projectDir)
+                .withPluginClasspath()
+                .withArguments("generateHyperframesHtml", "--info")
+                .build()
 
-        assertTrue(result.task(":generateHyperframesHtml")?.outcome?.toString()?.contains("SUCCESS") == true)
+        assertTrue(
+            result
+                .task(":generateHyperframesHtml")
+                ?.outcome
+                ?.toString()
+                ?.contains("SUCCESS") == true,
+        )
         val html = projectDir.resolve("build/hyperframes/index.html").readText()
         assertContains(html, """<script type="application/json" id="hf-pronunciation">""")
         assertContains(html, """"word":"narration"""")
@@ -572,31 +698,41 @@ class HyperframesPluginTest {
 
         val srcDir = projectDir.resolve("src/docs")
         srcDir.mkdirs()
-        srcDir.resolve("index.adoc").writeText(buildString {
-            appendLine("= Domain merge demo")
-            appendLine(":hyperframes-width: 1920")
-            appendLine(":hyperframes-height: 1080")
-            appendLine(":hyperframes-fps: 30")
-            appendLine()
-            appendLine("[.hyperframes-pronunciation]")
-            appendLine("----")
-            appendLine("narration: my-override")
-            appendLine("----")
-        })
+        srcDir.resolve("index.adoc").writeText(
+            buildString {
+                appendLine("= Domain merge demo")
+                appendLine(":hyperframes-width: 1920")
+                appendLine(":hyperframes-height: 1080")
+                appendLine(":hyperframes-fps: 30")
+                appendLine()
+                appendLine("[.hyperframes-pronunciation]")
+                appendLine("----")
+                appendLine("narration: my-override")
+                appendLine("----")
+            },
+        )
 
-        val result = GradleRunner.create()
-            .withProjectDir(projectDir)
-            .withPluginClasspath()
-            .withArguments("generateHyperframesHtml", "--info")
-            .build()
+        val result =
+            GradleRunner
+                .create()
+                .withProjectDir(projectDir)
+                .withPluginClasspath()
+                .withArguments("generateHyperframesHtml", "--info")
+                .build()
 
-        assertTrue(result.task(":generateHyperframesHtml")?.outcome?.toString()?.contains("SUCCESS") == true)
+        assertTrue(
+            result
+                .task(":generateHyperframesHtml")
+                ?.outcome
+                ?.toString()
+                ?.contains("SUCCESS") == true,
+        )
         val html = projectDir.resolve("build/hyperframes/index.html").readText()
         assertContains(html, """"word":"narration"""")
         assertContains(html, """"phonetic":"my-override"""")
         assertFalse(
             html.contains(""""phonetic":"na-ra-syon""""),
-            "author hint should override the domain phonetic for 'narration'"
+            "author hint should override the domain phonetic for 'narration'",
         )
         assertContains(html, """"word":"transition"""")
         assertContains(html, """"phonetic":"tran-zi-syon"""")
@@ -608,26 +744,36 @@ class HyperframesPluginTest {
 
         val srcDir = projectDir.resolve("src/docs")
         srcDir.mkdirs()
-        srcDir.resolve("index.adoc").writeText(buildString {
-            appendLine("= No domain demo")
-            appendLine(":hyperframes-width: 1920")
-            appendLine(":hyperframes-height: 1080")
-            appendLine(":hyperframes-fps: 30")
-            appendLine()
-            append("Le rendu de la narration.")
-        })
+        srcDir.resolve("index.adoc").writeText(
+            buildString {
+                appendLine("= No domain demo")
+                appendLine(":hyperframes-width: 1920")
+                appendLine(":hyperframes-height: 1080")
+                appendLine(":hyperframes-fps: 30")
+                appendLine()
+                append("Le rendu de la narration.")
+            },
+        )
 
-        val result = GradleRunner.create()
-            .withProjectDir(projectDir)
-            .withPluginClasspath()
-            .withArguments("generateHyperframesHtml", "--info")
-            .build()
+        val result =
+            GradleRunner
+                .create()
+                .withProjectDir(projectDir)
+                .withPluginClasspath()
+                .withArguments("generateHyperframesHtml", "--info")
+                .build()
 
-        assertTrue(result.task(":generateHyperframesHtml")?.outcome?.toString()?.contains("SUCCESS") == true)
+        assertTrue(
+            result
+                .task(":generateHyperframesHtml")
+                ?.outcome
+                ?.toString()
+                ?.contains("SUCCESS") == true,
+        )
         val html = projectDir.resolve("build/hyperframes/index.html").readText()
         assertFalse(
             html.contains("id=\"hf-pronunciation\""),
-            "no JSON island without domain and without author block"
+            "no JSON island without domain and without author block",
         )
     }
 
@@ -637,30 +783,40 @@ class HyperframesPluginTest {
 
         val srcDir = projectDir.resolve("src/docs")
         srcDir.mkdirs()
-        srcDir.resolve("index.adoc").writeText(buildString {
-            appendLine("= Transition demo")
-            appendLine(":hyperframes-width: 1920")
-            appendLine(":hyperframes-height: 1080")
-            appendLine(":hyperframes-fps: 30")
-            appendLine()
-            appendLine("[#one.hyperframes-composition.hf-transition-grid]")
-            appendLine("== One")
-            appendLine()
-            appendLine("First scene.")
-            appendLine()
-            appendLine("[#two.hyperframes-composition]")
-            appendLine("== Two")
-            appendLine()
-            appendLine("Second scene.")
-        })
+        srcDir.resolve("index.adoc").writeText(
+            buildString {
+                appendLine("= Transition demo")
+                appendLine(":hyperframes-width: 1920")
+                appendLine(":hyperframes-height: 1080")
+                appendLine(":hyperframes-fps: 30")
+                appendLine()
+                appendLine("[#one.hyperframes-composition.hf-transition-grid]")
+                appendLine("== One")
+                appendLine()
+                appendLine("First scene.")
+                appendLine()
+                appendLine("[#two.hyperframes-composition]")
+                appendLine("== Two")
+                appendLine()
+                appendLine("Second scene.")
+            },
+        )
 
-        val result = GradleRunner.create()
-            .withProjectDir(projectDir)
-            .withPluginClasspath()
-            .withArguments("generateHyperframesHtml", "--info")
-            .build()
+        val result =
+            GradleRunner
+                .create()
+                .withProjectDir(projectDir)
+                .withPluginClasspath()
+                .withArguments("generateHyperframesHtml", "--info")
+                .build()
 
-        assertTrue(result.task(":generateHyperframesHtml")?.outcome?.toString()?.contains("SUCCESS") == true)
+        assertTrue(
+            result
+                .task(":generateHyperframesHtml")
+                ?.outcome
+                ?.toString()
+                ?.contains("SUCCESS") == true,
+        )
         val html = projectDir.resolve("build/hyperframes/index.html").readText()
         assertContains(html, """class="hf-transition hf-transition-grid" id="hf-transition-1"""")
         assertContains(html, """class="hf-transition-cell"""")
@@ -676,41 +832,51 @@ class HyperframesPluginTest {
         srcDir.resolve("logo.png").writeBytes(byteArrayOf(1, 2, 3, 4))
         srcDir.resolve("assets").mkdirs()
         srcDir.resolve("assets/tone.mp3").writeBytes(byteArrayOf(5, 6, 7))
-        srcDir.resolve("index.adoc").writeText(buildString {
-            appendLine("= Media demo")
-            appendLine(":hyperframes-width: 1920")
-            appendLine(":hyperframes-height: 1080")
-            appendLine(":hyperframes-fps: 30")
-            appendLine()
-            appendLine("[#one.hyperframes-composition]")
-            appendLine("== One")
-            appendLine()
-            appendLine("[.hyperframes-audio]")
-            appendLine("----")
-            appendLine("bgm: assets/tone.mp3 volume=0.2")
-            appendLine("----")
-            appendLine()
-            appendLine("image::logo.png[]")
-        })
+        srcDir.resolve("index.adoc").writeText(
+            buildString {
+                appendLine("= Media demo")
+                appendLine(":hyperframes-width: 1920")
+                appendLine(":hyperframes-height: 1080")
+                appendLine(":hyperframes-fps: 30")
+                appendLine()
+                appendLine("[#one.hyperframes-composition]")
+                appendLine("== One")
+                appendLine()
+                appendLine("[.hyperframes-audio]")
+                appendLine("----")
+                appendLine("bgm: assets/tone.mp3 volume=0.2")
+                appendLine("----")
+                appendLine()
+                appendLine("image::logo.png[]")
+            },
+        )
 
-        val result = GradleRunner.create()
-            .withProjectDir(projectDir)
-            .withPluginClasspath()
-            .withArguments("generateHyperframesHtml", "--info")
-            .build()
+        val result =
+            GradleRunner
+                .create()
+                .withProjectDir(projectDir)
+                .withPluginClasspath()
+                .withArguments("generateHyperframesHtml", "--info")
+                .build()
 
-        assertTrue(result.task(":generateHyperframesHtml")?.outcome?.toString()?.contains("SUCCESS") == true)
+        assertTrue(
+            result
+                .task(":generateHyperframesHtml")
+                ?.outcome
+                ?.toString()
+                ?.contains("SUCCESS") == true,
+        )
         val html = projectDir.resolve("build/hyperframes/index.html").readText()
         assertContains(html, """<audio""")
         assertContains(html, """src="assets/tone.mp3"""")
         assertContains(html, """src="logo.png"""")
         assertTrue(
             projectDir.resolve("build/hyperframes/logo.png").exists(),
-            "the referenced image must be copied next to the composition"
+            "the referenced image must be copied next to the composition",
         )
         assertTrue(
             projectDir.resolve("build/hyperframes/assets/tone.mp3").exists(),
-            "the referenced audio must be copied next to the composition"
+            "the referenced audio must be copied next to the composition",
         )
     }
 }

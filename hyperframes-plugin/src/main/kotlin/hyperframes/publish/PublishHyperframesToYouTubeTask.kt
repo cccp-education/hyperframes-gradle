@@ -1,7 +1,6 @@
 package hyperframes.publish
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import java.io.File
 import org.gradle.api.DefaultTask
 import org.gradle.api.GradleException
 import org.gradle.api.file.ConfigurableFileCollection
@@ -24,6 +23,7 @@ import video.kernel.publish.VideoPublication
 import video.kernel.publish.VideoPublicationResult
 import video.kernel.publish.VideoPublicationValidator
 import video.kernel.publish.VideoVisibility
+import java.io.File
 
 /**
  * `publishHyperframesToYouTube` — publishes the rendered MP4 to the configured
@@ -45,7 +45,6 @@ import video.kernel.publish.VideoVisibility
  */
 @DisableCachingByDefault(because = "Publishes over the network (side effect): never cacheable")
 abstract class PublishHyperframesToYouTubeTask : DefaultTask() {
-
     /** The rendered MP4 to publish. Tolerant: a missing file degrades, never fails validation. */
     @get:InputFiles
     @get:PathSensitive(PathSensitivity.RELATIVE)
@@ -137,8 +136,9 @@ abstract class PublishHyperframesToYouTubeTask : DefaultTask() {
             return
         }
 
-        val video = videoFiles.files.firstOrNull { it.extension.equals("mp4", ignoreCase = true) }
-            ?: videoFiles.files.firstOrNull()
+        val video =
+            videoFiles.files.firstOrNull { it.extension.equals("mp4", ignoreCase = true) }
+                ?: videoFiles.files.firstOrNull()
         val base = buildPublication(video)
         val publication = base.copy(description = VideoDescriptionComposer.compose(base, descriptionHeader.orNull.orEmpty()))
 
@@ -151,12 +151,13 @@ abstract class PublishHyperframesToYouTubeTask : DefaultTask() {
             return
         }
 
-        val publisher = HyperframesPublisherResolver.resolve(
-            enabled = true,
-            platform = platform.get(),
-            credentialsFile = File(credentialsFile.get()),
-            onLog = { logger.lifecycle("publishHyperframesToYouTube: $it") },
-        )
+        val publisher =
+            HyperframesPublisherResolver.resolve(
+                enabled = true,
+                platform = platform.get(),
+                credentialsFile = File(credentialsFile.get()),
+                onLog = { logger.lifecycle("publishHyperframesToYouTube: $it") },
+            )
 
         when (val result = publisher.publish(publication)) {
             is VideoPublicationResult.Published -> {
@@ -176,7 +177,11 @@ abstract class PublishHyperframesToYouTubeTask : DefaultTask() {
     }
 
     private fun buildPublication(video: File?): VideoPublication {
-        val thumbnail = thumbnailFile.orNull?.takeIf { it.isNotBlank() }?.let(::File)?.takeIf { it.exists() }
+        val thumbnail =
+            thumbnailFile.orNull
+                ?.takeIf { it.isNotBlank() }
+                ?.let(::File)
+                ?.takeIf { it.exists() }
         return VideoPublication(
             videoFile = video ?: File(""),
             title = title.orNull.orEmpty(),
@@ -184,11 +189,12 @@ abstract class PublishHyperframesToYouTubeTask : DefaultTask() {
             tags = tags.getOrElse(emptyList()),
             hashtags = hashtags.getOrElse(emptyList()),
             chapters = ChapterLineParser.parse(chapters.getOrElse(emptyList())),
-            links = VideoLinks(
-                entries = links.getOrElse(emptyList()).mapNotNull(::parseLink),
-                nextVideo = nextVideo.orNull.orEmpty(),
-                previousVideo = previousVideo.orNull.orEmpty(),
-            ),
+            links =
+                VideoLinks(
+                    entries = links.getOrElse(emptyList()).mapNotNull(::parseLink),
+                    nextVideo = nextVideo.orNull.orEmpty(),
+                    previousVideo = previousVideo.orNull.orEmpty(),
+                ),
             visibility = parseVisibility(visibility.orNull),
             categoryId = categoryId.orNull.orEmpty(),
             languageCode = languageCode.orNull.orEmpty(),
@@ -207,11 +213,12 @@ abstract class PublishHyperframesToYouTubeTask : DefaultTask() {
         return VideoLink(label, url)
     }
 
-    private fun parseVisibility(value: String?): VideoVisibility = when (value?.trim()?.lowercase()) {
-        "public" -> VideoVisibility.PUBLIC
-        "unlisted" -> VideoVisibility.UNLISTED
-        else -> VideoVisibility.PRIVATE
-    }
+    private fun parseVisibility(value: String?): VideoVisibility =
+        when (value?.trim()?.lowercase()) {
+            "public" -> VideoVisibility.PUBLIC
+            "unlisted" -> VideoVisibility.UNLISTED
+            else -> VideoVisibility.PRIVATE
+        }
 
     private fun writeReport(
         file: File,

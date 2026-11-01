@@ -1,7 +1,7 @@
 package hyperframes.post
 
-import java.io.File
 import video.kernel.audio.RmsEnvelope
+import java.io.File
 
 /**
  * N2 adapter that decodes a narration audio file to a per-frame RMS envelope
@@ -21,7 +21,6 @@ class AudioEnvelopeProbe(
     private val runner: CommandRunner = ProcessBuilderCommandRunner(),
     private val timeoutMillis: Long = 300_000L,
 ) {
-
     /**
      * @param audioFile the narration file (WAV/MP3/…) to analyse.
      * @return one normalised RMS amplitude per 20 ms frame, or `null`.
@@ -30,11 +29,12 @@ class AudioEnvelopeProbe(
         if (!audioFile.isFile || audioFile.length() == 0L) return null
         val pcmFile = File.createTempFile("hyperframes-envelope", ".pcm")
         return try {
-            val result = runner.run(
-                decodeArgs(audioFile, pcmFile, SAMPLE_RATE, ffmpegPath),
-                pcmFile.parentFile ?: File("."),
-                timeoutMillis,
-            )
+            val result =
+                runner.run(
+                    decodeArgs(audioFile, pcmFile, SAMPLE_RATE, ffmpegPath),
+                    pcmFile.parentFile ?: File("."),
+                    timeoutMillis,
+                )
             if (result.exitCode != 0 || !pcmFile.isFile || pcmFile.length() == 0L) {
                 null
             } else {
@@ -60,16 +60,22 @@ class AudioEnvelopeProbe(
         pcmFile: File,
         sampleRate: Int,
         ffmpegPath: String,
-    ): List<String> = listOf(
-        ffmpegPath,
-        "-v", "error",
-        "-y",
-        "-i", audioFile.absolutePath,
-        "-ac", "1",
-        "-ar", sampleRate.toString(),
-        "-f", "s16le",
-        pcmFile.absolutePath,
-    )
+    ): List<String> =
+        listOf(
+            ffmpegPath,
+            "-v",
+            "error",
+            "-y",
+            "-i",
+            audioFile.absolutePath,
+            "-ac",
+            "1",
+            "-ar",
+            sampleRate.toString(),
+            "-f",
+            "s16le",
+            pcmFile.absolutePath,
+        )
 
     companion object {
         /** 16 kHz mono is the usual ASR/envelope working rate and keeps frames tiny. */

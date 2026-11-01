@@ -1,12 +1,12 @@
 package hyperframes.post
 
+import video.kernel.audio.AudioSilenceDetector
 import java.io.ByteArrayOutputStream
 import java.io.File
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
-import video.kernel.audio.AudioSilenceDetector
 
 /**
  * Unit tests for [AudioEnvelopeProbe] (VK-4 US-4e) — the N2 ffmpeg adapter of
@@ -14,7 +14,6 @@ import video.kernel.audio.AudioSilenceDetector
  * ffmpeg is needed.
  */
 class AudioEnvelopeProbeTest {
-
     private fun pcm(vararg samples: Int): ByteArray {
         val out = ByteArrayOutputStream()
         samples.forEach { sample ->
@@ -42,19 +41,21 @@ class AudioEnvelopeProbeTest {
 
     @Test
     fun `a silent pcm yields a silent envelope`() {
-        val probe = AudioEnvelopeProbe(
-            runner = { _, _, _ ->
-                // 320 samples = one full 20 ms frame @ 16 kHz, all zero.
-                CommandResult(exitCode = 0)
-            },
-        )
+        val probe =
+            AudioEnvelopeProbe(
+                runner = { _, _, _ ->
+                    // 320 samples = one full 20 ms frame @ 16 kHz, all zero.
+                    CommandResult(exitCode = 0)
+                },
+            )
         // The fake runner must write to the temp target (last argv entry).
-        val injecting = AudioEnvelopeProbe(
-            runner = { argv, _, _ ->
-                File(argv.last()).writeBytes(pcm(*IntArray(320) { 0 }))
-                CommandResult(exitCode = 0)
-            },
-        )
+        val injecting =
+            AudioEnvelopeProbe(
+                runner = { argv, _, _ ->
+                    File(argv.last()).writeBytes(pcm(*IntArray(320) { 0 }))
+                    CommandResult(exitCode = 0)
+                },
+            )
         val audio = File.createTempFile("narration", ".wav").apply { writeText("fake") }
 
         val frames = injecting.probe(audio)

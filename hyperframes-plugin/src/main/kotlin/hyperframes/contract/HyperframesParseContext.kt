@@ -27,7 +27,7 @@ data class HyperframesParseContext(
     val segments: List<HyperframesSegment> = emptyList(),
     val pronunciation: HyperframesPronunciationContext? = null,
     val renderedAt: String,
-    val renderDurationMs: Long
+    val renderDurationMs: Long,
 ) {
     companion object {
         const val PLUGIN_ID = "hyperframes-gradle"
@@ -47,7 +47,7 @@ data class HyperframesParseContext(
  */
 data class HyperframesSegment(
     val index: Int,
-    val id: String
+    val id: String,
 )
 
 /**
@@ -70,7 +70,7 @@ data class HyperframesVideoOutput(
     val width: Int,
     val height: Int,
     val fps: Int,
-    val codec: String = "h264"
+    val codec: String = "h264",
 )
 
 /**
@@ -83,7 +83,7 @@ data class HyperframesVideoOutput(
 data class HyperframesAsciidocSource(
     val asciidoc: String,
     val compositions: List<String>,
-    val tracks: Int
+    val tracks: Int,
 )
 
 /**
@@ -97,7 +97,7 @@ data class HyperframesAsciidocSource(
 data class HyperframesPronunciationContext(
     val domain: String? = null,
     val hintsCount: Int,
-    val hints: List<HyperframesPronunciationEntry>
+    val hints: List<HyperframesPronunciationEntry>,
 )
 
 /**
@@ -110,5 +110,5 @@ data class HyperframesPronunciationContext(
 data class HyperframesPronunciationEntry(
     val word: String,
     val phonetic: String,
-    val language: String? = null
+    val language: String? = null,
 )

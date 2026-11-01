@@ -14,8 +14,9 @@ import org.assertj.core.api.Assertions.assertThat
  * Step names are prefixed ("cr3 gsap") to avoid glue collisions (pattern S-088).
  * All steps are English (BDD Gherkin convention).
  */
-class Cr3GsapVendoringSteps(private val world: HyperframesWorld) {
-
+class Cr3GsapVendoringSteps(
+    private val world: HyperframesWorld,
+) {
     @Given("a plain AsciiDoc source document")
     fun plainSourceDocument() {
         world.createProject()

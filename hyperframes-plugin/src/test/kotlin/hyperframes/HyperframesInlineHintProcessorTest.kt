@@ -3,7 +3,6 @@ package hyperframes
 import org.junit.jupiter.api.Test
 import kotlin.test.assertContains
 import kotlin.test.assertFalse
-import kotlin.test.assertTrue
 
 /**
  * TDD functional tests for HF-7e — inline pronunciation hints in narration.
@@ -14,13 +13,13 @@ import kotlin.test.assertTrue
  * TTS, not displayed on screen).
  */
 class HyperframesInlineHintProcessorTest {
-
-    private val processor = HyperframesHtmlProcessor(
-        width = 1920,
-        height = 1080,
-        fps = 30,
-        outputName = "test-video"
-    )
+    private val processor =
+        HyperframesHtmlProcessor(
+            width = 1920,
+            height = 1080,
+            fps = 30,
+            outputName = "test-video",
+        )
 
     @Test
     fun `inline hint in a track paragraph is extracted into the pronunciation island`() {

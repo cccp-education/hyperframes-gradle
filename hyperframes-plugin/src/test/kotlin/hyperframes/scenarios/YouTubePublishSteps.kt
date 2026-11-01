@@ -4,7 +4,6 @@ import hyperframes.publish.YouTubeDataApiPublisher
 import io.cucumber.java.en.Given
 import io.cucumber.java.en.Then
 import io.cucumber.java.en.When
-import java.io.File
 import video.kernel.publish.ChapterLineParser
 import video.kernel.publish.DisabledVideoPublisher
 import video.kernel.publish.HttpTransport
@@ -13,6 +12,7 @@ import video.kernel.publish.PublishHttpResponse
 import video.kernel.publish.VideoPublication
 import video.kernel.publish.VideoPublicationResult
 import video.kernel.publish.YouTubeCredentials
+import java.io.File
 
 /**
  * HF-YOUTUBE-PUBLISH US-2 — steps for the YouTube publication flow.
@@ -21,9 +21,11 @@ import video.kernel.publish.YouTubeCredentials
  * The fake transport never touches the network.
  */
 class YouTubePublishSteps {
-
-    private class RecordingTransport(private val responses: MutableList<PublishHttpResponse>) : HttpTransport {
+    private class RecordingTransport(
+        private val responses: MutableList<PublishHttpResponse>,
+    ) : HttpTransport {
         val requests = mutableListOf<PublishHttpRequest>()
+
         override fun send(request: PublishHttpRequest): PublishHttpResponse {
             requests += request
             return if (responses.isEmpty()) PublishHttpResponse(500, "") else responses.removeAt(0)
@@ -37,13 +39,14 @@ class YouTubePublishSteps {
 
     @Given("a youtube publish fake transport returning a token and a session and the video id {string}")
     fun transportHappyPath(videoId: String) {
-        transport = RecordingTransport(
-            mutableListOf(
-                PublishHttpResponse(200, """{"access_token":"AT"}"""),
-                PublishHttpResponse(200, "", mapOf("location" to "https://session")),
-                PublishHttpResponse(200, """{"id":"$videoId"}"""),
-            ),
-        )
+        transport =
+            RecordingTransport(
+                mutableListOf(
+                    PublishHttpResponse(200, """{"access_token":"AT"}"""),
+                    PublishHttpResponse(200, "", mapOf("location" to "https://session")),
+                    PublishHttpResponse(200, """{"id":"$videoId"}"""),
+                ),
+            )
     }
 
     @Given("a youtube publish fake transport refusing the token")
@@ -71,12 +74,13 @@ class YouTubePublishSteps {
     @When("I publish a youtube video from a temp file")
     fun publishVideo() {
         val video = File.createTempFile("hf-publish-", ".mp4").apply { writeText("video-bytes") }
-        val publication = VideoPublication(
-            videoFile = video,
-            title = "A title",
-            description = "Body",
-            chapters = ChapterLineParser.parse(listOf("0:00 Intro", "0:10 Setup", "0:20 Outro")),
-        )
+        val publication =
+            VideoPublication(
+                videoFile = video,
+                title = "A title",
+                description = "Body",
+                chapters = ChapterLineParser.parse(listOf("0:00 Intro", "0:10 Setup", "0:20 Outro")),
+            )
         result = publisher.publish(publication)
         video.delete()
     }

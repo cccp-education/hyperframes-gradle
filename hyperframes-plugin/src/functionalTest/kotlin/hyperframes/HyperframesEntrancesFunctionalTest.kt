@@ -11,7 +11,6 @@ import kotlin.test.assertFalse
  * HF-DEMO-QUALITY US-5 — TestKit acceptance for the DSL entrance choreography.
  */
 class HyperframesEntrancesFunctionalTest {
-
     @TempDir
     lateinit var tempDir: Path
 
@@ -23,7 +22,7 @@ class HyperframesEntrancesFunctionalTest {
                 repositories { mavenLocal(); gradlePluginPortal(); mavenCentral() }
             }
             rootProject.name = "entrances-functional-test"
-            """.trimIndent()
+            """.trimIndent(),
         )
         projectDir.resolve("build.gradle.kts").writeText(
             """
@@ -38,7 +37,7 @@ class HyperframesEntrancesFunctionalTest {
                 outputName.set("entrances-video")
                 entrancesEnabled.set($entrancesEnabled)
             }
-            """.trimIndent()
+            """.trimIndent(),
         )
         val srcDir = projectDir.resolve("src/docs")
         srcDir.mkdirs()
@@ -56,13 +55,14 @@ class HyperframesEntrancesFunctionalTest {
             == Conclusion
 
             Second scene body.
-            """.trimIndent()
+            """.trimIndent(),
         )
         return projectDir
     }
 
     private fun generate(projectDir: java.io.File): String =
-        GradleRunner.create()
+        GradleRunner
+            .create()
             .withProjectDir(projectDir)
             .withPluginClasspath()
             .withArguments("generateHyperframesHtml")
