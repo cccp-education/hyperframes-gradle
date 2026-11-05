@@ -1,3 +1,5 @@
+import org.gradle.plugin.compatibility.compatibility
+
 plugins {
     `java-library`
     alias(libs.plugins.kotlin.jvm)
@@ -153,6 +155,12 @@ gradlePlugin {
             displayName = "HyperFrames Plugin"
             description = "Plugin Gradle N2 transformant un document AsciiDoc annote en video MP4 via le moteur HyperFrames (HeyGen, Apache 2.0)."
             tags.set(listOf("asciidoc", "hyperframes", "video", "mp4", "kotlin"))
+            compatibility {
+                features {
+                    configurationCache.set(false)
+                    isolatedProjects.set(false)
+                }
+            }
         }
     }
     website = "https://github.com/cccp-education/hyperframes-gradle"
