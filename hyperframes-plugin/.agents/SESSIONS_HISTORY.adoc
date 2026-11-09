@@ -691,3 +691,9 @@ DAG N0→N2 : MEMPHIS BOM/catalog `0.0.107 → 0.0.108` (bundle `566b2ba8`, prop
 repo1 200) → hyperframes re-pin `workspace-catalog/BOM 0.0.108` + toml `0.0.11` →
 Central bundle `5e1db54d` (AUTOMATIC), propagation repo1 200 (plugin + marker).
 Contenu : correctifs S-040. Rapport `.agents/sessions/041-release-0.0.11.adoc`.
+
+== Session 047 — JitPack mirror (CNV-16) — 2026-11-09
+
+Publication JitPack de hyperframes-plugin 0.0.14. JitPack : 0.0.14 — POM HTTP 200. Shim `useModule` pour
+`education.cccp.build.*` (tag JitPack `0.0.15`). Rapport
+`hyperframes-plugin/.agents/sessions/047-jitpack-mirror.adoc`.

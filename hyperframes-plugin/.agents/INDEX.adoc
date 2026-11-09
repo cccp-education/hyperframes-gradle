@@ -316,3 +316,6 @@ sert qu'à la lecture. Guide §2.2 du cadrage.
 * Architecture détaillée : `doc/HYPERFRAMES_ARCHITECTURE.adoc`
 * Document de pilotage (7 ateliers agiles) : `doc/PILOTAGE_HYPERFRAMES.adoc`
 * Article blog : `office/sites/cheroliv.com/jbake/content/blog/2026/0125_hyperframes_asciidoc_video_post.adoc`
+== Session 047 — JitPack mirror (CNV-16)
+
+Publication JitPack de hyperframes-plugin 0.0.14. JitPack : 0.0.14 — POM HTTP 200.
