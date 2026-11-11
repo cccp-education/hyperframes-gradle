@@ -4,7 +4,6 @@
 :_date_: 2026-10-16
 :_pilote_: hyperframes (Watts) · transverse video-kernel (N1) + capsule (Détroit)
 :_statut_: 🟡 EN COURS — US-0→US-3 ✅, US-4 BDD ✅ (deux moteurs) ; reste US-4 dogfooding réel (accord pilote) + module partagé `PUBLISH-ADAPTER-N1`
-
 '''
 == 1. Objectif
 
@@ -309,3 +308,38 @@ hyperframes {
 * ✅ US-1 — noyau `video.kernel.publish` (code + tests unit + manifeste).
 * 🟡 US-1b→US-5 — sessions suivantes (dépendent de la publication du noyau).
 * Zéro publication, zéro secret. `Local = Build, Tests = CI`.
+
+'''
+== 10. Constats du premier run réel (2026-11-11)
+
+Le premier déploiement réel a été tenté (chaîne `@cccp.education` puis
+`@Talaria.School`). Aucun upload n'a eu lieu — le verrou est en amont.
+
+. *[C7] `refreshToken` vide.* Les `youtube.yaml` (hyperframes + capsule)
+  portent `clientId`/`clientSecret`/`channelId` mais un `refreshToken` vide :
+  `canUpload=false`, et le refresh répond
+  `400 invalid_request: Missing required parameter: refresh_token`. Le
+  déploiement n'avait jamais été exécuté.
+. *[C8] Client OAuth `Web application`.* Le loopback `http://localhost:8765/`
+  doit être **déclaré** sur le client ; sinon `Erreur 400 : redirect_uri_mismatch`
+  *après* l'authentification. Un client **Desktop app** accepte n'importe quel
+  port loopback sans déclaration → à privilégier (ou déclarer l'URI, slash final
+  inclus).
+. *[C9] Profil Chromium isolé inopérant sur snap.* `/snap/bin/chromium` délègue
+  à l'instance déjà ouverte (« Ouverture dans une session de navigateur
+  existante ») et **ignore `--user-data-dir`** : la garantie US-4 (profil neuf,
+  zéro cookie, choix explicite du compte) ne tient pas sur snap. Workaround
+  immédiat : fenêtre `--incognito`. Correctif produit à cadrer (détection de la
+  délégation snap + avertissement, ou `--incognito` par défaut).
+. *[C10] Verrou Google ~48 h.* Les tentatives `redirect_uri_mismatch` répétées
+  ont bloqué le consentement ; Google renvoie un lien de ré-authentification
+  sous 48 h.
+. *[C11] Préflight manquant.* Rien ne vérifiait le token ni la chaîne ciblée
+  avant l'upload. Livré : `verifyYouTubeCredentials` (youtube-auth-plugin US-5)
+  — refresh du token + `channels.list?mine=true` + comparaison de chaîne,
+  lecture seule, zéro secret journalisé.
+
+*Procédure de reprise (48 h)* : client **Desktop app** (recommandé) ou URI
+`http://localhost:8765/` déclarée → `obtainYouTubeRefreshToken` → `youtube.yaml`
+`refreshToken` renseigné → `verifyYouTubeCredentials` (canal vérifié) →
+`publishHyperframesToYouTube` (visibilité `unlisted` pour le premier envoi).

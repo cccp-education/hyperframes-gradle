@@ -1,0 +1,41 @@
+= Rapport de session 048 — Déploiement YouTube : premier run réel (bloqué)
+:session: 048
+:borough: Watts (hyperframes)
+:date: 2026-11-11
+:statut: 🟡 PARTIEL — déploiement tenté, verrou OAuth externe (~48 h)
+
+== Mission
+
+Attaquer le déploiement YouTube réel de la chaîne cible (video-kernel /
+hyperframes / capsule).
+
+== Ce qui a été fait
+
+* Préflight **manuel** avec le code produit (`video-kernel 0.7.0`) : le
+  `youtube.yaml` de hyperframes portait `clientId`/`clientSecret`/`channelId`
+  mais **`refreshToken` vide** → `canUpload=false`.
+* Consentement OAuth loopback tenté (`obtainYouTubeRefreshToken`) :
+  * client `Web application` → `redirect_uri_mismatch` (`http://localhost:8765/`
+    non déclarée) ;
+  * nouveau client `web` (compte @Talaria.School) + URI déclarée ;
+  * `/snap/bin/chromium` ignore `--user-data-dir` (délégation) → fenêtre
+    `--incognito` utilisée ;
+  * échecs répétés → **verrou Google ~48 h** (lien de ré-authentification).
+
+== Livré (transverse, autres boroughs)
+
+* `youtube-auth-plugin 0.0.5` (source) — `verifyYouTubeCredentials` (preflight).
+* `capsule-plugin 0.0.16` (source) — chapitres YouTube câblés + sélection vidéo
+  déterministe.
+
+== Aucun code hyperframes modifié
+
+Le défaut de sélection vidéo est spécifique à capsule (arbre de MP4) ;
+hyperframes publie un fichier unique. Documentation des constats ajoutée à
+`CADRAGE_EPIC_HF_YOUTUBE_PUBLISH.adoc` §10.
+
+== Suite (48 h)
+
+1. Client **Desktop app** (recommandé) ou URI déclarée.
+2. `obtainYouTubeRefreshToken` → `verifyYouTubeCredentials`.
+3. `publishHyperframesToYouTube` en `unlisted`.

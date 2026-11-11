@@ -1,48 +1,36 @@
-= PROMPT_REPRISE — HyperFrames Gradle (Session 046 TERMINÉE → 047)
-:session: 047
+= PROMPT_REPRISE — HyperFrames Gradle (Session 048 TERMINÉE → 049)
+:session: 049
 :borough: Watts
-:session_precedente: 046 — Adoption N1 + US-7 parallaxe + release `0.0.14` ✅
+:session_precedente: 048 — Déploiement YouTube : premier run réel (bloqué) 🟡
 _note_ : fichier canonique = `.agents/PROMPT_REPRISE.adoc`.
 
-== Session 046 (TERMINÉE)
+== Session 048 (PARTIELLE)
 
-* **PUBLISH-ADAPTER-N1 adopté** : `video-kernel 0.7.0` fournit
-  `ChapterLineParser`, `YouTubeCredentials` (+ loader), `YouTubePublishCommand`
-  (sans Jackson), `DisabledVideoPublisher`, seam HTTP. Les copies N2 sont
-  supprimées ; `HttpTransport.kt` ne garde que `JdkHttpTransport`.
-* **`youtube-auth-plugin 0.0.2` adopté** (`alias(libs.plugins.youtube.auth)`) —
-  YouTube (upload) reste **gelé**.
-* **US-7 parallaxe** : `BackgroundImage.parallax` (`0..0.25`), média
-  sur-échelonné + pan `yPercent` déterministe ; +3 UT +2 UT processeur
-  +1 FT +1 BDD. Dogfooding `lint` 0/0, `check` passed.
-* **Release `0.0.14`** : MEMPHIS `0.0.115` → Central bundle `11eb9906`,
-  propagation 200 (plugin + marker).
-
-Rapport `.agents/sessions/046-adoption-n1-us7-parallax-release-0.0.14.adoc`.
+* Déploiement YouTube tenté : le `youtube.yaml` racine porte
+  `clientId`/`clientSecret`/`channelId` mais **`refreshToken` vide**
+  (`canUpload=false`).
+* Consentement OAuth : client `web` → `redirect_uri_mismatch` ; nouveau client
+  (`@Talaria.School`) + URI déclarée ; Chromium snap ignore
+  `--user-data-dir` → `--incognito` ; **verrou Google ~48 h**.
+* Aucun code hyperframes modifié ; constats documentés au cadrage §10.
+* Corrections transverses livrées : `youtube-auth-plugin 0.0.5` (preflight),
+  `capsule-plugin 0.0.16` (chapitres + sélection vidéo).
 
 == État
 
-* `hyperframes-plugin 0.0.14` (Central) ; catalogue/BOM ws `0.0.115`.
-* `video-kernel 0.7.0` ; `youtube-auth-plugin 0.0.2`.
-* `HF-DEMO-QUALITY` **TERMINÉ 7/7** ; **aucun EPIC métier ouvert**.
-* YouTube reste gelé (S-037).
+* `hyperframes-plugin 0.0.14` (Central) ; `video-kernel 0.7.0`.
+* YouTube (upload) : prêt côté code, bloqué côté Google (~48 h).
 
-== Mission Session 047 — au choix pilote
+== Mission Session 049 — reprise du déploiement
 
-. CI du commit de release (unit + functional + Cucumber + check).
-. Candidats qualité non cadrés : fond vidéo / `poster` (hors scope US-6/7).
-. Maintenance / re-pin éventuel.
-. YouTube : ne pas rouvrir sans décision explicite.
-
-== Prochaine session transverse
-
-Le backlog restant est côté **MEMPHIS** : publication `plantuml-contracts:0.0.1`,
-gardes `MEM-CI-CONSISTENCY` US-3/4/5, `CI-1.4` (Ollama qwen3), `MEM-3.5` (BDD
-i18n). Voir `workspace-bom/PROMPT_REPRISE.adoc`. YouTube (upload) reste gelé.
+1. Client **Desktop app** (recommandé) ou URI `http://localhost:8765/`
+   déclarée sur le client `web`.
+2. `obtainYouTubeRefreshToken` (consentement) → `verifyYouTubeCredentials`.
+3. `publishHyperframesToYouTube` en `unlisted` (premier envoi) puis rapport.
+4. Publication `youtube-auth-plugin 0.0.5` + adoption consommateurs.
 
 == Points d'attention
 
-* **Local = Build, Tests = CI** : jamais `test`/`check` local.
-* **Règle 2 — PUBLISH** : accord pilote permanent (toujours granted, décision 2026-10-31).
+* **Local = Build, Tests = CI** ; **Règle 2** accord permanent.
+* Zéro secret ; le `youtube.yaml` n'est jamais lu ni affiché.
 * Frontière : hyperframes reste N2 ; aucun vocabulaire métier privé.
-* Zéro secret ; zéro Python ; English only code/tests/features.
