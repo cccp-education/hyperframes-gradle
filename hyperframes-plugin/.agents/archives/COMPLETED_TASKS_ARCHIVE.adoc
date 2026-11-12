@@ -423,3 +423,11 @@
 | Dette N1 | Pont JitPack retiré → copie N2 verbatim `hyperframes.sound.MusicModel.kt` (à ré-aligner au reset Central) | 🟡 assumé
 | Bug consommateur | Ordre de graphe (`renderHyperframes` référencé avant enregistrement) + provider `libraryFile` requêté trop tôt | ✅
 |===
+
+== Tâches terminées (session 054 — 2026-11-12)
+
+|===
+| EPIC | Tâche | Statut
+| HF-MUSIC-LIBRARY US-5 | FT TestKit du graphe complet (CLI stub) : ordre, copie, MP4 marqueur, idempotence `sha256` | ✅
+| HF-MUSIC-LIBRARY US-9 | `doc/MUSIQUE_ET_SON.adoc` (guide utilisateur FR) + `README.adoc` (EN) | ✅
+|===

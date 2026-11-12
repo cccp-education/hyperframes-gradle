@@ -1,42 +1,43 @@
-= PROMPT_REPRISE — HyperFrames Gradle (Session 053 TERMINÉE → 054)
-:session: 054
+= PROMPT_REPRISE — HyperFrames Gradle (Session 054 TERMINÉE → 055)
+:session: 055
 :borough: Watts
-:session_precedente: 053 — HF-MUSIC-LIBRARY US-4 (résolution + copie des assets) ✅
+:session_precedente: 054 — HF-MUSIC-LIBRARY US-5 (FT du graphe) + US-9 (docs) ✅
 _note_ : fichier canonique = `.agents/PROMPT_REPRISE.adoc`.
 
-== Session 053 (TERMINÉE) — HF-MUSIC-LIBRARY US-4
+== Session 054 (TERMINÉE) — US-5 + US-9
 
-* `MusicAssetPlanner` (pur) : la **composition HTML est le contrat**
-  (`data-track-id` + `src`) → plan `copies`/`upToDate`/`missing`, skip `sha256`.
-* `resolveHyperframesBgm` : copie les pistes vers `assets/audio/<id>.<ext>`
-  (dégradé par défaut, `strict` pour échouer) ; graphe
-  `generateHyperframesHtml → resolveHyperframesBgm → renderHyperframes`.
-* DSL `hyperframes { music { libraryFile; audioDir; track; mood; volume; strict } }`
-  + ambiance de repli (une cue écrite gagne toujours).
-* Tests : 8 unit `MusicAssetPlannerTest`, +3 processeur, BDD `@music-assets` (3),
-  FT TestKit (4). **CI verte** `43265155602`.
-* Deux bugs consommateur corrigés (ordre de graphe, provider absent requêté trop tôt).
-* **Copie N2** du contrat `video.kernel.music` (`MusicModel.kt`) : 0.8.0 n'est que
-  sur JitPack, un POM publié doit rester résolvable chez le consommateur.
+* **US-5** `HyperframesPipelineMusicFunctionalTest` (TestKit, CLI stub) : ordre
+  `generate → resolve → render` prouvé sur la sortie du build, asset copié, MP4
+  marqueur produit, **idempotence** au 2ᵉ passage (`--rerun-tasks` : aucune
+  recopie, `lastModified` préservé).
+* **US-9** `doc/MUSIQUE_ET_SON.adoc` (guide FR : bibliothèque, licence
+  fail-closed, DSL `music { }`, balises, sémantique de séquence, pipeline,
+  limites v1, exemple) + `README.adoc` (EN : quick start, tâches, son, doc).
+* Gates locaux : compiles ×3 + `ktlintCheck` VERTS. Aucun code de production
+  modifié.
 
 == État
 
 * `hyperframes-plugin 0.0.14` (Central) ; `video-kernel 0.7.0` (Central) ;
   newpipe producteur ✅.
-* EPIC `HF-MUSIC-LIBRARY` : US-0→US-4 ✅ ; **reste US-5→US-9**.
+* EPIC `HF-MUSIC-LIBRARY` : US-0→US-5 ✅ + US-9 ✅ ; **reste US-6 (capsule),
+  US-7 (attribution), US-8 (crossfade v2)**.
 * EPIC `HF-SPEAKER-NOTES` : cadré (S-049), non démarré.
 * YouTube upload : prêt côté code, bloqué côté Google.
 
-== Mission Session 054 — US-5 (FT du graphe) puis US-9 (docs)
+== Mission Session 055 — US-6 (capsule) puis US-7 (attribution)
 
-1. **US-5** : FT TestKit `resolveHyperframesBgm` → `generateHyperframesHtml` →
-   `renderHyperframes` avec CLI stub ; prouver l'ordre et l'idempotence
-   (2ᵉ run : aucune copie, `sha256` identique) sur un manifeste synthétique.
-2. **US-9** : `doc/PILOTAGE_HYPERFRAMES.adoc` (DSL `music { }`, balises
-   `[.hyperframes-music]`/`[.hyperframes-sfx]`, provenance/licence, économie
-   d'encre) + README (10 langues si possible).
-3. Puis **US-6** (capsule `audioPost.bgmFile` via le sélecteur) et **US-7**
-   (attribution `cc-by` → description de publication).
+1. **US-6** (cross-borough, pilotée ici) : `capsule { audioPost { bgmFile } }`
+   peut référencer une piste de la bibliothèque via le **même sélecteur**
+   (`MusicTrackSelector`), avec une tâche de résolution N2 côté capsule
+   (copie `sha256`), zéro dépendance de code à newpipe.
+   Attention : capsule consomme `video-kernel 0.7.0` (Central) → ne pas réintroduire
+   la dépendance JitPack 0.8.0 ; dupliquer le sélecteur N2 (même dette que
+   hyperframes) ou attendre le reset.
+2. **US-7** : `cc-by` → lignes d'attribution injectées dans la description de
+   publication (`HF-YOUTUBE-PUBLISH`), jamais omises silencieusement.
+3. Puis **US-8** crossfade temporel v2.
+4. `HF-SPEAKER-NOTES` (cadré S-049) reste la seconde priorité du borough.
 
 == Points d'attention
 
@@ -48,3 +49,4 @@ _note_ : fichier canonique = `.agents/PROMPT_REPRISE.adoc`.
 * **Licence** : aucune piste sans licence déclarée ; audio jamais committé/publié.
 * Zéro secret ; zéro Python ; English only code/tests/features.
 * Le son est une **séquence du document** (D12), pas un réglage caché.
+

@@ -1,0 +1,110 @@
+= hyperframes-gradle
+
+Turn an annotated AsciiDoc document into a deterministic MP4 through the
+https://github.com/heygen-com/hyperframes[HyperFrames] engine (Apache 2.0).
+
+`education.cccp.hyperframes` is the N2 Gradle plugin of the *Watts* borough: the
+document is the source of truth for **visuals, narration and sound** — no manual
+post-production.
+
+'''
+== Requirements
+
+* JDK 25 (Gradle toolchain).
+* Node.js + the HyperFrames CLI (`npm install hyperframes`).
+* `ffmpeg` / `ffprobe` for the optional post-production and duration probe.
+
+'''
+== Quick start
+
+[source,kotlin]
+----
+plugins {
+    id("education.cccp.hyperframes") version "<version>"
+}
+
+hyperframes {
+    inputDir.set(layout.projectDirectory.dir("src/docs"))
+    outputDir.set(layout.buildDirectory.dir("hyperframes"))
+    width.set(1920)
+    height.set(1080)
+    outputName.set("capsule")
+}
+----
+
+'''
+== Tasks
+
+[cols="2,4", options="header"]
+|===
+| Task | What it does
+
+| `generateHyperframesHtml` | AsciiDoc → AsciiDoc HTML → conformant HyperFrames composition (`#stage`, one scene clip per section, vendored GSAP, embedded design system).
+| `resolveHyperframesBgm` | Copies the music-library tracks referenced by the composition next to it (`assets/audio/`), skipping identical content (`sha256`).
+| `renderHyperframes` | Renders the composition to MP4 through the shared `video.kernel.VideoEngine` port (delegates to the HyperFrames CLI).
+| `generateHyperframesNarration` | Scene narration through the shared `video.kernel.TextToSpeech` port.
+| `postProcessHyperframes` | Subtitle burn-in + audio post-production (loudness, BGM, ducking) through the shared N1 ports.
+| `collectHyperframesRetrieve` | Exports the N3 `composite-context.json` contract for the runner.
+| `publishHyperframesToYouTube` | Opt-in OAuth 2.0 upload (`videos.insert` resumable + `thumbnails.set`).
+| `hyperframesPipeline` | The whole chain: HTML → sound assets → MP4.
+|===
+
+'''
+== Sound: a sequence written in the document
+
+Music is not a hidden setting. A scene declares its ambience, and the sequence
+follows the document order (inheritance, explicit stop, hand-off fades):
+
+[source,asciidoc]
+====
+[.hyperframes-music]
+--
+mood: documentary
+volume: 0.25
+fade-in: 1.5
+--
+
+[.hyperframes-sfx]
+----
+file: assets/audio/whoosh.mp3
+offset: 0.8
+----
+====
+
+The tracks come from a **versioned manifest** (`music-library.json`) produced by
+the `newpipe` borough; the audio itself stays gitignored. The library is
+fail-closed on licences (`own`, `cc0`, `cc-by`, `royalty-free`, `licensed`).
+
+[source,kotlin]
+----
+hyperframes {
+    music {
+        libraryFile.set(layout.projectDirectory.file("music-library.json"))
+        audioDir.set(layout.projectDirectory.dir("audio")) // default: manifest dir
+        mood.set("calm")   // fallback bed, only when the document declares none
+        strict.set(true)   // a missing asset fails the build
+    }
+}
+----
+
+* an unresolvable cue (unknown track, refused licence, missing library) fails
+  **before** the render with an actionable message — never a silent
+  video;
+* a composition without sound blocks keeps its historical output byte-identical;
+* the legacy `[.hyperframes-audio]` local BGM block still works and wins.
+
+Full guide (French): `doc/MUSIQUE_ET_SON.adoc`.
+
+'''
+== Documentation
+
+* `doc/PILOTAGE_HYPERFRAMES.adoc` — design workshops (vision, personas, story map).
+* `doc/HYPERFRAMES_ARCHITECTURE.adoc` — pipeline architecture.
+* `doc/MUSIQUE_ET_SON.adoc` — music library and sound DSL.
+* `.agents/INDEX.adoc` — roadmap, session history and live status.
+
+'''
+== Licence
+
+Apache 2.0. The produced videos, the music library and the audio are the
+author's responsibility — never commit audio you do not own or licence.

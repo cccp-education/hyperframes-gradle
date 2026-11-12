@@ -1,0 +1,247 @@
+= Musique et son — pilotes AsciiDoc
+:author: CCCP Education — Watts (hyperframes)
+:revdate: 2026-11-12
+:revnumber: 1.0
+:toc: macro
+:toclevels: 3
+
+toc::[]
+
+'''
+== À quoi ça sert
+
+Le son d'une vidéo HyperFrames n'est pas un réglage caché : c'est une
+**séquence écrite dans le document pilote**, au même titre que le visuel.
+
+* le **document** déclare l'ambiance scène par scène
+  (`[.hyperframes-music]`), les effets ponctuels (`[.hyperframes-sfx]`) et les
+  arrêts (`track: none`) ;
+* la **bibliothèque** (`music-library.json`, produite par le borough `newpipe`)
+  fournit les pistes, leur provenance et leur licence ;
+* une tâche Gradle (`resolveHyperframesBgm`) copie les pistes réellement
+  référencées à côté de la composition, et **rien d'autre**.
+
+Résultat : un MP4 avec un lit musical aligné sur la timeline, reproductible
+(même document → même piste), sans post-production manuelle.
+
+'''
+== La bibliothèque (data, pas code)
+
+Le manifeste est **versionnable** ; l'audio reste **gitignoré** (jamais publié).
+
+[source,json]
+----
+{
+  "schemaVersion": 1,
+  "tracks": [
+    {
+      "id": "calm-piano-01",
+      "title": "Calm piano",
+      "artist": "cheroliv",
+      "file": "cheroliv/calm-piano-01.mp3",
+      "sha256": "e3b0c442…",
+      "durationSeconds": 92.5,
+      "licence": "own",
+      "mood": "calm",
+      "tags": ["piano", "ambient"],
+      "energy": 20
+    }
+  ]
+}
+----
+
+[cols="1,4", options="header"]
+|===
+| Règle | Détail
+
+| Licence **fail-closed** | `own`, `cc0`, `cc-by`, `royalty-free`, `licensed`. Toute autre valeur (ou une valeur absente) est `unknown` : la piste **n'est jamais sélectionnée**.
+| Attribution | `cc-by` exige une ligne d'attribution (reprise par la description de publication, US-7).
+| `sha256` | empreinte du fichier : c'est elle qui rend la copie **idempotente** (Économie d'encre).
+| `file` | chemin **relatif** à la racine audio (`music.audioDir`).
+|===
+
+'''
+== Le DSL Gradle
+
+[source,kotlin]
+----
+hyperframes {
+    music {
+        libraryFile.set(layout.projectDirectory.file("music-library.json"))
+        // audioDir.set(layout.projectDirectory.dir("audio"))  // défaut : dossier du manifeste
+        // mood.set("calm")    // ambiance de repli si le document n'en déclare aucune
+        // track.set("calm-piano-01")  // piste explicite, prioritaire sur mood
+        // volume.set(0.25)
+        // strict.set(true)    // promouvoir une piste manquante en échec de build
+    }
+}
+----
+
+[cols="2,3,3", options="header"]
+|===
+| Propriété | Défaut | Rôle
+
+| `libraryFile` | *(non défini)* | manifeste. Sans lui, chaque cue doit déclarer un `file:` explicite.
+| `audioDir` | dossier du manifeste | racine des chemins `file`.
+| `track` / `mood` / `volume` | `""` / `""` / `0.25` | **ambiance de repli** : appliquée uniquement si le document ne déclare aucune musique.
+| `strict` | `false` | une piste manquante devient un échec (sinon : avertissement, la vidéo est produite).
+|===
+
+'''
+== Les balises de son
+
+Une balise s'attache à la **scène qui la contient** (la section AsciiDoc) et
+contribue à la séquence dans l'**ordre du document**.
+
+=== Ambiance (musique)
+
+[source,asciidoc]
+----
+[.hyperframes-composition]
+== Le document devient signal
+
+[.hyperframes-music]
+--
+mood: documentary
+track: calm-piano-01
+volume: 0.25
+fade-in: 1.5
+fade-out: 2.0
+loop: true
+--
+
+Le paragraphe affiché.
+----
+
+[cols="2,2,4", options="header"]
+|===
+| Clé | Défaut | Sémantique
+
+| `mood` | — | intention esthétique résolue par le sélecteur (déterministe, sans LLM).
+| `track` | — | id explicite (prioritaire sur `mood`) ; `none` = **arrêt** de la musique.
+| `file` | — | fichier local explicite (aucune bibliothèque nécessaire).
+| `volume` | `0.25` | niveau perçu, `0..1`.
+| `fade-in` / `fade-out` | `0` | fondus, en secondes (`>= 0`).
+| `loop` | `true` | boucle sur l'étendue de la cue.
+| `stop` | `false` | équivalent explicite de `track: none` ; `music: off` aussi.
+|===
+
+Sémantique de la **séquence** :
+
+. une scène **sans** balise **hérite** de l'ambiance en cours (continuité) ;
+. redéclarer la **même musique** ne redémarre pas la piste (une seule cue continue) ;
+. un **changement** (autre piste, autre ambiance) ouvre une nouvelle cue ;
+. `track: none` **arrête** la musique à cette scène ;
+. une cue ne survit **jamais** à la fin de la vidéo ;
+. une cue sans `fade-out` hérite du `fade-in` de la suivante (passation audible) ;
+. une déclaration **irrésoluble** (piste inconnue, licence refusée, bibliothèque
+   absente) fait **échouer le build avant le rendu**, avec un message actionnable
+   — jamais un MP4 silencieux.
+
+=== Effet ponctuel (sfx)
+
+[source,asciidoc]
+====
+[.hyperframes-sfx]
+----
+file: assets/audio/whoosh.mp3
+offset: 1.2
+volume: 0.4
+----
+====
+
+[cols="2,2,4", options="header"]
+|===
+| Clé | Défaut | Sémantique
+
+| `file` | *(requis)* | fichier de l'effet.
+| `offset` (ou `at`) | `0` | décalage depuis le début de la scène.
+| `volume` | `0.25` | niveau perçu.
+|===
+
+Les deux formes Asciidoctor sont acceptées : le listing `----` **et** l'open
+block `--` (dont les lignes peuvent être aplaties par Asciidoctor — le parseur
+sépare sur les clés connues).
+
+'''
+== Le pipeline et la copie des assets
+
+----
+AsciiDoc ──▶ generateHyperframesHtml ──▶ resolveHyperframesBgm ──▶ renderHyperframes ──▶ MP4
+             (blocs de son consommés,          (copie sha256, skip si
+              <audio data-track-id src>)        identique — Économie d'encre)
+----
+
+`resolveHyperframesBgm` lit la **composition HTML** (le contrat
+`data-track-id`/`src`), joint le manifeste et copie chaque piste vers
+`assets/audio/<track-id>.<ext>` sous le répertoire de sortie.
+
+* **skip** : si le `sha256` du fichier déjà présent est identique, aucune écriture ;
+* **dégradé** par défaut : une source absente produit un avertissement, le rendu
+  continue ; `strict` la transforme en échec ;
+* aucun accès réseau, aucune dépendance de code au producteur (`newpipe`) :
+  frontière de **données** (manifeste + fichiers).
+
+'''
+== Compatibilité
+
+* `[.hyperframes-audio]` (fichier local `bgm:`/`sfx:`) reste **inchangé et
+  prioritaire** ; une composition sans balise de son conserve une sortie
+  **identique** à l'historique.
+* Les pistes de la bibliothèque occupent les pistes `120+`, les effets `140+`
+  (les cues historiques restent en `90+`) : aucune collision.
+
+'''
+== Limites connues (v1)
+
+* Un `[.hyperframes-sfx]` **ne copie pas** de piste depuis la bibliothèque : il
+  référence un fichier existant (chemin local, copié par `ReferencedAssets`) ou
+  un chemin déjà présent dans `assets/audio/`.
+* Le crossfade **temporel** avancé (chevauchement de deux cues) est l'US-8.
+* Le contrat noyau `video.kernel.music` (N1) est pour l'instant **copié** en N2
+  (`hyperframes.sound.MusicModel.kt`) : `video-kernel 0.8.0` n'est pas encore
+  publié sur Maven Central ; le ré-alignement est planifié au reset du canal.
+
+'''
+== Exemple complet
+
+[source,asciidoc]
+====
+= Capsule — le document devient signal
+
+== Ouverture
+
+[.hyperframes-music]
+--
+mood: documentary
+fade-in: 2.0
+--
+
+Texte de la scène.
+
+== Démonstration
+
+[.hyperframes-sfx]
+----
+file: assets/audio/whoosh.mp3
+offset: 0.8
+----
+
+Texte de la scène (hérite de l'ambiance « documentary »).
+
+== Conclusion
+
+[.hyperframes-music]
+--
+track: none
+--
+
+Fin de la capsule : le silence est **explicite**.
+====
+
+'''
+== Voir aussi
+
+* `doc/HYPERFRAMES_ARCHITECTURE.adoc` — architecture du pipeline.
+* `.agents/CADRAGE_EPIC_HF_MUSIC_LIBRARY.adoc` — décisions D1→D12 de l'EPIC.
+* `.agents/CADRAGE_EPIC_HF_SPEAKER_NOTES.adoc` — notes d'orateur lues dans la vidéo (EPIC suivant).

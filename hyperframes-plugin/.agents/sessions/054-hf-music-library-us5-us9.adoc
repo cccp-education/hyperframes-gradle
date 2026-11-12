@@ -1,0 +1,75 @@
+= Session 054 — HF-MUSIC-LIBRARY US-5 (FT du graphe) + US-9 (documentation)
+:toc:
+:_session_: S-054
+:_date_: 2026-11-12
+:_borough_: Watts (hyperframes)
+:_statut_: ✅ TERMINÉ (Local = Build ; preuve = CI)
+
+'''
+
+== Mission
+
+Clore la boucle de test de l'EPIC `HF-MUSIC-LIBRARY` (US-5 : TestKit du graphe
+complet avec un CLI stub) et documenter le son (US-9 : guide utilisateur + README).
+
+== Livré
+
+=== US-5 — FT TestKit du graphe complet
+
+`HyperframesPipelineMusicFunctionalTest` (2 tests, herméticité totale : ni
+Node, ni Chromium, ni ffmpeg — le CLI est un **stub** qui écrit un MP4 marqueur
+depuis `--output`).
+
+* **Ordre du graphe prouvé** sur la sortie du build :
+  `generateHyperframesHtml` < `resolveHyperframesBgm` < `renderHyperframes`.
+* **Data boundary** : la composition référence `data-track-id`/`src`, l'asset est
+  copié à côté du HTML, le MP4 marqueur est produit.
+* **Idempotence / Économie d'encre** : second passage (`--rerun-tasks`) —
+  aucune recopie (`Music assets already in place`), `lastModified` préservé.
+
+=== US-9 — documentation
+
+[cols="2,4", options="header"]
+|===
+| Fichier | Contenu
+
+| `doc/MUSIQUE_ET_SON.adoc` (nouveau, FR) | Guide utilisateur complet : à quoi sert le son porté par le document, la bibliothèque (manifeste, licence fail-closed, `sha256`), le DSL `music { }` (table des propriétés), les balises `[.hyperframes-music]`/`[.hyperframes-sfx]` (table des clés), la **sémantique de séquence** (héritage, continuité, arrêt, fondus de passation, bornage, échec avant rendu), le pipeline et la copie `sha256`, la compatibilité `[.hyperframes-audio]`, les limites v1 (sfx non copié depuis la bibliothèque, crossfade = US-8, dette N1), un exemple complet.
+| `README.adoc` (nouveau, EN) | Vue du plugin, prérequis, quick start, table des tâches, section son (balises + DSL + garanties), liens vers la doc, licence.
+| `.agents/INDEX.adoc` | Roadmap/portefeuille mis à jour (US-5 ✅, US-9 ✅) + pointeurs docs.
+|===
+
+== Décisions
+
+. **Le stub CLI reste la preuve du graphe** : le rendu réel est déjà couvert par
+   le workflow `real-render-hyperframes.yml` (skip-gardé) ; le FT hermétique
+   prouve ce que la CI doit garantir à chaque push (ordre, copie, idempotence).
+. **Guide en français, README en anglais** : les documents de gouvernance et de
+   pilotage du borough sont français ; le README s'adresse aux consommateurs OSS
+   (lingua franca), comme les autres boroughs.
+. **Limites documentées plutôt que masquées** : un `sfx` ne copie pas de piste de
+   bibliothèque (v1) et le crossfade est l'US-8 — le guide le dit explicitement.
+
+== Points ouverts (mission S-055)
+
+* **US-6** adoption capsule (`audioPost.bgmFile` via le même sélecteur).
+* **US-7** attribution (`cc-by` → description de publication, lien HF-YOUTUBE-PUBLISH).
+* **US-8** crossfade temporel v2.
+* `HF-SPEAKER-NOTES` (cadré S-049) — seconde priorité du borough.
+* **Dette N1** : `hyperframes.sound.MusicModel.kt` (copie verbatim) à remplacer
+  par `video.kernel.music` dès que `0.8.0` est sur Maven Central (≤ 2026-12-01).
+
+== Fichiers
+
+[cols="1,3"]
+|===
+| Type | Fichiers
+| Créés (test) | `src/functionalTest/kotlin/hyperframes/HyperframesPipelineMusicFunctionalTest.kt`
+| Créés (docs) | `doc/MUSIQUE_ET_SON.adoc`, `README.adoc`
+| Gouvernance | `.agents/{INDEX,PROMPT_REPRISE,SESSIONS_HISTORY,TEST_COVERAGE_ANALYSIS,archives/COMPLETED_TASKS_ARCHIVE}.adoc`
+|===
+
+== Hygiène
+
+* Zéro code de production modifié cette session (tests + docs uniquement).
+* Zéro secret, zéro audio committé, zéro Python.
+* Gates locaux : compiles ×3 + `ktlintCheck` VERTS ; preuve = CI du commit poussé.

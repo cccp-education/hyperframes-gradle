@@ -765,3 +765,23 @@ consommateur, et 0.8.0 n'est que sur JitPack. `hyperframes.sound.MusicModel.kt`
 garde une **copie N2 verbatim** du contrat `video.kernel.music` (fallback D4),
 noyau épinglé `0.7.0` Central, à ré-aligner au reset du canal (≤ 2026-12-01).
 **CI verte** `43265155602`. Rapport `.agents/sessions/053-hf-music-library-us4.adoc`.
+
+== Session 054 — HF-MUSIC-LIBRARY US-5 (FT du graphe) + US-9 (docs) — 2026-11-12
+
+**US-5** : `HyperframesPipelineMusicFunctionalTest` (TestKit) exécute le graphe
+complet `hyperframesPipeline` avec un **CLI stub** (écrit un MP4 marqueur depuis
+`--output`) — hermétique : ni Node, ni Chromium, ni ffmpeg. Il prouve, sur la
+sortie du build, l'ordre `generateHyperframesHtml` → `resolveHyperframesBgm` →
+`renderHyperframes`, la copie de l'asset à côté de la composition, le MP4
+marqueur, et l'**idempotence** (2ᵉ passage `--rerun-tasks` : aucune recopie,
+`lastModified` préservé — Économie d'encre).
+
+**US-9** : `doc/MUSIQUE_ET_SON.adoc` (guide FR) — la bibliothèque (manifeste,
+licence fail-closed, `sha256`), le DSL `music { }`, les clés des balises
+`[.hyperframes-music]`/`[.hyperframes-sfx]`, la **sémantique de séquence**
+(héritage, continuité, arrêt, fondus de passation, bornage, échec avant rendu),
+le pipeline et la copie, la compatibilité `[.hyperframes-audio]`, les **limites
+v1** (sfx non copié depuis la bibliothèque, crossfade = US-8, dette N1) et un
+exemple complet — plus `README.adoc` (EN : prérequis, quick start, tâches, son,
+doc, licence). Zéro code de production modifié. Rapport
+`.agents/sessions/054-hf-music-library-us5-us9.adoc`.

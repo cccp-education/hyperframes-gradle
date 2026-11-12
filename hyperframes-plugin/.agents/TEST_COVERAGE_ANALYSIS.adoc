@@ -1,6 +1,18 @@
 = Test Coverage Analysis — hyperframes-gradle
 
-_Dernière mise à jour_ : 2026-11-12 (Session 053 — HF-MUSIC-LIBRARY US-4, résolution + copie des assets)
+_Dernière mise à jour_ : 2026-11-12 (Session 054 — HF-MUSIC-LIBRARY US-5, graphe complet + docs)
+
+== Couverture — 12 novembre 2026 (après session 054, US-5 graphe complet)
+
+.HF-MUSIC-LIBRARY US-5 — TestKit du graphe complet
+|===
+| Élément | Nature | Tests
+
+| `hyperframesPipeline` (TestKit) | ordre `generateHyperframesHtml` → `resolveHyperframesBgm` → `renderHyperframes` prouvé sur la sortie du build ; asset copié (`data-track-id`/`src`) ; MP4 marqueur du CLI **stub** ; **idempotence** au 2ᵉ passage (`--rerun-tasks` : aucune recopie, `lastModified` préservé) | 2 `HyperframesPipelineMusicFunctionalTest`
+|===
+
+_Herméticité_ : le rendu est un stub (aucun Node/Chromium/ffmpeg) ; le rendu réel reste
+couvert par le workflow `real-render-hyperframes.yml` (skip-gardé).
 
 == Couverture — 12 novembre 2026 (après session 053, US-4 assets musicaux)
 
