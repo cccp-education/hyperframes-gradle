@@ -188,7 +188,7 @@ offset: 1.5</pre></div></div>""",
         check(message.contains("music.libraryFile")) { "expected the music.libraryFile hint, got: $message" }
     }
 
-    private fun musicCues(): Int = Regex("""<audio id="hf-music-"""").findAll(enhanced).count()
+    private fun musicCues(): Int = Regex("""<audio id="hf-music-""").findAll(enhanced).count()
 
     private fun number(value: Double): String =
         if (value == value.toLong().toDouble()) {

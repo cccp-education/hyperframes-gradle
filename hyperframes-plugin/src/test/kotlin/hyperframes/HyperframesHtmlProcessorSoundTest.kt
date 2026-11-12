@@ -55,7 +55,7 @@ class HyperframesHtmlProcessorSoundTest {
         extra: String = "",
     ): String = """<div class="sect1" data-duration="$duration"><h2 id="$id">$id</h2><p>body</p>$extra</div>"""
 
-    private fun audioCount(html: String): Int = Regex("""<audio class="hyperframes-(?:music|sfx)"""").findAll(html).count()
+    private fun audioCount(html: String): Int = Regex("""<audio id="hf-(?:music|sfx)-""").findAll(html).count()
 
     @Test
     fun `a music block is consumed and emitted at its scene start`() {
