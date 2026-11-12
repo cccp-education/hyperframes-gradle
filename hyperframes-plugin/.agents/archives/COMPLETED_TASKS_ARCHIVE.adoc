@@ -412,3 +412,14 @@
 | HF-MUSIC-LIBRARY US-3 | 51 unit (6 classes) + BDD `@music` (6 scénarios, `HfMusicLibrarySteps`) | ✅
 | Build | Pont N1 `video-kernel 0.8.0` (JitPack, `libs.video.kernel.jitpack`) documenté — normalisation au reset Central | ✅
 |===
+
+== Tâches terminées (session 053 — 2026-11-12)
+
+|===
+| EPIC | Tâche | Statut
+| HF-MUSIC-LIBRARY US-4 | `MusicAssetPlanner` pur (HTML = contrat, plan copies/upToDate/missing, skip `sha256`) | ✅
+| HF-MUSIC-LIBRARY US-4 | Tâche `resolveHyperframesBgm` + graphe generate → resolve → render + DSL `music { }` + ambiance de repli | ✅
+| HF-MUSIC-LIBRARY US-4 | 8 unit + 3 processeur + BDD `@music-assets` (3) + FT TestKit (4) | ✅
+| Dette N1 | Pont JitPack retiré → copie N2 verbatim `hyperframes.sound.MusicModel.kt` (à ré-aligner au reset Central) | 🟡 assumé
+| Bug consommateur | Ordre de graphe (`renderHyperframes` référencé avant enregistrement) + provider `libraryFile` requêté trop tôt | ✅
+|===

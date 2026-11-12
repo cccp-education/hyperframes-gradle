@@ -1,0 +1,120 @@
+= Session 053 — HF-MUSIC-LIBRARY US-4 : résolution et copie des assets musicaux
+:toc:
+:_session_: S-053
+:_date_: 2026-11-12
+:_borough_: Watts (hyperframes) · transverse newpipe (Nashville) + video-kernel (N1)
+:_statut_: ✅ TERMINÉ (Local = Build ; preuve = CI verte `43265155602`)
+
+'''
+
+== Mission
+
+US-4 de l'EPIC `HF-MUSIC-LIBRARY` : lire le manifeste `music-library.json`
+(producteur newpipe), **copier** les pistes référencées par la composition à
+côté d'elle (`assets/audio/<track-id>.<ext>`, skip si `sha256` identique), et
+exposer le DSL `hyperframes { music { … } }` (bibliothèque + ambiance de repli).
+
+== Livré
+
+=== Domaine pur
+
+[cols="2,5", options="header"]
+|===
+| Élément | Rôle
+
+| `MusicAssetPlanner` | La **composition HTML est le contrat** : `<audio class="hyperframes-music" data-track-id="…" src="…">` → requêtes → plan `copies`/`upToDate`/`missing`. Le système de fichiers est injecté (`existsSha256`), donc la règle de skip est testée sans disque.
+| `MusicAssetCopy(trackId, src, source, sha256)` | une copie planifiée (source = racine audio + `file` du manifeste).
+| `MusicModel.kt` | **copie N2 verbatim** du contrat `video.kernel.music` (`MusicLicence`, `MusicTrack`, `MusicLibrary`, `MusicSelection`, `MusicTrackSelector`) — voir « Décision de frontière ».
+| `SoundResolution.Resolved.trackId` + `data-track-id` émis | le processeur transmet l'identifiant de piste à la tâche de copie (jamais de devinette sur le nom de fichier).
+| `MusicDeclaration.fallback(...)` | ambiance de composition (DSL) partagée entre l'extension et la tâche HTML (pas de duplication de la règle).
+|===
+
+=== Gradle
+
+* `MusicExtension` + `HyperframesExtension.music` (sugar `music { }` Kotlin/Groovy) :
+  `libraryFile` (`RegularFileProperty`), `audioDir` (défaut = dossier du
+  manifeste), `track`, `mood`, `volume`, `strict`.
+* `ResolveHyperframesBgmTask` (`resolveHyperframesBgm`, groupe `hyperframes`) :
+  manifeste + HTML en entrées, `assets/audio` en sortie ; copie, skip `sha256`,
+  **dégradé par défaut** (warning) et `strict` pour promouvoir en échec.
+* Graphe : `generateHyperframesHtml` → **`resolveHyperframesBgm`** →
+  `renderHyperframes` ; `hyperframesPipeline` les inclut.
+* `GenerateHyperframesHtmlTask` charge lui-même le manifeste (mêmes fichiers
+  versionnés) et applique l'ambiance de repli **seulement** si le document ne
+  déclare aucune musique (une cue écrite gagne toujours).
+
+=== Tests (CI)
+
+* Unit : `MusicAssetPlannerTest` (8) + `HyperframesHtmlProcessorSoundTest`
+  (+3 : `data-track-id`, ambiance de repli, cue écrite prioritaire).
+* BDD : `hf_music_assets.feature` (`@music-assets`, 3 scénarios) +
+  `HfMusicAssetsSteps`.
+* FT : `ResolveHyperframesBgmFunctionalTest` (4, TestKit) — copie, **skip
+  `sha256` prouvé par mtime préservé**, source absente dégradée, `strict` en échec.
+* Gates locaux : compiles ×3 + `ktlintCheck` VERTS ; **CI verte `43265155602`**
+  (unit + functional + Cucumber + check).
+
+== Décision de frontière — pourquoi une copie N2 du contrat N1
+
+`video.kernel.music` n'existe qu'en **0.8.0**, publié **uniquement sur JitPack**
+(Central est bloqué à 0.7.0 tant que le canal Sonatype est restreint).
+
+Un **plugin publié** ne peut pas dépendre d'un artefact absent des dépôts du
+consommateur : la résolution échoue à la configuration (`Could not find
+com.github.cccp-education:video-kernel-gradle:v0.8.0`) — reproduit sur les
+scénarios TestKit *et* sur un consommateur réel. Le pont JitPack, tenté en début
+de session, a donc été **retiré** (le POM est public, il doit rester résoluble).
+
+Choix retenu (fallback D4 du cadrage) : `hyperframes.sound.MusicModel.kt` garde
+une **copie verbatim** du contrat (licence fail-closed incluse), le noyau reste
+épinglé à `0.7.0` (Central). **À ré-aligner** sur `video.kernel.music` dès que
+`education.cccp:video-kernel:0.8.0` est sur Central (reset du canal, ≤ 2026-12-01) :
+supprimer `MusicModel.kt`, ré-importer `video.kernel.music.*`, bumper le catalogue.
+
+== Bugs réels révélés par le dogfooding (2)
+
+. **Ordre de graphe** : `tasks.named("renderHyperframes")` était appelé avant
+  l'enregistrement de la tâche → **application du plugin en échec** pour tout
+  consommateur (« Task with name 'renderHyperframes' not found »).
+. **Requête anticipée d'un provider absent** : `from(RegularFileProperty)` réalise
+  la valeur à la configuration → tous les consommateurs **sans** `music { }`
+  échouaient (« Cannot query the value of property 'libraryFile' »). Corrigé par
+  `.map { listOf(it) }.orElse(emptyList())`.
+
+Les deux ont été reproduits hors suite de tests (consommateur `/tmp` via
+`includeBuild`, chemin identique à TestKit), corrigés, puis prouvés par la CI.
+
+== Points ouverts (mission S-054)
+
+* **US-5** FT TestKit du graphe complet (resolve → generate → render stub).
+* **US-6** adoption capsule (`audioPost.bgmFile` via le même sélecteur).
+* **US-7** attribution (`cc-by` → description de publication, lien HF-YOUTUBE-PUBLISH).
+* **US-8** crossfade temporel v2 ; **US-9** docs (`doc/PILOTAGE_HYPERFRAMES.adoc`).
+* `HF-SPEAKER-NOTES` (cadré S-049) — seconde priorité du borough.
+* **Ré-alignement N1** `video.kernel.music` au reset Central (dette explicite).
+
+== Fichiers
+
+[cols="1,3"]
+|===
+| Type | Fichiers
+| Créés (prod) | `hyperframes/sound/MusicAssetPlanner.kt`, `hyperframes/sound/MusicModel.kt`, `hyperframes/MusicExtension.kt`, `hyperframes/ResolveHyperframesBgmTask.kt`
+| Modifiés (prod) | `HyperframesHtmlProcessor.kt` (trackId + ambiance de repli), `SoundCueResolver.kt`, `SoundHtmlRenderer.kt`, `SoundDeclarations.kt`, `GenerateHyperframesHtmlTask.kt`, `HyperframesExtension.kt`, `HyperframesPlugin.kt`
+| Build | `build.gradle.kts` (retour à `libs.video.kernel` + note de dette), `gradle/libs.versions.toml` (entrée JitPack retirée)
+| Tests | `MusicAssetPlannerTest` · `HyperframesHtmlProcessorSoundTest` (+3) · `HfMusicAssetsSteps` · `hf_music_assets.feature` · `ResolveHyperframesBgmFunctionalTest`
+|===
+
+== Preuve CI
+
+|===
+| Run | Commit | Résultat
+
+| `43263598437` | `e049711` | ❌ **tous** les scénarios TestKit — POM dépendant de JitPack (non résoluble chez le consommateur)
+| `43264452845` | `2823c62` | ❌ **tous** les scénarios TestKit — `libraryFile` requêté alors qu'absent
+| `43265155602` | `a75df0d` | ✅ **VERT** — unit · functional · Cucumber · `check`
+|===
+
+== Hygiène
+
+* Zéro secret ; zéro audio committé (manifeste seul) ; zéro Python.
+* `ktlintCheck` vert (2 commits correctifs, jamais d'amend).

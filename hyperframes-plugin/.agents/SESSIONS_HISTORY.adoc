@@ -739,3 +739,29 @@ rendu** sur une cue irrésoluble (jamais un MP4 silencieux) ; aucune balise de s
 `video-kernel 0.8.0` servi par JitPack (`libs.video.kernel.jitpack`) en attendant
 la normalisation Central. Gates locaux : compiles + `ktlintCheck` VERTS.
 Rapport `.agents/sessions/052-hf-music-library-us3.adoc`.
+
+== Session 053 — HF-MUSIC-LIBRARY US-4 (résolution + copie) — 2026-11-12
+
+La bibliothèque musicale devient **consommable par le rendu** : `MusicAssetPlanner`
+(pur) lit la **composition HTML comme contrat** (`<audio class="hyperframes-music"
+data-track-id="…" src="…">`), la joint au manifeste versionné et produit un plan
+`copies`/`upToDate`/`missing` — une piste dont le `sha256` est identique n'est
+**pas** réécrite (Économie d'encre). La tâche `resolveHyperframesBgm` exécute les
+copies vers `assets/audio/<track-id>.<ext>` entre le HTML et le rendu (dégradé par
+défaut, `strict` pour échouer). Le DSL gagne `hyperframes { music { libraryFile;
+audioDir; track; mood; volume; strict } }` et une **ambiance de repli** (une cue
+écrite dans le document gagne toujours). 8 unit + 3 processeur + BDD
+`@music-assets` (3) + FT TestKit (4, skip `sha256` prouvé par mtime préservé).
+
+Deux bugs **consommateur** révélés par le dogfooding (consommateur `/tmp` via
+`includeBuild`) et corrigés : (1) `tasks.named("renderHyperframes")` appelé avant
+l'enregistrement de la tâche → application du plugin en échec ; (2)
+`from(RegularFileProperty)` réalisait un provider **absent** à la configuration →
+tout consommateur sans `music { }` échouait.
+
+**Décision de frontière** : le pont JitPack vers `video-kernel 0.8.0` (tenté en US-3)
+est **retiré** — un POM publié doit rester résolvable depuis les dépôts du
+consommateur, et 0.8.0 n'est que sur JitPack. `hyperframes.sound.MusicModel.kt`
+garde une **copie N2 verbatim** du contrat `video.kernel.music` (fallback D4),
+noyau épinglé `0.7.0` Central, à ré-aligner au reset du canal (≤ 2026-12-01).
+**CI verte** `43265155602`. Rapport `.agents/sessions/053-hf-music-library-us4.adoc`.

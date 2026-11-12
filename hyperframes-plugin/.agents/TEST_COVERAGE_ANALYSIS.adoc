@@ -1,6 +1,18 @@
 = Test Coverage Analysis — hyperframes-gradle
 
-_Dernière mise à jour_ : 2026-11-12 (Session 052 — HF-MUSIC-LIBRARY US-3, séquence sonore documentaire)
+_Dernière mise à jour_ : 2026-11-12 (Session 053 — HF-MUSIC-LIBRARY US-4, résolution + copie des assets)
+
+== Couverture — 12 novembre 2026 (après session 053, US-4 assets musicaux)
+
+.HF-MUSIC-LIBRARY US-4 — résolution et copie des assets
+|===
+| Élément | Nature | Tests
+
+| `hyperframes.sound.MusicAssetPlanner` | extraction des requêtes depuis le HTML (seuls les clips portant `data-track-id` ; sfx/legacy ignorés), dédoublonnage ; plan copie si cible absente, `upToDate` si `sha256` identique (insensible à la casse), copie si hash différent, piste inconnue, piste sans fichier, racine audio vide | 8 `MusicAssetPlannerTest`
+| `HyperframesHtmlProcessor` | `data-track-id` émis pour une cue résolue en bibliothèque ; ambiance de repli quand le document est silencieux ; une cue écrite gagne sur le repli | +3 `HyperframesHtmlProcessorSoundTest`
+| `ResolveHyperframesBgmTask` (TestKit) | copie réelle + HTML porteur du contrat ; **skip `sha256`** prouvé par `lastModified` préservé sous `--rerun-tasks` ; source absente dégradée (warning, pas de fichier) ; `strict` → échec | 4 `ResolveHyperframesBgmFunctionalTest`
+| BDD | 3 scénarios `@music-assets` (requêtes, skip `sha256`, piste inconnue) | `hf_music_assets.feature` + `HfMusicAssetsSteps`
+|===
 
 == Couverture — 12 novembre 2026 (après session 052, US-3 musique)
 
