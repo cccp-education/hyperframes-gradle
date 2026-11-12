@@ -18,7 +18,7 @@ _note_ : fichier canonique = `.agents/PROMPT_REPRISE.adoc`.
 * Pont N1 documenté : `video-kernel 0.8.0` via JitPack
   (`libs.video.kernel.jitpack`), à normaliser au reset Central.
 * Gates locaux : `compileKotlin` + `compileTestKotlin` + `ktlintCheck` VERTS.
-  Preuve = CI du commit poussé.
+  **CI verte** `43259543844` (commit `13c2eb4`).
 
 == État
 

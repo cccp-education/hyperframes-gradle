@@ -105,3 +105,15 @@ dette VK déjà tracée, désormais **portée par un seul point** (catalogue).
 * Zéro secret, zéro audio committé (le manifeste seul est versionné).
 * Zéro Python ; English only (code, tests, Gherkin).
 * `ktlintCheck` vert (aucun fichier hors périmètre reformaté).
+
+== Preuve CI
+
+|===
+| Run | Commit | Résultat
+
+| `43258921955` | `1a72369` | ❌ 6 échecs — **test-only** : les deux compteurs de cues ancraient mal (l'idiome chaîne brute terminée par `""""` garde le guillemet dans le motif ; le compteur audio s'ancrait sur `class=` alors que l'élément émet `id=` d'abord)
+| `43259543844` | `13c2eb4` | ✅ **VERT** — `Compile plugin` · `Run unit tests` · `Run functional tests (GradleTestKit)` · `Run Cucumber BDD tests` · `Full check (validation + plugin descriptors)`
+|===
+
+Cross-borough : video-kernel `Test` `43258925991` ✅ (commit `f66f0fc`, gouvernance
+seule — enregistrement du 1er consommateur du contrat `music`).
