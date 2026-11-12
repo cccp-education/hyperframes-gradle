@@ -1,5 +1,6 @@
 package hyperframes
 
+import hyperframes.sound.MusicDeclaration
 import video.kernel.music.MusicLibrary
 import video.kernel.music.MusicLicence
 import video.kernel.music.MusicTrack
@@ -10,8 +11,8 @@ import kotlin.test.assertFailsWith
 import kotlin.test.assertFalse
 
 /**
- * HF-MUSIC-LIBRARY US-3 — the processor consumes the sound blocks and emits the
- * document-ordered `<audio>` layer at the scene offsets.
+ * HF-MUSIC-LIBRARY US-3/US-4 — the processor consumes the sound blocks and emits
+ * the document-ordered `<audio>` layer at the scene offsets.
  *
  * Pure processor, no I/O: the audio copy (sha256 skip) belongs to
  * `resolveHyperframesBgm` (US-4).
@@ -170,5 +171,40 @@ class HyperframesHtmlProcessorSoundTest {
             )
 
         assertFalse(result.contains("mood: calm"))
+    }
+
+    @Test
+    fun `a library resolved cue carries its track id for the resolve step`() {
+        val result = processor.enhance(document(section("one", 5, musicBlock("mood: calm"))))
+
+        assertContains(result, """data-track-id="calm-piano"""")
+    }
+
+    @Test
+    fun `the dsl fallback ambience applies when the document declares no music`() {
+        val withFallback =
+            HyperframesHtmlProcessor(1920, 1080, 30, "sound-demo")
+                .withMusicLibrary(library)
+                .withDefaultMusic(MusicDeclaration(mood = "calm", volume = 0.4))
+
+        val result = withFallback.enhance(document(section("one", 4) + section("two", 4)))
+
+        assertEquals(1, audioCount(result))
+        assertContains(result, """src="assets/audio/calm-piano.mp3"""")
+        assertContains(result, """data-duration="8"""")
+        assertContains(result, """data-volume="0.40"""")
+    }
+
+    @Test
+    fun `an authored cue wins over the dsl fallback`() {
+        val withFallback =
+            HyperframesHtmlProcessor(1920, 1080, 30, "sound-demo")
+                .withMusicLibrary(library)
+                .withDefaultMusic(MusicDeclaration(mood = "calm"))
+
+        val result = withFallback.enhance(document(section("one", 5, musicBlock("mood: epic"))))
+
+        assertContains(result, """src="assets/audio/epic-drums.mp3"""")
+        assertFalse(result.contains("assets/audio/calm-piano.mp3"))
     }
 }

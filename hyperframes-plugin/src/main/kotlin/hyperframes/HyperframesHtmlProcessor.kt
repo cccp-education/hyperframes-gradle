@@ -19,6 +19,8 @@ import hyperframes.sound.SoundBlockParseResult
 import hyperframes.sound.SoundBlockParser
 import hyperframes.sound.SoundCueResolver
 import hyperframes.sound.SoundHtmlRenderer
+import hyperframes.sound.SoundPlacement
+import hyperframes.sound.SoundPlan
 import hyperframes.sound.SoundResolution
 import hyperframes.sound.SoundSequencePlanner
 import hyperframes.template.Caption
@@ -78,6 +80,7 @@ class HyperframesHtmlProcessor internal constructor(
     private val typography: TypographyConfig = TypographyConfig(),
     private val entrances: EntranceConfig = EntranceConfig(),
     private val musicLibrary: MusicLibrary? = null,
+    private val defaultMusic: MusicDeclaration? = null,
 ) {
     /** Backward-compatible constructor — no domain dictionary, 5s scenes. */
     constructor(width: Int, height: Int, fps: Int, outputName: String) :
@@ -106,6 +109,7 @@ class HyperframesHtmlProcessor internal constructor(
             typography,
             entrances,
             musicLibrary,
+            defaultMusic,
         )
 
     /**
@@ -125,6 +129,7 @@ class HyperframesHtmlProcessor internal constructor(
             typography,
             entrances,
             musicLibrary,
+            defaultMusic,
         )
 
     /**
@@ -143,6 +148,7 @@ class HyperframesHtmlProcessor internal constructor(
             typography,
             entrances,
             musicLibrary,
+            defaultMusic,
         )
 
     /**
@@ -162,6 +168,7 @@ class HyperframesHtmlProcessor internal constructor(
             typography,
             entrances,
             musicLibrary,
+            defaultMusic,
         )
 
     /**
@@ -181,6 +188,30 @@ class HyperframesHtmlProcessor internal constructor(
             typography,
             entrances,
             library,
+            defaultMusic,
+        )
+
+    /**
+     * HF-MUSIC-LIBRARY US-4 — returns a copy of this processor wired with a
+     * composition-wide default ambience.
+     *
+     * The default applies **only** when the document declares no music at all:
+     * an explicit `[.hyperframes-music]` always wins (the document is the source
+     * of truth, the DSL is a fallback).
+     */
+    fun withDefaultMusic(defaultMusic: MusicDeclaration?): HyperframesHtmlProcessor =
+        HyperframesHtmlProcessor(
+            width,
+            height,
+            fps,
+            outputName,
+            domainDictionary,
+            sceneDurationSeconds,
+            chrome,
+            typography,
+            entrances,
+            musicLibrary,
+            defaultMusic,
         )
 
     /**
@@ -915,18 +946,27 @@ class HyperframesHtmlProcessor internal constructor(
         rawScenes: List<RawScene>,
         total: Double,
     ): String {
-        if (rawScenes.none { it.music != null || it.sfx.isNotEmpty() }) return ""
+        if (rawScenes.none { it.music != null || it.sfx.isNotEmpty() } && defaultMusic == null) return ""
         val inputs =
             scenes.mapIndexed { index, scene ->
                 val raw = rawScenes[index]
                 SceneSoundInput(scene.id, scene.start, raw.music, raw.sfx)
             }
-        val plan = SoundSequencePlanner.plan(inputs, total)
+        val authored = SoundSequencePlanner.plan(inputs, total)
+        // US-4 — the DSL fallback only applies when the document declares no
+        // music at all: an authored cue always wins.
+        val plan =
+            if (authored.music.isEmpty() && defaultMusic != null) {
+                val sceneId = scenes.firstOrNull()?.id ?: "root"
+                SoundPlan(music = listOf(SoundPlacement(sceneId, 0.0, total, defaultMusic)), sfx = authored.sfx)
+            } else {
+                authored
+            }
         val unresolved = mutableListOf<String>()
         val music =
             plan.music.mapNotNull { placement ->
                 when (val resolution = SoundCueResolver.resolve(placement, musicLibrary)) {
-                    is SoundResolution.Resolved -> ResolvedMusic(placement, resolution.src)
+                    is SoundResolution.Resolved -> ResolvedMusic(placement, resolution.src, resolution.trackId)
                     is SoundResolution.Unresolved -> {
                         unresolved += resolution.reason
                         null

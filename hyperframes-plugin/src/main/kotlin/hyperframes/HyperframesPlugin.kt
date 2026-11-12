@@ -25,6 +25,8 @@ import org.gradle.api.Project
 class HyperframesPlugin : Plugin<Project> {
     override fun apply(target: Project) {
         val extension = target.extensions.create("hyperframes", HyperframesExtension::class.java)
+        // HF-MUSIC-LIBRARY US-4 — nested `music { }` DSL.
+        extension.music = target.objects.newInstance(MusicExtension::class.java)
 
         // Tâche : génération HTML HyperFrames depuis AsciiDoc
         target.tasks.register("generateHyperframesHtml", GenerateHyperframesHtmlTask::class.java) { task ->
@@ -45,7 +47,26 @@ class HyperframesPlugin : Plugin<Project> {
             task.displayFont.set(extension.displayFont)
             task.monoFont.set(extension.monoFont)
             task.entrancesEnabled.set(extension.entrancesEnabled)
+            task.musicLibraryFiles.from(extension.music.libraryFile)
+            task.musicTrack.set(extension.music.track)
+            task.musicMood.set(extension.music.mood)
+            task.musicVolume.set(extension.music.volume)
         }
+
+        // HF-MUSIC-LIBRARY US-4 — place the resolved library tracks next to the
+        // composition (sha256 skip). Reads the emitted HTML, so it runs after the
+        // HTML task and before the render.
+        target.tasks.register("resolveHyperframesBgm", ResolveHyperframesBgmTask::class.java) { task ->
+            task.description = "Copy the resolved music-library tracks next to the composition (sha256 skip)"
+            task.group = "hyperframes"
+            task.musicLibraryFiles.from(extension.music.libraryFile)
+            task.audioDir.set(extension.music.audioDir)
+            task.compositionHtml.from(extension.outputDir.file("index.html"))
+            task.assetsDir.set(extension.outputDir.dir("assets/audio"))
+            task.strict.set(extension.music.strict)
+        }
+        target.tasks.named("resolveHyperframesBgm") { it.dependsOn("generateHyperframesHtml") }
+        target.tasks.named("renderHyperframes") { it.mustRunAfter("resolveHyperframesBgm") }
 
         // Tâche : rendu MP4 via HyperFrames CLI (ProcessBuilder → node <cliScript> render)
         target.tasks.register("renderHyperframes", RenderHyperframesTask::class.java) { task ->
@@ -117,7 +138,7 @@ class HyperframesPlugin : Plugin<Project> {
         target.tasks.register("hyperframesPipeline") { task ->
             task.description = "Run the full HyperFrames pipeline: AsciiDoc → HTML → MP4 → N3 metadata"
             task.group = "hyperframes"
-            task.dependsOn("generateHyperframesHtml", "renderHyperframes", "collectHyperframesRetrieve")
+            task.dependsOn("generateHyperframesHtml", "resolveHyperframesBgm", "renderHyperframes", "collectHyperframesRetrieve")
         }
 
         // HF-YOUTUBE-PUBLISH US-2 — publish the rendered MP4 to the platform

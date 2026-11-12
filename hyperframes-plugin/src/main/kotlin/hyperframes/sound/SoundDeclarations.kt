@@ -60,6 +60,22 @@ data class MusicDeclaration(
     companion object {
         /** Default perceived level of a music cue (quiet bed under narration). */
         const val DEFAULT_VOLUME: Double = 0.25
+
+        /**
+         * Composition-wide fallback ambience (HF-MUSIC-LIBRARY US-4), or `null`
+         * when neither a track id nor a mood is declared. Used by the DSL and by
+         * the HTML task so the two cannot drift.
+         */
+        fun fallback(
+            trackId: String = "",
+            mood: String = "",
+            volume: Double = DEFAULT_VOLUME,
+        ): MusicDeclaration? {
+            val id = trackId.trim()
+            val intent = mood.trim()
+            if (id.isEmpty() && intent.isEmpty()) return null
+            return MusicDeclaration(trackId = id, mood = intent, volume = volume)
+        }
     }
 }
 

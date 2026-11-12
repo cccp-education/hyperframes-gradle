@@ -4,22 +4,27 @@ import hyperframes.chrome.ChromeConfig
 import hyperframes.chrome.TypographyConfig
 import hyperframes.entrance.EntranceConfig
 import hyperframes.pronunciation.PronunciationDomainLoader
+import hyperframes.sound.MusicDeclaration
+import hyperframes.sound.MusicLibraryManifestLoader
 import hyperframes.vendor.GsapLibrary
 import org.asciidoctor.Asciidoctor
 import org.asciidoctor.Attributes
 import org.asciidoctor.Options
 import org.asciidoctor.SafeMode
 import org.gradle.api.DefaultTask
+import org.gradle.api.file.ConfigurableFileCollection
 import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.CacheableTask
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputDirectory
+import org.gradle.api.tasks.InputFiles
 import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.OutputDirectory
 import org.gradle.api.tasks.PathSensitive
 import org.gradle.api.tasks.PathSensitivity
 import org.gradle.api.tasks.TaskAction
+import video.kernel.music.MusicLibrary
 import java.io.File
 
 /**
@@ -93,6 +98,28 @@ abstract class GenerateHyperframesHtmlTask : DefaultTask() {
     @get:Input
     abstract val entrancesEnabled: Property<Boolean>
 
+    // ── HF-MUSIC-LIBRARY US-4 — music library + fallback ambience ────────────
+
+    /**
+     * `music-library.json` resolved by the document sound cues. `@InputFiles`
+     * (not `@InputFile`): an unset library must not fail input validation.
+     */
+    @get:InputFiles
+    @get:PathSensitive(PathSensitivity.RELATIVE)
+    abstract val musicLibraryFiles: ConfigurableFileCollection
+
+    /** Explicit track id of the fallback bed (blank = select by mood). */
+    @get:Input
+    abstract val musicTrack: Property<String>
+
+    /** Mood of the fallback bed (only used when the document declares no music). */
+    @get:Input
+    abstract val musicMood: Property<String>
+
+    /** Level of the fallback bed. */
+    @get:Input
+    abstract val musicVolume: Property<Double>
+
     @TaskAction
     fun generate() {
         val inputFile = inputDir.asFile.get()
@@ -159,6 +186,10 @@ abstract class GenerateHyperframesHtmlTask : DefaultTask() {
                     ),
                 ).withEntrances(EntranceConfig(enabled = entrancesEnabled.get()))
                     .withDomainDictionary(domainDictionary)
+                    .withMusicLibrary(musicLibrary())
+                    .withDefaultMusic(
+                        MusicDeclaration.fallback(musicTrack.getOrElse(""), musicMood.getOrElse(""), musicVolume.getOrElse(MusicDeclaration.DEFAULT_VOLUME)),
+                    )
             val enhancedHtml = processor.enhance(rawHtml)
             generatedHtml.writeText(enhancedHtml)
 
@@ -181,4 +212,11 @@ abstract class GenerateHyperframesHtmlTask : DefaultTask() {
             asciidoctor.shutdown()
         }
     }
+
+    /** HF-MUSIC-LIBRARY US-4 — the configured library, or `null` when unset. */
+    private fun musicLibrary(): MusicLibrary? =
+        musicLibraryFiles.files
+            .filter { it.isFile }
+            .minByOrNull { it.path }
+            ?.let(MusicLibraryManifestLoader::load)
 }

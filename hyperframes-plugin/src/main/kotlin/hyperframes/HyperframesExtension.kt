@@ -1,6 +1,7 @@
 package hyperframes
 
 import hyperframes.chrome.TypographyConfig
+import org.gradle.api.Action
 import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.Property
@@ -14,6 +15,19 @@ import org.gradle.api.tasks.Optional
  * Propriétés configurables dans le bloc `hyperframes { }` du build.gradle.kts.
  */
 abstract class HyperframesExtension {
+    /**
+     * HF-MUSIC-LIBRARY US-4 — bibliothèque musicale (producteur newpipe) et
+     * ambiance de repli : `hyperframes { music { … } }`.
+     *
+     * Attaché par le plugin (`objects.newInstance`) : l'extension ne porte que
+     * le DSL, jamais d'I/O.
+     */
+    lateinit var music: MusicExtension
+        internal set
+
+    /** DSL sugar: `music { libraryFile.set(…) }` (Kotlin and Groovy DSL). */
+    fun music(action: Action<MusicExtension>): MusicExtension = music.also(action::execute)
+
     /** Répertoire contenant le ou les fichiers AsciiDoc source */
     @get:InputDirectory
     abstract val inputDir: DirectoryProperty

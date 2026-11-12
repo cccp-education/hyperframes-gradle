@@ -9,9 +9,16 @@ import video.kernel.music.MusicTrackSelector
  * (HF-MUSIC-LIBRARY US-3).
  */
 sealed interface SoundResolution {
-    /** The cue points to a real audio asset (relative to the composition). */
+    /**
+     * The cue points to a real audio asset (relative to the composition).
+     *
+     * @property src composition-relative path.
+     * @property trackId library id when the asset comes from the library (blank
+     *   for an author-supplied `file:`, which needs no copy).
+     */
     data class Resolved(
         val src: String,
+        val trackId: String = "",
     ) : SoundResolution
 
     /** The cue cannot be resolved; [reason] is actionable and secret-free. */
@@ -56,7 +63,11 @@ object SoundCueResolver {
             )
         }
         return when (val selection = MusicTrackSelector.select(library, declaration.trackId, declaration.mood)) {
-            is MusicSelection.Selected -> SoundResolution.Resolved(assetPath(selection.track.id, selection.track.file))
+            is MusicSelection.Selected ->
+                SoundResolution.Resolved(
+                    assetPath(selection.track.id, selection.track.file),
+                    selection.track.id,
+                )
             is MusicSelection.Rejected -> SoundResolution.Unresolved("scene '${placement.sceneId}': ${selection.reason}")
         }
     }

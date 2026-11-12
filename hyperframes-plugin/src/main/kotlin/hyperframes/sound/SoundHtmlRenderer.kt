@@ -6,6 +6,7 @@ import java.util.Locale
 data class ResolvedMusic(
     val placement: SoundPlacement,
     val src: String,
+    val trackId: String = "",
 )
 
 /** A one-shot effect resolved to a real asset, ready to be emitted. */
@@ -36,6 +37,9 @@ object SoundHtmlRenderer {
                 val declaration = entry.placement.declaration
                 buildString {
                     append("<audio id=\"hf-music-$index\" class=\"hyperframes-music\" ")
+                    if (entry.trackId.isNotBlank()) {
+                        append("data-track-id=\"${escape(entry.trackId)}\" ")
+                    }
                     append("src=\"${escape(entry.src)}\" ")
                     append("data-start=\"${number(entry.placement.startSeconds)}\" ")
                     append("data-duration=\"${number(entry.placement.durationSeconds)}\" ")
