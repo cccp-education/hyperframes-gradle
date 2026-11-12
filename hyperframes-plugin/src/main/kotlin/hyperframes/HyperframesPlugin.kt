@@ -175,6 +175,13 @@ class HyperframesPlugin : Plugin<Project> {
             task.publishAt.set(extension.publishAt)
             task.chapters.set(extension.publishChapters)
             task.strict.set(extension.publishStrict)
+            // HF-MUSIC-LIBRARY US-7 — credit the cc-by tracks actually used.
+            task.musicLibraryFiles.from(
+                extension.music.libraryFile
+                    .map { listOf(it) }
+                    .orElse(emptyList()),
+            )
+            task.compositionHtml.from(extension.outputDir.file("index.html"))
         }
         target.tasks.named("publishHyperframesToYouTube") { it.mustRunAfter("renderHyperframes") }
     }

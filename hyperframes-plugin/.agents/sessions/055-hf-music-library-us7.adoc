@@ -1,0 +1,96 @@
+= Session 055 — HF-MUSIC-LIBRARY US-7 : crédits musicaux dans la description
+:toc:
+:_session_: S-055
+:_date_: 2026-11-12
+:_borough_: Watts (hyperframes)
+:_statut_: ✅ TERMINÉ (Local = Build ; preuve CI)
+
+'''
+
+== Mission
+
+US-7 de l'EPIC `HF-MUSIC-LIBRARY` : une piste `cc-by` **doit** être créditée dans
+la description de publication — jamais omise silencieusement (D10).
+
+== Décision d'ordonnancement
+
+La mission prévoyait US-6 (adoption capsule) puis US-7. **US-6 a été reportée**
+d'un cran, pour deux raisons explicites :
+
+. capsule est un borough **cross-borough** dont la surface de configuration est
+   large (`AudioPostConfig` + merger 4 sources + extension/conventions + loader
+   YAML + `CapsuleManager` + `CapsuleVideoTask` + i18n ×10 + shards CI) ; une
+   session capsule dédiée est plus sûre qu'une greffe en fin de session ;
+. capsule déclare « aucun EPIC métier ouvert » (PROMPT_REPRISE S-215) : la US doit
+   y être cadrée dans sa propre gouvernance.
+
+US-7, entièrement local, clôt l'arc **licence/provenance** ouvert par US-4 (le
+manifeste porte déjà `licence`, `attribution`, `sourceUrl`).
+
+== Livré
+
+=== Domaine pur `hyperframes.sound.MusicAttribution`
+
+* `lines(html|requests, library)` : crédits des pistes **réellement utilisées**
+  (prouvées par `<audio data-track-id>`), ordre du document, dédupliquées,
+  filtrées sur `licence.requiresAttribution` (`cc-by`) ;
+* ligne = `attribution` du manifeste **telle quelle** ; repli
+  `Music: <titre> — <artiste> (CC BY)` si la ligne déclarée est absente (le crédit
+  n'est jamais perdu) ;
+* `append(description, lines)` : bloc final, **description inchangée** si aucun
+  crédit (le caller peut donc appeler inconditionnellement).
+
+=== Câblage `publishHyperframesToYouTube`
+
+* nouvelles entrées `musicLibraryFiles` (manifeste, tolérant) et
+  `compositionHtml` (les clips de la composition) ;
+* la description composée (`VideoDescriptionComposer`) reçoit les crédits ;
+  chaque ligne est journalisée (`music credit — …`) ;
+* si la composition utilise de la musique de bibliothèque **sans** manifeste :
+  avertissement explicite (les crédits ne peuvent pas être vérifiés) ;
+* `publication.json` expose désormais la `description` composée (traçabilité N3 et
+  observabilité), dans tous les chemins post-publication (publié / dégradé / échec).
+
+=== Tests
+
+* Unit `MusicAttributionTest` (8) : attribution déclarée verbatim, repli
+  titre/artiste, licence sans obligation, piste non utilisée jamais créditée,
+  dédoublonnage + ordre, `append` (vide → inchangé, bloc final, description vide).
+* BDD `hf_music_attribution.feature` (`@music-credits`, 3 scénarios) +
+  `HfMusicAttributionSteps`.
+* FT TestKit `MusicAttributionPublishFunctionalTest` (2) : pipeline + publication
+  **dégradée** (identifiants absents, zéro réseau) → `publication.json` contient
+  le crédit ; une composition sans musique ne crédite rien.
+* Stub CLI factorisé (`FunctionalStubs.writeStubHyperframesCli`) entre les deux FT.
+
+=== Dogfooding
+
+Consommateur `/tmp` (`includeBuild`) : `hyperframesPipeline` +
+`publishHyperframesToYouTube` → `music credit — Music: Calm piano — cheroliv (CC BY 4.0)`,
+publication dégradée (`credentials file not found`), rapport :
+`{"skipped":true,"reason":"credentials …","description":"Music: Calm piano — cheroliv (CC BY 4.0)"}`.
+
+== Points ouverts (mission S-056)
+
+* **US-6** adoption capsule — session cross-borough dédiée (cadrer dans
+  `capsule-gradle` : `audioPost` + résolution bibliothèque, copie `sha256`,
+  **sans** réintroduire JitPack 0.8.0).
+* **US-8** crossfade temporel v2.
+* `HF-SPEAKER-NOTES` (cadré S-049) — seconde priorité du borough.
+* **Dette N1** : `MusicModel.kt` (copie verbatim) à remplacer au reset Central.
+
+== Fichiers
+
+[cols="1,3"]
+|===
+| Type | Fichiers
+| Créé (prod) | `hyperframes/sound/MusicAttribution.kt`
+| Modifiés (prod) | `hyperframes/publish/PublishHyperframesToYouTubeTask.kt` (entrées + description + rapport), `HyperframesPlugin.kt` (wiring)
+| Créés (test) | `MusicAttributionTest` · `HfMusicAttributionSteps` · `hf_music_attribution.feature` · `MusicAttributionPublishFunctionalTest` · `FunctionalStubs.kt`
+| Modifié (test) | `HyperframesPipelineMusicFunctionalTest` (stub factorisé)
+|===
+
+== Hygiène
+
+Zéro secret, zéro audio committé, zéro Python. Gates locaux : compiles ×3 +
+`ktlintCheck` VERTS ; preuve = CI du commit poussé.

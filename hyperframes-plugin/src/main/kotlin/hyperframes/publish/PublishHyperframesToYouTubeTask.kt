@@ -1,6 +1,9 @@
 package hyperframes.publish
 
 import com.fasterxml.jackson.databind.ObjectMapper
+import hyperframes.sound.MusicAssetPlanner
+import hyperframes.sound.MusicAttribution
+import hyperframes.sound.MusicLibraryManifestLoader
 import org.gradle.api.DefaultTask
 import org.gradle.api.GradleException
 import org.gradle.api.file.ConfigurableFileCollection
@@ -123,6 +126,18 @@ abstract class PublishHyperframesToYouTubeTask : DefaultTask() {
     @get:Input
     abstract val strict: Property<Boolean>
 
+    // ── HF-MUSIC-LIBRARY US-7 — music credits (licence compliance) ───────────
+
+    /** `music-library.json`; an unset library means credits cannot be verified. */
+    @get:InputFiles
+    @get:PathSensitive(PathSensitivity.RELATIVE)
+    abstract val musicLibraryFiles: ConfigurableFileCollection
+
+    /** The composition HTML: the `<audio data-track-id>` clips prove which tracks are used. */
+    @get:InputFiles
+    @get:PathSensitive(PathSensitivity.RELATIVE)
+    abstract val compositionHtml: ConfigurableFileCollection
+
     private val mapper = ObjectMapper()
 
     @TaskAction
@@ -140,12 +155,37 @@ abstract class PublishHyperframesToYouTubeTask : DefaultTask() {
             videoFiles.files.firstOrNull { it.extension.equals("mp4", ignoreCase = true) }
                 ?: videoFiles.files.firstOrNull()
         val base = buildPublication(video)
-        val publication = base.copy(description = VideoDescriptionComposer.compose(base, descriptionHeader.orNull.orEmpty()))
+        val composition = compositionHtml.files.firstOrNull { it.isFile }
+        val requests = composition?.readText()?.let(MusicAssetPlanner::requests).orEmpty()
+        val library =
+            musicLibraryFiles.files
+                .filter { it.isFile }
+                .minByOrNull { it.path }
+                ?.let(MusicLibraryManifestLoader::load)
+        val credits =
+            when {
+                requests.isEmpty() -> emptyList()
+                library == null -> {
+                    logger.warn(
+                        "publishHyperframesToYouTube: the composition uses library music but no music library " +
+                            "is configured — credits cannot be verified (set music.libraryFile)",
+                    )
+                    emptyList()
+                }
+                else -> MusicAttribution.lines(requests, library)
+            }
+        credits.forEach { logger.lifecycle("publishHyperframesToYouTube: music credit — $it") }
+        val description =
+            MusicAttribution.append(
+                VideoDescriptionComposer.compose(base, descriptionHeader.orNull.orEmpty()),
+                credits,
+            )
+        val publication = base.copy(description = description)
 
         val validation = VideoPublicationValidator.validate(publication)
         if (!validation.valid) {
             val message = "publication invalid: ${validation.reasons.joinToString("; ")}"
-            writeReport(reportFile, skipped = false, reason = message, url = null)
+            writeReport(reportFile, skipped = false, reason = message, url = null, description = description)
             if (strict.get()) throw GradleException("publishHyperframesToYouTube: $message")
             logger.warn("publishHyperframesToYouTube: $message")
             return
@@ -162,14 +202,14 @@ abstract class PublishHyperframesToYouTubeTask : DefaultTask() {
         when (val result = publisher.publish(publication)) {
             is VideoPublicationResult.Published -> {
                 logger.lifecycle("publishHyperframesToYouTube: published ${result.url}")
-                writeReport(reportFile, skipped = false, reason = "published", url = result.url, videoId = result.videoId)
+                writeReport(reportFile, skipped = false, reason = "published", url = result.url, videoId = result.videoId, description = description)
             }
             is VideoPublicationResult.Degraded -> {
                 logger.warn("publishHyperframesToYouTube: degraded — ${result.reason}")
-                writeReport(reportFile, skipped = true, reason = result.reason, url = null)
+                writeReport(reportFile, skipped = true, reason = result.reason, url = null, description = description)
             }
             is VideoPublicationResult.Failed -> {
-                writeReport(reportFile, skipped = false, reason = result.reason, url = null)
+                writeReport(reportFile, skipped = false, reason = result.reason, url = null, description = description)
                 if (strict.get()) throw GradleException("publishHyperframesToYouTube: ${result.reason}")
                 logger.warn("publishHyperframesToYouTube: failed — ${result.reason}")
             }
@@ -226,12 +266,14 @@ abstract class PublishHyperframesToYouTubeTask : DefaultTask() {
         reason: String,
         url: String?,
         videoId: String? = null,
+        description: String? = null,
     ) {
         val node = mapper.createObjectNode()
         node.put("skipped", skipped)
         node.put("reason", reason)
         url?.let { node.put("url", it) }
         videoId?.let { node.put("videoId", it) }
+        description?.takeIf { it.isNotBlank() }?.let { node.put("description", it) }
         file.writeText(mapper.writerWithDefaultPrettyPrinter().writeValueAsString(node))
     }
 }

@@ -34,33 +34,9 @@ class HyperframesPipelineMusicFunctionalTest {
             .digest(bytes)
             .joinToString("") { "%02x".format(it) }
 
-    private fun writeStubCli(projectDir: File): File {
-        val script = projectDir.resolve("stub-hyperframes-cli.sh")
-        val dollar = "$"
-        script.writeText(
-            """
-            #!/bin/bash
-            OUTPUT_FILE=""
-            while [[ $dollar# -gt 0 ]]; do
-                case ${dollar}1 in
-                    --output) OUTPUT_FILE="${dollar}2"; shift 2 ;;
-                    *) shift ;;
-                esac
-            done
-            if [[ -n "${dollar}OUTPUT_FILE" ]]; then
-                echo "MOCK-MP4" > "${dollar}OUTPUT_FILE"
-            fi
-            echo "Mock HyperFrames CLI: render complete"
-            exit 0
-            """.trimIndent(),
-        )
-        script.setExecutable(true)
-        return script
-    }
-
     private fun project(): File {
         val projectDir = tempDir.toFile()
-        val stub = writeStubCli(projectDir)
+        val stub = FunctionalStubs.writeStubHyperframesCli(projectDir)
         projectDir.resolve("settings.gradle.kts").writeText(
             """
             pluginManagement {
