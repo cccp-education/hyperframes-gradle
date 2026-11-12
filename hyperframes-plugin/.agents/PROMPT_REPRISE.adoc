@@ -1,46 +1,49 @@
-= PROMPT_REPRISE — HyperFrames Gradle (Session 050 TERMINÉE → 051)
-:session: 051
+= PROMPT_REPRISE — HyperFrames Gradle (Session 051 TERMINÉE → 052)
+:session: 052
 :borough: Watts
-:session_precedente: 050 — Cadrage EPIC HF-MUSIC-LIBRARY ✅
+:session_precedente: 051 — US-1 (newpipe producteur) + US-2 (`video-kernel 0.8.0`) ✅
 _note_ : fichier canonique = `.agents/PROMPT_REPRISE.adoc`.
 
-== Session 050 (TERMINÉE)
+== Session 051 (TERMINÉE) — HF-MUSIC-LIBRARY US-1 + US-2
 
-* EPIC **HF-MUSIC-LIBRARY** cadré : `.agents/CADRAGE_EPIC_HF_MUSIC_LIBRARY.adoc`
-  (9 constats, 12 décisions, 9 US ~21 pts).
-* Newpipe (Nashville) = **producteur** de la bibliothèque musicale (outil séparé,
-  frontière GPL) : extraction autorisée → `music-library.json` (provenance/
-  licence) + audio gitignoré.
-* **Le son se déclare dans l'AsciiDoc** : `[.hyperframes-music]` (mood/track/
-  volume/fade-in/fade-out/loop) et `[.hyperframes-sfx]`, attachés aux scènes ;
-  la **séquence sonore** suit l'ordre du document (héritage, `track: none`,
-  fondus) ; `SoundSequenceValidator` pur échoue avant rendu.
-* N1 `video.kernel.music` : `MusicTrack`, `MusicLibrary`, `MusicTrackSelector`,
-  `SoundCue`, `SoundSequence`.
-* Backward compat : `[.hyperframes-audio]` inchangé.
+* **US-2 `video-kernel 0.8.0`** (S-201) : contrat neutre `video.kernel.music`
+  (`MusicLicence` fail-closed, `MusicTrack`, `MusicLibrary`,
+  `MusicTrackSelector`, `SoundCue`, `SoundSequence`, `SoundSequenceValidator`),
+  +13 types, CI verte, publié JitPack
+  `com.github.cccp-education:video-kernel-gradle:v0.8.0`.
+* **US-1 newpipe** (S-004) : producteur `music-library.json` —
+  `MusicLicence`/`MusicSource`/`MusicLibraryTrack`/`Manifest`,
+  `MusicLibraryBuilder` (gate + ids + sha256 + chemins portables), tâche
+  `buildMusicLibrary` (`music-sources.yml` + `downloads/` → manifeste,
+  jaudiotagger), DSL `newpipe.musicSourcesPath`/`musicLibraryPath`,
+  `music-sources.example.yml`. **CI verte** (workflow `test.yml` ajouté).
 
 == État
 
-* `hyperframes-plugin 0.0.14` (Central + JitPack `v0.0.14`) ; `video-kernel 0.7.0`.
-* EPICs ouverts : **HF-SPEAKER-NOTES** (cadré S-049) et **HF-MUSIC-LIBRARY**
-  (cadré S-050). YouTube upload prêt, bloqué côté Google (~48 h).
-* newpipe : dormant (réactivation requise, sa gouvernance).
+* `hyperframes-plugin 0.0.14` ; `video-kernel 0.8.0` (JitPack) ; newpipe producer ✅.
+* EPIC `HF-MUSIC-LIBRARY` : US-0 ✅ · US-1 ✅ · US-2 ✅ · **reste US-3→US-9**.
+* EPIC `HF-SPEAKER-NOTES` : cadré (S-049), non démarré.
+* YouTube upload : prêt côté code, bloqué côté Google (~48 h).
 
-== Mission Session 051 — US-1 (newpipe, producteur)
+== Mission Session 052 — US-3 (hyperframes, DSL son + séquence)
 
-1. Réactiver le borough newpipe (session sous **sa** gouvernance).
-2. Extraire une liste de sources **autorisées** (`musics.yml`), enrichir via
-   `mp3-organizer` (durée, tags, mood, énergie).
-3. Écrire `music-library.json` versionné : `MusicTrack(id, title, artist, file,
-   sha256, durationSeconds, licence, sourceUrl, attribution, tags, mood, energy)`
-   + `schemaVersion`. **Licence obligatoire** ; audio gitignoré.
-4. Puis US-2 : noyau `video.kernel.music` (modèle + sélecteur + séquence) et
-   publication DAG MEMPHIS.
+1. Parser `[.hyperframes-music]` / `[.hyperframes-sfx]` (attachés à la section
+   précédente), retirer du visuel, construire la `SoundSequence` (héritage,
+   `track: none`, fondus, `stop`).
+2. Émettre les `<audio>` à offsets de scène (`data-start`, `data-duration`,
+   `data-volume`, `data-fade-*`) ; `SoundSequenceValidator` avant rendu.
+3. Backward compat stricte : `[.hyperframes-audio]` inchangé, sortie
+   byte-identique sans balise de son.
+4. Tests unit + BDD `@music` (manifeste synthétique, fakes) + FT TestKit.
+5. Puis US-4 : `resolveHyperframesBgm` (lecture du manifeste, sélection par
+   mood, copie `sha256`, skip) + extension `music { }`.
 
 == Points d'attention
 
-* **Local = Build, Tests = CI** ; **Règle 2** accord permanent.
-* **Licence** : aucune musique tierce non licenciée ; audio jamais committé/publié.
-* **GPL** : hyperframes/capsule ne dépendent pas de newpipe au compile.
+* **Local = Build, Tests = CI** ; accords pilote/publication/bump/git accordés
+  (2026-11-11, tous repos publics).
+* **Licence** : aucune piste sans licence déclarée ; audio jamais committé/publié.
+* `video-kernel` : coordonnée JitPack actuelle = repo-level (`v0.8.0`) ;
+  ne pas publier une version sans édition délibérée du manifeste d'API.
 * Zéro secret ; zéro Python ; English only code/tests/features.
 * Le son est une **séquence du document** (D12), pas un réglage caché.

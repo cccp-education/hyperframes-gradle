@@ -221,10 +221,10 @@ négatifs, offset non monotone, `track` inconnu (au resolve). Le bloc historique
 | US-1 | **newpipe — réactivation producteur** (session newpipe, sa gouvernance) :
   extraction d'une liste de sources **autorisées**, enrichissement
   `mp3-organizer` (durée, tags, mood, énergie), écriture `music-library.json`
-  (provenance/licence), audio gitignoré. | L | 🟡
+  (provenance/licence), audio gitignoré. | L | ✅ S-004 (newpipe)
 | US-2 | **N1** `video.kernel.music` : `MusicTrack`/`MusicLibrary` (parseur de
   manifeste), `MusicTrackSelector` (pur), `SoundCue`/`SoundSequence` +
-  `SoundSequenceValidator` + tests ; publication `video-kernel`. | M | 🟡
+  `SoundSequenceValidator` + tests ; publication `video-kernel 0.8.0` (JitPack). | M | ✅ S-201 (video-kernel)
 | US-3 | **hyperframes — DSL son AsciiDoc** : blocs `[.hyperframes-music]` /
   `[.hyperframes-sfx]` attachés aux scènes, construction de la **séquence**
   (héritage/continuité, `track: none`, fondus), validation avant rendu,
