@@ -31,7 +31,7 @@ https://github.com/heygen-com/hyperframes (Apache 2.0, 22.7k ⭐)
 
 == Règles Absolues
 
-=== 1. COMMITS/GIT — INTERDICTION FORMELLE sans permission
+=== 1. COMMITS/GIT — AUTORISÉS (décision pilote 2026-11-11 : tous repos publics)
 === 2. PUBLISH — ACCORD PILOTE PERMANENT (toujours granted, décision 2026-10-31)
 === 3. DAG N2 — importable par N3 runner-gradle, jamais importe N3
 === 4. PROCEDURE DE FIN DE SESSION — 6 ETAPES OBLIGATOIRES (voir `.agents/SESSION_PROCEDURE.adoc`)
