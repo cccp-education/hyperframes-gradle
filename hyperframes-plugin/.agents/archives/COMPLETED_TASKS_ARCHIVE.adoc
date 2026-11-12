@@ -431,3 +431,12 @@
 | HF-MUSIC-LIBRARY US-5 | FT TestKit du graphe complet (CLI stub) : ordre, copie, MP4 marqueur, idempotence `sha256` | ✅
 | HF-MUSIC-LIBRARY US-9 | `doc/MUSIQUE_ET_SON.adoc` (guide utilisateur FR) + `README.adoc` (EN) | ✅
 |===
+
+== Tâches terminées (session 055 — 2026-11-12)
+
+|===
+| EPIC | Tâche | Statut
+| HF-MUSIC-LIBRARY US-7 | `MusicAttribution` pur (pistes utilisées, filtre cc-by, ligne du manifeste + repli, `append` non intrusif) | ✅
+| HF-MUSIC-LIBRARY US-7 | Câblage `publishHyperframesToYouTube` + `publication.json` expose la description + avertissement bibliothèque absente | ✅
+| HF-MUSIC-LIBRARY US-7 | 8 unit + BDD `@music-credits` (3) + FT TestKit (2) | ✅
+|===

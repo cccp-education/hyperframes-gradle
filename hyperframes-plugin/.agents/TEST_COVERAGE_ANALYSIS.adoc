@@ -1,6 +1,17 @@
 = Test Coverage Analysis — hyperframes-gradle
 
-_Dernière mise à jour_ : 2026-11-12 (Session 054 — HF-MUSIC-LIBRARY US-5, graphe complet + docs)
+_Dernière mise à jour_ : 2026-11-12 (Session 055 — HF-MUSIC-LIBRARY US-7, crédits de publication)
+
+== Couverture — 12 novembre 2026 (après session 055, US-7 crédits)
+
+.HF-MUSIC-LIBRARY US-7 — crédits musicaux de la description
+|===
+| Élément | Nature | Tests
+
+| `hyperframes.sound.MusicAttribution` | attribution déclarée verbatim ; repli `Music: titre — artiste (CC BY)` ; licence sans obligation (own) ignorée ; piste de bibliothèque **non utilisée** jamais créditée ; dédoublonnage + ordre du document ; `append` (aucun crédit → description byte-identique, bloc final, description vide) | 8 `MusicAttributionTest`
+| `publishHyperframesToYouTube` (TestKit) | pipeline + publication **dégradée** (identifiants absents, zéro réseau) → `publication.json` porte le crédit dans la description ; composition sans musique → aucun crédit | 2 `MusicAttributionPublishFunctionalTest`
+| BDD | 3 scénarios `@music-credits` (ligne déclarée, repli, aucune obligation) | `hf_music_attribution.feature` + `HfMusicAttributionSteps`
+|===
 
 == Couverture — 12 novembre 2026 (après session 054, US-5 graphe complet)
 

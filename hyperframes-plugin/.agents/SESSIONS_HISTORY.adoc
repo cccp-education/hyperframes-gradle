@@ -785,3 +785,21 @@ v1** (sfx non copié depuis la bibliothèque, crossfade = US-8, dette N1) et un
 exemple complet — plus `README.adoc` (EN : prérequis, quick start, tâches, son,
 doc, licence). Zéro code de production modifié. Rapport
 `.agents/sessions/054-hf-music-library-us5-us9.adoc`.
+
+== Session 055 — HF-MUSIC-LIBRARY US-7 (crédits musicaux) — 2026-11-12
+
+Une piste `cc-by` **doit** être créditée dans la description de publication (D10).
+`MusicAttribution` (pur) extrait les pistes **réellement utilisées** de la
+composition (`<audio data-track-id>`), ne garde que les licences qui exigent une
+attribution, utilise la ligne `attribution` du manifeste **verbatim** (repli
+`Music: <titre> — <artiste> (CC BY)`) et l'ajoute en bloc final — la description
+reste **inchangée** quand aucun crédit n'est dû. Câblage
+`publishHyperframesToYouTube` : entrées manifeste + composition, avertissement
+explicite si la composition utilise de la bibliothèque sans manifeste, et
+`publication.json` expose désormais la description composée (traçabilité N3).
+
+Tests : 8 unit `MusicAttributionTest`, BDD `@music-credits` (3), FT TestKit (2,
+publication **dégradée** sans réseau, le rapport porte le crédit) ; stub CLI
+factorisé dans `FunctionalStubs`. **US-6 (adoption capsule) reportée** à une
+session cross-borough dédiée (surface de configuration capsule + aucun EPIC
+ouvert dans ce borough). Rapport `.agents/sessions/055-hf-music-library-us7.adoc`.
