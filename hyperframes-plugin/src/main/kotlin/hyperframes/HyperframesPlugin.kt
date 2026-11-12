@@ -47,7 +47,11 @@ class HyperframesPlugin : Plugin<Project> {
             task.displayFont.set(extension.displayFont)
             task.monoFont.set(extension.monoFont)
             task.entrancesEnabled.set(extension.entrancesEnabled)
-            task.musicLibraryFiles.from(extension.music.libraryFile.map { listOf(it) }.orElse(emptyList()))
+            task.musicLibraryFiles.from(
+                extension.music.libraryFile
+                    .map { listOf(it) }
+                    .orElse(emptyList()),
+            )
             task.musicTrack.set(extension.music.track)
             task.musicMood.set(extension.music.mood)
             task.musicVolume.set(extension.music.volume)
@@ -59,7 +63,11 @@ class HyperframesPlugin : Plugin<Project> {
         target.tasks.register("resolveHyperframesBgm", ResolveHyperframesBgmTask::class.java) { task ->
             task.description = "Copy the resolved music-library tracks next to the composition (sha256 skip)"
             task.group = "hyperframes"
-            task.musicLibraryFiles.from(extension.music.libraryFile.map { listOf(it) }.orElse(emptyList()))
+            task.musicLibraryFiles.from(
+                extension.music.libraryFile
+                    .map { listOf(it) }
+                    .orElse(emptyList()),
+            )
             task.audioDir.set(extension.music.audioDir)
             task.compositionHtml.from(extension.outputDir.file("index.html"))
             task.assetsDir.set(extension.outputDir.dir("assets/audio"))
