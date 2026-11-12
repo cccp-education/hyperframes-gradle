@@ -1,8 +1,5 @@
 package hyperframes.sound
 
-import video.kernel.music.MusicLibrary
-import video.kernel.music.MusicLicence
-import video.kernel.music.MusicTrack
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertIs

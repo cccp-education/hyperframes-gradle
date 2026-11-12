@@ -66,7 +66,6 @@ class HyperframesPlugin : Plugin<Project> {
             task.strict.set(extension.music.strict)
         }
         target.tasks.named("resolveHyperframesBgm") { it.dependsOn("generateHyperframesHtml") }
-        target.tasks.named("renderHyperframes") { it.mustRunAfter("resolveHyperframesBgm") }
 
         // Tâche : rendu MP4 via HyperFrames CLI (ProcessBuilder → node <cliScript> render)
         target.tasks.register("renderHyperframes", RenderHyperframesTask::class.java) { task ->
@@ -97,10 +96,10 @@ class HyperframesPlugin : Plugin<Project> {
             task.strict.set(extension.strict)
         }
 
-        // D-F (S-017) — pipeline ordering: generate → render → collect.
+        // D-F (S-017) — pipeline ordering: generate → resolve bgm → render → collect.
         // `mustRunAfter` (not `dependsOn`) orders the tasks when they are all in
         // the graph without forcing the expensive render on a plain collect.
-        target.tasks.named("renderHyperframes") { it.mustRunAfter("generateHyperframesHtml") }
+        target.tasks.named("renderHyperframes") { it.mustRunAfter("generateHyperframesHtml", "resolveHyperframesBgm") }
         target.tasks.named("collectHyperframesRetrieve") { it.mustRunAfter("renderHyperframes") }
 
         // VK-4 US-4d — narration synthesis through the shared N1 TextToSpeech

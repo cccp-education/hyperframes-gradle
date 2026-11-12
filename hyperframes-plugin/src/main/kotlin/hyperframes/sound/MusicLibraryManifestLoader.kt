@@ -3,9 +3,6 @@ package hyperframes.sound
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
-import video.kernel.music.MusicLibrary
-import video.kernel.music.MusicLicence
-import video.kernel.music.MusicTrack
 import java.io.File
 
 /**

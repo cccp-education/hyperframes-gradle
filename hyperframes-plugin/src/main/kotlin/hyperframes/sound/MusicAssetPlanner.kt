@@ -1,7 +1,5 @@
 package hyperframes.sound
 
-import video.kernel.music.MusicLibrary
-
 /**
  * One music asset the composition references
  * (HF-MUSIC-LIBRARY US-4).

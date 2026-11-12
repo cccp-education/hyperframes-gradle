@@ -1,6 +1,5 @@
 package hyperframes.sound
 
-import video.kernel.music.MusicLicence
 import java.io.File
 import java.nio.file.Files
 import kotlin.test.Test

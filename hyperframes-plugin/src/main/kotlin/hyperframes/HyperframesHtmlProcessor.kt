@@ -11,6 +11,7 @@ import hyperframes.media.BackgroundImageParser
 import hyperframes.pronunciation.PronunciationDictionary
 import hyperframes.pronunciation.PronunciationHint
 import hyperframes.sound.MusicDeclaration
+import hyperframes.sound.MusicLibrary
 import hyperframes.sound.ResolvedMusic
 import hyperframes.sound.ResolvedSfx
 import hyperframes.sound.SceneSoundInput
@@ -30,7 +31,6 @@ import hyperframes.template.DataPoint
 import hyperframes.template.KineticCaptionsTemplate
 import hyperframes.template.TitleCardTemplate
 import hyperframes.vendor.GsapLibrary
-import video.kernel.music.MusicLibrary
 import java.util.Locale
 
 /**

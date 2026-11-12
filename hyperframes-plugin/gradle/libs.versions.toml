@@ -2,12 +2,6 @@
 hyperframes = "0.0.14"
 youtube-auth = "0.0.2"
 video-kernel = "0.7.0"
-# HF-MUSIC-LIBRARY US-3 — `video.kernel.music` only exists in 0.8.0, published
-# on JitPack (Central is stuck at 0.7.0 while the Sonatype canal is restricted;
-# JitPack serves the repo-level coordinate). To normalise back to
-# `education.cccp:video-kernel` on Central at the channel reset:
-# drop this entry and point `video-kernel` to the new version + BOM.
-video-kernel-jitpack = "v0.8.0"
 kotlin = "2.4.10"
 asciidoctorj = "3.0.1"
 plugin-publish = "2.2.1"
@@ -15,7 +9,6 @@ plugin-publish = "2.2.1"
 [libraries]
 asciidoctorj = { module = "org.asciidoctor:asciidoctorj", version.ref = "asciidoctorj" }
 video-kernel = { module = "education.cccp:video-kernel", version.ref = "video-kernel" }
-video-kernel-jitpack = { module = "com.github.cccp-education:video-kernel-gradle", version.ref = "video-kernel-jitpack" }
 kotlin-stdlib = { module = "org.jetbrains.kotlin:kotlin-stdlib" }
 kotlin-test-junit5 = { module = "org.jetbrains.kotlin:kotlin-test-junit5", version.ref = "kotlin" }
 junit-jupiter = { module = "org.junit.jupiter:junit-jupiter" }

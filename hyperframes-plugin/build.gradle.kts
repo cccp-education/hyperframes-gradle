@@ -20,9 +20,6 @@ version =
 repositories {
     mavenCentral()
     gradlePluginPortal()
-    // HF-MUSIC-LIBRARY US-3 — `video-kernel 0.8.0` (the `video.kernel.music`
-    // contract) is served by JitPack only until the Central canal reopens.
-    maven("https://jitpack.io")
 }
 
 dependencies {
@@ -30,10 +27,12 @@ dependencies {
 
     implementation(kotlin("stdlib-jdk8"))
     // N1 shared engine-neutral video kernel (spike — 2nd engine adapter).
-    // HF-MUSIC-LIBRARY US-3 — 0.8.0 (the `video.kernel.music` contract) is only
-    // published on JitPack today; see the catalog note to normalise back to
-    // `education.cccp:video-kernel` (Central) at the channel reset.
-    implementation(libs.video.kernel.jitpack)
+    // HF-MUSIC-LIBRARY US-4 — the `video.kernel.music` contract (0.8.0) is only
+    // on JitPack today: a *published* plugin cannot depend on it (its POM
+    // dependencies must resolve from the consumer's repositories), so
+    // `hyperframes.sound` keeps a verbatim N2 copy (cadrage D4 fallback) until
+    // `education.cccp:video-kernel:0.8.0` reaches Maven Central.
+    implementation(libs.video.kernel)
     implementation(libs.asciidoctorj)
     implementation(libs.jackson.databind)
     implementation(libs.jackson.module.kotlin)

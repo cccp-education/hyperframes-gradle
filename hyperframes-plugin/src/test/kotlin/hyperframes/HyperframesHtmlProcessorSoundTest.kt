@@ -1,9 +1,9 @@
 package hyperframes
 
 import hyperframes.sound.MusicDeclaration
-import video.kernel.music.MusicLibrary
-import video.kernel.music.MusicLicence
-import video.kernel.music.MusicTrack
+import hyperframes.sound.MusicLibrary
+import hyperframes.sound.MusicLicence
+import hyperframes.sound.MusicTrack
 import kotlin.test.Test
 import kotlin.test.assertContains
 import kotlin.test.assertEquals
