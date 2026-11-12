@@ -1,0 +1,203 @@
+= CADRAGE EPIC — HF-SPEAKER-NOTES (notes d'orateur lues dans la vidéo)
+:toc:
+:_session_: S-049
+:_date_: 2026-11-11
+:_pilote_: hyperframes (Watts) · transverse video-kernel (N1) + capsule (Détroit)
+:_statut_: 🟡 CADRÉ — aucun code (gouvernance pure)
+
+'''
+
+== 1. Objectif
+
+Permettre à l'auteur du **document AsciiDoc pilote** de rédiger des **notes
+d'orateur** (`[NOTE.speaker]`) attachées à chaque scène, et faire en sorte que
+ces notes soient **lues dans la vidéo** : synthèse TTS par scène, puis **muxage
+audio aligné sur la timeline** des scènes.
+
+Le livrable n'est pas « un MP4 avec du texte » mais un **MP4 narré** :
+l'AsciiDoc reste la source de vérité (visuel **et** parole), zéro post-production
+manuelle.
+
+'''
+
+== 2. Audit de l'existant
+
+[cols="1,3,2", options="header"]
+|===
+| # | Ce qui existe | Verdict
+
+| C1
+| **Narration = `[hyperframes-track]`.** `HyperframesHtmlProcessor` transforme
+  chaque paragraphe `[hyperframes-track]` en `<div class="hyperframes-track"><p>…</p></div>`;
+  `NarrationTrackExtractor` en extrait les textes ; `generateHyperframesNarration`
+  les synthétise (`video.kernel.TextToSpeech`, adapter espeak).
+| 🟢 Brique réutilisable — mais **pas des notes d'orateur** : le texte du track
+  est du contenu de scène (visible), pas une note hors écran.
+
+| C2
+| **Narration non muxée.** `postProcessHyperframes` ne fait que le burn-in de
+  sous-titres + l'audio post (BGM/loudness). Les `narration-<n>.wav` sont
+  produites mais **jamais injectées dans le MP4**.
+| 🔴 **La vidéo ne « lit » rien aujourd'hui** — c'est le cœur du besoin.
+
+| C3
+| **Capsule a déjà la grammaire.** `[NOTE.speaker]` + bloc `--` … `--`,
+  parsée par `RevealJsSpeakerNoteParser` (→ `VideoScript`/`VideoSegment`,
+  port N1 `video.kernel.segment.SegmentSource`).
+| 🟢 Grammaire éprouvée à réutiliser (un seul format d'authoring vidéo).
+
+| C4
+| **Seuil de factorisation « à 2 »** (amendement S-195) : le parseur de notes
+  a 1 consommateur (capsule) ; hyperframes en devient un 2ᵉ.
+| 🟡 **Éligible N1** (`video.kernel.notes.*`) — la décision d'exécution reste
+  au pilote ; la duplication N2 verbatim reste tolérée.
+
+| C5
+| **Hints de prononciation** `<<mot|phon>>` déjà étendus dans la narration
+  (HF-7e) et dans le dictionnaire de domaine (HF-7d).
+| 🟢 À réappliquer aux notes (même chemin).
+
+| C6
+| **Scènes hyperframes** = sections de niveau supérieur (`sect1`, `== Titre`) ;
+  **segments capsule** = slides reveal.js. La **grammaire de notes** est
+  commune, le **mapping scène/slide** est local.
+| ⚠️ Le parseur N1 doit être paramétrable (niveau de titre / délimiteurs).
+
+| C7
+| **Roadmap hyperframes** : `INDEX.adoc` (pas de `BACKLOG.adoc`). Aucun EPIC
+  « speaker notes ».
+| 🔴 EPIC manquant — ce document le crée.
+
+|===
+
+'''
+
+== 3. Décisions (D1→D11)
+
+. **D1 — Format d'authoring unique.** `[NOTE.speaker]` + bloc délimité `--`
+  (exactement la grammaire capsule) :
++
+[source,asciidoc]
+----
+[.hyperframes-composition]
+== Le document devient signal
+
+[NOTE.speaker]
+--
+Ici on explique que le document est la source de vérité.
+<<signal|si-gnal>> est le mot-clé de cette scène.
+--
+----
+. **D2 — Portée d'attachement.** Une note s'attache à la **section de niveau
+  supérieur qui la précède** (la scène) ; une note hors section est ignorée avec
+  avertissement. Une section sans note n'a **pas** de narration (backward compat).
+. **D3 — Domaine pur `hyperframes.notes`.** `SpeakerNote` (sectionId, title,
+  text) + `SpeakerNotesDocument` + `SpeakerNotesExtractor` (pur, sans I/O).
+. **D4 — Promotion N1 (factorisation à 2).** Extraire la **grammaire du bloc**
+  dans `video.kernel.notes.SpeakerNoteBlockParser` (paramétrable : niveau de
+  titre, marqueur de note) ; `capsule` (`RevealJsSpeakerNoteParser`) délègue ;
+  `hyperframes` consomme. `video-kernel 0.7.x → 0.8.0` (additif, manifeste +n).
+  Fallback assumé : si le pilote refuse le bump noyau, duplication N2 verbatim.
+. **D5 — Les notes ne s'affichent pas.** Le processor **retire** le bloc de
+  notes du rendu visuel et émet, par scène, un marqueur de narration
+  (`<div class="hyperframes-track hyperframes-narration" data-narration-id="…">`
+  avec le texte de la note) — consommé par `NarrationTrackExtractor` dans
+  l'**ordre des scènes**.
+. **D6 — TTS par scène.** `generateHyperframesNarration` produit
+  `narration-<n>.wav` (déjà) ; l'ordre `n` == ordre de scène ; aucune nouvelle
+  tâche TTS.
+. **D7 — Muxage dans la vidéo.** Nouvelle tâche `muxHyperframesNarration`
+  (groupe `generate`) : ffmpeg `adelay`/`amix` des WAV aux offsets de scène
+  (`data-start`) puis `-map 0:v -map [aout] -shortest`. Dégradé si ffmpeg ou
+  narration absents (jamais bloquant) ; `strict` pour promouvoir en échec.
+  Alternative écartée : laisser la CLI HyperFrames gérer l'audio d'un bloc
+  `[.hyperframes-audio]` (elle ne connaît pas les notes).
+. **D8 — Prononciation.** Les hints `<<mot|phon>>` des notes passent par le
+  même `expandInlineHints` (HF-7e) avant TTS.
+. **D9 — Backward compat totale.** Zéro note → HTML et MP4 **byte-identiques**
+  (aucun marqueur émis, aucune tâche de mux active).
+. **D10 — Tests sans TTS réel.** Unit (extracteur, mapping, injection),
+  BDD `@speaker-notes` (fake `TextToSpeech`), functional TestKit (`--dry-run`
+  prouvant le graphe : notes → narration → mux). Aucun espeak/ffmpeg exigé en CI.
+. **D11 — Traçabilité N3.** `metadata.json` expose `speakerNotes: [{sceneId,
+  title}]` (additif) pour que le contexte augmenté sache quelles scènes parlent.
+
+'''
+
+== 4. Architecture cible
+
+----
+ AsciiDoc pilote (source de vérité)
+   ├─ scènes  : [.hyperframes-composition] == Titre   (visuel)
+   └─ notes   : [NOTE.speaker] -- texte --             (parole)
+        │
+        ▼  HyperframesHtmlProcessor (N2)
+ index.html  (notes retirées du visuel)
+   └─ <div class="hyperframes-track hyperframes-narration" data-narration-id>
+        │
+        ├── NarrationTrackExtractor (pur) ──▶ textes ordonnés
+        │        │
+        │        ▼  generateHyperframesNarration (TTS, port N1)
+        │   narration-1.wav … narration-n.wav
+        │        │
+        │        ▼  muxHyperframesNarration (ffmpeg, N2)   ← NOUVEAU
+        │   <deck>.mp4  (vidéo + narration alignée)
+        │
+        └── metadata.json (N3) : speakerNotes [{sceneId,title}]
+
+ video-kernel (N1) ── SpeakerNoteBlockParser (grammaire partagée capsule/hyperframes)
+----
+
+'''
+
+== 5. User Stories
+
+[cols="1,3,1,1", options="header"]
+|===
+| US | Livrable | Effort | Statut
+
+| US-0 | Cadrage (ce document) + arbitrage N1 vs duplication N2 | — | ✅ S-049
+| US-1 | **Noyau** : `video.kernel.notes.SpeakerNoteBlockParser` (grammaire
+  `[NOTE.speaker]` + `--`, paramétrable) + tests unit ; adoption capsule
+  (`RevealJsSpeakerNoteParser` délègue) ; `video-kernel 0.8.0` + publication. | M | 🟡
+| US-2 | **hyperframes — extraction** : domaine `hyperframes.notes`
+  (`SpeakerNote`, `SpeakerNotesDocument`, `SpeakerNotesExtractor`), mapping
+  note ↔ section de scène ; tests unit. | M | 🟡
+| US-3 | **hyperframes — injection** : processor retire le bloc de notes et émet
+  le marqueur de narration par scène (ordre des scènes) ; hints de prononciation ;
+  backward compat byte-identique sans note. | L | 🟡
+| US-4 | **hyperframes — TTS par scène** : câblage `generateHyperframesNarration`
+  sur les notes (ordre scène = index WAV), `NarrationTrackExtractor` étendu. | S | 🟡
+| US-5 | **hyperframes — muxage** : tâche `muxHyperframesNarration` (ffmpeg
+  `adelay`/`amix`, offsets de scène), opt-in, dégradé, `strict`. | L | 🟡
+| US-6 | **Traçabilité N3** : `speakerNotes` dans `metadata.json`. | S | 🟡
+| US-7 | **BDD + dogfooding** : `@speaker-notes` (fake TTS), FT TestKit du graphe,
+  dogfooding réel sur un deck FPA (espeak + ffmpeg, `/tmp`). | M | 🟡
+| US-8 | **Docs** : `doc/PILOTAGE_HYPERFRAMES.adoc` (DSL notes) + README. | S | 🟡
+|===
+
+*~9 US, ~20 pts.* Ordre : US-1 (N1, débloque) → US-2 → US-3 → US-4 → US-5 →
+US-6 → US-7 → US-8.
+
+'''
+
+== 6. Risques
+
+[cols="1,3,2,2", options="header"]
+|===
+| ID | Risque | Impact | Probabilité
+| R-01 | Publication `video-kernel 0.8.0` (DAG MEMPHIS) bloque US-2+ | Démarrage | Moyenne — ordonnancer US-1 en premier
+| R-02 | Sync audio/scène imprécise (durées de scène ≠ durée TTS) | Qualité | Certaine — tolérance + `-shortest`, jamais de dérive cumulée
+| R-03 | espeak/ffmpeg absents en CI | Faux échecs | Levé — D10 (fake TTS, graphe testé, dégradé)
+| R-04 | Régression visuelle (notes affichées) | Contenu | Levée — D5 + test byte-identique sans note
+| R-05 | Duplication N2 si le noyau n'est pas promu | Dette | Faible — D4 (seuil à 2)
+|===
+
+'''
+
+== 7. Portée de la session S-049
+
+* Cadrage + décisions + US + risques (ce document).
+* Mise à jour `INDEX.adoc` (roadmap + section EPIC).
+* Rapport `.agents/sessions/049-hf-speaker-notes-cadrage.adoc`.
+* **Zéro code, zéro publication, zéro secret.** `Local = Build, Tests = CI`.

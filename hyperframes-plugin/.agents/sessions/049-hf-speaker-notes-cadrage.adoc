@@ -1,0 +1,46 @@
+= Rapport de session 049 — Cadrage EPIC HF-SPEAKER-NOTES
+:session: 049
+:borough: Watts (hyperframes)
+:date: 2026-11-11
+:statut: ✅ TERMINÉ (gouvernance pure, zéro code)
+
+== Mission
+
+Regarder le backlog/roadmap de hyperframes et créer l'EPIC des **notes
+d'orateur** rédigées dans l'AsciiDoc pilote et **lues dans la vidéo** — s'il
+n'existe pas.
+
+== Constat
+
+Le roadmap (`INDEX.adoc` — hyperframes n'a pas de `BACKLOG.adoc`) ne contient
+aucun EPIC sur les notes d'orateur. L'existant :
+
+* narration via `[hyperframes-track]` (contenu de scène visible) →
+  `NarrationTrackExtractor` → `generateHyperframesNarration` (TTS) ;
+* **mais** les WAV produits ne sont **jamais muxés** dans le MP4
+  (`postProcessHyperframes` = sous-titres + audio post uniquement) ;
+* capsule possède déjà la grammaire `[NOTE.speaker]` (`RevealJsSpeakerNoteParser`,
+  port N1 `video.kernel.segment`).
+
+== Livré
+
+* `.agents/CADRAGE_EPIC_HF_SPEAKER_NOTES.adoc` — 7 constats, 11 décisions,
+  architecture, 9 US (~20 pts), 5 risques.
+* Décisions structurantes : format unique `[NOTE.speaker]` ; attachement à la
+  section de scène précédente ; domaine pur `hyperframes.notes` ; promotion N1
+  `video.kernel.notes.SpeakerNoteBlockParser` (factorisation à 2 avec capsule) ;
+  retrait des notes du visuel + marqueur de narration par scène ; TTS par scène ;
+  **nouvelle tâche `muxHyperframesNarration`** (ffmpeg `adelay`/`amix`) ;
+  backward compat byte-identique sans note ; tests sans TTS réel.
+* `INDEX.adoc` : ligne roadmap + section EPIC + prochaine session (US-1 N1).
+
+== Gates
+
+* **Aucun code modifié** ; zéro test lancé ; zéro publication ; zéro secret.
+* `Local = Build, Tests = CI` respecté (gouvernance pure).
+
+== Suite
+
+Session 050 — US-1 : `video-kernel` `SpeakerNoteBlockParser` (N1, paramétrable) +
+adoption capsule (`RevealJsSpeakerNoteParser` délègue) + publication (`0.8.0`),
+puis US-2 extraction hyperframes. Attention : DAG MEMPHIS pour le bump noyau.

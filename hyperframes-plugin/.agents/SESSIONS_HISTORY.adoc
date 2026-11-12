@@ -697,3 +697,14 @@ Contenu : correctifs S-040. Rapport `.agents/sessions/041-release-0.0.11.adoc`.
 Publication JitPack de hyperframes-plugin 0.0.14. JitPack : 0.0.14 — POM HTTP 200. Shim `useModule` pour
 `education.cccp.build.*` (tag JitPack `0.0.15`). Rapport
 `hyperframes-plugin/.agents/sessions/047-jitpack-mirror.adoc`.
+
+== Session 049 — Cadrage EPIC HF-SPEAKER-NOTES — 2026-11-11
+
+Notes d'orateur lues dans la vidéo. Constat : la narration (`[hyperframes-track]`
+→ TTS) n'est **jamais muxée** dans le MP4. Décisions : `[NOTE.speaker]`
+(grammaire capsule), attachement section de scène, domaine pur
+`hyperframes.notes`, promotion N1 `video.kernel.notes.SpeakerNoteBlockParser`
+(factorisation à 2), marqueur de narration par scène, TTS par scène,
+`muxHyperframesNarration` (ffmpeg `adelay`/`amix`), backward compat. 9 US ~20 pts.
+Cadrage `.agents/CADRAGE_EPIC_HF_SPEAKER_NOTES.adoc`, rapport
+`.agents/sessions/049-hf-speaker-notes-cadrage.adoc`. Zéro code.

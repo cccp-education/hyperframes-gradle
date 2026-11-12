@@ -13,9 +13,9 @@ _DAG_ : N2 — Plugin Gradle de transformation documentaire AsciiDoc → vidéo 
 _Dépendance N2_ : codex-gradle (compileOnly, AsciidoctorJ partagé)
 _Bridge externe_ : HyperFrames CLI via le noyau `VideoEngine` (`node <cliScript> render <dir> --output <mp4>`)
 
-_Dernière session terminée_ : 046 — **Adoption N1 + US-7 parallaxe + release `0.0.14`**. Rapport `.agents/sessions/046-adoption-n1-us7-parallax-release-0.0.14.adoc`.
-_Prochaine session_ : 047 — CI / dogfooding enrichi / maintenance. **Priorité qualité vidéo — pas de déploiement YouTube.**
-_Version publiée_ : **0.0.14** (Maven Central) + Gradle Plugin Portal (handle `cccp-education`). Catalogue ws **`0.0.115`** (BOM `0.0.115`), noyau **`video-kernel 0.7.0`**.
+_Dernière session terminée_ : 049 — **HF-SPEAKER-NOTES — cadrage** (notes d'orateur lues dans la vidéo). Rapport `.agents/sessions/049-hf-speaker-notes-cadrage.adoc`.
+_Prochaine session_ : 050 — **US-1** `video.kernel.notes.SpeakerNoteBlockParser` (N1) puis US-2 extraction hyperframes. **Priorité qualité vidéo.**
+_Version publiée_ : **0.0.14** (Maven Central) + JitPack `0.0.14` (tag `v0.0.14`). Catalogue ws **`0.0.115`** (BOM `0.0.115`), noyau **`video-kernel 0.7.0`**.
 
 '''
 == RÈGLES ABSOLUES (résumé)
@@ -68,6 +68,7 @@ _Version publiée_ : **0.0.14** (Maven Central) + Gradle Plugin Portal (handle `
 | HF-YOUTUBE-PUBLISH | **Déploiement YouTube industrialisé** (transverse hyperframes/video-kernel/capsule) — upload automatique OAuth 2.0 (`videos.insert` resumable + `thumbnails.set`) + titre/description/chapitres/hashtags/liens/navigation. N1 `video.kernel.publish` (modèle + port `VideoPublisher` + validation + composition) ↔ N2 adaptateurs. Cadrage `.agents/CADRAGE_EPIC_HF_YOUTUBE_PUBLISH.adoc`. | ⏸️ **GELÉ (décision pilote S-037)** — US-0 ✅ + US-1 ✅ + US-1b ✅ (noyau publié) + US-2 ✅ (hyperframes) + US-1c ✅ + US-5 ✅ (release `0.0.9`) + US-3a ✅ (capsule) + US-3b ✅ (capsule S-206) + **US-4 BDD ✅ (deux moteurs : hyperframes S-035/S-036, capsule S-207)** ; reste US-4b dogfooding réel (suspendu). | P1
 | HF-DEMO-QUALITY | **Démo de référence + portage des capacités au DSL** — `demo-video/` (5 scènes, 48 s, transitions CSS, médias PD/CC0, chrome, typographie display) comme cible qualité ; puis porter transitions/médias/chrome/entrées/fond média/parallaxe dans `HyperframesHtmlProcessor` avec tests. | ✅ **TERMINÉ 7/7** — US-1/2/3 S-036, US-2b S-037, US-4 + US-5 S-038, US-6 S-044 (fond média), **US-7 S-046** (parallaxe opt-in, +3 UT +2 UT processeur +1 FT +1 BDD) | P1
 | PUBLISH-ADAPTER-N1 | **Briques pures de publication au noyau** — adoption `video-kernel 0.7.0` (parser chapitres, credentials, commande JSON sans Jackson, seam HTTP) + `youtube-auth-plugin 0.0.2` ; suppression des copies N2. | ✅ **TERMINÉ (S-046)** | P1
+| HF-SPEAKER-NOTES | **Notes d'orateur lues dans la vidéo** — `[NOTE.speaker]` dans l'AsciiDoc pilote, extraites (domaine pur / grammaire N1 partagée avec capsule), injectées comme narration par scène, synthèse TTS puis **muxage audio aligné** dans le MP4. Cadrage `.agents/CADRAGE_EPIC_HF_SPEAKER_NOTES.adoc`. | 🟡 **CADRÉ (S-049)** — 9 US ~20 pts | P1
 |===
 
 '''
@@ -261,6 +262,31 @@ sert qu'à la lecture. Guide §2.2 du cadrage.
 | US-4b | Dogfooding réel skip-gardé (upload réel, accord pilote + `youtube.yaml`) | hyperframes + capsule | ⏸️ GELÉ (S-037)
 | US-5 | Release `hyperframes-plugin 0.0.9` (DAG MEMPHIS `0.0.99`) | — | ✅ S-035
 |===
+
+'''
+== EPIC HF-SPEAKER-NOTES — Notes d'orateur lues dans la vidéo
+
+_Statut_ : 🟡 **CADRÉ (S-049)**. Cadrage `.agents/CADRAGE_EPIC_HF_SPEAKER_NOTES.adoc`.
+
+_Problème_ : hyperframes sait produire une narration à partir de blocs
+`[hyperframes-track]` (contenu de scène **visible**) et synthétiser des WAV, mais
+**il n'existe ni notes d'orateur hors écran, ni muxage de la narration dans le
+MP4** : la vidéo produite ne « lit » rien.
+
+_Solution_ : l'auteur rédige `[NOTE.speaker]` (grammaire déjà utilisée par
+capsule) dans l'AsciiDoc pilote ; le processor retire la note du visuel et émet
+un marqueur de narration par scène ; `generateHyperframesNarration` synthétise
+par scène ; une nouvelle tâche `muxHyperframesNarration` aligne les WAV sur la
+timeline (`adelay`/`amix`) et muxe dans le MP4.
+
+_Décisions clés_ : format unique `[NOTE.speaker]` (D1) ; attachement à la section
+précédente (D2) ; domaine pur `hyperframes.notes` (D3) ; promotion N1
+`video.kernel.notes.SpeakerNoteBlockParser` — factorisation à 2 avec capsule
+(D4) ; backward compat byte-identique sans note (D9) ; tests sans TTS réel (D10).
+
+_US_ : US-0 cadrage ✅ S-049 · US-1 N1 grammaire · US-2 extraction · US-3 injection
+· US-4 TTS par scène · US-5 muxage · US-6 traçabilité N3 · US-7 BDD + dogfooding ·
+US-8 docs.
 
 '''
 == Sessions
