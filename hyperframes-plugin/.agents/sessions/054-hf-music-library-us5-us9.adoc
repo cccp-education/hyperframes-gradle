@@ -72,4 +72,12 @@ depuis `--output`).
 
 * Zéro code de production modifié cette session (tests + docs uniquement).
 * Zéro secret, zéro audio committé, zéro Python.
-* Gates locaux : compiles ×3 + `ktlintCheck` VERTS ; preuve = CI du commit poussé.
+* Gates locaux : compiles ×3 + `ktlintCheck` VERTS ; **CI verte** `43270776797` (commit `b1992ab`).
+
+== Preuve CI
+
+|===
+| Run | Commit | Résultat
+
+| `43270776797` | `b1992ab` | ✅ **VERT** — `Compile plugin` · `Run unit tests` · `Run functional tests (GradleTestKit)` · `Run Cucumber BDD tests` · `Full check (validation + plugin descriptors)`
+|===
