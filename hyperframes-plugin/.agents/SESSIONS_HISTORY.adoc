@@ -708,3 +708,16 @@ Notes d'orateur lues dans la vidéo. Constat : la narration (`[hyperframes-track
 `muxHyperframesNarration` (ffmpeg `adelay`/`amix`), backward compat. 9 US ~20 pts.
 Cadrage `.agents/CADRAGE_EPIC_HF_SPEAKER_NOTES.adoc`, rapport
 `.agents/sessions/049-hf-speaker-notes-cadrage.adoc`. Zéro code.
+
+== Session 050 — Cadrage EPIC HF-MUSIC-LIBRARY — 2026-11-11
+
+Bibliothèque musicale (BGM) issue du borough newpipe (Nashville) pour élargir la
+gamme esthétique. Constat : BGM = fichier local codé en dur ; aucune balise de
+son dans l'AsciiDoc. Décisions : newpipe producteur (outil séparé, frontière
+GPL), `music-library.json` versionné + audio gitignoré + gate de licence
+obligatoire, modèle N1 `video.kernel.music` (`MusicTrack`/`MusicLibrary`/
+`MusicTrackSelector`/`SoundCue`/`SoundSequence`), **balises de son AsciiDoc**
+(`[.hyperframes-music]`/`[.hyperframes-sfx]`) déclarant la séquence par scène,
+validateur pur, résolution + copie sha256, backward compat. 9 US ~21 pts.
+Cadrage `.agents/CADRAGE_EPIC_HF_MUSIC_LIBRARY.adoc`, rapport
+`.agents/sessions/050-hf-music-library-cadrage.adoc`. Zéro code.

@@ -1,41 +1,46 @@
-= PROMPT_REPRISE — HyperFrames Gradle (Session 049 TERMINÉE → 050)
-:session: 050
+= PROMPT_REPRISE — HyperFrames Gradle (Session 050 TERMINÉE → 051)
+:session: 051
 :borough: Watts
-:session_precedente: 049 — Cadrage EPIC HF-SPEAKER-NOTES ✅
+:session_precedente: 050 — Cadrage EPIC HF-MUSIC-LIBRARY ✅
 _note_ : fichier canonique = `.agents/PROMPT_REPRISE.adoc`.
 
-== Session 049 (TERMINÉE)
+== Session 050 (TERMINÉE)
 
-* EPIC **HF-SPEAKER-NOTES** cadré : `.agents/CADRAGE_EPIC_HF_SPEAKER_NOTES.adoc`
-  (7 constats, 11 décisions, 9 US ~20 pts).
-* Constat central : la vidéo produite **ne lit rien** — la narration
-  (`[hyperframes-track]` → TTS) n'est jamais muxée dans le MP4.
-* Décisions : `[NOTE.speaker]` (grammaire capsule), attachement à la section de
-  scène, domaine pur `hyperframes.notes`, promotion N1
-  `video.kernel.notes.SpeakerNoteBlockParser` (seuil à 2), marqueur de narration
-  par scène, TTS par scène, **`muxHyperframesNarration`** (ffmpeg
-  `adelay`/`amix`), backward compat byte-identique, tests sans TTS réel.
-* `INDEX.adoc` : roadmap + section EPIC + prochaine session.
-* Zéro code, zéro publication.
+* EPIC **HF-MUSIC-LIBRARY** cadré : `.agents/CADRAGE_EPIC_HF_MUSIC_LIBRARY.adoc`
+  (9 constats, 12 décisions, 9 US ~21 pts).
+* Newpipe (Nashville) = **producteur** de la bibliothèque musicale (outil séparé,
+  frontière GPL) : extraction autorisée → `music-library.json` (provenance/
+  licence) + audio gitignoré.
+* **Le son se déclare dans l'AsciiDoc** : `[.hyperframes-music]` (mood/track/
+  volume/fade-in/fade-out/loop) et `[.hyperframes-sfx]`, attachés aux scènes ;
+  la **séquence sonore** suit l'ordre du document (héritage, `track: none`,
+  fondus) ; `SoundSequenceValidator` pur échoue avant rendu.
+* N1 `video.kernel.music` : `MusicTrack`, `MusicLibrary`, `MusicTrackSelector`,
+  `SoundCue`, `SoundSequence`.
+* Backward compat : `[.hyperframes-audio]` inchangé.
 
 == État
 
 * `hyperframes-plugin 0.0.14` (Central + JitPack `v0.0.14`) ; `video-kernel 0.7.0`.
-* YouTube (upload) : prêt côté code, bloqué côté Google (~48 h).
-* EPIC en cours : **HF-SPEAKER-NOTES** (0/9 US livrées côté code, US-0 ✅).
+* EPICs ouverts : **HF-SPEAKER-NOTES** (cadré S-049) et **HF-MUSIC-LIBRARY**
+  (cadré S-050). YouTube upload prêt, bloqué côté Google (~48 h).
+* newpipe : dormant (réactivation requise, sa gouvernance).
 
-== Mission Session 050 — US-1 (N1)
+== Mission Session 051 — US-1 (newpipe, producteur)
 
-1. `video-kernel` : `video.kernel.notes.SpeakerNoteBlockParser` (grammaire
-   `[NOTE.speaker]` + bloc `--`, paramétrable niveau de titre / marqueur) +
-   tests unit ; manifeste d'API + bump `0.7.0 → 0.8.0`.
-2. Adoption `capsule` : `RevealJsSpeakerNoteParser` délègue au N1 (non-régression).
-3. Publication DAG : MEMPHIS BOM/catalogue → `video-kernel 0.8.0` → adoption.
-4. Puis US-2 : domaine `hyperframes.notes` (extraction + mapping scène).
+1. Réactiver le borough newpipe (session sous **sa** gouvernance).
+2. Extraire une liste de sources **autorisées** (`musics.yml`), enrichir via
+   `mp3-organizer` (durée, tags, mood, énergie).
+3. Écrire `music-library.json` versionné : `MusicTrack(id, title, artist, file,
+   sha256, durationSeconds, licence, sourceUrl, attribution, tags, mood, energy)`
+   + `schemaVersion`. **Licence obligatoire** ; audio gitignoré.
+4. Puis US-2 : noyau `video.kernel.music` (modèle + sélecteur + séquence) et
+   publication DAG MEMPHIS.
 
 == Points d'attention
 
 * **Local = Build, Tests = CI** ; **Règle 2** accord permanent.
-* Ne pas afficher les notes hors écran (retrait du visuel, D5).
+* **Licence** : aucune musique tierce non licenciée ; audio jamais committé/publié.
+* **GPL** : hyperframes/capsule ne dépendent pas de newpipe au compile.
 * Zéro secret ; zéro Python ; English only code/tests/features.
-* La narration doit être **alignée** sur les scènes, jamais dérivante (D7).
+* Le son est une **séquence du document** (D12), pas un réglage caché.

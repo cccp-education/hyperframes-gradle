@@ -1,0 +1,54 @@
+= Rapport de session 050 — Cadrage EPIC HF-MUSIC-LIBRARY
+:session: 050
+:borough: Watts (hyperframes)
+:date: 2026-11-11
+:statut: ✅ TERMINÉ (gouvernance pure, zéro code)
+
+== Mission
+
+Introduire un EPIC qui utilise le borough **newpipe** (Nashville) pour extraire
+de la musique et élargir la gamme esthétique de l'expérience ; le son se déclare
+aussi **dans le document AsciiDoc** (séquences désirées).
+
+== Constat
+
+* hyperframes : BGM = un fichier local `bgm.mp3` codé en dur (`[.hyperframes-audio]`).
+  Aucune bibliothèque, aucune sélection par ambiance, aucune provenance.
+* newpipe : `downloadMusic` (YouTube→MP3, NewPipeExtractor, sessions OAuth) +
+  `musics.yml` + `mp3-organizer` (métadonnées, agents playlist). **Dormant
+  depuis avril 2026**.
+* Aucune **balise de son** dans l'AsciiDoc : l'auteur ne peut pas déclarer une
+  séquence sonore scène par scène.
+* capsule a le même besoin (`audioPost.bgmFile`) → 2ᵉ consommateur.
+* Contraintes : NewPipeExtractor **GPL-3.0** (frontière d'outil), musique
+  tierce non licenciée (gate de provenance), audio non publiable dans un dépôt
+  public.
+
+== Livré
+
+* `.agents/CADRAGE_EPIC_HF_MUSIC_LIBRARY.adoc` — 9 constats, 12 décisions,
+  architecture, 9 US (~21 pts), 8 risques.
+* Décisions structurantes : newpipe = **producteur** (outil séparé, frontière
+  GPL) → `music-library.json` versionné + audio gitignoré ; **gate de licence**
+  obligatoire (`own`/`cc0`/`cc-by`/`royalty-free`/`licensed`, rejet par défaut) ;
+  modèle N1 `video.kernel.music` (`MusicTrack`, `MusicLibrary`,
+  `MusicTrackSelector`, **`SoundCue`/`SoundSequence`**) ; **balises de son
+  AsciiDoc** `[.hyperframes-music]` / `[.hyperframes-sfx]` attachées aux scènes,
+  séquence dans l'ordre du document (héritage, `track: none`, fondus), validateur
+  pur ; résolution + copie `sha256` (Économie d'encre) ; backward compat
+  `[.hyperframes-audio]` ; adoption capsule ; attribution `cc-by` dans la
+  description de publication.
+* `INDEX.adoc` : ligne roadmap + section EPIC + prochaine session (US-1 newpipe).
+
+== Gates
+
+* **Aucun code modifié** ; zéro test ; zéro publication ; zéro secret.
+* `Local = Build, Tests = CI` respecté (gouvernance pure).
+
+== Suite
+
+Session 051 — US-1 : réactivation **newpipe** (producteur) sous sa propre
+gouvernance : extraction d'une liste de sources **autorisées**, enrichissement
+`mp3-organizer`, écriture de `music-library.json` (provenance/licence), audio
+gitignoré. Puis US-2 : noyau `video.kernel.music` (modèle + sélecteur + séquence)
+et publication DAG MEMPHIS.

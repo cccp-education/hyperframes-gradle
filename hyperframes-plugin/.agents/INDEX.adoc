@@ -13,8 +13,8 @@ _DAG_ : N2 — Plugin Gradle de transformation documentaire AsciiDoc → vidéo 
 _Dépendance N2_ : codex-gradle (compileOnly, AsciidoctorJ partagé)
 _Bridge externe_ : HyperFrames CLI via le noyau `VideoEngine` (`node <cliScript> render <dir> --output <mp4>`)
 
-_Dernière session terminée_ : 049 — **HF-SPEAKER-NOTES — cadrage** (notes d'orateur lues dans la vidéo). Rapport `.agents/sessions/049-hf-speaker-notes-cadrage.adoc`.
-_Prochaine session_ : 050 — **US-1** `video.kernel.notes.SpeakerNoteBlockParser` (N1) puis US-2 extraction hyperframes. **Priorité qualité vidéo.**
+_Dernière session terminée_ : 050 — **HF-MUSIC-LIBRARY — cadrage** (BGM newpipe + balises de son/séquences AsciiDoc). Rapport `.agents/sessions/050-hf-music-library-cadrage.adoc`.
+_Prochaine session_ : 051 — **US-1** réactivation `newpipe` (producteur : extraction autorisée + `music-library.json`), puis US-2 (N1 `video.kernel.music`). **Priorité qualité vidéo.**
 _Version publiée_ : **0.0.14** (Maven Central) + JitPack `0.0.14` (tag `v0.0.14`). Catalogue ws **`0.0.115`** (BOM `0.0.115`), noyau **`video-kernel 0.7.0`**.
 
 '''
@@ -69,6 +69,7 @@ _Version publiée_ : **0.0.14** (Maven Central) + JitPack `0.0.14` (tag `v0.0.14
 | HF-DEMO-QUALITY | **Démo de référence + portage des capacités au DSL** — `demo-video/` (5 scènes, 48 s, transitions CSS, médias PD/CC0, chrome, typographie display) comme cible qualité ; puis porter transitions/médias/chrome/entrées/fond média/parallaxe dans `HyperframesHtmlProcessor` avec tests. | ✅ **TERMINÉ 7/7** — US-1/2/3 S-036, US-2b S-037, US-4 + US-5 S-038, US-6 S-044 (fond média), **US-7 S-046** (parallaxe opt-in, +3 UT +2 UT processeur +1 FT +1 BDD) | P1
 | PUBLISH-ADAPTER-N1 | **Briques pures de publication au noyau** — adoption `video-kernel 0.7.0` (parser chapitres, credentials, commande JSON sans Jackson, seam HTTP) + `youtube-auth-plugin 0.0.2` ; suppression des copies N2. | ✅ **TERMINÉ (S-046)** | P1
 | HF-SPEAKER-NOTES | **Notes d'orateur lues dans la vidéo** — `[NOTE.speaker]` dans l'AsciiDoc pilote, extraites (domaine pur / grammaire N1 partagée avec capsule), injectées comme narration par scène, synthèse TTS puis **muxage audio aligné** dans le MP4. Cadrage `.agents/CADRAGE_EPIC_HF_SPEAKER_NOTES.adoc`. | 🟡 **CADRÉ (S-049)** — 9 US ~20 pts | P1
+| HF-MUSIC-LIBRARY | **Bibliothèque musicale (BGM) issue de newpipe** — extraction YouTube→MP3 (Nashville, GPL boundary, outil séparé) → `music-library.json` (provenance/licence) → sélection N1 ; **balises de son dans l'AsciiDoc** (`[.hyperframes-music]`/`[.hyperframes-sfx]`) déclarant la **séquence sonore** par scène ; résolution + injection timeline. Cadrage `.agents/CADRAGE_EPIC_HF_MUSIC_LIBRARY.adoc`. | 🟡 **CADRÉ (S-050)** — 9 US ~21 pts | P1
 |===
 
 '''
@@ -287,6 +288,32 @@ précédente (D2) ; domaine pur `hyperframes.notes` (D3) ; promotion N1
 _US_ : US-0 cadrage ✅ S-049 · US-1 N1 grammaire · US-2 extraction · US-3 injection
 · US-4 TTS par scène · US-5 muxage · US-6 traçabilité N3 · US-7 BDD + dogfooding ·
 US-8 docs.
+
+'''
+== EPIC HF-MUSIC-LIBRARY — BGM issu du borough newpipe (séquences dans l'AsciiDoc)
+
+_Statut_ : 🟡 **CADRÉ (S-050)**. Cadrage `.agents/CADRAGE_EPIC_HF_MUSIC_LIBRARY.adoc`.
+
+_Problème_ : le BGM est un fichier `bgm.mp3` codé en dur (aucune bibliothèque,
+aucune sélection, aucune provenance), et l'auteur **ne peut pas déclarer de
+séquence sonore** dans le document pilote.
+
+_Solution_ : réactiver **newpipe** (Nashville) comme producteur d'une
+bibliothèque musicale (`music-library.json` versionné + audio gitignoré,
+provenance/licence obligatoire) ; hyperframes lit les **balises de son** de
+l'AsciiDoc (`[.hyperframes-music]` / `[.hyperframes-sfx]`) qui déclarent la
+séquence par scène (ambiance, piste, volume, fondus, boucle, arrêt), valide la
+séquence, résout chaque piste et l'injecte dans la timeline.
+
+_Décisions clés_ : frontière GPL (newpipe outil séparé, D1/D11) ; manifeste
+versionné + audio gitignoré (D2) ; gate de licence obligatoire (D3) ; modèle
+`sound` au noyau N1 — `MusicTrack`/`MusicTrackSelector`/**`SoundCue`/`SoundSequence`**
+(D4) ; séquence portée par le document (D7) ; **balises de son AsciiDoc** +
+validateur pur (D12) ; backward compat `[.hyperframes-audio]` (D6).
+
+_US_ : US-0 cadrage ✅ S-050 · US-1 réactivation newpipe · US-2 N1 (modèle +
+séquence) · US-3 DSL son (séquences) · US-4 résolution bibliothèque · US-5 tests
+· US-6 adoption capsule · US-7 attribution · US-8 crossfade v2 · US-9 docs.
 
 '''
 == Sessions

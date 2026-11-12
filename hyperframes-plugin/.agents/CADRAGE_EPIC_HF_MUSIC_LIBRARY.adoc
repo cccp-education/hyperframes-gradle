@@ -1,0 +1,285 @@
+= CADRAGE EPIC — HF-MUSIC-LIBRARY (BGM issu du borough newpipe)
+:toc:
+:_session_: S-050
+:_date_: 2026-11-11
+:_pilote_: hyperframes (Watts) · transverse newpipe (Nashville, producteur) + capsule (Détroit) + video-kernel (N1)
+:_statut_: 🟡 CADRÉ — aucun code (gouvernance pure)
+
+'''
+
+== 1. Objectif
+
+Élargir la **gamme esthétique** des vidéos produites en donnant au pipeline une
+**bibliothèque musicale** (BGM) sélectionnable, alimentée par le borough
+**newpipe** (Nashville) : extraction YouTube→MP3 déjà implémentée, catalogue
+`musics.yml`, gestion de bibliothèque `mp3-organizer`.
+
+L'auteur choisit une ambiance par scène (`calm`, `epic`, `documentary`, `tech`,
+`energetic`, `melancholic`, `playful`) **dans le document AsciiDoc** — balises
+`[.hyperframes-music]` / `[.hyperframes-sfx]` qui déclarent la **séquence
+sonore** désirée — ; le plugin résout chaque cue dans la bibliothèque, copie les
+pistes dans les assets et les injecte dans la timeline audio. La musique cesse
+d'être un fichier `bgm.mp3` codé en dur : c'est une **partition écrite dans le
+document**.
+
+'''
+
+== 2. Audit de l'existant
+
+[cols="1,3,2", options="header"]
+|===
+| # | Ce qui existe | Verdict
+
+| C1
+| **hyperframes — BGM actuel** : `[.hyperframes-audio]` avec une ligne
+  `bgm: assets/audio/bgm.mp3 volume=0.35` ; le fichier est un asset local du
+  deck, sans bibliothèque, sans sélection, sans provenance.
+| 🟠 Point d'injection unique (bon ancrage) — rien de réutilisable comme
+  *bibliothèque*.
+
+| C2
+| **newpipe (Nashville)** : `downloadMusic` (YouTube → MP3 via
+  NewPipeExtractor, sessions OAuth `buildSessions`/`authSessions`), catalogue
+  `musics.yml`, module `mp3-organizer` (métadonnées, agents playlist, export
+  JSON/XML). **Dormant depuis avril 2026** (EPIC auth terminé).
+| 🟢 **Producteur tout trouvé** — à réactiver, pas à réécrire.
+
+| C3
+| **Provenance/licence** : aucun manifeste de musique ; aucune trace de
+  licence, source, attribution, empreinte.
+| 🔴 Bloquant pour un usage serein (voir D3).
+
+| C4
+| **capsule — audio post** : `audioPost.bgmFile` (BGM + loudness + ducking).
+  Même besoin de bibliothèque/sélection.
+| 🟡 2ᵉ consommateur → **factorisation à 2** (seuil S-195) pour le modèle et le
+  sélecteur.
+
+| C5
+| **Licence / légalité** : extraire de la musique YouTube pour la remettre dans
+  une vidéo n'est licite que pour des contenus **dont on détient les droits**
+  (ou explicitement libres). Le dépôt est OSS public ; les binaires audio ne
+  doivent jamais être publiés.
+| 🔴 Contrainte structurante — gate de provenance obligatoire.
+
+| C6
+| **Frontière de licence logicielle** : NewPipeExtractor est **GPL-3.0** ; les
+  artefacts `education.cccp` sont Apache 2.0. Un lien de code imposerait la GPL.
+| 🟠 L'extraction doit rester **un outil séparé** (newpipe), consommée comme
+  **données** (fichiers + manifeste), jamais comme dépendance de code.
+
+| C7
+| **CI** : aucun accès réseau YouTube ne doit exister en CI (faux positifs,
+  quotas, auth).
+| 🟢 Patron éprouvé (fakes + tâches skip-gardées).
+
+| C8
+| **Fragilité** : NewPipeExtractor casse à chaque changement YouTube.
+| 🟠 Accepté, borné : extraction best-effort, version épinglée, bibliothèque
+  déjà extraite = actif durable.
+
+| C9
+| **Aucune balise de son dans l'AsciiDoc.** Le seul point d'entrée audio est le
+  bloc `[.hyperframes-audio]` (un fichier `bgm:` local pour toute la
+  composition). L'auteur **ne peut pas déclarer une séquence sonore** scène par
+  scène (ambiance, volume, fondus, enchaînements) dans le document pilote.
+| 🔴 Le son doit être **piloté par le document** comme le visuel et les notes
+  d'orateur — c'est la demande centrale.
+
+|===
+
+'''
+
+== 3. Décisions (D1→D11)
+
+. **D1 — newpipe = producteur de bibliothèque.** Réactivation du borough
+  (session dédiée, sous sa propre gouvernance) : produire un **manifeste**
+  `music-library.json` + des fichiers audio (gitignorés). Aucun code hyperframes
+  n'appelle YouTube.
+. **D2 — Contrat de manifeste (pur, versionné).** `MusicTrack(id, title,
+  artist, file, sha256, durationSeconds, licence, sourceUrl, attribution,
+  tags, mood, energy)` + `schemaVersion`. Seul le **manifeste** (métadonnées) est
+  versionné ; l'audio reste gitignoré.
+. **D3 — Gate de provenance/licence (bloquant).** `licence` obligatoire, valeurs
+  admises : `own`, `cc0`, `cc-by`, `royalty-free`, `licensed`. Une piste
+  inconnue est **rejetée** par défaut (`allowUnlicensed=true` réservé au
+  dogfooding local, jamais commité/publié). `attribution` requise pour `cc-by`.
+. **D4 — Modèle et sélecteur N1.** `video.kernel.music` : `MusicTrack`,
+  `MusicLibrary`, `MusicTrackSelector` (pur, déterministe : filtre mood/tags/
+  énergie, ordre stable, **sans LLM**) **et `SoundCue`/`SoundSequence`**
+  (le graphe de cues ordonné, porté par le document). 2 consommateurs
+  (hyperframes + capsule) → seuil « à 2 » atteint (S-195). `video-kernel 0.8.x`.
+. **D5 — hyperframes : résolution avant rendu.** Nouvelle tâche
+  `resolveHyperframesBgm` : lit `music-library.json`, sélectionne la piste,
+  copie l'audio dans `assets/audio/` (Économie d'encre : skip si `sha256`
+  identique), et alimente le DSL audio. Extension :
++
+[source,kotlin]
+----
+hyperframes {
+    music {
+        libraryFile.set("music-library.json") // manifeste (versionné)
+        track.set("")                         // id explicite, sinon…
+        mood.set("calm")                      // …sélection par ambiance
+        volume.set(0.25)
+    }
+}
+----
+. **D6 — Backward compat.** Un `[.hyperframes-audio] bgm: assets/audio/bgm.mp3`
+  explicite reste prioritaire et fonctionne inchangé ; aucune bibliothèque
+  configurée = comportement actuel byte-identique.
+. **D7 — Le son est une séquence portée par le document.** Une ambiance/cue se
+  déclare dans l'AsciiDoc scène par scène (voir D12), dans l'**ordre du
+  document** : la séquence est construite sur les sections (comme les notes
+  d'orateur). Une scène sans cue hérite de l'ambiance en cours (continuité) ;
+  les fondus assurent les enchaînements. v1 = séquence par composition ;
+  v2 = crossfade temporel avancé (US ultérieure).
+. **D8 — capsule adoption.** `audioPost.bgmFile` peut référencer une piste de la
+  bibliothèque via le même `MusicTrackSelector` (tâche de résolution N2).
+. **D9 — Zéro réseau en CI.** Parseur/sélecteur testés sur des manifestes
+  synthétiques ; extraction réelle = tâche manuelle skip-gardée (newpipe).
+. **D10 — Attribution.** Pour `cc-by`, l'attribution requise alimente le
+  compositeur de description de publication (lien avec `HF-YOUTUBE-PUBLISH`) ;
+  jamais omise silencieusement.
+. **D11 — Séparation des artefacts.** hyperframes/capsule ne dépendent **pas**
+  de newpipe au compile : contrat = fichier JSON + fichiers audio (frontière de
+  données, pas de dépendance N2→N2).
+. **D12 — Balises de son dans l'AsciiDoc (séquences).** Le son se déclare dans
+  le document pilote, au même titre que le visuel et les notes d'orateur. Chaque
+  bloc `[.hyperframes-music]` s'attache à la **section précédente** (la scène) et
+  contribue à la **séquence sonore** dans l'ordre du document :
++
+[source,asciidoc]
+----
+[.hyperframes-composition]
+== Le document devient signal
+
+[.hyperframes-music]
+--
+mood: documentary      # ambiance demandée (résolue dans la bibliothèque)
+track: calm-piano-01   # optionnel — force une piste par id
+volume: 0.25
+fade-in: 1.5
+fade-out: 2.0
+loop: true
+--
+----
++
+Sémantique : une scène **sans** bloc hérite de l'ambiance en cours
+(continuité) ; `track: none` (ou `music: off`) **arrête** la musique ;
+`[.hyperframes-sfx]` déclare un effet ponctuel (impact, whoosh) ancré à la
+scène. Le processor retire ces blocs du visuel, émet des `<audio>` à
+`data-start`/`data-duration` calculés sur les offsets de scène, et un
+`SoundSequenceValidator` pur rejette avant rendu : volume hors `[0,1]`, fondus
+négatifs, offset non monotone, `track` inconnu (au resolve). Le bloc historique
+`[.hyperframes-audio]` (fichier local) reste **inchangé et prioritaire**.
+
+'''
+
+== 4. Architecture cible
+
+----
+ AsciiDoc pilote (source de vérité : visuel + parole + son)
+   ├─ scènes  : [.hyperframes-composition] == Titre
+   ├─ notes   : [NOTE.speaker] -- texte --          (HF-SPEAKER-NOTES)
+   └─ son     : [.hyperframes-music] mood/track/volume/fade/loop
+                [.hyperframes-sfx] impact
+        │
+        ▼  HyperframesHtmlProcessor (N2)
+ index.html  (blocs de son retirés du visuel)
+   └─ <audio class="hyperframes-music" data-start data-duration
+              data-volume data-fade-in data-fade-out>
+        │
+        ▼  resolveHyperframesBgm (copie sha256, Économie d'encre)
+ assets/audio/<track-id>.mp3  ◀── music-library.json
+        │
+        ▼  rendu MP4 (BGM par scène alignée sur la timeline)
+
+ newpipe (Nashville, N2 — GPL boundary, outil séparé)
+   musics.yml (sources autorisées) + sessions OAuth
+        │  downloadMusic (NewPipeExtractor) → MP3
+        ▼
+ mp3-organizer → métadonnées (durée, tags, mood, énergie)
+        │
+        ▼
+ music-library.json  (manifeste versionné, provenance/licence)
+   + audio/ (gitignoré, jamais publié)
+
+ video-kernel (N1) ── video.kernel.music : MusicTrack / MusicLibrary /
+                      MusicTrackSelector / SoundCue / SoundSequence
+----
+
+'''
+
+== 5. User Stories
+
+[cols="1,3,1,1", options="header"]
+|===
+| US | Livrable | Effort | Statut
+
+| US-0 | Cadrage (ce document) + décisions + US + risques | — | ✅ S-050
+| US-1 | **newpipe — réactivation producteur** (session newpipe, sa gouvernance) :
+  extraction d'une liste de sources **autorisées**, enrichissement
+  `mp3-organizer` (durée, tags, mood, énergie), écriture `music-library.json`
+  (provenance/licence), audio gitignoré. | L | 🟡
+| US-2 | **N1** `video.kernel.music` : `MusicTrack`/`MusicLibrary` (parseur de
+  manifeste), `MusicTrackSelector` (pur), `SoundCue`/`SoundSequence` +
+  `SoundSequenceValidator` + tests ; publication `video-kernel`. | M | 🟡
+| US-3 | **hyperframes — DSL son AsciiDoc** : blocs `[.hyperframes-music]` /
+  `[.hyperframes-sfx]` attachés aux scènes, construction de la **séquence**
+  (héritage/continuité, `track: none`, fondus), validation avant rendu,
+  retrait du visuel, émission des `<audio>` à offsets de scène ; backward compat
+  `[.hyperframes-audio]`. | L | 🟡
+| US-4 | **hyperframes — résolution bibliothèque** : `resolveHyperframesBgm`
+  (lecture manifeste, sélection par mood si `track` absent, copie `sha256`,
+  skip Économie d'encre), extension `music { }`. | L | 🟡
+| US-5 | **hyperframes — BDD/FT** : `@music` (fakes), FT TestKit (graphe
+  resolve → html → render), manifeste synthétique, séquences valides/invalides. | M | 🟡
+| US-6 | **capsule — adoption** : résolution `audioPost.bgmFile` via le même
+  sélecteur N1. | S | 🟡
+| US-7 | **Attribution** : `cc-by` → lignes d'attribution injectées dans la
+  description de publication (cross `HF-YOUTUBE-PUBLISH`). | S | 🟡
+| US-8 | **Crossfade temporel (v2)** : chevauchement de deux cues entre scènes,
+  courbes de fondu, garde de durée totale. | M | 🟡
+| US-9 | **Docs** : `PILOTAGE_HYPERFRAMES.adoc` (DSL `music { }` + balises de
+  son), README, note de licence/provenance. | S | 🟡
+|===
+
+*~9 US, ~21 pts.* Ordre : US-1 (newpipe, producteur) → US-2 (N1) → US-3 (DSL
+séquences) → US-4 (résolution) → US-5 (tests) → US-6 → US-7 → US-8 → US-9.
+
+'''
+
+== 6. Risques
+
+[cols="1,3,2,2", options="header"]
+|===
+| ID | Risque | Impact | Probabilité
+| R-01 | Musique non licenciée embarquée/publiée | **Juridique** | Levé par D3 (gate) + audio gitignoré
+| R-02 | NewPipeExtractor cassé par YouTube | Extraction indisponible | Élevée — bibliothèque déjà extraite = actif durable ; version épinglée
+| R-03 | Contamination GPL des artefacts Apache | Licence | Levé par D11 (frontière de données)
+| R-04 | Poids des binaires dans Git | Dépôt | Levé par D2 (audio gitignoré, manifeste seul)
+| R-05 | CI réseau/auth YouTube | Faux positifs | Levé par D9 (fakes + skip)
+| R-06 | Sélection « fade » (mauvaise ambiance) | Qualité | Faible — tags explicites + override par `track`
+| R-07 | Séquence sonore invalide (volume, fondus, cue orphelin) | Rendu cassé | Levée — `SoundSequenceValidator` pur, échec **avant** rendu avec message actionnable
+| R-08 | Drift scènes ↔ cues (scène renommée/déplacée) | Son désaligné | Moyenne — cue attaché à la section (id stable), garde d'ordre au rendu
+|===
+
+'''
+
+== 7. Prérequis transverse
+
+* **newpipe (Nashville)** doit être **réactivé** (session dédiée) : le borough
+  est dormant depuis avril 2026 et sa gouvernance locale interdit commits/push
+  sans permission — la production du manifeste est donc une US newpipe, pas une
+  US hyperframes.
+* **video-kernel** : publication du contrat `music` (DAG MEMPHIS) avant US-3.
+
+'''
+
+== 8. Portée de la session S-050
+
+* Cadrage + décisions + US + risques (ce document).
+* Mise à jour `INDEX.adoc` (roadmap + section EPIC).
+* Rapport `.agents/sessions/050-hf-music-library-cadrage.adoc`.
+* **Zéro code, zéro publication, zéro secret.** `Local = Build, Tests = CI`.
