@@ -20,6 +20,9 @@ version =
 repositories {
     mavenCentral()
     gradlePluginPortal()
+    // HF-MUSIC-LIBRARY US-3 — `video-kernel 0.8.0` (the `video.kernel.music`
+    // contract) is served by JitPack only until the Central canal reopens.
+    maven("https://jitpack.io")
 }
 
 dependencies {
@@ -27,7 +30,10 @@ dependencies {
 
     implementation(kotlin("stdlib-jdk8"))
     // N1 shared engine-neutral video kernel (spike — 2nd engine adapter).
-    implementation(libs.video.kernel)
+    // HF-MUSIC-LIBRARY US-3 — 0.8.0 (the `video.kernel.music` contract) is only
+    // published on JitPack today; see the catalog note to normalise back to
+    // `education.cccp:video-kernel` (Central) at the channel reset.
+    implementation(libs.video.kernel.jitpack)
     implementation(libs.asciidoctorj)
     implementation(libs.jackson.databind)
     implementation(libs.jackson.module.kotlin)

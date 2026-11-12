@@ -1,6 +1,21 @@
 = Test Coverage Analysis — hyperframes-gradle
 
-_Dernière mise à jour_ : 2026-10-31 (Session 046 — US-7 parallaxe + adoption N1)
+_Dernière mise à jour_ : 2026-11-12 (Session 052 — HF-MUSIC-LIBRARY US-3, séquence sonore documentaire)
+
+== Couverture — 12 novembre 2026 (après session 052, US-3 musique)
+
+.HF-MUSIC-LIBRARY US-3 — DSL son + séquence documentaire
+|===
+| Élément | Nature | Tests
+
+| `hyperframes.sound.SoundBlockParser` | listing `----` complet, `mood` seul + défauts, **open block `--` aplati en une ligne**, `track: none`/`music: off`/`stop: true`, commentaires, clé inconnue, volume non numérique, volume > 1, bloc vide, sfx (alias `at`, file manquant) | 12 `SoundBlockParserTest`
+| `hyperframes.sound.SoundSequencePlanner` | aucun cue, span jusqu'au changement, continuité par identité, stop (+ sans musique), bornage fin de composition, fade de passation (hérité / explicite préservé), ancrage sfx (start + offset) | 9 `SoundSequencePlannerTest`
+| `hyperframes.sound.SoundCueResolver` | `file:` prioritaire sans bibliothèque, id/mood via `MusicTrackSelector`, piste non licenciée, id inconnu, mood sans match, mood sans bibliothèque (`music.libraryFile`), stop = silence, extension d'asset, sfx (chemin vs id) | 10 `SoundCueResolverTest`
+| `hyperframes.sound.SoundHtmlRenderer` | attributs timeline, fondus émis seulement si déclarés, index de piste par cue, sfx one-shot, couche vide | 5 `SoundHtmlRendererTest`
+| `hyperframes.sound.MusicLibraryManifestLoader` | manifeste produit, clés inconnues, licence inconnue fail-closed, entrées sans id/titre écartées, manifeste absent = vide, JSON invalide = échec explicite | 6 `MusicLibraryManifestLoaderTest`
+| `HyperframesHtmlProcessor` | bloc consommé + cue au start de scène, open block, continuité (1 cue), `track: none`, `file:` sans bibliothèque, sfx à l'offset, cue irrésoluble → échec avant rendu, sortie historique sans bloc, aucune fuite du DSL dans le visuel | 9 `HyperframesHtmlProcessorSoundTest`
+| BDD | 6 scénarios `@music` (cue résolue, continuité, stop, ligne aplatie, sfx, échec actionnable) | `hf_music_library_us3.feature` + `HfMusicLibrarySteps`
+|===
 
 == Couverture — 31 octobre 2026 (après session 046, US-7)
 

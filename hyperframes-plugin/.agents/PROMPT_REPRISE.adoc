@@ -1,49 +1,57 @@
-= PROMPT_REPRISE — HyperFrames Gradle (Session 051 TERMINÉE → 052)
-:session: 052
+= PROMPT_REPRISE — HyperFrames Gradle (Session 052 TERMINÉE → 053)
+:session: 053
 :borough: Watts
-:session_precedente: 051 — US-1 (newpipe producteur) + US-2 (`video-kernel 0.8.0`) ✅
+:session_precedente: 052 — HF-MUSIC-LIBRARY US-3 (DSL son + séquence documentaire) ✅
 _note_ : fichier canonique = `.agents/PROMPT_REPRISE.adoc`.
 
-== Session 051 (TERMINÉE) — HF-MUSIC-LIBRARY US-1 + US-2
+== Session 052 (TERMINÉE) — HF-MUSIC-LIBRARY US-3
 
-* **US-2 `video-kernel 0.8.0`** (S-201) : contrat neutre `video.kernel.music`
-  (`MusicLicence` fail-closed, `MusicTrack`, `MusicLibrary`,
-  `MusicTrackSelector`, `SoundCue`, `SoundSequence`, `SoundSequenceValidator`),
-  +13 types, CI verte, publié JitPack
-  `com.github.cccp-education:video-kernel-gradle:v0.8.0`.
-* **US-1 newpipe** (S-004) : producteur `music-library.json` —
-  `MusicLicence`/`MusicSource`/`MusicLibraryTrack`/`Manifest`,
-  `MusicLibraryBuilder` (gate + ids + sha256 + chemins portables), tâche
-  `buildMusicLibrary` (`music-sources.yml` + `downloads/` → manifeste,
-  jaudiotagger), DSL `newpipe.musicSourcesPath`/`musicLibraryPath`,
-  `music-sources.example.yml`. **CI verte** (workflow `test.yml` ajouté).
+* Domaine pur `hyperframes.sound` : `MusicDeclaration`/`SfxDeclaration`,
+  `SoundBlockParser` (listing `----` **et** open block `--` aplati),
+  `SoundSequencePlanner` (continuité par identité, stop, bornage, fade de
+  passation), `SoundCueResolver` (file > bibliothèque N1 > échec actionnable),
+  `SoundHtmlRenderer` (pistes 120+/140+), `MusicLibraryManifestLoader`.
+* `HyperframesHtmlProcessor` : `withMusicLibrary(...)`, consommation des blocs par
+  scène, `<audio>` aux offsets de scène, **échec avant rendu** si une cue est
+  irrésoluble, backward compat stricte (aucune balise → sortie inchangée).
+* Tests : 51 unit (6 classes) + BDD `@music` (6 scénarios + `HfMusicLibrarySteps`).
+* Pont N1 documenté : `video-kernel 0.8.0` via JitPack
+  (`libs.video.kernel.jitpack`), à normaliser au reset Central.
+* Gates locaux : `compileKotlin` + `compileTestKotlin` + `ktlintCheck` VERTS.
+  Preuve = CI du commit poussé.
 
 == État
 
-* `hyperframes-plugin 0.0.14` ; `video-kernel 0.8.0` (JitPack) ; newpipe producer ✅.
-* EPIC `HF-MUSIC-LIBRARY` : US-0 ✅ · US-1 ✅ · US-2 ✅ · **reste US-3→US-9**.
+* `hyperframes-plugin 0.0.14` ; `video-kernel 0.8.0` (source/JitPack) ;
+  newpipe producteur ✅.
+* EPIC `HF-MUSIC-LIBRARY` : US-0 ✅ · US-1 ✅ · US-2 ✅ · **US-3 ✅** ·
+  reste US-4→US-9.
 * EPIC `HF-SPEAKER-NOTES` : cadré (S-049), non démarré.
-* YouTube upload : prêt côté code, bloqué côté Google (~48 h).
+* YouTube upload : prêt côté code, bloqué côté Google.
 
-== Mission Session 052 — US-3 (hyperframes, DSL son + séquence)
+== Mission Session 053 — US-4 (résolution bibliothèque + copie)
 
-1. Parser `[.hyperframes-music]` / `[.hyperframes-sfx]` (attachés à la section
-   précédente), retirer du visuel, construire la `SoundSequence` (héritage,
-   `track: none`, fondus, `stop`).
-2. Émettre les `<audio>` à offsets de scène (`data-start`, `data-duration`,
-   `data-volume`, `data-fade-*`) ; `SoundSequenceValidator` avant rendu.
-3. Backward compat stricte : `[.hyperframes-audio]` inchangé, sortie
-   byte-identique sans balise de son.
-4. Tests unit + BDD `@music` (manifeste synthétique, fakes) + FT TestKit.
-5. Puis US-4 : `resolveHyperframesBgm` (lecture du manifeste, sélection par
-   mood, copie `sha256`, skip) + extension `music { }`.
+1. Tâche `resolveHyperframesBgm` : lit `music-library.json` (loader existant),
+   copie les pistes **référencées** vers `assets/audio/<track-id>.<ext>` sous
+   `outputDir`, **skip si `sha256` identique** (Économie d'encre) ; manifeste ou
+   audio absent → warning dégradé, jamais bloquant ; `strict` pour promouvoir.
+2. Extension : `hyperframes { music { libraryFile; audioDir; track; mood;
+   volume } }` + wiring `GenerateHyperframesHtmlTask.withMusicLibrary(...)`
+   (un seul endroit décide de la bibliothèque).
+3. Ordre de graphe : `resolveHyperframesBgm` **avant** `generateHyperframesHtml`
+   (ou alimente le processeur), `ReferencedAssets` ne doit plus être le seul
+   copieur.
+4. Tests : FT TestKit (manifeste synthétique + audio factice → copie + skip),
+   unit pur sur le plan de copie (pas d'I/O dans le domaine).
+5. Puis US-5 (FT graphe complet) et US-6 (adoption capsule
+   `audioPost.bgmFile` via `MusicTrackSelector`).
 
 == Points d'attention
 
 * **Local = Build, Tests = CI** ; accords pilote/publication/bump/git accordés
   (2026-11-11, tous repos publics).
 * **Licence** : aucune piste sans licence déclarée ; audio jamais committé/publié.
-* `video-kernel` : coordonnée JitPack actuelle = repo-level (`v0.8.0`) ;
-  ne pas publier une version sans édition délibérée du manifeste d'API.
+* `video-kernel` : la coordonnée JitPack est repo-level — ne pas publier une
+  version sans édition délibérée du manifeste d'API ; normaliser au reset Central.
 * Zéro secret ; zéro Python ; English only code/tests/features.
 * Le son est une **séquence du document** (D12), pas un réglage caché.

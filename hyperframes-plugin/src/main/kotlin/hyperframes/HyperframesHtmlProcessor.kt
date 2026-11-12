@@ -10,6 +10,17 @@ import hyperframes.media.BackgroundImageHtml
 import hyperframes.media.BackgroundImageParser
 import hyperframes.pronunciation.PronunciationDictionary
 import hyperframes.pronunciation.PronunciationHint
+import hyperframes.sound.MusicDeclaration
+import hyperframes.sound.ResolvedMusic
+import hyperframes.sound.ResolvedSfx
+import hyperframes.sound.SceneSoundInput
+import hyperframes.sound.SfxDeclaration
+import hyperframes.sound.SoundBlockParseResult
+import hyperframes.sound.SoundBlockParser
+import hyperframes.sound.SoundCueResolver
+import hyperframes.sound.SoundHtmlRenderer
+import hyperframes.sound.SoundResolution
+import hyperframes.sound.SoundSequencePlanner
 import hyperframes.template.Caption
 import hyperframes.template.CodeDiffTemplate
 import hyperframes.template.DataChartTemplate
@@ -17,6 +28,7 @@ import hyperframes.template.DataPoint
 import hyperframes.template.KineticCaptionsTemplate
 import hyperframes.template.TitleCardTemplate
 import hyperframes.vendor.GsapLibrary
+import video.kernel.music.MusicLibrary
 import java.util.Locale
 
 /**
@@ -51,6 +63,9 @@ import java.util.Locale
  * @property outputName            output file name without extension
  * @property domainDictionary      optional pronunciation domain (HF-7)
  * @property sceneDurationSeconds  default duration of a section scene (seconds)
+ * @property musicLibrary          optional music library used to resolve the
+ *   document sound cues (HF-MUSIC-LIBRARY US-3); `null` keeps the historical
+ *   behaviour for compositions without a sound declaration
  */
 class HyperframesHtmlProcessor internal constructor(
     private val width: Int,
@@ -62,6 +77,7 @@ class HyperframesHtmlProcessor internal constructor(
     private val chrome: ChromeConfig = ChromeConfig(),
     private val typography: TypographyConfig = TypographyConfig(),
     private val entrances: EntranceConfig = EntranceConfig(),
+    private val musicLibrary: MusicLibrary? = null,
 ) {
     /** Backward-compatible constructor — no domain dictionary, 5s scenes. */
     constructor(width: Int, height: Int, fps: Int, outputName: String) :
@@ -89,6 +105,7 @@ class HyperframesHtmlProcessor internal constructor(
             chrome,
             typography,
             entrances,
+            musicLibrary,
         )
 
     /**
@@ -107,6 +124,7 @@ class HyperframesHtmlProcessor internal constructor(
             chrome,
             typography,
             entrances,
+            musicLibrary,
         )
 
     /**
@@ -124,6 +142,7 @@ class HyperframesHtmlProcessor internal constructor(
             chrome,
             typography,
             entrances,
+            musicLibrary,
         )
 
     /**
@@ -142,6 +161,26 @@ class HyperframesHtmlProcessor internal constructor(
             chrome,
             typography,
             entrances,
+            musicLibrary,
+        )
+
+    /**
+     * HF-MUSIC-LIBRARY US-3 — returns a copy of this processor wired with the
+     * [library] used to resolve the `[.hyperframes-music]` cues. Without a
+     * library, a cue must declare an explicit `file:` (the author's own asset).
+     */
+    fun withMusicLibrary(library: MusicLibrary?): HyperframesHtmlProcessor =
+        HyperframesHtmlProcessor(
+            width,
+            height,
+            fps,
+            outputName,
+            domainDictionary,
+            sceneDurationSeconds,
+            chrome,
+            typography,
+            entrances,
+            library,
         )
 
     /**
@@ -191,6 +230,8 @@ class HyperframesHtmlProcessor internal constructor(
         val scripts: List<String>,
         val transition: Transition?,
         val background: BackgroundImage? = null,
+        val music: MusicDeclaration? = null,
+        val sfx: List<SfxDeclaration> = emptyList(),
     )
 
     /**
@@ -279,12 +320,28 @@ class HyperframesHtmlProcessor internal constructor(
             val duration = sceneDurationOf(section) ?: sceneDurationSeconds
             val scripts = extractScriptBodies(section)
             val body = stripSceneWrapper(stripScripts(section))
+            // HF-MUSIC-LIBRARY US-3 — the sound blocks belong to the scene they
+            // annotate: they are parsed then consumed, so the DSL never renders
+            // as visible content.
+            val sound = consumeSoundBlocks(body)
             // HF-DEMO-QUALITY US-6 — the background block is consumed by the
             // scene: it never reaches the visible content and only the owning
             // scene carries the media layer.
-            val background = BackgroundImageParser.parse(backgroundListingOf(body))
-            val inner = sanitizeSceneInner(removeBackgroundBlock(body)).trim()
-            rawScenes.add(RawScene(id, duration, inner, scripts, transitionOf(section), background))
+            val withoutSound = sound.body
+            val background = BackgroundImageParser.parse(backgroundListingOf(withoutSound))
+            val inner = sanitizeSceneInner(removeBackgroundBlock(withoutSound)).trim()
+            rawScenes.add(
+                RawScene(
+                    id = id,
+                    duration = duration,
+                    inner = inner,
+                    scripts = scripts,
+                    transition = transitionOf(section),
+                    background = background,
+                    music = sound.music,
+                    sfx = sound.sfx,
+                ),
+            )
         }
 
         // HF-DEMO-QUALITY US-2b — an overlap transition pulls the next scene
@@ -350,6 +407,11 @@ class HyperframesHtmlProcessor internal constructor(
             }
         val transitionsHtml = coverBoundaries.joinToString("\n") { renderTransitionOverlay(it) }
         val audioHtml = renderAudio(audioCues, total)
+        // HF-MUSIC-LIBRARY US-3 — the document sound sequence is placed on the
+        // timeline of the scenes, then resolved; an authored cue that cannot be
+        // resolved fails *before* the render with an actionable message (never a
+        // silently silent video).
+        val soundHtml = renderSoundLayer(scenes, rawScenes, total)
         val hasBackground = scenes.any { it.background != null }
         val progressHtml = ChromeRenderer.progressBar(chrome)
         val progressTween = ChromeRenderer.rootProgressTween(chrome, total)
@@ -400,6 +462,9 @@ class HyperframesHtmlProcessor internal constructor(
             )
             if (audioHtml.isNotBlank()) {
                 appendLine(audioHtml)
+            }
+            if (soundHtml.isNotBlank()) {
+                appendLine(soundHtml)
             }
             appendLine(scenesHtml)
             if (transitionsHtml.isNotBlank()) {
@@ -779,6 +844,114 @@ class HyperframesHtmlProcessor internal constructor(
             }.joinToString("\n")
 
     // ──────────────────────────────────────────────────────────────────────
+    // Document sound sequence (HF-MUSIC-LIBRARY US-3 / D12)
+    // ──────────────────────────────────────────────────────────────────────
+
+    /** The sound declarations consumed from one scene body. */
+    private data class SoundExtraction(
+        val body: String,
+        val music: MusicDeclaration? = null,
+        val sfx: List<SfxDeclaration> = emptyList(),
+    )
+
+    /**
+     * Parses and removes the `[.hyperframes-music]` / `[.hyperframes-sfx]` blocks
+     * of one scene. Parsing is defensive: an unusable declaration is dropped
+     * (never rendered as visible content, never crashes the build).
+     */
+    private fun consumeSoundBlocks(body: String): SoundExtraction {
+        val musicTexts = mutableListOf<String>()
+        val sfxTexts = mutableListOf<String>()
+        val withoutMusic = consumeRoleBlocks(body, MUSIC_ROLE, musicTexts)
+        val remaining = consumeRoleBlocks(withoutMusic, SFX_ROLE, sfxTexts)
+        val music =
+            musicTexts
+                .firstNotNullOfOrNull { text ->
+                    (SoundBlockParser.parseMusic(text) as? SoundBlockParseResult.Parsed)?.declaration
+                }
+        val sfx =
+            sfxTexts.mapNotNull { text ->
+                (SoundBlockParser.parseSfx(text) as? SoundBlockParseResult.Parsed)?.declaration
+            }
+        return SoundExtraction(remaining, music, sfx)
+    }
+
+    /**
+     * Removes every block carrying [role] in its `class` attribute and collects
+     * its plain text. Uses the same div scan as the section splitter, so a nested
+     * `<div>` never truncates the block.
+     */
+    private fun consumeRoleBlocks(
+        body: String,
+        role: String,
+        texts: MutableList<String>,
+    ): String {
+        val ranges = mutableListOf<IntRange>()
+        var from = 0
+        while (from < body.length) {
+            val match = roleOpenTag(role).find(body, from) ?: break
+            val start = match.range.first
+            val end = matchingDivEnd(body, start)
+            ranges += start until end
+            texts += plainText(body.substring(start, end))
+            from = maxOf(end, start + 1)
+        }
+        if (ranges.isEmpty()) return body
+        val builder = StringBuilder(body)
+        ranges.asReversed().forEach { builder.delete(it.first, it.last + 1) }
+        return builder.toString()
+    }
+
+    /**
+     * Places and resolves the document sound sequence (US-3).
+     *
+     * An authored cue that cannot be resolved fails **before** the render with an
+     * actionable, secret-free message: shipping a silently silent video is worse
+     * than a red build. A composition without sound keeps the historical output
+     * byte-identical (no `<audio class="hyperframes-music">` token at all).
+     */
+    private fun renderSoundLayer(
+        scenes: List<Scene>,
+        rawScenes: List<RawScene>,
+        total: Double,
+    ): String {
+        if (rawScenes.none { it.music != null || it.sfx.isNotEmpty() }) return ""
+        val inputs =
+            scenes.mapIndexed { index, scene ->
+                val raw = rawScenes[index]
+                SceneSoundInput(scene.id, scene.start, raw.music, raw.sfx)
+            }
+        val plan = SoundSequencePlanner.plan(inputs, total)
+        val unresolved = mutableListOf<String>()
+        val music =
+            plan.music.mapNotNull { placement ->
+                when (val resolution = SoundCueResolver.resolve(placement, musicLibrary)) {
+                    is SoundResolution.Resolved -> ResolvedMusic(placement, resolution.src)
+                    is SoundResolution.Unresolved -> {
+                        unresolved += resolution.reason
+                        null
+                    }
+                    SoundResolution.Silence -> null
+                }
+            }
+        val sfx =
+            plan.sfx.mapNotNull { placement ->
+                val src = SoundCueResolver.resolveSfx(placement)
+                if (src == null) {
+                    unresolved += "scene '${placement.sceneId}': an sfx cue has no file"
+                    null
+                } else {
+                    ResolvedSfx(placement, src)
+                }
+            }
+        check(unresolved.isEmpty()) {
+            "unresolved sound cue(s) — fix the pilot document before rendering:\n" +
+                unresolved.joinToString("\n") { " - $it" }
+        }
+        return (SoundHtmlRenderer.renderMusic(music) + "\n" + SoundHtmlRenderer.renderSfx(sfx)).trim()
+    }
+
+    // ──────────────────────────────────────────────────────────────────────
     // Background image (HF-DEMO-QUALITY US-6)
     // ──────────────────────────────────────────────────────────────────────
 
@@ -945,6 +1118,19 @@ class HyperframesHtmlProcessor internal constructor(
 
     /** Escapes the minimal HTML text entities. */
     private fun escapeText(value: String): String = value.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
+
+    /** Opening `<div>` carrying [role] as a whole class token. */
+    private fun roleOpenTag(role: String): Regex = Regex("""<div[^>]*class="(?:[^"]*\s)?${Regex.escape(role)}(?:\s[^"]*)?"[^>]*>""")
+
+    /** Text of a block with its tags dropped and the minimal entities decoded. */
+    private fun plainText(block: String): String =
+        block
+            .replace(TAG, " ")
+            .replace("&lt;", "<")
+            .replace("&gt;", ">")
+            .replace("&quot;", "\"")
+            .replace("&#39;", "'")
+            .replace("&amp;", "&")
 
     // ──────────────────────────────────────────────────────────────
     // Inline pronunciation hints in narration (HF-7e)
@@ -1180,6 +1366,14 @@ class HyperframesHtmlProcessor internal constructor(
         const val AUDIO_DEFAULT_VOLUME = 0.2
         const val AUDIO_TRACK_INDEX = 90
         const val CLOSE_DIV = "</div>"
+
+        /** Role of the per-scene music block (HF-MUSIC-LIBRARY US-3). */
+        const val MUSIC_ROLE = "hyperframes-music"
+
+        /** Role of the per-scene one-shot effect block (HF-MUSIC-LIBRARY US-3). */
+        const val SFX_ROLE = "hyperframes-sfx"
+
+        val TAG = Regex("""<[^>]+>""")
 
         val CONTENT_OPEN = Regex("""<div id="content"[^>]*>""")
         val HEADER_TITLE = Regex("""<div id="header">\s*<h1[^>]*>(.*?)</h1>""", RegexOption.DOT_MATCHES_ALL)

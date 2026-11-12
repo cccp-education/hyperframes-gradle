@@ -721,3 +721,21 @@ obligatoire, modèle N1 `video.kernel.music` (`MusicTrack`/`MusicLibrary`/
 validateur pur, résolution + copie sha256, backward compat. 9 US ~21 pts.
 Cadrage `.agents/CADRAGE_EPIC_HF_MUSIC_LIBRARY.adoc`, rapport
 `.agents/sessions/050-hf-music-library-cadrage.adoc`. Zéro code.
+
+== Session 052 — HF-MUSIC-LIBRARY US-3 (DSL son + séquence) — 2026-11-12
+
+Le son devient une **séquence portée par le document pilote** (D12). Domaine pur
+`hyperframes.sound` : `MusicDeclaration`/`SfxDeclaration`, `SoundBlockParser`
+(accepte le listing `----` **et** l'open block `--` dont Asciidoctor aplatit les
+lignes), `SoundSequencePlanner` (continuité par identité de musique, `track: none`,
+cue bornée à la fin de composition, fade de passation), `SoundCueResolver`
+(`file:` explicite > bibliothèque N1 > échec actionnable), `SoundHtmlRenderer`
+(`<audio>` en enfants directs de `#stage`, pistes `120+`/`140+` disjointes de
+`[.hyperframes-audio]` `90+`), `MusicLibraryManifestLoader` (`music-library.json`
+du producteur newpipe, tolérant, licence fail-closed). `HyperframesHtmlProcessor`
+gagne `withMusicLibrary(...)`, consomme les blocs par scène et **échoue avant le
+rendu** sur une cue irrésoluble (jamais un MP4 silencieux) ; aucune balise de son
+→ sortie inchangée. 51 unit + BDD `@music` (6 scénarios). Pont N1 documenté :
+`video-kernel 0.8.0` servi par JitPack (`libs.video.kernel.jitpack`) en attendant
+la normalisation Central. Gates locaux : compiles + `ktlintCheck` VERTS.
+Rapport `.agents/sessions/052-hf-music-library-us3.adoc`.

@@ -2,7 +2,8 @@
 :toc:
 
 _Règles absolues_ : voir `AGENT.adoc`
-_Derniere mise a jour_ : 2026-10-31 (Session 046 — **Adoption `video-kernel 0.7.0` + `youtube-auth 0.0.2` + US-7 parallaxe + release `0.0.14`** ✅ — DAG MEMPHIS `0.0.115` (`0e74a6a8`, propagation 200) → hyperframes re-pin `0.0.115` + toml `0.0.14` → Central bundle `11eb9906` (AUTOMATIC), propagation repo1 200 (plugin + marker). Publication : copies N2 de `ChapterLineParser`/`YouTubeCredentials(Loader)`/`YouTubePublishCommand`/`DisabledVideoPublisher` supprimées (N1) ; `youtube-auth` appliqué ; `BackgroundImage.parallax` (US-7). **CI verte** : `Test` `41243897426`. Rapport `.agents/sessions/046-adoption-n1-us7-parallax-release-0.0.14.adoc`.)
+_Derniere mise a jour_ : 2026-11-12 (Session 052 — **HF-MUSIC-LIBRARY US-3 : DSL son + séquence documentaire** ✅ — domaine pur `hyperframes.sound` (`MusicDeclaration`/`SfxDeclaration`, `SoundBlockParser` listing `----` **et** open block `--` aplati, `SoundSequencePlanner` continuité/stop/bornage/fade de passation, `SoundCueResolver` file > bibliothèque N1, `SoundHtmlRenderer` pistes 120+/140+, `MusicLibraryManifestLoader`). `HyperframesHtmlProcessor.withMusicLibrary(...)` : blocs consommés par scène, `<audio>` aux offsets de scène, **échec avant rendu** sur cue irrésoluble, backward compat stricte. 51 unit + BDD `@music` 6 scénarios. Pont N1 documenté (`video-kernel 0.8.0` JitPack, `libs.video.kernel.jitpack`). Gates locaux : compiles + `ktlintCheck` VERTS ; preuve CI. Zéro publication, zéro bump. Rapport `.agents/sessions/052-hf-music-library-us3.adoc`.)
+_Derniere mise a jour (antérieure)_ : 2026-10-31 (Session 046 — **Adoption `video-kernel 0.7.0` + `youtube-auth 0.0.2` + US-7 parallaxe + release `0.0.14`** ✅ — DAG MEMPHIS `0.0.115` (`0e74a6a8`, propagation 200) → hyperframes re-pin `0.0.115` + toml `0.0.14` → Central bundle `11eb9906` (AUTOMATIC), propagation repo1 200 (plugin + marker). Publication : copies N2 de `ChapterLineParser`/`YouTubeCredentials(Loader)`/`YouTubePublishCommand`/`DisabledVideoPublisher` supprimées (N1) ; `youtube-auth` appliqué ; `BackgroundImage.parallax` (US-7). **CI verte** : `Test` `41243897426`. Rapport `.agents/sessions/046-adoption-n1-us7-parallax-release-0.0.14.adoc`.)
 _Derniere mise a jour (antérieure)_ : 2026-10-31 (Session 045 — **Release `hyperframes-plugin 0.0.13`** ✅ — DAG MEMPHIS `0.0.114` (`55aa4fba`, propagation 200) → hyperframes re-pin `workspace-catalog/BOM 0.0.114` + toml `0.0.13` → Central bundle `70d29242` (AUTOMATIC), propagation repo1 200 (plugin + marker). Contenu : `HF-DEMO-QUALITY US-6` fond média par scène. **CI verte** : `Test` `41239612772`. **Règle 2 révisée « accord toujours granted »** (décision pilote 2026-10-31). Rapport `.agents/sessions/045-release-0.0.13.adoc`.)
 _Derniere mise a jour (antérieure)_ : 2026-10-31 (Session 044 — **HF-DEMO-QUALITY US-6 : fond média par scène** ✅ — domaine pur `hyperframes.media` (`BackgroundImage` + `BackgroundImageParser` + `BackgroundImageHtml`), DSL `[.hyperframes-background]` (image plein cadre + scrim/grille/grain), CSS conditionnel (backward compatible). 15 unit + 2 functional TestKit + 4 scénarios BDD `@quality-background`. RED prouvé par compilation → GREEN. Dogfooding `/tmp` : `lint` **0/0**, `check` **passed** (Layout 0/9, Contrast 8/8 AA), asset copié. **CI verte** : `Test` `41236362098`. YouTube gelé ; zéro publication. Rapport `.agents/sessions/044-hf-demo-quality-us6-background.adoc`.)
 _Derniere mise a jour (antérieure)_ : 2026-10-31 (Session 043 — **Release `hyperframes-plugin 0.0.12`** ✅ — DAG MEMPHIS `0.0.113` (`455f513d`, propagation 200) → hyperframes re-pin `workspace-catalog/BOM 0.0.113` → Central bundle `097dea25` (AUTOMATIC), propagation repo1 200. Contenu : VK-4 US-4e narration silence (2ᵉ consommateur `video-kernel 0.6.0`). **CI verte** : `Test` `41216989798` ; MEMPHIS `runAllTests` `41216979601` (21/21), capsule `Full Tests` `41216985090` (25/25). YouTube gelé. Rapport `.agents/sessions/043-release-0.0.12.adoc`.)
@@ -13,9 +14,9 @@ _DAG_ : N2 — Plugin Gradle de transformation documentaire AsciiDoc → vidéo 
 _Dépendance N2_ : codex-gradle (compileOnly, AsciidoctorJ partagé)
 _Bridge externe_ : HyperFrames CLI via le noyau `VideoEngine` (`node <cliScript> render <dir> --output <mp4>`)
 
-_Dernière session terminée_ : 050 — **HF-MUSIC-LIBRARY — cadrage** (BGM newpipe + balises de son/séquences AsciiDoc). Rapport `.agents/sessions/050-hf-music-library-cadrage.adoc`.
-_Prochaine session_ : 051 — **US-1** réactivation `newpipe` (producteur : extraction autorisée + `music-library.json`), puis US-2 (N1 `video.kernel.music`). **Priorité qualité vidéo.**
-_Version publiée_ : **0.0.14** (Maven Central) + JitPack `0.0.14` (tag `v0.0.14`). Catalogue ws **`0.0.115`** (BOM `0.0.115`), noyau **`video-kernel 0.7.0`**.
+_Dernière session terminée_ : 052 — **HF-MUSIC-LIBRARY US-3** (DSL son + séquence documentaire, domaine `hyperframes.sound`, processor câblé). Rapport `.agents/sessions/052-hf-music-library-us3.adoc`.
+_Prochaine session_ : 053 — **HF-MUSIC-LIBRARY US-4** (`resolveHyperframesBgm` : manifeste → copie `sha256` dans `assets/audio/`, extension `music { }`, wiring `GenerateHyperframesHtmlTask`), puis US-5 (FT graphe) et US-6 (capsule).
+_Version publiée_ : **0.0.14** (Maven Central) + JitPack `0.0.14` (tag `v0.0.14`). Catalogue ws **`0.0.115`** (BOM `0.0.115`), noyau **`video-kernel 0.8.0`** (source ; 0.7.0 Central ; 0.8.0 JitPack).
 
 '''
 == RÈGLES ABSOLUES (résumé)
@@ -69,7 +70,7 @@ _Version publiée_ : **0.0.14** (Maven Central) + JitPack `0.0.14` (tag `v0.0.14
 | HF-DEMO-QUALITY | **Démo de référence + portage des capacités au DSL** — `demo-video/` (5 scènes, 48 s, transitions CSS, médias PD/CC0, chrome, typographie display) comme cible qualité ; puis porter transitions/médias/chrome/entrées/fond média/parallaxe dans `HyperframesHtmlProcessor` avec tests. | ✅ **TERMINÉ 7/7** — US-1/2/3 S-036, US-2b S-037, US-4 + US-5 S-038, US-6 S-044 (fond média), **US-7 S-046** (parallaxe opt-in, +3 UT +2 UT processeur +1 FT +1 BDD) | P1
 | PUBLISH-ADAPTER-N1 | **Briques pures de publication au noyau** — adoption `video-kernel 0.7.0` (parser chapitres, credentials, commande JSON sans Jackson, seam HTTP) + `youtube-auth-plugin 0.0.2` ; suppression des copies N2. | ✅ **TERMINÉ (S-046)** | P1
 | HF-SPEAKER-NOTES | **Notes d'orateur lues dans la vidéo** — `[NOTE.speaker]` dans l'AsciiDoc pilote, extraites (domaine pur / grammaire N1 partagée avec capsule), injectées comme narration par scène, synthèse TTS puis **muxage audio aligné** dans le MP4. Cadrage `.agents/CADRAGE_EPIC_HF_SPEAKER_NOTES.adoc`. | 🟡 **CADRÉ (S-049)** — 9 US ~20 pts | P1
-| HF-MUSIC-LIBRARY | **Bibliothèque musicale (BGM) issue de newpipe** — extraction YouTube→MP3 (Nashville, GPL boundary, outil séparé) → `music-library.json` (provenance/licence) → sélection N1 ; **balises de son dans l'AsciiDoc** (`[.hyperframes-music]`/`[.hyperframes-sfx]`) déclarant la **séquence sonore** par scène ; résolution + injection timeline. Cadrage `.agents/CADRAGE_EPIC_HF_MUSIC_LIBRARY.adoc`. | 🟡 **EN COURS (S-050)** — US-1 ✅ S-004 (newpipe producteur) + US-2 ✅ S-201 (`video-kernel 0.8.0`) ; reste US-3→US-9 | P1
+| HF-MUSIC-LIBRARY | **Bibliothèque musicale (BGM) issue de newpipe** — extraction YouTube→MP3 (Nashville, GPL boundary, outil séparé) → `music-library.json` (provenance/licence) → sélection N1 ; **balises de son dans l'AsciiDoc** (`[.hyperframes-music]`/`[.hyperframes-sfx]`) déclarant la **séquence sonore** par scène ; résolution + injection timeline. Cadrage `.agents/CADRAGE_EPIC_HF_MUSIC_LIBRARY.adoc`. | 🟡 **EN COURS** — US-1 ✅ S-004 (newpipe producteur) + US-2 ✅ S-201 (`video-kernel 0.8.0`) + **US-3 ✅ S-052** (domaine `hyperframes.sound` + processor, 51 unit + BDD `@music`) ; reste US-4→US-9 | P1
 |===
 
 '''
@@ -292,7 +293,7 @@ US-8 docs.
 '''
 == EPIC HF-MUSIC-LIBRARY — BGM issu du borough newpipe (séquences dans l'AsciiDoc)
 
-_Statut_ : 🟡 **CADRÉ (S-050)**. Cadrage `.agents/CADRAGE_EPIC_HF_MUSIC_LIBRARY.adoc`.
+_Statut_ : 🟡 **EN COURS** — US-3 livrée S-052. Cadrage `.agents/CADRAGE_EPIC_HF_MUSIC_LIBRARY.adoc`.
 
 _Problème_ : le BGM est un fichier `bgm.mp3` codé en dur (aucune bibliothèque,
 aucune sélection, aucune provenance), et l'auteur **ne peut pas déclarer de
@@ -311,15 +312,30 @@ versionné + audio gitignoré (D2) ; gate de licence obligatoire (D3) ; modèle
 (D4) ; séquence portée par le document (D7) ; **balises de son AsciiDoc** +
 validateur pur (D12) ; backward compat `[.hyperframes-audio]` (D6).
 
-_US_ : US-0 cadrage ✅ S-050 · US-1 réactivation newpipe · US-2 N1 (modèle +
-séquence) · US-3 DSL son (séquences) · US-4 résolution bibliothèque · US-5 tests
-· US-6 adoption capsule · US-7 attribution · US-8 crossfade v2 · US-9 docs.
+_US_ : US-0 cadrage ✅ S-050 · US-1 réactivation newpipe ✅ S-004 · US-2 N1
+(modèle + séquence) ✅ S-201 · **US-3 DSL son (séquences) ✅ S-052** · US-4
+résolution bibliothèque 🟡 · US-5 tests · US-6 adoption capsule · US-7 attribution
+· US-8 crossfade v2 · US-9 docs.
+
+_Livré US-3 (S-052)_ : domaine pur `hyperframes.sound` — `MusicDeclaration` /
+`SfxDeclaration`, `SoundBlockParser` (listing `----` **et** open block `--` dont
+Asciidoctor aplatit les lignes), `SoundSequencePlanner` (continuité par identité,
+`track: none`, bornage à la fin de composition, fade de passation),
+`SoundCueResolver` (`file:` > bibliothèque N1 > échec actionnable),
+`SoundHtmlRenderer` (`<audio>` pistes `120+`/`140+`, jamais en collision avec
+`[.hyperframes-audio]` `90+`), `MusicLibraryManifestLoader`. Processor :
+`withMusicLibrary(...)`, blocs consommés par scène, échec **avant rendu** sur cue
+irrésoluble, backward compat stricte. 51 unit + BDD `@music` (6 scénarios).
+
+_Prochain_ : **US-4** `resolveHyperframesBgm` (copie `sha256` dans
+`assets/audio/`, extension `music { }`), puis US-5 (FT TestKit du graphe).
 
 '''
 == Sessions
 
 |===
 | # | Date | Type | Sujet | Score
+| 052 | 2026-11-12 | feat+test | **HF-MUSIC-LIBRARY US-3 — DSL son + séquence documentaire** ✅ — domaine pur `hyperframes.sound` (6 fichiers) : `MusicDeclaration`/`SfxDeclaration`, `SoundBlockParser` (listing `----` **et** open block `--` aplati), `SoundSequencePlanner` (continuité par identité, `track: none`, bornage fin de composition, fade de passation), `SoundCueResolver` (`file:` > `MusicTrackSelector` N1 > `Unresolved` actionnable), `SoundHtmlRenderer` (pistes `120+`/`140+`), `MusicLibraryManifestLoader` (tolérant, licence fail-closed). Processor : `withMusicLibrary(...)`, blocs consommés par scène (scan `<div>` équilibré), `<audio>` aux offsets de scène, **échec avant rendu** si cue irrésoluble, backward compat stricte. 51 unit (6 classes) + BDD `@music` 6 scénarios (`HfMusicLibrarySteps`, préfixes anti-collision). Pont N1 documenté : `video-kernel 0.8.0` JitPack (`libs.video.kernel.jitpack` + dépôt, à normaliser au reset Central). Gates locaux (Local = Build) : compiles + `ktlintCheck` VERTS ; preuve CI. Zéro publication, zéro bump. Rapport `.agents/sessions/052-hf-music-library-us3.adoc`. | 10/10
 | 046 | 2026-10-31 | refactor+feat+release | **Adoption `video-kernel 0.7.0` (PUBLISH-ADAPTER-N1) + `youtube-auth 0.0.2` + US-7 parallaxe + release `0.0.14`** ✅ — doublons N2 supprimés (parser chapitres, credentials/loader, commande JSON sans Jackson, disabled publisher, seam HTTP) ; `plugins { alias(libs.plugins.youtube.auth) }`. US-7 : `BackgroundImage.parallax` (0..0.25, média sur-échelonné + pan `yPercent`), +3 UT domaine +2 UT processeur +1 FT +1 BDD. DAG MEMPHIS `0.0.115` (`0e74a6a8`) → Central bundle `11eb9906` (AUTOMATIC), propagation 200. Dogfooding : `lint` 0/0, `check` passed. **CI verte** `Test` `41243897426`. Rapport `.agents/sessions/046-adoption-n1-us7-parallax-release-0.0.14.adoc`. | 10/10
 | 045 | 2026-10-31 | release | **Release `hyperframes-plugin 0.0.13`** ✅ — DAG N0→N2 : MEMPHIS BOM/catalog `0.0.113 → 0.0.114` (bundle `55aa4fba`, propagation 200) → hyperframes re-pin `workspace-catalog/BOM 0.0.114` + toml `0.0.13` → Central bundle `70d29242` (AUTOMATIC), propagation repo1 200 plugin + marker. Contenu : `HF-DEMO-QUALITY US-6` fond média par scène. **CI verte** `Test` `41239612772`. **Règle 2 révisée « accord toujours granted »** (décision pilote 2026-10-31). Rapport `.agents/sessions/045-release-0.0.13.adoc`. | 10/10
 | 044 | 2026-10-31 | feat+test+dogfooding | **HF-DEMO-QUALITY US-6 — fond média par scène** ✅ — domaine pur `hyperframes.media` (`BackgroundImage`/`BackgroundImageParser`/`BackgroundImageHtml`), DSL `[.hyperframes-background]` (`file`, `opacity`, `scrim`, `grid`, `grain`), couche `hf-bg` plein cadre, CSS conditionnel (backward compatible : `.scene-bg` + zéro token `hf-bg` sans bloc), asset copié par `ReferencedAssets`. 15 UT + 2 FT TestKit + 4 scénarios BDD `@quality-background`. RED prouvé (`compileTestKotlin`, 22 unresolved) → GREEN. Dogfooding `/tmp` : `lint` 0/0, `check` passed (Layout 0/9, Contrast 8/8 AA). YouTube gelé, zéro publication. Rapport `.agents/sessions/044-hf-demo-quality-us6-background.adoc`. | 10/10

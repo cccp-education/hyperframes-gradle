@@ -402,3 +402,13 @@
 | D-F+ | Cache/incremental réel des tâches + source set `functionalTest` séparé (convention actuelle : TestKit dans `src/test`) | P2
 |===
 
+
+== Tâches terminées (session 052 — 2026-11-12)
+
+|===
+| EPIC | Tâche | Statut
+| HF-MUSIC-LIBRARY US-3 | Domaine pur `hyperframes.sound` : `MusicDeclaration`/`SfxDeclaration`, `SoundBlockParser` (listing + open block aplati), `SoundSequencePlanner` (continuité/stop/bornage/fades), `SoundCueResolver`, `SoundHtmlRenderer`, `MusicLibraryManifestLoader` | ✅
+| HF-MUSIC-LIBRARY US-3 | `HyperframesHtmlProcessor.withMusicLibrary(...)` + consommation par scène + `<audio>` aux offsets + échec avant rendu sur cue irrésoluble + backward compat stricte | ✅
+| HF-MUSIC-LIBRARY US-3 | 51 unit (6 classes) + BDD `@music` (6 scénarios, `HfMusicLibrarySteps`) | ✅
+| Build | Pont N1 `video-kernel 0.8.0` (JitPack, `libs.video.kernel.jitpack`) documenté — normalisation au reset Central | ✅
+|===

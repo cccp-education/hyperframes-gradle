@@ -1,0 +1,107 @@
+= Session 052 — HF-MUSIC-LIBRARY US-3 : DSL son + séquence documentaire
+:toc:
+:_session_: S-052
+:_date_: 2026-11-12
+:_borough_: Watts (hyperframes) · transverse video-kernel (N1) + newpipe (Nashville)
+:_statut_: ✅ TERMINÉ (Local = Build ; preuve = CI)
+
+'''
+
+== Mission
+
+US-3 de l'EPIC `HF-MUSIC-LIBRARY` (cadrage `.agents/CADRAGE_EPIC_HF_MUSIC_LIBRARY.adoc`,
+D12) : le son devient une **séquence portée par le document pilote** — balises
+`[.hyperframes-music]` / `[.hyperframes-sfx]` attachées aux scènes, séquence
+ordonnée (héritage, `track: none`, fondus, offsets), validation avant rendu,
+retrait du visuel, émission des `<audio>` à offsets de scène, backward compat
+stricte avec `[.hyperframes-audio]`.
+
+== Livré
+
+=== Domaine pur `hyperframes.sound` (7 fichiers)
+
+[cols="2,4", options="header"]
+|===
+| Fichier | Rôle
+
+| `SoundDeclarations.kt` | `MusicDeclaration` (track/mood/file/volume/fade-in/fade-out/loop/stop, invariants) + `SfxDeclaration` (file/offset/volume) ; `sameMusicAs` = identité seule (la continuité ne redémarre pas une piste).
+| `SoundBlockParser.kt` | Parseur défensif `[.hyperframes-music]` / `[.hyperframes-sfx]` (`SoundBlockParseResult.Parsed/Invalid`). Gère les **deux formes Asciidoctor** : listing `----` (`<pre>`) et open block `--` (paragraphe **aplati en une ligne** — séparation sur les clés connues).
+| `SoundSequencePlanner.kt` | `SceneSoundInput` → `SoundPlan` (`SoundPlacement`/`SfxPlacement`) en ordre document : une cue s'ouvre sur déclaration, se ferme au changement/`stop`/fin de composition ; `handoffFades` propage le fade-in suivant comme fade-out sortant.
+| `SoundCueResolver.kt` | Résolution pure : `file:` explicite > bibliothèque (`MusicTrackSelector` : id, puis mood) > `Unresolved` actionnable (jamais silencieux). Convention d'asset `assets/audio/<track-id>.<ext>`.
+| `SoundHtmlRenderer.kt` | `<audio class="hyperframes-music">` (data-start/duration/volume/loop/fades, pistes `120+`) et `<audio class="hyperframes-sfx">` (pistes `140+`, jamais en collision avec `[.hyperframes-audio]` `90+`).
+| `MusicLibraryManifestLoader.kt` | Lecture du manifeste `music-library.json` (producteur newpipe) → modèle N1 `MusicLibrary` ; clés inconnues tolérées, licence inconnue fail-closed, entrées invalides écartées, manifeste absent = bibliothèque vide, JSON invalide = échec explicite.
+|===
+
+=== Processeur (N2)
+
+`HyperframesHtmlProcessor` : `withMusicLibrary(MusicLibrary?)`, consommation des
+blocs de son **par scène** (scan `<div>` équilibré, jamais de troncature sur un
+`<div>` imbriqué), planification sur les offsets réels des scènes, résolution,
+émission des `<audio>` en enfants directs de `#stage`. Une cue déclarée mais
+irrésoluble fait **échouer le build avant rendu** avec un message actionnable
+(`music.libraryFile`). Aucune balise de son → sortie **inchangée**.
+
+=== Tests (CI)
+
+* Unit : `SoundBlockParserTest` (12) · `SoundSequencePlannerTest` (9) ·
+  `SoundCueResolverTest` (10) · `SoundHtmlRendererTest` (5) ·
+  `MusicLibraryManifestLoaderTest` (6) · `HyperframesHtmlProcessorSoundTest` (9).
+* BDD : `hf_music_library_us3.feature` (6 scénarios `@music`) +
+  `HfMusicLibrarySteps` (préfixes `music …`/`sound …`, anti-collision S-088).
+* Gates locaux (Local = Build) : `compileKotlin` + `compileTestKotlin` +
+  `ktlintCheck` **VERTS**. Aucun test exécuté en local (règle EAGER).
+
+=== Dépendance N1 — pont JitPack documenté
+
+`video.kernel.music` n'existe qu'en **0.8.0**, publié sur JitPack (Central est
+bloqué à 0.7.0 tant que le canal Sonatype est restreint). hyperframes consomme
+donc `com.github.cccp-education:video-kernel-gradle:v0.8.0` (entrée catalogue
+`video-kernel-jitpack` + dépôt `jitpack.io`), avec une note de normalisation
+explicite au reset du canal (`education.cccp:video-kernel` + BOM). C'est la
+dette VK déjà tracée, désormais **portée par un seul point** (catalogue).
+
+== Décisions prises en session
+
+. **Deux formes de bloc acceptées** — `----` (listing) et `--` (open block, lignes
+  aplaties). Le cadrage montrait `--` ; Asciidoctor peut joindre les lignes, le
+  parseur sépare sur les clés connues. Documenté en KDoc du parseur.
+. **Continuité = identité de musique** (track/mood/file). Redéclarer la même
+  ambiance scène après scène ne redémarre pas la piste ; changer de piste/ambiance
+  ouvre une nouvelle cue.
+. **Le lit musical ne survit jamais à la vidéo** : la dernière cue est bornée à
+  la fin de composition.
+. **Fade de passation** : une cue sans fade-out hérite du fade-in de la suivante
+  (borné à son propre span) — l'enchaînement est toujours audible, jamais coupé sec.
+. **Échec explicite sur cue non résoluble** — « ship un MP4 silencieux » est
+  pire qu'un build rouge (R-07 du cadrage).
+. **US-4 non entammée** : la copie des assets (sha256, Économie d'encre) et
+  l'extension `music { }` sont la mission suivante (périmètre propre).
+
+== Points ouverts (mission S-053)
+
+* **US-4** `resolveHyperframesBgm` : lire `music-library.json`, copier les pistes
+  référencées du répertoire bibliothèque vers `assets/audio/<id>.<ext>` (skip si
+  `sha256` identique), extension `music { libraryFile; audioDir; track; mood;
+  volume }`, wiring `GenerateHyperframesHtmlTask.withMusicLibrary(...)`.
+* **US-5** FT TestKit du graphe `resolve → generate`, manifeste synthétique.
+* **US-6** adoption capsule (`audioPost.bgmFile` via le même sélecteur N1).
+* **US-7→US-9** attribution (`cc-by` → description de publication), crossfade v2,
+  docs `doc/PILOTAGE_HYPERFRAMES.adoc` (DSL `music {}` + balises de son).
+* `HF-SPEAKER-NOTES` (cadré S-049) reste la seconde priorité du borough.
+
+== Fichiers
+
+[cols="1,3"]
+|===
+| Type | Fichiers
+| Créés (prod) | `src/main/kotlin/hyperframes/sound/{SoundDeclarations,SoundBlockParser,SoundSequencePlanner,SoundCueResolver,SoundHtmlRenderer,MusicLibraryManifestLoader}.kt`
+| Modifiés (prod) | `src/main/kotlin/hyperframes/HyperframesHtmlProcessor.kt` (+ library, + consumption, + plan/resolve/render)
+| Créés (test) | `src/test/kotlin/hyperframes/sound/*Test.kt` (5) · `src/test/kotlin/hyperframes/HyperframesHtmlProcessorSoundTest.kt` · `src/test/kotlin/hyperframes/scenarios/HfMusicLibrarySteps.kt` · `src/test/resources/features/hf_music_library_us3.feature`
+| Build | `build.gradle.kts` (dépôt JitPack + `libs.video.kernel.jitpack`) · `gradle/libs.versions.toml` · `settings.gradle.kts` (inchangé au final)
+|===
+
+== Sécurité / hygiène
+
+* Zéro secret, zéro audio committé (le manifeste seul est versionné).
+* Zéro Python ; English only (code, tests, Gherkin).
+* `ktlintCheck` vert (aucun fichier hors périmètre reformaté).
