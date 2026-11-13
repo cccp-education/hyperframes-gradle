@@ -63,7 +63,7 @@ HyperFrames consomme les convention plugins centralises `education.cccp.build` v
 |===
 | Plugin ID | Role
 | `education.cccp.build.gradle-plugin` | java-gradle-plugin + kotlin-jvm + test JUnit + withSourcesJar/JavadocJar + mavenLocal + deps junit test
-| `education.cccp.build.publishing` | POM Maven Central + signing conditionnel + relocation + publicationType
+| `education.cccp.build.publishing` | POM (licence/dev/scm) + signing conditionnel + relocation + publicationType
 |===
 
 Ces 2 plugins remplacent ~54 lignes de build redondantes (POM, signing, toolchain, testLogging).
