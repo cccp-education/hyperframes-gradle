@@ -37,9 +37,10 @@ class JdkHttpTransport(
 
     override fun send(request: PublishHttpRequest): PublishHttpResponse =
         try {
-            val builder = newBuilder()
-                .uri(URI.create(request.url))
-                .timeout(timeout)
+            val builder =
+                newBuilder()
+                    .uri(URI.create(request.url))
+                    .timeout(timeout)
             request.headers.forEach { (name, value) -> builder.header(name, value) }
             val publisher =
                 if (request.body.isEmpty()) {
