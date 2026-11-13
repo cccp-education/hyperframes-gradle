@@ -30,10 +30,10 @@ repositories {
 // dependencies) and no Gradle module metadata is served. The platform therefore
 // stays on the last Maven Central release, while every plugin/library version
 // comes from the JitPack-deployed workspace catalog (0.0.132).
-val workspaceBomPlatform = "0.0.115"
+// The literal below is the drift guard's contract (the injected value must equal it).
 
 dependencies {
-    implementation(platform("education.cccp:workspace-bom:$workspaceBomPlatform"))
+    implementation(platform("education.cccp:workspace-bom:0.0.115"))
 
     implementation(kotlin("stdlib-jdk8"))
     // N1 shared engine-neutral video kernel (spike — 2nd engine adapter).
@@ -71,7 +71,7 @@ tasks.withType<Test> {
     )
     systemProperty(
         "hyperframes.publishedCatalog.bomVersion",
-        workspaceBomPlatform,
+        "0.0.115",
     )
 }
 

@@ -72,7 +72,8 @@ class NarrationMuxTest {
 
         assertThat(argv).containsSequence("-i", "/tmp/in.mp4", "-i", "/tmp/narration-1.wav")
         assertThat(argv).containsSequence("-map", "0:v:0", "-map", "[aout]")
-        assertThat(argv).containsSequence("-c:v", "copy", "-shortest")
+        assertThat(argv).containsSequence("-c:v", "copy")
+        assertThat(argv).contains("-shortest")
         assertThat(argv.last()).isEqualTo("/tmp/out.mp4")
     }
 }

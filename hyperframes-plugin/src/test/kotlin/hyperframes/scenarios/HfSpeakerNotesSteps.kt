@@ -97,6 +97,11 @@ class HfSpeakerNotesSteps {
         assertThat(markers()).hasSize(count)
     }
 
+    @Then("the composition exposes {int} speaker notes narration marker")
+    fun markerCountSingular(count: Int) {
+        assertThat(markers()).hasSize(count)
+    }
+
     @Then("the speaker notes blocks are removed from the visible content")
     fun blocksRemoved() {
         assertThat(composition).doesNotContain("admonitionblock")
