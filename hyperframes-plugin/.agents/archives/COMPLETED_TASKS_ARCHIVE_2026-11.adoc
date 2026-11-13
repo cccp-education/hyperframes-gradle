@@ -34,3 +34,16 @@
 * [ ] Central `0.0.15` (quota, ≥ 2026-12-01) ; `HF-SPEAKER-NOTES` US-2→8 bloqué
   (video-kernel absent de Central).
 * [x] Rapport `.agents/sessions/058-release-0.0.15-jitpack.adoc`.
+
+== S-059 — `HF-SPEAKER-NOTES` US-2→US-8 ✅ (EPIC 9/9) + release JitPack 0.0.16
+
+* `[NOTE.speaker]` → narration par scène : domaine `hyperframes.notes` (N1
+  `video-kernel-gradle:v0.9.1`), marqueur `display:none` ancré
+  `data-narration-scene/start`, `extractNarration`, `muxHyperframesNarration`
+  opt-in (`adelay`/`amix`/`apad`), N3 `speakerNotes`, BDD `@speaker-notes`,
+  FT TestKit (FFmpeg stub), dogfooding réel espeak/ffmpeg (MP4 15 s).
+* 3 bugs attrapés par le dogfooding (note affichée, `-shortest` tronquait la
+  vidéo, collecte des prises sur le répertoire).
+* DAG JitPack : catalogue `workspace-bom 0.0.133` → `ws` lu depuis JitPack →
+  build `0.0.16` == publié ; plateforme BOM Central `0.0.115`.
+* CI `43349890307` verte + JitPack POM/jar 200.
