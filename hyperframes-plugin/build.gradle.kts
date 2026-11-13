@@ -71,7 +71,7 @@ tasks.withType<Test> {
     )
     systemProperty(
         "hyperframes.publishedCatalog.bomVersion",
-        "0.0.115",
+        ws.versions.workspace.bom.get(),
     )
 }
 
