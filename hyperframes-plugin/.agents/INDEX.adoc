@@ -428,3 +428,9 @@ puis **US-8** crossfade v2.
 == Session 047 — JitPack mirror (CNV-16)
 
 Publication JitPack de hyperframes-plugin 0.0.14. JitPack : 0.0.14 — POM HTTP 200.
+
+== Session 062 — EAGER : publication JitPack canal unique (2026-11-14)
+
+Alignement EAGER (AGENT/PROMPT_REPRISE) : JitPack canal unique ;
+Central/Portal retirés. Zéro code. Rapport
+`.agents/sessions/062-eager-publication-jitpack-only.adoc`.

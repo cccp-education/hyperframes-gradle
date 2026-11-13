@@ -896,3 +896,9 @@ supprimé, cinq étapes remplacées par `ci/run.sh test` ; `real-render` reste
 hôte. Run `43507444973` **VERT** (commit `62240cc`). Rapport
 `.agents/sessions/061-gbl-013-wave2.adoc`.
 
+
+== Session 062 — EAGER : publication JitPack canal unique — 2026-11-14
+
+Alignement EAGER : JitPack canal unique ; Maven Central/Sonatype et
+Gradle Plugin Portal **retirés**. Aucun code, aucun test, aucune
+publication. Rapport `.agents/sessions/062-eager-publication-jitpack-only.adoc`.
