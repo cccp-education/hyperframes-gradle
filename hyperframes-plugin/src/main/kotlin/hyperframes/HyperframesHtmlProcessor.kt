@@ -8,6 +8,8 @@ import hyperframes.entrance.SceneEntrancePlanner
 import hyperframes.media.BackgroundImage
 import hyperframes.media.BackgroundImageHtml
 import hyperframes.media.BackgroundImageParser
+import hyperframes.notes.SpeakerNote
+import hyperframes.notes.SpeakerNotesDocument
 import hyperframes.pronunciation.PronunciationDictionary
 import hyperframes.pronunciation.PronunciationHint
 import hyperframes.sound.MusicDeclaration
@@ -81,6 +83,7 @@ class HyperframesHtmlProcessor internal constructor(
     private val entrances: EntranceConfig = EntranceConfig(),
     private val musicLibrary: MusicLibrary? = null,
     private val defaultMusic: MusicDeclaration? = null,
+    private val speakerNotes: SpeakerNotesDocument = SpeakerNotesDocument(),
 ) {
     /** Backward-compatible constructor — no domain dictionary, 5s scenes. */
     constructor(width: Int, height: Int, fps: Int, outputName: String) :
@@ -110,6 +113,7 @@ class HyperframesHtmlProcessor internal constructor(
             entrances,
             musicLibrary,
             defaultMusic,
+            speakerNotes,
         )
 
     /**
@@ -130,6 +134,7 @@ class HyperframesHtmlProcessor internal constructor(
             entrances,
             musicLibrary,
             defaultMusic,
+            speakerNotes,
         )
 
     /**
@@ -149,6 +154,7 @@ class HyperframesHtmlProcessor internal constructor(
             entrances,
             musicLibrary,
             defaultMusic,
+            speakerNotes,
         )
 
     /**
@@ -169,6 +175,7 @@ class HyperframesHtmlProcessor internal constructor(
             entrances,
             musicLibrary,
             defaultMusic,
+            speakerNotes,
         )
 
     /**
@@ -189,6 +196,7 @@ class HyperframesHtmlProcessor internal constructor(
             entrances,
             library,
             defaultMusic,
+            speakerNotes,
         )
 
     /**
@@ -212,6 +220,32 @@ class HyperframesHtmlProcessor internal constructor(
             entrances,
             musicLibrary,
             defaultMusic,
+            speakerNotes,
+        )
+
+    /**
+     * HF-SPEAKER-NOTES US-3 — returns a copy of this processor wired with the
+     * [notes] authored in the source document.
+     *
+     * The note blocks are **removed** from the visible composition and replaced,
+     * in document order, by a narration marker (`hyperframes-track`
+     * `hyperframes-narration`) carrying the note text. Without notes the
+     * composition is byte-identical to the historical render (D9).
+     */
+    fun withSpeakerNotes(notes: SpeakerNotesDocument): HyperframesHtmlProcessor =
+        HyperframesHtmlProcessor(
+            width,
+            height,
+            fps,
+            outputName,
+            domainDictionary,
+            sceneDurationSeconds,
+            chrome,
+            typography,
+            entrances,
+            musicLibrary,
+            defaultMusic,
+            notes,
         )
 
     /**
@@ -219,11 +253,15 @@ class HyperframesHtmlProcessor internal constructor(
      * HyperFrames composition document.
      */
     fun enhance(html: String): String {
-        val inlineDictionary = extractInlineHints(html)
+        // HF-SPEAKER-NOTES US-3 — the authored notes become narration markers
+        // *before* the inline pronunciation hints are harvested, so a hint in a
+        // note follows the same path as a hint in a track (D8).
+        val withNotes = injectSpeakerNotes(html)
+        val inlineDictionary = extractInlineHints(withNotes)
         val blockDictionary = PronunciationDictionary()
         val audioCues = mutableListOf<AudioCue>()
         val expanded =
-            html
+            withNotes
                 .let { expandTitleCardBlocks(it) }
                 .let { expandCodeDiffBlocks(it) }
                 .let { expandDataChartBlocks(it) }
@@ -545,7 +583,7 @@ class HyperframesHtmlProcessor internal constructor(
             val overlapAttrs =
                 if (scene.allowOverlap) " data-layout-allow-overlap data-layout-allow-overflow" else ""
             appendLine("  <div class=\"scene-inner\"$overlapAttrs>")
-            appendLine(scene.inner)
+            appendLine(withNarrationAnchors(scene))
             appendLine("  </div>")
             val chromeHtml = ChromeRenderer.sceneChrome(chrome, scene.start, fps, sceneNumber, sceneTotal)
             if (chromeHtml.isNotBlank()) {
@@ -1016,6 +1054,66 @@ class HyperframesHtmlProcessor internal constructor(
     private fun removeBackgroundBlock(body: String): String = BACKGROUND_BLOCK.replace(body, "")
 
     // ──────────────────────────────────────────────────────────────────────
+    // Speaker notes (HF-SPEAKER-NOTES US-3)
+    // ──────────────────────────────────────────────────────────────────────
+
+    /**
+     * Replaces each authored `[NOTE.speaker]` block — rendered by Asciidoctor as
+     * an `admonitionblock note speaker` — with the narration marker of the
+     * matching note, in document order.
+     *
+     * The note never reaches the visible content (D5). The marker is a
+     * `hyperframes-track`, so narration extraction, hint harvesting and hint
+     * stripping already apply to it. Without notes the HTML is returned
+     * untouched (byte-identical guarantee, D9).
+     */
+    private fun injectSpeakerNotes(html: String): String {
+        if (speakerNotes.isEmpty()) return html
+        val blocks = SPEAKER_NOTE_BLOCK_OPEN.findAll(html).toList()
+        if (blocks.isEmpty()) return html
+        val builder = StringBuilder(html)
+        for (index in blocks.indices.reversed()) {
+            val start = blocks[index].range.first
+            val end = matchingDivEnd(html, start)
+            val note = speakerNotes.notes.getOrNull(index)
+            builder.replace(start, end, note?.let { narrationMarker(index + 1, it) }.orEmpty())
+        }
+        return builder.toString()
+    }
+
+    /**
+     * One narration marker carrying the note text, in the historical track
+     * vocabulary. It is **hidden** (`display:none`): a note is spoken, never
+     * displayed (D5). The inline style is deterministic and does not depend on
+     * the embedded stylesheet.
+     */
+    private fun narrationMarker(
+        index: Int,
+        note: SpeakerNote,
+    ): String =
+        "<div class=\"hyperframes-track hyperframes-narration\" style=\"display:none\" " +
+            "data-narration-index=\"$index\" data-narration-title=\"${escapeAttribute(note.title)}\">" +
+            "<p>${escapeText(note.text)}</p></div>"
+
+    /**
+     * Anchors every narration marker of [scene] to its scene id and start time,
+     * so the mux step can align the synthesized take with the scene timeline.
+     */
+    private fun withNarrationAnchors(scene: Scene): String =
+        if (speakerNotes.isEmpty()) {
+            scene.inner
+        } else {
+            NARRATION_MARKER_OPEN.replace(scene.inner) { match ->
+                match.value.dropLast(1) +
+                    " data-narration-scene=\"${escapeAttribute(scene.id)}\"" +
+                    " data-narration-start=\"${number(scene.start)}\">"
+            }
+        }
+
+    /** Escapes the minimal HTML attribute entities. */
+    private fun escapeAttribute(value: String): String = escapeText(value).replace("\"", "&quot;")
+
+    // ──────────────────────────────────────────────────────────────────────
     // HTML structural helpers
     // ──────────────────────────────────────────────────────────────────────
 
@@ -1422,6 +1520,13 @@ class HyperframesHtmlProcessor internal constructor(
         val DURATION_ATTR = Regex("""data-duration="([0-9.]+)"""")
         val SCRIPT_TAG = Regex("""<script\b[^>]*>(.*?)</script>""", RegexOption.DOT_MATCHES_ALL)
         val RESERVED_TIMING_ATTR = Regex("""\s+(?:data-track-index|data-start|data-duration|data-end)="[^"]*"""")
+
+        // HF-SPEAKER-NOTES — the Asciidoctor rendering of `[NOTE.speaker]`
+        // (style `note`, role `speaker`) and the narration marker it becomes.
+        val SPEAKER_NOTE_BLOCK_OPEN =
+            Regex("""<div[^>]*class="[^"]*\badmonitionblock\b[^"]*\bspeaker\b[^"]*"[^>]*>""")
+        val NARRATION_MARKER_OPEN =
+            Regex("""<div class="hyperframes-track hyperframes-narration"[^>]*>""")
         val CLASS_ATTR = Regex("""class="([^"]*)"""")
         val ROLE_GRID = Regex("""(?:^|\s)hf-transition-grid(?:\s|$)""")
         val ROLE_SHUTTER = Regex("""(?:^|\s)hf-transition-shutter(?:\s|$)""")

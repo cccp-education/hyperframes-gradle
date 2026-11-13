@@ -3,6 +3,7 @@ package hyperframes
 import hyperframes.chrome.ChromeConfig
 import hyperframes.chrome.TypographyConfig
 import hyperframes.entrance.EntranceConfig
+import hyperframes.notes.SpeakerNotesExtractor
 import hyperframes.pronunciation.PronunciationDomainLoader
 import hyperframes.sound.MusicDeclaration
 import hyperframes.sound.MusicLibrary
@@ -165,6 +166,10 @@ abstract class GenerateHyperframesHtmlTask : DefaultTask() {
             // Step 2: HyperFrames post-processing (stage, data-*, GSAP)
             val rawHtml = generatedHtml.readText()
             val domainDictionary = pronunciationDomain.orNull?.let { PronunciationDomainLoader.load(it) }
+            // HF-SPEAKER-NOTES US-2 — the shared N1 grammar extracts the authored
+            // notes from the *source*; the processor removes them from the visible
+            // composition and emits one narration marker per scene (US-3).
+            val speakerNotes = SpeakerNotesExtractor.extract(sourceFile.readText())
             val processor =
                 HyperframesHtmlProcessor(
                     width = width.get(),
@@ -189,7 +194,7 @@ abstract class GenerateHyperframesHtmlTask : DefaultTask() {
                     .withMusicLibrary(musicLibrary())
                     .withDefaultMusic(
                         MusicDeclaration.fallback(musicTrack.getOrElse(""), musicMood.getOrElse(""), musicVolume.getOrElse(MusicDeclaration.DEFAULT_VOLUME)),
-                    )
+                    ).withSpeakerNotes(speakerNotes)
             val enhancedHtml = processor.enhance(rawHtml)
             generatedHtml.writeText(enhancedHtml)
 

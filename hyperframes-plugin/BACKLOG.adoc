@@ -2,9 +2,25 @@
 :toc:
 
 _Date création_ : 2026-05-31
-_Version_ : **0.0.15 (JitPack)** — `v0.0.15` build `ok` (POM 200) ; Central bloqué par le quota Sonatype (reset 2026-12-01) ; catalogue/BOM ws **`0.0.115`**.
+_Version_ : **0.0.16 (JitPack)** — tag `v0.0.16` ; catalogue ws lu depuis JitPack
+`workspace-catalog:v0.0.132` ; platform BOM Central `0.0.115` (seul BOM
+plateforme valide — le POM JitPack perd `dependencyManagement`). Central/Portal
+bloqués (reset Sonatype 2026-12-01).
 
 '''
+== ✅ Release `0.0.16` — JitPack (S-059)
+
+* Contenu : **HF-SPEAKER-NOTES US-2→US-8** (notes d'orateur extraites par la
+  grammaire N1, masquées du visuel, lues par scène, muxées dans le MP4, exposées
+  en N3) + US-8 (docs).
+* Versions alignées sur les artefacts JitPack : noyau
+  `video-kernel-gradle:v0.9.1`, catalogue `workspace-catalog:v0.0.132`
+  (`hyperframes-plugin 0.0.16`), donc **version build == version publiée**.
+* Mux **opt-in** hors `hyperframesPipeline` ; aucune note = pipeline historique.
+* Rapport `.agents/sessions/059-hf-speaker-notes-us2-us8.adoc`.
+
+'''
+
 == ✅ Release `0.0.15` — JitPack (S-058)
 
 * Tag annoté **`v0.0.15`** (commit `4fc36b1`), build JitPack **`ok`**, modules
@@ -17,13 +33,13 @@ _Version_ : **0.0.15 (JitPack)** — `v0.0.15` build `ok` (POM 200) ; Central bl
   **2026-12-01**) — même blocage que capsule. Portal : câblage non requis ici.
 
 '''
-== 🟡 EPICs ouverts — traçabilité BACKLOG (synchronisée 2026-11-12)
+== 🟡 EPICs ouverts — traçabilité BACKLOG (synchronisée 2026-11-13)
 
 Les deux EPICs ouverts vivaient uniquement dans `.agents/INDEX.adoc` et les
 CADRAGE : ce BACKLOG les reprend pour que le backlog canonique porte l'état réel
 (leçon : une roadmap sans BACKLOG = EPIC invisible pour la session suivante).
 
-=== 🟡 HF-SPEAKER-NOTES — notes d'orateur lues dans la vidéo
+=== ✅ HF-SPEAKER-NOTES — notes d'orateur lues dans la vidéo (TERMINÉ 9/9)
 
 _Cadrage_ : `.agents/CADRAGE_EPIC_HF_SPEAKER_NOTES.adoc` (S-049, 9 US ~20 pts).
 L'AsciiDoc reste la source de vérité (visuel **et** parole) ; `[NOTE.speaker]`
@@ -32,14 +48,14 @@ est lu par TTS par scène puis **muxé** dans le MP4.
 |===
 | US | Livrable | Statut
 
-| US-1 | Noyau `video.kernel.notes.SpeakerNoteBlockParser` (+ `SpeakerNoteBlock`) ; `video-kernel 0.9.0` | ✅ S-203 (noyau) · adoption capsule 🟡 bloquée publication
-| US-2 | hyperframes — extraction `hyperframes.notes` (`SpeakerNote`, `SpeakerNotesDocument`, `SpeakerNotesExtractor`), mapping note ↔ section | 🟡
-| US-3 | hyperframes — injection : le processor retire le bloc et émet le marqueur de narration par scène (hints de prononciation, backward compat byte-identique) | 🟡
-| US-4 | hyperframes — TTS par scène (`generateHyperframesNarration` sur les notes, ordre scène = index WAV) | 🟡
-| US-5 | hyperframes — **muxage** `muxHyperframesNarration` (ffmpeg `adelay`/`amix`, offsets de scène, opt-in, dégradé, `strict`) | 🟡
-| US-6 | traçabilité N3 (`speakerNotes` dans `metadata.json`) | 🟡
-| US-7 | BDD `@speaker-notes` (fake TTS) + FT TestKit du graphe + dogfooding réel | 🟡
-| US-8 | docs (`doc/PILOTAGE_HYPERFRAMES.adoc` + README) | 🟡
+| US-1 | Noyau `video.kernel.notes.SpeakerNoteBlockParser` (+ `SpeakerNoteBlock`) ; `video-kernel 0.9.0` | ✅ S-203 (noyau) · publié JitPack `v0.9.1` · adoption capsule à faire au reset Central
+| US-2 | hyperframes — extraction `hyperframes.notes` (`SpeakerNote`, `SpeakerNotesDocument`, `SpeakerNotesExtractor`), mapping note ↔ section | ✅ S-059
+| US-3 | hyperframes — injection : le processor retire le bloc et émet le marqueur de narration par scène (hints de prononciation, backward compat byte-identique) | ✅ S-059
+| US-4 | hyperframes — TTS par scène (`generateHyperframesNarration` sur les notes, ordre scène = index WAV) | ✅ S-059
+| US-5 | hyperframes — **muxage** `muxHyperframesNarration` (ffmpeg `adelay`/`amix`/`apad`, offsets de scène, opt-in, dégradé, `strict`) | ✅ S-059
+| US-6 | traçabilité N3 (`speakerNotes` dans `metadata.json`) | ✅ S-059
+| US-7 | BDD `@speaker-notes` + FT TestKit du graphe + dogfooding réel (espeak + ffmpeg) | ✅ S-059 · complément deck FPA à faire
+| US-8 | docs (`doc/PILOTAGE_HYPERFRAMES.adoc` + README) | ✅ S-059
 |===
 
 === ✅ HF-MUSIC-LIBRARY — BGM issu du borough newpipe

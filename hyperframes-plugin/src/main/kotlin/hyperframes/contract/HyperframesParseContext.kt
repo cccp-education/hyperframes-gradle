@@ -15,6 +15,8 @@ package hyperframes.contract
  * @property segments neutral-model view of the document (US-2, S-019): one entry per
  *        composition boundary. A whole-document engine has no narration/scene segments.
  * @property pronunciation optional descriptor of the TTS pronunciation dictionary
+ * @property speakerNotes HF-SPEAKER-NOTES — the scenes that speak (empty when
+ *        the document authors no `[NOTE.speaker]`; additive field)
  * @property renderedAt ISO-8601 render timestamp
  * @property renderDurationMs render duration in milliseconds
  */
@@ -26,6 +28,7 @@ data class HyperframesParseContext(
     val source: HyperframesAsciidocSource,
     val segments: List<HyperframesSegment> = emptyList(),
     val pronunciation: HyperframesPronunciationContext? = null,
+    val speakerNotes: List<HyperframesSpeakerNoteContext> = emptyList(),
     val renderedAt: String,
     val renderDurationMs: Long,
 ) {
@@ -111,4 +114,16 @@ data class HyperframesPronunciationEntry(
     val word: String,
     val phonetic: String,
     val language: String? = null,
+)
+
+/**
+ * HF-SPEAKER-NOTES US-6 — one scene that carries a speaker note, exposed in the
+ * N3 metadata.json so the augmented context knows which scenes speak.
+ *
+ * @property sceneId the composition id of the speaking scene
+ * @property title the title of the enclosing section
+ */
+data class HyperframesSpeakerNoteContext(
+    val sceneId: String,
+    val title: String,
 )

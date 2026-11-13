@@ -1,14 +1,17 @@
 [versions]
-hyperframes = "0.0.14"
+hyperframes = "0.0.16"
 youtube-auth = "0.0.2"
-video-kernel = "0.7.0"
+# CNV-16 / JitPack channel — the N1 kernel is consumed from its JitPack tag
+# while Maven Central is suspended (pilot decision, reset 2026-12-01). 0.9.1 is
+# a superset of 0.7.0 (adds `video.kernel.music` + `video.kernel.notes`).
+video-kernel = "v0.9.1"
 kotlin = "2.4.10"
 asciidoctorj = "3.0.1"
 plugin-publish = "2.2.1"
 
 [libraries]
 asciidoctorj = { module = "org.asciidoctor:asciidoctorj", version.ref = "asciidoctorj" }
-video-kernel = { module = "education.cccp:video-kernel", version.ref = "video-kernel" }
+video-kernel = { module = "com.github.cccp-education:video-kernel-gradle", version.ref = "video-kernel" }
 kotlin-stdlib = { module = "org.jetbrains.kotlin:kotlin-stdlib" }
 kotlin-test-junit5 = { module = "org.jetbrains.kotlin:kotlin-test-junit5", version.ref = "kotlin" }
 junit-jupiter = { module = "org.junit.jupiter:junit-jupiter" }

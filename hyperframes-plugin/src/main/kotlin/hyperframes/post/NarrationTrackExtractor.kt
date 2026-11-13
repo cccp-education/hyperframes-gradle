@@ -15,12 +15,33 @@ object NarrationTrackExtractor {
             """<div[^>]*class="[^"]*hyperframes-track[^"]*"[^>]*>(.*?)</div>""",
             RegexOption.DOT_MATCHES_ALL,
         )
+    private val speakerNoteRegex =
+        Regex(
+            """<div[^>]*class="[^"]*hyperframes-narration[^"]*"[^>]*>(.*?)</div>""",
+            RegexOption.DOT_MATCHES_ALL,
+        )
     private val paragraphRegex = Regex("""<p>(.*?)</p>""", RegexOption.DOT_MATCHES_ALL)
     private val tagRegex = Regex("<[^>]+>")
 
     /** Narration texts in document order (blank tracks omitted). */
-    fun extract(html: String): List<String> =
-        trackRegex
+    fun extract(html: String): List<String> = extractWith(trackRegex, html)
+
+    /**
+     * HF-SPEAKER-NOTES US-4 — narration texts of the **speaker-note** markers
+     * only, in scene order. A document that authors notes narrates its scenes
+     * (`n` matches the scene order); a historical document (no note) keeps
+     * narrating its `[hyperframes-track]` paragraphs.
+     */
+    fun extractNarration(html: String): List<String> = extractSpeakerNotes(html).ifEmpty { extract(html) }
+
+    /** Narration texts of the speaker-note markers only, in scene order. */
+    fun extractSpeakerNotes(html: String): List<String> = extractWith(speakerNoteRegex, html)
+
+    private fun extractWith(
+        regex: Regex,
+        html: String,
+    ): List<String> =
+        regex
             .findAll(html)
             .mapNotNull { match ->
                 val paragraph = paragraphRegex.find(match.groupValues[1]) ?: return@mapNotNull null

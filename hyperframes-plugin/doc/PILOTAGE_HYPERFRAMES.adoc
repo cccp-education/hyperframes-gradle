@@ -844,3 +844,64 @@ sfx: 2.0 assets/audio/whoosh.mp3 volume=0.2
 * les `<audio>` émis sont des **enfants directs** de `#stage` (le runtime ne
   pilote que ceux-là) et les fichiers sont copiés comme les images ;
 * les lignes invalides sont ignorées (une coquille ne casse pas le build).
+
+'''
+== Notes d'orateur — la vidéo parle (HF-SPEAKER-NOTES)
+
+Le document porte **la parole** autant que le visuel. Une note d'orateur est
+écrite sous la scène qu'elle accompagne :
+
+[source,asciidoc]
+----
+[.hyperframes-composition#intro]
+== Le document devient signal
+
+Le contenu visible de la scène.
+
+[NOTE.speaker]
+--
+Ici on explique que le document est la source de vérité.
+Le mot-clé hf:pron[signal, si-gnal] est prononcé correctement.
+--
+----
+
+* la note est **retirée du rendu visuel** — elle n'est jamais affichée ;
+* elle devient la **narration de sa scène** (une prise par scène, dans l'ordre
+  des scènes) ;
+* la grammaire est le contrat N1 partagé `video.kernel.notes` (même syntaxe que
+  capsule, `video-kernel 0.9.x`) ;
+* les indices de prononciation `hf:pron[…]` d'une note suivent le même chemin
+  que ceux d'une piste (extraits puis retirés du texte dit) ;
+* une scène sans note reste **silencieuse** ; un document sans note garde un
+  rendu **byte-identique**.
+
+=== Chaîne de production
+
+[cols="2,4", options="header"]
+|===
+| Tâche | Rôle
+
+| `generateHyperframesNarration`
+| Synthèse TTS des notes (une prise `narration-<n>.wav` par scène).
+| `muxHyperframesNarration`
+| Muxage des prises sur le MP4, alignées sur le début de chaque scène
+  (`adelay` + `amix`, flux vidéo **copié**, `-shortest` borne sur la vidéo).
+|===
+
+Le muxage est **opt-in** : il n'est pas dans `hyperframesPipeline`, un document
+historique garde son pipeline exact.
+
+[source,shell]
+----
+./gradlew generateHyperframesNarration muxHyperframesNarration
+----
+
+* sans note, sans prise ou sans MP4 rendu → le fichier précédent est conservé,
+  un avertissement est journalisé, le build n'échoue pas ;
+* `strict = true` promeut ces mêmes conditions en échec.
+
+=== Traçabilité N3
+
+`metadata.json` expose `speakerNotes: [{sceneId, title}]` — le contexte augmenté
+sait quelles scènes parlent, sans relire le document.
+

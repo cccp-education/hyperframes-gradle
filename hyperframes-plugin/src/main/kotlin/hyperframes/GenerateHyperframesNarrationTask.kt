@@ -27,6 +27,10 @@ import java.io.File
  * `index.html` is spoken into `narration-<n>.wav` in [outputDir], so a consumer
  * can pre-render narration locally instead of relying solely on the CLI.
  *
+ * HF-SPEAKER-NOTES US-4 — when the document authors `[NOTE.speaker]` blocks,
+ * the narration is the notes, one take per **scene** (their order matches the
+ * scene order); a historical document keeps narrating its explicit tracks.
+ *
  * Economy of ink (AGENT.adoc): an already-produced narration file is reused
  * (skip), and a synthesis that degrades (engine absent/failure) is logged,
  * never fatal — this task is opt-in and never blocks the pipeline.
@@ -64,7 +68,7 @@ abstract class GenerateHyperframesNarrationTask : DefaultTask() {
             "No enriched HTML found at ${htmlFile.absolutePath}. Run generateHyperframesHtml first."
         }
         val outDir = outputDir.asFile.get().apply { mkdirs() }
-        val narrations = NarrationTrackExtractor.extract(htmlFile.readText())
+        val narrations = NarrationTrackExtractor.extractNarration(htmlFile.readText())
         if (narrations.isEmpty()) {
             logger.lifecycle("generateHyperframesNarration: no narration tracks found — nothing to synthesize")
             return

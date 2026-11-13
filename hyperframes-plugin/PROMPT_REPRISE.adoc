@@ -1,61 +1,77 @@
-= PROMPT_REPRISE — HyperFrames Gradle (Session 057 TERMINÉE → 058)
-:session: 058
+= PROMPT_REPRISE — HyperFrames Gradle (Session 059 TERMINÉE → 060)
+:session: 060
 :date: 2026-11-13
-:status: PRET — release 0.0.15 en attente ; HF-SPEAKER-NOTES US-2→8 bloqué (publication `video-kernel 0.9.0`)
+:status: PRET — `HF-SPEAKER-NOTES` ✅ 9/9, release `0.0.16` JitPack
 :borough: Watts
 
 '''
 
-== Session 057 (TERMINÉE) — HF-MUSIC-LIBRARY US-6 (adoption capsule)
+== Session 059 (TERMINÉE) — HF-SPEAKER-NOTES US-2→US-8 + DAG JitPack
 
-Session pilotée hyperframes, code livré dans capsule : `audioPost { bgmLibraryFile;
-bgmTrack; bgmMood }` résout la piste depuis `music-library.json` (sélecteur N2
-déterministe, copie `sha256`, `bgmFile` explicite prioritaire, dégradation
-silencieuse). **EPIC `HF-MUSIC-LIBRARY` TERMINÉ 9/9.** Rapport
-`.agents/sessions/057-hf-music-library-us6-capsule-adoption.adoc`.
+`[NOTE.speaker]` dans l'AsciiDoc → **la vidéo parle** : grammaire N1 partagée
+(`video-kernel-gradle:v0.9.1`), domaine `hyperframes.notes`, marqueur de
+narration **masqué** (`display:none`) ancré au début de scène, TTS par scène,
+tâche **opt-in** `muxHyperframesNarration` (`adelay`/`amix`/`apad`, vidéo
+copiée, dégradé + `strict`), N3 `speakerNotes`, BDD `@speaker-notes`, FT TestKit
+(FFmpeg stub), dogfooding réel espeak + ffmpeg (MP4 15 s h264+aac, voix à 5 s et
+10 s). Docs US-8. Rapport `.agents/sessions/059-hf-speaker-notes-us2-us8.adoc`.
+
+'''
 
 == État réel (2026-11-13)
 
-* `hyperframes-plugin` : **0.0.14** Central + JitPack. Source locale 0.0.14
-  embarque `HF-DEMO-QUALITY US-6` (fond média) et `HF-MUSIC-LIBRARY US-8`
-  (crossfade) **non publiés** → **release `0.0.15` en attente**.
-* `video-kernel` : source **0.9.0** (`SpeakerNoteBlockParser`, S-203) ; Central
-  **0.7.0** ; 0.8.0 sur JitPack seulement ; **0.9.0 non publié**.
-* EPICs :
-  - `HF-MUSIC-LIBRARY` ✅ 9/9 ;
-  - `HF-SPEAKER-NOTES` 🟡 US-1 noyau ✅ S-203, **US-2→US-8 bloqués** par la
-    publication de `video-kernel 0.9.0` ;
-  - `HF-YOUTUBE-PUBLISH` ⏸️ **gelé** (reste US-4b dogfooding réel + US-3c
-    chapitres capsule).
+* **Publication = JitPack uniquement** (Central/Portal suspendus, reset
+  2026-12-01). `publishToMavenLocal` = étape locale de la recette JitPack.
+* `hyperframes-plugin` : **0.0.16** (JitPack, tag `v0.0.16`). Version build
+  **== version publiée** (catalogue lu depuis JitPack).
+* `ws` catalogue ← `com.github.cccp-education.workspace-bom:workspace-catalog:v0.0.132`
+  (`workspace-bom 0.0.132` publié JitPack).
+* Plateforme BOM ← **Central `0.0.115`** : le POM JitPack du BOM est réécrit en
+  `<dependencies>` (pas de `dependencyManagement`) et aucun `.module` n'est
+  servi → un BOM JitPack n'est **pas** une platform valide. Ne pas « corriger »
+  en l'important.
+* Noyau N1 ← `com.github.cccp-education:video-kernel-gradle:v0.9.1` (JitPack).
+* EPICs : `HF-SPEAKER-NOTES` ✅ 9/9 ; `HF-MUSIC-LIBRARY` ✅ 9/9 ;
+  `HF-YOUTUBE-PUBLISH` ⏸️ **gelé** (ne pas rouvrir).
 
-== Mission Session 058 — DAG et déblocage
+'''
 
-. **Release `hyperframes-plugin 0.0.15`** — cible **Gradle Plugin Portal**
-   (`./gradlew publishPlugins`, politique pilote jusqu'au 2026-12-01). Invariants :
-   DAG N0→N2 respecté, code identique à un run CI vert, version bumpée, zéro
-   secret, propagation vérifiée, consignée au rapport. Ne pas publier sans CI
-   verte sur le commit exact.
-. **Débloquer `HF-SPEAKER-NOTES`** : la lib `video-kernel 0.9.0` n'a pas de canal
-   Portal (lib) et Central est suspendu jusqu'au **2026-12-01** → publication
-   JitPack par tag = **décision pilote explicite**, ou attendre la reprise Central.
-3. YouTube : **ne pas rouvrir**.
+== Mission Session 060 — à la demande du pilote
+
+. **P1 pins cross-borough** (maintenance, sans publication) :
+   - bakery : pin `ws` 0.0.33 → **0.0.38** (artefact déjà publié) ;
+   - codex : catalogue 0.0.78 → courant, `codebase` local 0.0.14 → **0.0.18** ;
+   - codebase : catalogue 0.0.92 → courant.
+2. **Complément US-7** : dogfooding `HF-SPEAKER-NOTES` sur un **deck FPA** réel
+   (le dogfooding S-059 porte sur un document de démonstration 2 scènes).
+3. Dettes assumées : copies N2 `video.kernel.music` (hyperframes + capsule) à
+   supprimer au **reset Central** (2026-12-01). Ne pas y toucher avant.
+
+'''
 
 == Points d'attention
 
-* **Local = Build, Tests = CI** : jamais `test`/`check` local.
-* **Règle 2 — PUBLISH** : accord permanent (décision 2026-11-11), invariants
-  ci-dessus inchangés.
-* Chrome/entrées/silence/BGM **opt-in** : ne pas casser le rendu historique.
-* Copie N2 `hyperframes.sound.MusicModel.kt` (verbatim de `video.kernel.music`)
-  à supprimer au reset Central.
-* Zéro secret ; zéro Python ; English only code/tests/features.
+* **Local = Build, Tests = CI** : jamais `test`/`functionalTest`/`cucumberTest`/
+  `check` en local ; la preuve est le run CI du commit poussé.
+* Publication : tag `vX.Y.Z` (jamais republier, jamais déplacer un tag) ; ordre
+  DAG N0 → N1 → N2 ; propagation vérifiée (POM + jar HTTP 200). Pour bumper la
+  version du plugin : d'abord le **catalogue** (`workspace-bom`, tag JitPack),
+  puis le pin `ws` ici.
+* Une note d'orateur **ne s'affiche jamais** : marqueur `display:none` ; le mux
+  **borne sur la vidéo** (`apad` + `-shortest`) — ne pas retirer `apad`.
+* `narrationFiles` est un **fileTree `*.wav`**, pas le répertoire (bug S-059).
+* Zéro secret ; zéro Python ; English only dans le code/tests/features.
+
+'''
 
 == Routes documents clés
 
 |===
 | Document | Chemin
-| Rapport S-057 | `.agents/sessions/057-hf-music-library-us6-capsule-adoption.adoc`
-| Backlog / règles | `BACKLOG.adoc` · `AGENT.adoc`
+
+| Rapport S-059 | `.agents/sessions/059-hf-speaker-notes-us2-us8.adoc`
 | Cadrage speaker notes | `.agents/CADRAGE_EPIC_HF_SPEAKER_NOTES.adoc`
+| Backlog / roadmap | `BACKLOG.adoc` · `.agents/INDEX.adoc`
+| Docs utilisateur | `doc/PILOTAGE_HYPERFRAMES.adoc` · `README.adoc`
 | Noyau N1 | `../video-kernel-gradle/video-kernel-plugin/src/main/kotlin/video/kernel/`
 |===

@@ -41,6 +41,7 @@ class HyperframesContextExtractor(
         val compositions = parseCompositions(html)
         val tracks = parseTracks(html)
         val pronunciation = parsePronunciation(html)
+        val speakerNotes = parseSpeakerNotes(html)
 
         return HyperframesParseContext(
             version = pluginVersion,
@@ -64,6 +65,7 @@ class HyperframesContextExtractor(
             // composition boundary (whole-document engine).
             segments = compositions.mapIndexed { index, id -> HyperframesSegment(index = index, id = id) },
             pronunciation = pronunciation,
+            speakerNotes = speakerNotes,
             renderedAt = renderedAt,
             renderDurationMs = renderDurationMs,
         )
@@ -117,6 +119,42 @@ class HyperframesContextExtractor(
             .distinct()
             .count()
     }
+
+    /**
+     * HF-SPEAKER-NOTES US-6 — parses the narration markers emitted by the
+     * processor (one per speaking scene) into the N3 traceability list.
+     *
+     * A composition without speaker notes yields an empty list (additive field,
+     * backward compatible).
+     */
+    private fun parseSpeakerNotes(html: String): List<HyperframesSpeakerNoteContext> {
+        val markerRegex = Regex("""<div[^>]*data-narration-scene="[^"]*"[^>]*>""")
+        val sceneRegex = Regex("""data-narration-scene="([^"]*)"""")
+        val titleRegex = Regex("""data-narration-title="([^"]*)"""")
+        return markerRegex
+            .findAll(html)
+            .mapNotNull { marker ->
+                val scene =
+                    sceneRegex
+                        .find(marker.value)
+                        ?.groupValues
+                        ?.get(1) ?: return@mapNotNull null
+                val title =
+                    titleRegex
+                        .find(marker.value)
+                        ?.groupValues
+                        ?.get(1)
+                        .orEmpty()
+                HyperframesSpeakerNoteContext(sceneId = scene, title = unescapeAttribute(title))
+            }.toList()
+    }
+
+    private fun unescapeAttribute(value: String): String =
+        value
+            .replace("&quot;", "\"")
+            .replace("&lt;", "<")
+            .replace("&gt;", ">")
+            .replace("&amp;", "&")
 
     /**
      * HF-7f — Parses the `<script id="hf-pronunciation">` JSON island into a

@@ -3,7 +3,7 @@
 :_session_: S-049
 :_date_: 2026-11-11
 :_pilote_: hyperframes (Watts) · transverse video-kernel (N1) + capsule (Détroit)
-:_statut_: 🟡 CADRÉ — aucun code (gouvernance pure)
+:_statut_: ✅ TERMINÉ 9/9 US (S-059 — US-1 noyau S-203, US-2→US-8 S-059) · release `0.0.16` JitPack
 
 '''
 
@@ -159,21 +159,21 @@ Ici on explique que le document est la source de vérité.
 | US-0 | Cadrage (ce document) + arbitrage N1 vs duplication N2 | — | ✅ S-049
 | US-1 | **Noyau** : `video.kernel.notes.SpeakerNoteBlockParser` (grammaire
   `[NOTE.speaker]` + `--`, paramétrable) + tests unit ; adoption capsule
-  (`RevealJsSpeakerNoteParser` délègue) ; `video-kernel 0.8.0` + publication. | M | 🟡
+  (`RevealJsSpeakerNoteParser` délègue) ; `video-kernel 0.9.x` + publication JitPack (`v0.9.1`). | M | ✅ S-203 (noyau) · adoption capsule au reset Central
 | US-2 | **hyperframes — extraction** : domaine `hyperframes.notes`
   (`SpeakerNote`, `SpeakerNotesDocument`, `SpeakerNotesExtractor`), mapping
-  note ↔ section de scène ; tests unit. | M | 🟡
+  note ↔ section de scène ; tests unit. | M | ✅ S-059
 | US-3 | **hyperframes — injection** : processor retire le bloc de notes et émet
   le marqueur de narration par scène (ordre des scènes) ; hints de prononciation ;
-  backward compat byte-identique sans note. | L | 🟡
+  backward compat byte-identique sans note. | L | ✅ S-059
 | US-4 | **hyperframes — TTS par scène** : câblage `generateHyperframesNarration`
-  sur les notes (ordre scène = index WAV), `NarrationTrackExtractor` étendu. | S | 🟡
+  sur les notes (ordre scène = index WAV), `NarrationTrackExtractor` étendu. | S | ✅ S-059
 | US-5 | **hyperframes — muxage** : tâche `muxHyperframesNarration` (ffmpeg
-  `adelay`/`amix`, offsets de scène), opt-in, dégradé, `strict`. | L | 🟡
-| US-6 | **Traçabilité N3** : `speakerNotes` dans `metadata.json`. | S | 🟡
+  `adelay`/`amix`, offsets de scène), opt-in, dégradé, `strict`. | L | ✅ S-059
+| US-6 | **Traçabilité N3** : `speakerNotes` dans `metadata.json`. | S | ✅ S-059
 | US-7 | **BDD + dogfooding** : `@speaker-notes` (fake TTS), FT TestKit du graphe,
-  dogfooding réel sur un deck FPA (espeak + ffmpeg, `/tmp`). | M | 🟡
-| US-8 | **Docs** : `doc/PILOTAGE_HYPERFRAMES.adoc` (DSL notes) + README. | S | 🟡
+  dogfooding réel sur un deck FPA (espeak + ffmpeg, `/tmp`). | M | ✅ S-059 (complément deck FPA à faire)
+| US-8 | **Docs** : `doc/PILOTAGE_HYPERFRAMES.adoc` (DSL notes) + README. | S | ✅ S-059
 |===
 
 *~9 US, ~20 pts.* Ordre : US-1 (N1, débloque) → US-2 → US-3 → US-4 → US-5 →

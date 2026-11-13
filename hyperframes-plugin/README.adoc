@@ -43,6 +43,7 @@ hyperframes {
 | `resolveHyperframesBgm` | Copies the music-library tracks referenced by the composition next to it (`assets/audio/`), skipping identical content (`sha256`).
 | `renderHyperframes` | Renders the composition to MP4 through the shared `video.kernel.VideoEngine` port (delegates to the HyperFrames CLI).
 | `generateHyperframesNarration` | Scene narration through the shared `video.kernel.TextToSpeech` port.
+| `muxHyperframesNarration` | Opt-in mux of the speaker-note takes over the rendered MP4, aligned on the scene timeline. |
 | `postProcessHyperframes` | Subtitle burn-in + audio post-production (loudness, BGM, ducking) through the shared N1 ports.
 | `collectHyperframesRetrieve` | Exports the N3 `composite-context.json` contract for the runner.
 | `publishHyperframesToYouTube` | Opt-in OAuth 2.0 upload (`videos.insert` resumable + `thumbnails.set`).
@@ -94,6 +95,46 @@ hyperframes {
 * the legacy `[.hyperframes-audio]` local BGM block still works and wins.
 
 Full guide (French): `doc/MUSIQUE_ET_SON.adoc`.
+
+'''
+== Speaker notes: the video speaks
+
+The document carries the **words** as well as the visuals. A speaker note is
+authored under the scene it belongs to and becomes that scene's narration:
+
+[source,asciidoc]
+----
+[.hyperframes-composition#intro]
+== The document becomes signal
+
+The visible content of the scene.
+
+[NOTE.speaker]
+--
+Here we explain that the document is the source of truth.
+The keyword hf:pron[signal, si-gnal] is spoken correctly.
+--
+----
+
+* the note is **removed from the visual render** — it is never displayed;
+* it becomes the **narration of its scene** (one take per scene, in scene order);
+* the grammar is the shared N1 contract `video.kernel.notes` (same syntax as
+  capsule, `video-kernel 0.9.x`);
+* `hf:pron[…]` hints inside a note follow the same path as track hints;
+* a scene without a note stays silent, and a document without notes keeps a
+  **byte-identical** render.
+
+[source,shell]
+----
+./gradlew generateHyperframesNarration muxHyperframesNarration
+----
+
+The mux is **opt-in** (not part of `hyperframesPipeline`): each take is delayed
+to its scene start (`adelay`), all takes are mixed (`amix`), the video stream is
+copied and `-shortest` bounds the audio on the video. No note, no take or no
+rendered MP4 carries the previous file through with a warning; `strict = true`
+turns those conditions into a failure. `metadata.json` exposes
+`speakerNotes: [{sceneId, title}]` for the augmented context.
 
 '''
 == Documentation

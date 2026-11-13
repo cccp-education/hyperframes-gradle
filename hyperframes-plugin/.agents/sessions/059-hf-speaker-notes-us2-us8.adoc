@@ -1,0 +1,132 @@
+= Session 059 — HF-SPEAKER-NOTES US-2→US-8 (la vidéo parle) + DAG JitPack
+:toc:
+
+:_date_: 2026-11-13
+:_borough_: Watts (hyperframes-gradle, N2) · transverse video-kernel (N1) + MEMPHIS (N0)
+:_session_precedente_: 058 (release 0.0.15 JitPack)
+:_statut_: ✅ EPIC `HF-SPEAKER-NOTES` TERMINÉ 9/9 US · release `0.0.16` JitPack
+
+'''
+
+== Contexte
+
+Reprise du backlog public à la demande du pilote. Le canal de publication est
+**JitPack uniquement** (Central/Sonatype suspendu jusqu'au 2026-12-01 ;
+`publishToMavenLocal` reste l'étape d'installation locale de la recette
+JitPack). Le blocage de `HF-SPEAKER-NOTES` était la publication du noyau :
+`video-kernel v0.9.1` est publié sur JitPack (HTTP 200), ce qui lève la gate.
+
+Consigne pilote appliquée : **les versions des build scripts sont celles
+déployées sur JitPack** — le catalogue workspace est lu depuis JitPack et la
+version du plugin est celle du tag publié (`0.0.16`), plus de décalage
+source 0.0.14 / artefact v0.0.15.
+
+'''
+
+== Audit d'ouverture
+
+* `video-kernel v0.9.1` JitPack : jar 200, contient
+  `video/kernel/notes/SpeakerNoteBlockParser` + `SpeakerNoteBlock`, POM dépend de
+  `education.cccp:i18n-contracts:0.0.4` (Central). Superset de `0.7.0`.
+* `hyperframes-plugin` source `0.0.14`, artefact `v0.0.15`, catalogue Central
+  `0.0.115` → incohérence source ↔ publié (P1 du prompt).
+* BOM JitPack **inutilisable comme platform** : la réécriture POM de JitPack
+  transforme `<dependencyManagement>` en `<dependencies>` et aucun `.module`
+  n'est servi (constat mesuré). Le BOM reste donc sur Central `0.0.115`.
+
+'''
+
+== Livré (baby-step DDD/TDD/BDD strict)
+
+* **US-2 — extraction.** Domaine pur `hyperframes.notes` (`SpeakerNote`,
+  `SpeakerNotesDocument`, `SpeakerNotesExtractor`) : grammaire **N1 partagée**
+  (`SpeakerNoteBlockParser`) + mapping note → **ordinal de scène** (sections de
+  niveau 2, titre du document exclu, titres dupliqués résolus séquentiellement).
+* **US-3 — injection.** `HyperframesHtmlProcessor.withSpeakerNotes(...)` : le
+  bloc `admonitionblock note speaker` est **retiré** et remplacé, dans l'ordre du
+  document, par un marqueur `hyperframes-track hyperframes-narration`
+  **masqué** (`style="display:none"` — une note se dit, ne s'affiche pas),
+  porteur de `data-narration-index/title` puis, au rendu, `data-narration-scene`
+  et `data-narration-start`. Les hints `hf:pron[…]` d'une note empruntent le
+  chemin des pistes (extraction + retrait). Zéro note = HTML **byte-identique**.
+* **US-4 — TTS par scène.** `NarrationTrackExtractor.extractNarration` : si le
+  document porte des notes, la narration **est** les notes (une prise par scène,
+  ordre des scènes) ; sinon les pistes explicites historiques.
+* **US-5 — muxage.** `NarrationMuxPlanner` (alignement prise ↔
+  `data-narration-start`), `NarrationMuxCommand` (argv FFmpeg pur), tâche
+  `muxHyperframesNarration` (opt-in, hors `hyperframesPipeline`) : `adelay` par
+  scène, `amix` sans normalisation, `apad` + `-shortest` (la **vidéo borne**
+  toujours), flux vidéo **copié** ; dégradé (fichier précédent conservé) et
+  `strict` pour promouvoir en échec.
+* **US-6 — traçabilité N3.** `HyperframesParseContext.speakerNotes`
+  (`[{sceneId, title}]`) lu sur les ancres — champ additif, vide sans note.
+* **US-7 — BDD + FT + dogfooding.** Feature `hf_speaker_notes.feature`
+  (`@speaker-notes`, 5 scénarios : extraction/ordre, scène muette, hints, N3,
+  filtre de mux) + steps préfixés (S-088) + `HyperframesNarrationMuxTest`
+  (TestKit, FFmpeg **stub** : graphe, passthrough, dégradé, strict) +
+  **dogfooding réel** `/tmp` (espeak + ffmpeg 6.1.1).
+* **US-8 — docs.** `doc/PILOTAGE_HYPERFRAMES.adoc` (§ Notes d'orateur) +
+  `README.adoc` (EN) + table des tâches.
+
+'''
+
+== Découvertes (corrigées en session)
+
+. **Le marqueur aurait affiché la note.** Corrigé : `display:none` inline.
+. **`-shortest` tronquait la vidéo** (12,29 s au lieu de 15 s) quand la narration
+  est plus courte que la vidéo. Corrigé : `apad` sur le mix → la vidéo borne.
+. **La collecte des prises était un répertoire**, pas ses fichiers
+  (`ConfigurableFileCollection.from(dir)` → zéro prise). Corrigé : `fileTree`
+  filtré `*.wav`. Attrapé par le **dogfooding**, pas par les tests (leçon).
+
+'''
+
+== Dogfooding réel (`/tmp/opencode/hf-speaker-dogfood`)
+
+Document 2 scènes (titre + 2 sections) → `generateHyperframesHtml`
+(marqueurs ancrés à 5 s et 10 s, zéro admonition, note masquée) →
+`generateHyperframesNarration` (2 prises espeak, 0 muette) →
+`muxHyperframesNarration` sur un MP4 testsrc 15 s → **MP4 15,000 s, h264 + aac**,
+`silencedetect` : silence 0→5, voix 5→7,5, silence 7,5→10, voix 10→12,
+silence jusqu'à 15 (apad). `collectHyperframesRetrieve` expose
+`speakerNotes: [{intro}, {demo}]`. Note : dogfooding sur un document de
+démonstration, **pas** le corpus FPA (US-7 partielle sur ce point).
+
+'''
+
+== DAG JitPack (versions = artefacts déployés)
+
+. **MEMPHIS** : catalogue `workspace-bom 0.0.132` — `hyperframes-plugin 0.0.16`,
+  `capsule-plugin 0.0.21`, `conventions-plugin 0.0.16` (versions réellement
+  déployées sur JitPack). Commit `96e0b6b`, tag `v0.0.132`, build JitPack `ok`,
+  catalogue `workspace-catalog:v0.0.132` HTTP 200.
+. **Watts** : `ws` catalogue ← JitPack `v0.0.132` (donc `version = 0.0.16`),
+  noyau ← `com.github.cccp-education:video-kernel-gradle:v0.9.1`, plateforme BOM
+  ← Central `0.0.115` (seul BOM *plateforme* valide). Garde d'hygiène adaptée :
+  les deux versions (plugin, BOM) sont injectées par Gradle, le pin est vérifié
+  sans dépendre d'un catalogue qui ne peut plus porter le BOM.
+. **Release** : tag `v0.0.16` → JitPack (POM/jar 200, vérifié en clôture).
+
+'''
+
+== Gates
+
+* Local = Build : `compileKotlin`, `compileTestKotlin`,
+  `compileFunctionalTestKotlin`, `ktlintCheck`, `assemble`, `validatePlugins`,
+  `publishToMavenLocal` — **VERTS**.
+* Tests : **CI** (`.github/workflows/test-hyperframes.yml` : unit + functional +
+  Cucumber + check) — preuve = run du commit poussé.
+* Zéro secret, zéro force-push, aucun tag déplacé.
+
+'''
+
+== Reste (hors périmètre de la session)
+
+* **P1 pins** : bakery `ws` 0.0.33 → 0.0.38 ; codex catalogue 0.0.78 → courant,
+  `codebase` local 0.0.14 → 0.0.18 ; codebase catalogue 0.0.92 → courant.
+* **Graphify** : suppression de la façade dépréciée
+  `src/test/kotlin/graphify/catalog/VersionCatalogToml.kt` (confirmation fichier
+  par fichier requise par `AGENT.adoc`).
+* **US-7 (complément)** : dogfooding sur un **deck FPA** réel.
+* **Dettes** : copies N2 `video.kernel.music` (capsule + hyperframes) à supprimer
+  au reset Central ; `HF-YOUTUBE-PUBLISH` reste **gelé**.

@@ -20,18 +20,25 @@ version =
 repositories {
     mavenCentral()
     gradlePluginPortal()
+    // CNV-16 — JitPack channel (Central suspended until 2026-12-01): the N1
+    // video kernel is consumed from `video-kernel-gradle:v0.9.1`.
+    maven("https://jitpack.io")
 }
 
+// CNV-16 — the BOM is **not** deployable as a *platform* on JitPack: the POM
+// rewrite drops `dependencyManagement` (it lists the constraints as plain
+// dependencies) and no Gradle module metadata is served. The platform therefore
+// stays on the last Maven Central release, while every plugin/library version
+// comes from the JitPack-deployed workspace catalog (0.0.132).
+val workspaceBomPlatform = "0.0.115"
+
 dependencies {
-    implementation(platform("education.cccp:workspace-bom:0.0.115"))
+    implementation(platform("education.cccp:workspace-bom:$workspaceBomPlatform"))
 
     implementation(kotlin("stdlib-jdk8"))
     // N1 shared engine-neutral video kernel (spike — 2nd engine adapter).
-    // HF-MUSIC-LIBRARY US-4 — the `video.kernel.music` contract (0.8.0) is only
-    // on JitPack today: a *published* plugin cannot depend on it (its POM
-    // dependencies must resolve from the consumer's repositories), so
-    // `hyperframes.sound` keeps a verbatim N2 copy (cadrage D4 fallback) until
-    // `education.cccp:video-kernel:0.8.0` reaches Maven Central.
+    // CNV-16 — resolved from the JitPack tag `v0.9.1` (the kernel ships the
+    // speaker-note grammar `video.kernel.notes.SpeakerNoteBlockParser`).
     implementation(libs.video.kernel)
     implementation(libs.asciidoctorj)
     implementation(libs.jackson.databind)
@@ -64,8 +71,7 @@ tasks.withType<Test> {
     )
     systemProperty(
         "hyperframes.publishedCatalog.bomVersion",
-        ws.versions.workspace.bom
-            .get(),
+        workspaceBomPlatform,
     )
 }
 

@@ -123,6 +123,29 @@ class HyperframesPlugin : Plugin<Project> {
         }
         target.tasks.named("generateHyperframesNarration") { it.mustRunAfter("generateHyperframesHtml") }
 
+        // HF-SPEAKER-NOTES US-5 — mux the synthesized takes over the rendered
+        // MP4, aligned on the scene timeline (opt-in: never in the default
+        // pipeline; ordered after the render and the narration).
+        target.tasks.register("muxHyperframesNarration", MuxHyperframesNarrationTask::class.java) { task ->
+            task.description = "Mux the speaker-note narration over the rendered MP4, aligned on the scene timeline"
+            task.group = "hyperframes"
+            task.renderDir.set(extension.outputDir)
+            task.htmlDir.set(extension.outputDir)
+            // A file tree (not the directory itself): the task needs the
+            // `narration-<n>.wav` files, not their parent.
+            task.narrationFiles.from(
+                target.fileTree(target.layout.buildDirectory.dir("hyperframes/narration")).matching { it.include("*.wav") },
+            )
+            task.outputDir.set(target.layout.buildDirectory.dir("hyperframes/narration-mux"))
+            task.outputName.set(extension.outputName)
+            task.ffmpegExecutable.set(extension.ffmpegExecutable)
+            task.strict.set(extension.strict)
+            task.timeoutMillis.convention(300_000L)
+        }
+        target.tasks.named("muxHyperframesNarration") {
+            it.mustRunAfter("generateHyperframesHtml", "generateHyperframesNarration", "renderHyperframes")
+        }
+
         // VK-4 US-4b→c — post-production (burn-in + audio post) on the rendered
         // MP4 through the shared SubtitleBurnIn / AudioPostProduction ports.
         target.tasks.register("postProcessHyperframes", PostProcessHyperframesTask::class.java) { task ->

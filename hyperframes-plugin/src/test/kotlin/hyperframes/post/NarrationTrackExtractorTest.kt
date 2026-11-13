@@ -56,4 +56,33 @@ class NarrationTrackExtractorTest {
     fun `returns empty when there is no track`() {
         assertThat(NarrationTrackExtractor.extract("<div id=\"stage\"></div>")).isEmpty()
     }
+
+    @Test
+    fun `narrates the speaker notes in scene order when notes are authored`() {
+        val html =
+            """
+            <div id="stage">
+              <div class="scene clip" id="one">
+                <div class="paragraph hyperframes-track"><p>An explicit track.</p></div>
+                <div class="hyperframes-track hyperframes-narration" data-narration-index="1"><p>First note.</p></div>
+              </div>
+              <div class="scene clip" id="two">
+                <div class="hyperframes-track hyperframes-narration" data-narration-index="2"><p>Second note.</p></div>
+              </div>
+            </div>
+            """.trimIndent()
+
+        assertThat(NarrationTrackExtractor.extractNarration(html))
+            .containsExactly("First note.", "Second note.")
+    }
+
+    @Test
+    fun `falls back to the explicit tracks when no note is authored`() {
+        val html =
+            """
+            <div class="paragraph hyperframes-track"><p>Historical track.</p></div>
+            """.trimIndent()
+
+        assertThat(NarrationTrackExtractor.extractNarration(html)).containsExactly("Historical track.")
+    }
 }

@@ -837,3 +837,40 @@ publication **dégradée** sans réseau, le rapport porte le crédit) ; stub CLI
 factorisé dans `FunctionalStubs`. **US-6 (adoption capsule) reportée** à une
 session cross-borough dédiée (surface de configuration capsule + aucun EPIC
 ouvert dans ce borough). Rapport `.agents/sessions/055-hf-music-library-us7.adoc`.
+
+== Session 059 — HF-SPEAKER-NOTES US-2→US-8 (la vidéo parle) — 2026-11-13
+
+Le canal de publication est **JitPack uniquement** ; les versions des build
+scripts sont celles **déployées sur JitPack**. `video-kernel-gradle:v0.9.1`
+lève la gate du noyau.
+
+* **US-2** : domaine pur `hyperframes.notes` (`SpeakerNote`,
+  `SpeakerNotesDocument`, `SpeakerNotesExtractor`) — grammaire **N1 partagée**
+  (`SpeakerNoteBlockParser`) + mapping note → **ordinal de scène**.
+* **US-3** : `withSpeakerNotes(...)` retire le bloc `admonitionblock note
+  speaker` et émet, dans l'ordre du document, un marqueur
+  `hyperframes-track hyperframes-narration` **masqué** (`display:none`) porteur
+  des ancres `data-narration-{index,title,scene,start}` ; hints `hf:pron[…]`
+  traités par le chemin des pistes ; zéro note = byte-identique.
+* **US-4** : `NarrationTrackExtractor.extractNarration` — la narration **est**
+  les notes quand il y en a (une prise par scène), sinon les pistes historiques.
+* **US-5** : `NarrationMuxPlanner` + `NarrationMuxCommand` + tâche **opt-in**
+  `muxHyperframesNarration` — `adelay` par scène, `amix` sans normalisation,
+  **`apad` + `-shortest` (la vidéo borne)**, flux vidéo copié, dégradé +
+  `strict`.
+* **US-6** : `speakerNotes: [{sceneId, title}]` dans le N3 (`metadata.json`).
+* **US-7** : BDD `@speaker-notes` 5 scénarios + FT TestKit (FFmpeg stub :
+  graphe, passthrough, dégradé, strict) + **dogfooding réel** espeak/ffmpeg
+  (MP4 15 s h264+aac, voix à 5 s et 10 s après un silence de 5 s).
+* **US-8** : `doc/PILOTAGE_HYPERFRAMES.adoc` § Notes d'orateur + `README.adoc`.
+
+**3 bugs corrigés, tous attrapés par le dogfooding** : la note affichée
+(`display:none`), la vidéo tronquée par `-shortest` (`apad`), et la collecte des
+prises qui portait sur le **répertoire** au lieu des `*.wav` (`fileTree`).
+**DAG JitPack** : `workspace-bom 0.0.132` (tag `v0.0.132`, catalogue
+`hyperframes-plugin 0.0.16` + capsule 0.0.21 + conventions 0.0.16) → `ws`
+catalogue lu depuis JitPack → **version build 0.0.16 == publiée**. La plateforme
+BOM reste sur Central `0.0.115` (le POM JitPack perd `dependencyManagement` et
+aucun `.module` n'est servi) ; la garde d'hygiène injecte désormais les deux
+versions. EPIC **`HF-SPEAKER-NOTES` TERMINÉ 9/9**. Rapport
+`.agents/sessions/059-hf-speaker-notes-us2-us8.adoc`.

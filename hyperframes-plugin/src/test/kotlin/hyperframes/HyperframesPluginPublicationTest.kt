@@ -12,7 +12,13 @@ import kotlin.text.Charsets.UTF_8
  * (`ws.versions.hyperframes.plugin.get()`) — never a duplicated literal.
  * D4: the borough pins the catalog once in settings.gradle.kts.
  * D5 hygiene: the local toml self version and the ws catalog version must agree,
- * and the platform pin must match the ws catalog BOM version.
+ * and the platform pin must match the injected published BOM version.
+ *
+ * CNV-16 (JitPack channel) — the version source is the catalogue deployed on
+ * JitPack; the BOM platform cannot be consumed from JitPack (its rewritten POM
+ * loses `dependencyManagement` and no module metadata is served), so it stays on
+ * the last Maven Central release. Both versions are injected by Gradle, so the
+ * guard still catches any drift between the build script and its pins.
  *
  * D5R-2 (S-017) — the *published* ws catalog versions are injected by Gradle as
  * `hyperframes.publishedCatalog.{pluginVersion,bomVersion}` system properties.
@@ -60,7 +66,7 @@ class HyperframesPluginPublicationTest {
     }
 
     @Test
-    fun `workspace bom platform pin matches ws catalog bom version`() {
+    fun `workspace bom platform pin matches the injected published bom version`() {
         val buildScript = pluginDir.resolve("build.gradle.kts").readText(UTF_8)
 
         assertThat(buildScript)
