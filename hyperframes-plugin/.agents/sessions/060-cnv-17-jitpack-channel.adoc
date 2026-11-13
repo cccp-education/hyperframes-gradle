@@ -1,0 +1,59 @@
+= Session 060 — CNV-17 : JitPack canal unique (hyperframes)
+:toc:
+
+:_date_: 2026-11-13
+:_borough_: Watts (hyperframes-gradle, N2)
+:_session_precedente_: 059 (`HF-SPEAKER-NOTES` US-2→US-8)
+:_statut_: ✅ consommation alignée sur le canal JitPack unique
+
+== Contexte
+
+Décision pilote « mise en sécurité de la chaîne de publication en optant pour la
+**totalité** vers JitPack » : JitPack devient le canal unique des artefacts
+publics, un artefact = un canal = un nom = une version. `foundry/private/**` et
+`office/**` sont exclus. N0 amont : `workspace-bom 0.0.136` et
+`conventions-plugin 0.0.17`. Cadrage :
+`conventions-gradle/conventions-plugin/.agents/CADRAGE_EPIC_CNV_17_JITPACK_PRIMARY.adoc`.
+
+== Changements
+
+* `settings.gradle.kts` (racine) : dépôt `https://jitpack.io` ajouté à
+  `dependencyResolutionManagement` ; shim `useModule` des conventions épinglé
+  `0.0.17` (sans préfixe `v`).
+* `hyperframes-plugin/settings.gradle.kts` : catalogue `ws` servi par JitPack
+  `workspace-catalog:0.0.136` (plus de préfixe `v` — D2) ; même pin shim et
+  dépôt de résolution.
+* `hyperframes-plugin/build.gradle.kts` : plateforme
+  `com.github.cccp-education.workspace-bom:workspace-bom:0.0.136` ; la version
+  injectée à la garde est **dérivée du catalogue** (`ws.versions.workspace.bom`),
+  plus de littéral `0.0.115`.
+* `HyperframesPluginPublicationTest` : assertion de pin plateforme alignée sur la
+  coordonnée JitPack.
+* Correctif ktlint `chain-method-continuation` sur l'accès catalogue (commit
+  `8afd39b`).
+
+== Preuves CI
+
+|===
+| Run | Commit | Workflow | Verdict
+
+| `43474996321` | `8afd39b` | `Test` | ✅ **success**
+|===
+
+Les trois runs intermédiaires (`43463685829`, `43469688615`, `43473419037`) sont
+rouges : ils précèdent l'alignement de la garde puis le correctif ktlint. Le
+dernier run prouve le canal unique de bout en bout.
+
+== Fichiers touchés
+
+* `settings.gradle.kts`
+* `hyperframes-plugin/settings.gradle.kts`
+* `hyperframes-plugin/build.gradle.kts`
+* `src/test/kotlin/hyperframes/HyperframesPluginPublicationTest.kt`
+* `.agents/TEST_COVERAGE_ANALYSIS.adoc` (note S-059, antérieure au canal)
+
+== Suite
+
+Maintenance. La version build reste **égale** à la version publiée ; ne pas
+réintroduire de coordonnée `education.cccp:*` dans les pins de consommation.
+`HF-YOUTUBE-PUBLISH` reste gelé.

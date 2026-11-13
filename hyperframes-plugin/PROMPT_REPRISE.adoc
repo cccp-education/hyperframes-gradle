@@ -1,76 +1,69 @@
-= PROMPT_REPRISE — HyperFrames Gradle (Session 059 TERMINÉE → 060)
-:session: 060
+= PROMPT_REPRISE — HyperFrames Gradle (Session 060 TERMINÉE → 061)
+:session: 061
 :date: 2026-11-13
-:status: PRET — `HF-SPEAKER-NOTES` ✅ 9/9, release `0.0.16` JitPack
+:status: PRET — CNV-17 JitPack canal unique ; maintenance
 :borough: Watts
 
 '''
 
-== Session 059 (TERMINÉE) — HF-SPEAKER-NOTES US-2→US-8 + DAG JitPack
+== Session 060 (TERMINÉE) — CNV-17 : JitPack canal unique
 
-`[NOTE.speaker]` dans l'AsciiDoc → **la vidéo parle** : grammaire N1 partagée
-(`video-kernel-gradle:v0.9.1`), domaine `hyperframes.notes`, marqueur de
-narration **masqué** (`display:none`) ancré au début de scène, TTS par scène,
-tâche **opt-in** `muxHyperframesNarration` (`adelay`/`amix`/`apad`, vidéo
-copiée, dégradé + `strict`), N3 `speakerNotes`, BDD `@speaker-notes`, FT TestKit
-(FFmpeg stub), dogfooding réel espeak + ffmpeg (MP4 15 s h264+aac, voix à 5 s et
-10 s). Docs US-8. Rapport `.agents/sessions/059-hf-speaker-notes-us2-us8.adoc`.
+La consommation est alignée sur le canal **JitPack unique** (décision pilote) :
 
-'''
+* catalogue `ws` ← `com.github.cccp-education.workspace-bom:workspace-catalog:0.0.136`
+  (sans préfixe `v`, D2) ;
+* plateforme
+  `com.github.cccp-education.workspace-bom:workspace-bom:0.0.136` (coordonnée
+  JitPack) ;
+* shim `education.cccp.build.*` → `conventions-plugin:0.0.17` (sans `v`) ;
+* dépôt `https://jitpack.io` ajouté à `dependencyResolutionManagement`
+  (racine + sous-build) ;
+* version BOM injectée à la garde **dérivée du catalogue**
+  (`ws.versions.workspace.bom`) — plus de littéral ;
+* `HyperframesPluginPublicationTest` attend la coordonnée JitPack ;
+* correctif ktlint `chain-method-continuation`.
+
+**Preuve CI** : `Test` `43474996321` ✅ (commit `8afd39b`).
+Rapport `.agents/sessions/060-cnv-17-jitpack-channel.adoc`.
 
 == État réel (2026-11-13)
 
-* **Publication = JitPack uniquement** (Central/Portal suspendus, reset
-  2026-12-01). `publishToMavenLocal` = étape locale de la recette JitPack.
-* `hyperframes-plugin` : **0.0.16** (JitPack, tag `v0.0.16`). Version build
-  **== version publiée** (catalogue lu depuis JitPack).
-* `ws` catalogue ← `com.github.cccp-education.workspace-bom:workspace-catalog:v0.0.133`
-  (`workspace-bom 0.0.133` publié JitPack).
-* Plateforme BOM ← **Central `0.0.115`** : le POM JitPack du BOM est réécrit en
-  `<dependencies>` (pas de `dependencyManagement`) et aucun `.module` n'est
-  servi → un BOM JitPack n'est **pas** une platform valide. Ne pas « corriger »
-  en l'important.
-* Noyau N1 ← `com.github.cccp-education:video-kernel-gradle:v0.9.1` (JitPack).
+* **Publication = JitPack uniquement** (Central/Portal suspendus). Central
+  `0.0.16` n'est pas publié ; la version publiée reste **JitPack `v0.0.16`**.
+* `workspace-bom`/catalogue : **0.0.136** (JitPack) — N0 amont.
+* `conventions-plugin` : **0.0.17** (JitPack).
+* Noyau N1 : `video-kernel-gradle:v0.9.1` (JitPack).
+* Un artefact = un canal = un nom = une version ; ne jamais republier un tag.
 * EPICs : `HF-SPEAKER-NOTES` ✅ 9/9 ; `HF-MUSIC-LIBRARY` ✅ 9/9 ;
-  `HF-YOUTUBE-PUBLISH` ⏸️ **gelé** (ne pas rouvrir).
+  `HF-YOUTUBE-PUBLISH` ⏸️ **gelé**.
 
-'''
+== Mission Session 061
 
-== Mission Session 060 — à la demande du pilote
+Maintenance, à la demande du pilote :
 
-. **P1 pins cross-borough** (maintenance, sans publication) :
-   - bakery : pin `ws` 0.0.33 → **0.0.38** (artefact déjà publié) ;
-   - codex : catalogue 0.0.78 → courant, `codebase` local 0.0.14 → **0.0.18** ;
-   - codebase : catalogue 0.0.92 → courant.
-2. **Complément US-7** : dogfooding `HF-SPEAKER-NOTES` sur un **deck FPA** réel
-   (le dogfooding S-059 porte sur un document de démonstration 2 scènes).
-3. Dettes assumées : copies N2 `video.kernel.music` (hyperframes + capsule) à
-   supprimer au **reset Central** (2026-12-01). Ne pas y toucher avant.
-
-'''
+. Vérifier qu'aucun pin résiduel `education.cccp:*` ne subsiste dans les
+   dépendances de consommation (grep + gardes).
+. Tenir les versions de build **égales** aux artefacts JitPack.
+. `HF-YOUTUBE-PUBLISH` **gelé** — ne pas rouvrir sans décision pilote.
 
 == Points d'attention
 
 * **Local = Build, Tests = CI** : jamais `test`/`functionalTest`/`cucumberTest`/
   `check` en local ; la preuve est le run CI du commit poussé.
-* Publication : tag `vX.Y.Z` (jamais republier, jamais déplacer un tag) ; ordre
-  DAG N0 → N1 → N2 ; propagation vérifiée (POM + jar HTTP 200). Pour bumper la
-  version du plugin : d'abord le **catalogue** (`workspace-bom`, tag JitPack),
-  puis le pin `ws` ici.
-* Une note d'orateur **ne s'affiche jamais** : marqueur `display:none` ; le mux
-  **borne sur la vidéo** (`apad` + `-shortest`) — ne pas retirer `apad`.
-* `narrationFiles` est un **fileTree `*.wav`**, pas le répertoire (bug S-059).
+* Publication JitPack : tag `vX.Y.Z`, ordre DAG N0 → N1 → N2, propagation
+  vérifiée (POM/jar HTTP 200).
+* Une note d'orateur **ne s'affiche jamais** (`display:none`) ; le mux **borne
+  sur la vidéo** (`apad` + `-shortest`). `narrationFiles` est un **fileTree
+  `*.wav`**, pas le répertoire.
 * Zéro secret ; zéro Python ; English only dans le code/tests/features.
 
-'''
-
-== Routes documents clés
+== Documents clés
 
 |===
 | Document | Chemin
 
-| Rapport S-059 | `.agents/sessions/059-hf-speaker-notes-us2-us8.adoc`
-| Cadrage speaker notes | `.agents/CADRAGE_EPIC_HF_SPEAKER_NOTES.adoc`
+| Rapport S-060 | `.agents/sessions/060-cnv-17-jitpack-channel.adoc`
+| Cadrage CNV-17 | `conventions-gradle/conventions-plugin/.agents/CADRAGE_EPIC_CNV_17_JITPACK_PRIMARY.adoc`
 | Backlog / roadmap | `BACKLOG.adoc` · `.agents/INDEX.adoc`
 | Docs utilisateur | `doc/PILOTAGE_HYPERFRAMES.adoc` · `README.adoc`
 | Noyau N1 | `../video-kernel-gradle/video-kernel-plugin/src/main/kotlin/video/kernel/`
