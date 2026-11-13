@@ -47,3 +47,13 @@
 * DAG JitPack : catalogue `workspace-bom 0.0.133` → `ws` lu depuis JitPack →
   build `0.0.16` == publié ; plateforme BOM Central `0.0.115`.
 * CI `43349890307` verte + JitPack POM/jar 200.
+
+== S-061 — GBL-013 vague 2 : gate hermétique dans l'image ✅
+
+* `ci/run.sh` (`fast` = `compileKotlin`, `test` = `check`).
+* `test-hyperframes.yml` épinglé sur
+  `cccpeducation/cccp-ci-base@sha256:4722c1bc…` ; `setup-java` supprimé.
+* `real-render` (Node/Chromium/ffmpeg) reste hôte.
+* Run `43507444973` VERT (commit `62240cc`).
+* Rapport `.agents/sessions/061-gbl-013-wave2.adoc`.
+

@@ -887,3 +887,12 @@ est **dérivée du catalogue** (plus de littéral `0.0.115`) et
 `HyperframesPluginPublicationTest` attend la coordonnée JitPack. CI `Test`
 **verte** `43474996321` (commit `8afd39b`, après correctif ktlint). Rapport
 `.agents/sessions/060-cnv-17-jitpack-channel.adoc`.
+
+== Session 061 — GBL-013 vague 2 : gate hermétique dans l'image — 2026-11-14
+
+`ci/run.sh` (`fast` = `compileKotlin`, `test` = `check`) ; `test-hyperframes.yml`
+épinglé sur `cccpeducation/cccp-ci-base@sha256:4722c1bc…` ; `setup-java`
+supprimé, cinq étapes remplacées par `ci/run.sh test` ; `real-render` reste
+hôte. Run `43507444973` **VERT** (commit `62240cc`). Rapport
+`.agents/sessions/061-gbl-013-wave2.adoc`.
+

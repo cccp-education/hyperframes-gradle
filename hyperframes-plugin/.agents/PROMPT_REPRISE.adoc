@@ -1,8 +1,18 @@
-= PROMPT_REPRISE — HyperFrames Gradle (Session 058 TERMINÉE → 059)
-:session: 059
+= PROMPT_REPRISE — HyperFrames Gradle (Session 061 TERMINÉE → 062)
+:session: 062
 :borough: Watts
-:session_precedente: 058 — release `0.0.15` (JitPack) + correctif ktlint CI ✅
+:session_precedente: 061 — GBL-013 vague 2 (gate hermétique dans l'image) ✅
 _note_ : fichier canonique = `.agents/PROMPT_REPRISE.adoc`.
+
+== Session 061 (TERMINÉE) — GBL-013 vague 2 : gate hermétique dans l'image
+
+* `ci/run.sh` (`fast` = `compileKotlin`, `test` = `check`).
+* `test-hyperframes.yml` épinglé sur
+  `cccpeducation/cccp-ci-base@sha256:4722c1bc…` ; `setup-java` supprimé.
+* `real-render-hyperframes.yml` (Node/Chromium/ffmpeg) reste hôte.
+* Run `43507444973` **VERT** (commit `62240cc`). Rapport
+  `.agents/sessions/061-gbl-013-wave2.adoc`.
+
 
 == Session 058 (TERMINÉE) — release `0.0.15` JitPack
 
