@@ -30,6 +30,13 @@ class HfMusicLibrarySteps {
                         licence = MusicLicence.OWN,
                         mood = "calm",
                     ),
+                    MusicTrack(
+                        id = "epic-drums",
+                        title = "Epic drums",
+                        file = "epic/drums.mp3",
+                        licence = MusicLicence.OWN,
+                        mood = "epic",
+                    ),
                 ),
         )
 
@@ -114,6 +121,15 @@ offset: 1.5</pre></div></div>""",
         source = document(section("one", 5, musicBlock("mood: calm")))
     }
 
+    @Given("a music document that crossfades into a second ambience")
+    fun crossfadeIntoSecondAmbience() {
+        source =
+            document(
+                section("one", 6, musicBlock("mood: calm")) +
+                    section("two", 6, musicBlock("mood: epic\ncrossfade: 1.5")),
+            )
+    }
+
     @When("I enhance the music document with the HyperFrames processor")
     fun enhance() {
         enhanced = processor().enhance(source)
@@ -178,6 +194,23 @@ offset: 1.5</pre></div></div>""",
         check(enhanced.contains("""class="hyperframes-sfx"""")) { "expected an sfx clip" }
         check(enhanced.contains("""data-start="${number(start)}"""")) {
             "expected the effect to start at ${number(start)} seconds"
+        }
+    }
+
+    @Then("the first music cue is extended to {double} seconds")
+    fun firstCueExtended(duration: Double) {
+        check(enhanced.contains("""data-duration="${number(duration)}"""")) {
+            "expected the first cue to overlap to ${number(duration)} seconds"
+        }
+    }
+
+    @Then("the crossfade fades out and in over {double} seconds")
+    fun crossfadeFades(seconds: Double) {
+        check(enhanced.contains("""data-fade-out="${number(seconds)}"""")) {
+            "expected a fade-out of ${number(seconds)} seconds"
+        }
+        check(enhanced.contains("""data-fade-in="${number(seconds)}"""")) {
+            "expected a fade-in of ${number(seconds)} seconds"
         }
     }
 

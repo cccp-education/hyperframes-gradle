@@ -60,6 +60,7 @@ object SoundBlockParser {
             "volume",
             "fade-in",
             "fade-out",
+            "crossfade",
             "loop",
             "stop",
             "music",
@@ -90,6 +91,7 @@ object SoundBlockParser {
         var volume = DEFAULT_MUSIC_VOLUME
         var fadeIn = 0.0
         var fadeOut = 0.0
+        var crossfade = 0.0
         var loop = true
         var stop = false
         val reasons = mutableListOf<String>()
@@ -124,6 +126,11 @@ object SoundBlockParser {
                         reasons += "fade-out '$value' is not a number"
                         fadeOut
                     }
+                "crossfade" ->
+                    crossfade = value.toDoubleOrNull() ?: run {
+                        reasons += "crossfade '$value' is not a number"
+                        crossfade
+                    }
                 "loop" ->
                     loop = value.toBooleanFlag() ?: run {
                         reasons += "loop '$value' is not a boolean"
@@ -144,9 +151,21 @@ object SoundBlockParser {
         }
 
         if (reasons.isEmpty()) {
-            runCatching { MusicDeclaration(trackId, mood, file, volume, fadeIn, fadeOut, loop, stop) }
-                .onSuccess { return SoundBlockParseResult.Parsed(it) }
-                .onFailure { reasons += it.message ?: "invalid music declaration" }
+            val parsed =
+                runCatching {
+                    MusicDeclaration(
+                        trackId = trackId,
+                        mood = mood,
+                        file = file,
+                        volume = volume,
+                        fadeInSeconds = fadeIn,
+                        fadeOutSeconds = fadeOut,
+                        loop = loop,
+                        stop = stop,
+                        crossfadeSeconds = crossfade,
+                    )
+                }
+            parsed.onSuccess { return SoundBlockParseResult.Parsed(it) }.onFailure { reasons += it.message ?: "invalid music declaration" }
         }
         return SoundBlockParseResult.Invalid(reasons)
     }

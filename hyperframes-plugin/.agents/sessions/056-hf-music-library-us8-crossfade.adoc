@@ -1,0 +1,67 @@
+= Session 056 — HF-MUSIC-LIBRARY US-8 (crossfade temporel v2)
+:toc:
+
+:_date_: 2026-11-12
+:_borough_: hyperframes (N2)
+:_session_precedente_: 055
+:_statut_: ✅ US-8 TERMINÉE
+
+'''
+
+== Contexte
+
+`HF-MUSIC-LIBRARY` était le dernier EPIC métier ouvert de hyperframes hors
+`HF-SPEAKER-NOTES` (bloqué par la publication de `video-kernel 0.9.0`). L'US-8
+demandait le **chevauchement temporel** de deux cues entre scènes — le planificateur
+existait (US-3) avec seulement des fondus de passation **dos à dos**.
+
+Décision : chevauchement **opt-in** (`crossfade:`), défaut `0`, pour ne changer
+aucun document existant (rétro-compatibilité stricte).
+
+'''
+
+== Livré
+
+* `MusicDeclaration.crossfadeSeconds` (`>= 0`, défaut `0`) — déclaré sur la cue
+  **entrante** ; `sameMusicAs` reste une identité (une continuité ne redémarre
+  jamais la piste, donc n'ouvre pas de crossfade).
+* `SoundSequencePlanner` :
+  - à l'ouverture d'une nouvelle cue, si `crossfade > 0`, la cue sortante est
+    **étendue** de `min(crossfade, fin de composition − frontière)` ;
+  - `fade-out` sortant / `fade-in` entrant prennent le chevauchement par défaut ;
+    un fondu **explicite** est préservé ;
+  - un `stop` et une continuité n'appliquent **jamais** le crossfade ;
+  - garde de durée totale (le chevauchement ne dépasse pas la composition).
+* `SoundBlockParser` : clé `crossfade:` (blocs `----` et open blocks `--` aplatis).
+* `doc/MUSIQUE_ET_SON.adoc` : clé + sémantique + limites (courbes linéaires).
+
+'''
+
+== Tests
+
+* `SoundSequencePlannerTest` — **+5** : extension de la cue sortante, bornage par
+  la fin, `stop` exclu, `fade-out` explicite préservé, continuité ignorée.
+* `SoundBlockParserTest` — **+3** : `crossfade` parsé, non-numérique signalé,
+  négatif rejeté par le contrat.
+* BDD `hf_music_library_us3.feature` — **+1** scénario `@music` : cue 1 étendue
+  à 7,50 s, `fade-out`/`fade-in` 1,50 s (2ᵉ piste `epic` ajoutée à la fixture).
+
+'''
+
+== Gates (Local = Build)
+
+----
+./gradlew compileKotlin compileTestKotlin   → BUILD SUCCESSFUL (51 s)
+./gradlew ktlintCheck                        → BUILD SUCCESSFUL
+----
+
+Zéro test exécuté en local (Local = Build, Tests = CI). Zéro bump, zéro
+publication, zéro secret.
+
+'''
+
+== Reste (EPIC)
+
+* **US-6 — adoption capsule** (seule US ouverte) : résolution `audioPost.bgmFile`
+  via le même sélecteur N1, copie `sha256`, zéro dépendance de code à newpipe.
+* `HF-SPEAKER-NOTES` US-2→US-8 : bloqués par la publication `video-kernel 0.9.0`.

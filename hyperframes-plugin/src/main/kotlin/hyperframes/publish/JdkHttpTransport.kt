@@ -5,7 +5,12 @@ import video.kernel.publish.PublishHttpRequest
 import video.kernel.publish.PublishHttpResponse
 import java.net.URI
 import java.net.http.HttpClient
+import java.net.http.HttpClient.Redirect.NORMAL
+import java.net.http.HttpRequest.newBuilder
+import java.net.http.HttpResponse.BodyHandlers
 import java.time.Duration
+import java.time.Duration.ofMinutes
+import java.time.Duration.ofSeconds
 import java.net.http.HttpRequest as JdkHttpRequest
 import java.net.http.HttpResponse as JdkHttpResponse
 
@@ -21,22 +26,20 @@ import java.net.http.HttpResponse as JdkHttpResponse
  * degrades instead of crashing the build.
  */
 class JdkHttpTransport(
-    private val timeout: Duration = Duration.ofMinutes(5),
+    private val timeout: Duration = ofMinutes(5),
 ) : HttpTransport {
     private val client: HttpClient =
         HttpClient
             .newBuilder()
-            .connectTimeout(Duration.ofSeconds(30))
-            .followRedirects(HttpClient.Redirect.NORMAL)
+            .connectTimeout(ofSeconds(30))
+            .followRedirects(NORMAL)
             .build()
 
     override fun send(request: PublishHttpRequest): PublishHttpResponse =
         try {
-            val builder =
-                JdkHttpRequest
-                    .newBuilder()
-                    .uri(URI.create(request.url))
-                    .timeout(timeout)
+            val builder = newBuilder()
+                .uri(URI.create(request.url))
+                .timeout(timeout)
             request.headers.forEach { (name, value) -> builder.header(name, value) }
             val publisher =
                 if (request.body.isEmpty()) {
@@ -45,7 +48,7 @@ class JdkHttpTransport(
                     JdkHttpRequest.BodyPublishers.ofByteArray(request.body)
                 }
             builder.method(request.method, publisher)
-            val response: JdkHttpResponse<String> = client.send(builder.build(), JdkHttpResponse.BodyHandlers.ofString())
+            val response: JdkHttpResponse<String> = client.send(builder.build(), BodyHandlers.ofString())
             val headers =
                 response.headers().map().entries.associate { (k, v) ->
                     k.lowercase() to (v.firstOrNull() ?: "")

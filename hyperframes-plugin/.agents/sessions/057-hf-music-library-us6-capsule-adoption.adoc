@@ -1,0 +1,65 @@
+= Session 057 — HF-MUSIC-LIBRARY US-6 (adoption capsule) — EPIC TERMINÉ 9/9
+:toc:
+
+:_date_: 2026-11-12
+:_borough_: hyperframes (session pilotée) — code livré dans **capsule**
+:_session_precedente_: 056
+:_statut_: ✅ US-6 TERMINÉE — `HF-MUSIC-LIBRARY` TERMINÉ 9/9
+
+'''
+
+== Contexte
+
+Dernière US ouverte de `HF-MUSIC-LIBRARY` : permettre à **capsule** de résoudre
+son BGM depuis la même bibliothèque (`music-library.json` produit par newpipe).
+Le contrat N1 `video.kernel.music` n'est pas consommable (0.8.0 = JitPack only,
+un POM publié doit rester résolvable) → **duplication N2 assumée** (cadrage D8/D11,
+même dette que hyperframes), à supprimer au reset Central.
+
+'''
+
+== Livré (code capsule)
+
+* `capsule.audio.music` (N2, copie adaptée + résolveur) :
+  `MusicLicence` (fail-closed), `MusicTrack`, `MusicLibrary`,
+  `MusicSelection`/`MusicTrackSelector` (déterministe), `MusicLibraryManifestLoader`
+  (Jackson, tolérant aux clés inconnues), `MusicAssetResolver`
+  (`sourcePath`/`targetName`/`sha256`/attribution) + `needsCopy`.
+* `AudioPostConfig` : `bgmLibraryFile`, `bgmTrack`, `bgmMood` (additifs, défauts `""`).
+* Plumbing 4 sources : `CapsuleConfigMerger` (ENV `CAPSULE_AUDIO_POST_BGM_*`,
+  props `capsule.audioPost.*`, YAML via Jackson, CLI), `CapsuleExtension`
+  (3 `Property<String>`), `CapsuleConventions`, `CapsulePlugin.pushConfigIntoExtension`.
+* `CapsuleVideoTask.resolveBgmFile()` : `bgmFile` explicite **prioritaire**
+  (rétro-compat D6) ; sinon manifeste + sélection → copie dans
+  `build/capsule/assets/audio/` (skip `sha256`, Économie d'encre) ; toute erreur
+  **dégrade** (warning, vidéo conservée).
+
+'''
+
+== Tests (capsule)
+
+* `MusicLibraryManifestLoaderTest` — 6 (parse, clés inconnues, licence
+  fail-closed, entrées invalides droppées, manifeste absent, manifeste invalide).
+* `MusicTrackSelectorTest` — 6 (id, mood, fallback, id inconnu, licence inutilisable, mood inconnu).
+* `MusicAssetResolverTest` — 6 (résolution, mood, extension par défaut, inconnu,
+  racine vide, `needsCopy`).
+* `CapsuleConfigMergerTest` — défauts des 3 clés + lecture `gradle.properties`.
+
+'''
+
+== Gates (Local = Build)
+
+----
+capsule  : ./gradlew compileKotlin compileTestKotlin   → BUILD SUCCESSFUL
+capsule  : ./gradlew ktlintCheck                        → BUILD SUCCESSFUL
+hyperframes : compiles + ktlintCheck (US-8)             → VERTS
+----
+
+Zéro test exécuté en local. Zéro bump, zéro publication, zéro secret.
+
+'''
+
+== Reste (EPIC transverse)
+
+* `HF-SPEAKER-NOTES` US-2→US-8 : **bloqués** par la publication `video-kernel 0.9.0`.
+* Release `hyperframes-plugin 0.0.15` (contenu US-8 + US-6 documenté) = prochaine session.

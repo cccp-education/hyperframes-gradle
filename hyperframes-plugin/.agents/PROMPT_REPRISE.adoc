@@ -1,52 +1,51 @@
-= PROMPT_REPRISE — HyperFrames Gradle (Session 054 TERMINÉE → 055)
-:session: 055
+= PROMPT_REPRISE — HyperFrames Gradle (Session 057 TERMINÉE → 058)
+:session: 058
 :borough: Watts
-:session_precedente: 054 — HF-MUSIC-LIBRARY US-5 (FT du graphe) + US-9 (docs) ✅
+:session_precedente: 057 — HF-MUSIC-LIBRARY US-6 (adoption capsule) ✅
 _note_ : fichier canonique = `.agents/PROMPT_REPRISE.adoc`.
 
-== Session 054 (TERMINÉE) — US-5 + US-9
+== Session 057 (TERMINÉE) — US-6 adoption capsule
 
-* **US-5** `HyperframesPipelineMusicFunctionalTest` (TestKit, CLI stub) : ordre
-  `generate → resolve → render` prouvé sur la sortie du build, asset copié, MP4
-  marqueur produit, **idempotence** au 2ᵉ passage (`--rerun-tasks` : aucune
-  recopie, `lastModified` préservé).
-* **US-9** `doc/MUSIQUE_ET_SON.adoc` (guide FR : bibliothèque, licence
-  fail-closed, DSL `music { }`, balises, sémantique de séquence, pipeline,
-  limites v1, exemple) + `README.adoc` (EN : quick start, tâches, son, doc).
-* Gates locaux : compiles ×3 + `ktlintCheck` VERTS. Aucun code de production
-  modifié.
+* **Code livré dans capsule** (session pilotée depuis hyperframes) :
+  `audioPost { bgmLibraryFile; bgmTrack; bgmMood }` — capsule résout la piste
+  depuis `music-library.json` avec un **sélecteur N2 déterministe**, copie
+  l'asset dans `build/capsule/assets/audio/` (skip `sha256`), `bgmFile` explicite
+  **toujours prioritaire**, dégradation silencieuse (jamais casser la vidéo).
+* Modèle + loader + sélecteur copiés en N2 (`capsule.audio.music`) : dette
+  assumée (même que hyperframes), à supprimer au reset Central.
+* 3 clés de config 4 sources (ENV/props/YAML/CLI) + `CapsuleExtension` +
+  `CapsuleConventions` + `CapsulePlugin.pushConfigIntoExtension`.
+* Tests capsule : 6 manifest + 6 sélecteur + 6 resolver + merger (défauts + props).
+* **EPIC `HF-MUSIC-LIBRARY` TERMINÉ 9/9.** Compiles + `ktlintCheck` VERTS.
+* Rapport `.agents/sessions/057-hf-music-library-us6-capsule-adoption.adoc`
+  (+ rapport capsule `.agents/sessions/216-…`).
 
 == État
 
-* `hyperframes-plugin 0.0.14` (Central) ; `video-kernel 0.7.0` (Central) ;
-  newpipe producteur ✅.
-* EPIC `HF-MUSIC-LIBRARY` : US-0→US-5 ✅ + US-9 ✅ ; **reste US-6 (capsule),
-  US-7 (attribution), US-8 (crossfade v2)**.
-* EPIC `HF-SPEAKER-NOTES` : cadré (S-049), non démarré.
-* YouTube upload : prêt côté code, bloqué côté Google.
+* `hyperframes-plugin 0.0.14` (Central) ; `video-kernel 0.7.0` (Central).
+* `HF-MUSIC-LIBRARY` ✅ 9/9 ; `HF-DEMO-QUALITY` ✅ 7/7 ; `HF-YOUTUBE-PUBLISH`
+  ⏸️ (upload gelé).
+* `HF-SPEAKER-NOTES` : US-1 noyau ✅ S-203 (`video-kernel 0.9.0` **source**) ;
+  US-2→US-8 🟡 **bloqués** par la publication de `0.9.0`.
 
-== Mission Session 055 — US-6 (capsule) puis US-7 (attribution)
+== Mission Session 058 — release + reprise speaker-notes
 
-1. **US-6** (cross-borough, pilotée ici) : `capsule { audioPost { bgmFile } }`
-   peut référencer une piste de la bibliothèque via le **même sélecteur**
-   (`MusicTrackSelector`), avec une tâche de résolution N2 côté capsule
-   (copie `sha256`), zéro dépendance de code à newpipe.
-   Attention : capsule consomme `video-kernel 0.7.0` (Central) → ne pas réintroduire
-   la dépendance JitPack 0.8.0 ; dupliquer le sélecteur N2 (même dette que
-   hyperframes) ou attendre le reset.
-2. **US-7** : `cc-by` → lignes d'attribution injectées dans la description de
-   publication (`HF-YOUTUBE-PUBLISH`), jamais omises silencieusement.
-3. Puis **US-8** crossfade temporel v2.
-4. `HF-SPEAKER-NOTES` (cadré S-049) reste la seconde priorité du borough.
+. **Release `hyperframes-plugin 0.0.15`** (DAG MEMPHIS `workspace-bom/catalog`
+   d'abord, puis hyperframes) — contenu : US-8 crossfade + US-6 (docs) + correctifs
+   éventuels. Ordre DAG : MEMPHIS N0 → hyperframes N2 ; propagation vérifiée.
+. Puis **`HF-SPEAKER-NOTES` US-2→US-8** dès que `video-kernel 0.9.0` est publié
+   (ou décision pilote documentée ; **jamais** de shim JitPack dans un POM publié).
+
+== Blocages à connaître
+
+* `HF-SPEAKER-NOTES` consomme `video-kernel 0.9.0` : bloqué (Central, reset
+  Sonatype ≤ 2026-12-01).
+* Dette N1 : `hyperframes.sound.MusicModel.kt` + `capsule.audio.music.*` sont des
+  copies verbatim de `video.kernel.music` — supprimer + ré-importer au reset.
 
 == Points d'attention
 
-* **Local = Build, Tests = CI** ; accords pilote/publication/bump/git accordés
-  (2026-11-11, tous repos publics).
-* **Dette N1** : `hyperframes.sound.MusicModel.kt` est une copie verbatim de
-  `video.kernel.music` — supprimer + ré-importer dès que
-  `education.cccp:video-kernel:0.8.0` est sur Central (≤ 2026-12-01).
+* **Local = Build, Tests = CI** ; accords pilote/publication/bump/git accordés.
 * **Licence** : aucune piste sans licence déclarée ; audio jamais committé/publié.
 * Zéro secret ; zéro Python ; English only code/tests/features.
 * Le son est une **séquence du document** (D12), pas un réglage caché.
-

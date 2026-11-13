@@ -20,6 +20,9 @@ package hyperframes.sound
  * @property fadeOutSeconds fade-out length (`>= 0`).
  * @property loop loop the track across its cue span.
  * @property stop explicitly stop the running music at this scene.
+ * @property crossfadeSeconds temporal overlap with the **previous** cue when this
+ *   declaration opens a new cue (US-8, `0` = no overlap, backward compatible).
+ *   The overlap is bounded by the composition end and uses linear fade windows.
  */
 data class MusicDeclaration(
     val trackId: String = "",
@@ -30,6 +33,7 @@ data class MusicDeclaration(
     val fadeOutSeconds: Double = 0.0,
     val loop: Boolean = true,
     val stop: Boolean = false,
+    val crossfadeSeconds: Double = 0.0,
 ) {
     init {
         require(stop || trackId.isNotBlank() || mood.isNotBlank() || file.isNotBlank()) {
@@ -44,6 +48,9 @@ data class MusicDeclaration(
         }
         require(fadeOutSeconds.isFinite() && fadeOutSeconds >= 0.0) {
             "fade-out must be a finite non-negative value, got $fadeOutSeconds"
+        }
+        require(crossfadeSeconds.isFinite() && crossfadeSeconds >= 0.0) {
+            "crossfade must be a finite non-negative value, got $crossfadeSeconds"
         }
     }
 

@@ -34,6 +34,13 @@ Feature: HF-MUSIC-LIBRARY US-3 — document sound sequence
     When I enhance the music document with the HyperFrames processor
     Then the sound layer starts the effect at 5.5 seconds
 
+  Scenario: An incoming crossfade overlaps the outgoing cue
+    Given a music document that crossfades into a second ambience
+    When I enhance the music document with the HyperFrames processor
+    Then the music layer has exactly 2 cues
+    And the first music cue is extended to 7.50 seconds
+    And the crossfade fades out and in over 1.50 seconds
+
   Scenario: An unresolvable cue fails before the render
     Given a music document with no music library configured
     When I enhance the music document expecting a failure

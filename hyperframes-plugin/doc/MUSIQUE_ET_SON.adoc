@@ -122,6 +122,7 @@ Le paragraphe affiché.
 | `file` | — | fichier local explicite (aucune bibliothèque nécessaire).
 | `volume` | `0.25` | niveau perçu, `0..1`.
 | `fade-in` / `fade-out` | `0` | fondus, en secondes (`>= 0`).
+| `crossfade` | `0` | **chevauchement** avec la cue précédente, en secondes (`>= 0`, borné par la fin de composition) — US-8.
 | `loop` | `true` | boucle sur l'étendue de la cue.
 | `stop` | `false` | équivalent explicite de `track: none` ; `music: off` aussi.
 |===
@@ -134,6 +135,10 @@ Sémantique de la **séquence** :
 . `track: none` **arrête** la musique à cette scène ;
 . une cue ne survit **jamais** à la fin de la vidéo ;
 . une cue sans `fade-out` hérite du `fade-in` de la suivante (passation audible) ;
+. `crossfade: n` sur la cue **entrante** étend la cue sortante de `n` secondes
+  (les deux se chevauchent sur des pistes distinctes) ; les fondus sortant/entrant
+  prennent `n` par défaut. Le chevauchement est **borné par la fin de composition**
+  et les courbes restent **linéaires** ;
 . une déclaration **irrésoluble** (piste inconnue, licence refusée, bibliothèque
    absente) fait **échouer le build avant le rendu**, avec un message actionnable
    — jamais un MP4 silencieux.
@@ -197,7 +202,8 @@ AsciiDoc ──▶ generateHyperframesHtml ──▶ resolveHyperframesBgm ─�
 * Un `[.hyperframes-sfx]` **ne copie pas** de piste depuis la bibliothèque : il
   référence un fichier existant (chemin local, copié par `ReferencedAssets`) ou
   un chemin déjà présent dans `assets/audio/`.
-* Le crossfade **temporel** avancé (chevauchement de deux cues) est l'US-8.
+* Le crossfade **temporel** est disponible (US-8, `crossfade:` opt-in) ; seules
+  les courbes **linéaires** sont supportées (pas de courbe exponentielle).
 * Le contrat noyau `video.kernel.music` (N1) est pour l'instant **copié** en N2
   (`hyperframes.sound.MusicModel.kt`) : `video-kernel 0.8.0` n'est pas encore
   publié sur Maven Central ; le ré-alignement est planifié au reset du canal.

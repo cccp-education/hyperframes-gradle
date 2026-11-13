@@ -132,4 +132,26 @@ class SoundBlockParserTest {
         assertIs<SoundBlockParseResult.Invalid>(result)
         assertTrue(result.reasons.any { it.contains("file") })
     }
+
+    @Test
+    fun `a crossfade value is parsed`() {
+        val declaration = music("mood: calm\ncrossfade: 1.5")
+
+        assertEquals(1.5, declaration.crossfadeSeconds)
+    }
+
+    @Test
+    fun `a non-numeric crossfade is reported`() {
+        val result = SoundBlockParser.parseMusic("mood: calm\ncrossfade: soon")
+
+        assertIs<SoundBlockParseResult.Invalid>(result)
+        assertTrue(result.reasons.any { it.contains("crossfade") })
+    }
+
+    @Test
+    fun `a negative crossfade is rejected by the contract`() {
+        val result = SoundBlockParser.parseMusic("mood: calm\ncrossfade: -1")
+
+        assertIs<SoundBlockParseResult.Invalid>(result)
+    }
 }

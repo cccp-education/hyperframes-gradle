@@ -1,0 +1,27 @@
+= COMPLETED_TASKS_ARCHIVE — Novembre 2026
+:date: 2026-11-12
+
+== Session 056 — HF-MUSIC-LIBRARY US-8 : crossfade temporel v2 ✅
+
+* [x] `MusicDeclaration.crossfadeSeconds` (opt-in, défaut `0`, backward compatible).
+* [x] `SoundSequencePlanner` : la cue entrante étend la cue sortante (chevauchement
+  sur pistes distinctes), fondus sortant/entrant par défaut, `fade-out` explicite
+  préservé, borné par la fin de composition, `stop`/continuité exclus.
+* [x] `SoundBlockParser` : clé `crossfade:`.
+* [x] `doc/MUSIQUE_ET_SON.adoc` : clé + sémantique + limites (courbes linéaires).
+* [x] Tests : +5 unit planner + 3 unit parser + 1 scénario BDD `@music`.
+* [x] Local = Build : compiles ×3 + `ktlintCheck` VERTS. Zéro bump, zéro publication.
+* [ ] US-6 (adoption capsule) — seule US ouverte de l'EPIC.
+* [x] Rapport `.agents/sessions/056-hf-music-library-us8-crossfade.adoc`.
+
+== Session 057 — HF-MUSIC-LIBRARY US-6 : adoption capsule ✅ (EPIC TERMINÉ 9/9)
+
+* [x] Session pilotée hyperframes, code capsule : `audioPost { bgmLibraryFile;
+  bgmTrack; bgmMood }` (4 sources) + `capsule.audio.music` (modèle + loader +
+  sélecteur N2) + `MusicAssetResolver` (copie, sha256, attribution).
+* [x] `CapsuleVideoTask.resolveBgmFile()` : `bgmFile` prioritaire, dégradation
+  silencieuse, copie dans `build/capsule/assets/audio/`.
+* [x] Tests capsule : 6 manifest + 6 sélecteur + 6 resolver + merger.
+* [x] **EPIC `HF-MUSIC-LIBRARY` TERMINÉ 9/9** ; compiles + `ktlintCheck` VERTS.
+* [ ] `HF-SPEAKER-NOTES` US-2→US-8 — bloqués par la publication `video-kernel 0.9.0`.
+* [x] Rapports `.agents/sessions/057-…` (hyperframes) + `.agents/sessions/216-…` (capsule).

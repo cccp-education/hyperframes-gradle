@@ -1,5 +1,30 @@
 = SESSIONS_HISTORY — hyperframes-gradle
 
+== Session 057 (2026-11-12) — HF-MUSIC-LIBRARY US-6 : adoption capsule (EPIC TERMINÉ 9/9)
+
+Session pilotée depuis hyperframes, code livré dans **capsule**. `audioPost
+{ bgmLibraryFile; bgmTrack; bgmMood }` : capsule résout la piste depuis
+`music-library.json` (sélecteur N2 déterministe), copie l'asset dans
+`build/capsule/assets/audio/` (skip `sha256`), `bgmFile` explicite prioritaire,
+dégradation silencieuse. Modèle/loader/sélecteur copiés en N2
+(`capsule.audio.music`, dette assumée à supprimer au reset Central) ; 3 clés de
+config 4 sources + wiring `CapsuleVideoTask`. Tests capsule : 6 manifest + 6
+sélecteur + 6 resolver + merger. **EPIC `HF-MUSIC-LIBRARY` TERMINÉ 9/9.**
+Compiles + `ktlintCheck` VERTS. Zéro bump, zéro publication. Rapport
+`.agents/sessions/057-hf-music-library-us6-capsule-adoption.adoc`.
+
+== Session 056 (2026-11-12) — HF-MUSIC-LIBRARY US-8 : crossfade temporel v2
+
+`MusicDeclaration.crossfadeSeconds` (opt-in, défaut `0`) : une cue entrante qui
+déclare `crossfade:` étend la cue sortante du chevauchement (deux cues sur des
+pistes distinctes) ; fondus sortant/entrant par défaut = chevauchement, `fade-out`
+explicite préservé, borné par la fin de composition, courbes linéaires ; `stop` et
+continuité n'appliquent jamais le crossfade. `SoundBlockParser` accepte la clé
+`crossfade:`. Tests : +5 unit `SoundSequencePlannerTest` + 3 unit
+`SoundBlockParserTest` + 1 scénario BDD `@music`. Doc `doc/MUSIQUE_ET_SON.adoc`
+mise à jour. Local = Build : compiles ×3 + `ktlintCheck` VERTS. Zéro bump, zéro
+publication. Rapport `.agents/sessions/056-hf-music-library-us8-crossfade.adoc`.
+
 == Session 046 (2026-10-31) — Adoption N1 + US-7 parallaxe + release `0.0.14`
 
 **PUBLISH-ADAPTER-N1** : adoption `video-kernel 0.7.0` (ChapterLineParser,

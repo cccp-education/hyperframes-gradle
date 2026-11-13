@@ -1,6 +1,31 @@
 = Test Coverage Analysis — hyperframes-gradle
 
-_Dernière mise à jour_ : 2026-11-12 (Session 055 — HF-MUSIC-LIBRARY US-7, crédits de publication)
+_Dernière mise à jour_ : 2026-11-12 (Session 057 — HF-MUSIC-LIBRARY US-6, adoption capsule)
+
+== Couverture — 12 novembre 2026 (après session 057, US-6 adoption capsule)
+
+.HF-MUSIC-LIBRARY US-6 — résolution du BGM capsule depuis la bibliothèque (code capsule)
+|===
+| Élément | Changement | Tests
+
+| `capsule/audio/music/MusicLibrary.kt` (créé) | modèle + `MusicTrackSelector` (copie N2 du contrat) | 6 `MusicTrackSelectorTest`
+| `capsule/audio/music/MusicLibraryManifestLoader.kt` (créé) | lecture `music-library.json` (Jackson, tolérant) | 6 `MusicLibraryManifestLoaderTest`
+| `capsule/audio/music/MusicAssetResolver.kt` (créé) | sélection → `sourcePath`/`targetName`/`sha256`/attribution + `needsCopy` | 6 `MusicAssetResolverTest`
+| `capsule/audio/AudioPostConfig.kt` + `CapsuleConfigMerger`/`CapsuleModels`/`CapsulePlugin` | `bgmLibraryFile`/`bgmTrack`/`bgmMood` 4 sources | merger : défauts + `gradle.properties`
+| `capsule/CapsuleVideoTask.kt` | `resolveBgmFile()` (priorité `bgmFile`, copie sha256, dégradation) | couvert par compile/review (Local = Build)
+|===
+
+== Couverture — 12 novembre 2026 (après session 056, US-8 crossfade)
+
+.HF-MUSIC-LIBRARY US-8 — chevauchement de deux cues
+|===
+| Élément | Changement | Tests
+
+| `hyperframes/sound/SoundDeclarations.kt` | `MusicDeclaration.crossfadeSeconds` (`>= 0`, défaut `0`) | invariant couvert par `SoundBlockParserTest` (négatif rejeté)
+| `hyperframes/sound/SoundSequencePlanner.kt` | extension de la cue sortante, fondus par défaut, bornage fin de composition, `stop`/continuité exclus | +5 `SoundSequencePlannerTest`
+| `hyperframes/sound/SoundBlockParser.kt` | clé `crossfade:` (+ découpage open-block) | +3 `SoundBlockParserTest`
+| `features/hf_music_library_us3.feature` + `HfMusicLibrarySteps` | scénario de chevauchement (2ᵉ piste `epic`) | +1 scénario `@music`
+|===
 
 == Couverture — 12 novembre 2026 (après session 055, US-7 crédits)
 

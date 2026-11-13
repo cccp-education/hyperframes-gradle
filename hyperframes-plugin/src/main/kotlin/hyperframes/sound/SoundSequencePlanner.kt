@@ -73,7 +73,11 @@ data class SoundPlan(
  * 3. `track: none` / `music: off` **stops** the running cue at that scene and
  *    emits a stop marker (no audio element);
  * 4. fades carry the handoff: a cue declaring no fade-out inherits the next
- *    cue's fade-in (bounded by its own span), so a crossfade is never silent.
+ *    cue's fade-in (bounded by its own span), so a crossfade is never silent;
+ * 5. **US-8** — an incoming cue declaring `crossfadeSeconds > 0` extends the
+ *    outgoing cue past the boundary (the two cues overlap on separate tracks),
+ *    bounded by the composition end; the outgoing fade-out and incoming fade-in
+ *    default to the overlap when the author declared none.
  *
  * Pure and deterministic — no I/O, no library, no LLM.
  */
@@ -86,10 +90,21 @@ object SoundSequencePlanner {
         val sfx = mutableListOf<SfxPlacement>()
         var open: SoundPlacement? = null
 
-        fun close(atSeconds: Double) {
+        fun close(
+            atSeconds: Double,
+            fadeOutOverride: Double? = null,
+        ) {
             val cue = open ?: return
             val span = (atSeconds - cue.startSeconds).coerceAtLeast(0.0)
-            if (span > 0.0) music += cue.copy(durationSeconds = span)
+            if (span > 0.0) {
+                val declaration =
+                    if (fadeOutOverride != null && cue.declaration.fadeOutSeconds == 0.0) {
+                        cue.declaration.copy(fadeOutSeconds = fadeOutOverride)
+                    } else {
+                        cue.declaration
+                    }
+                music += cue.copy(durationSeconds = span, declaration = declaration)
+            }
             open = null
         }
 
@@ -106,12 +121,30 @@ object SoundSequencePlanner {
                 return@forEach
             }
             if (open?.declaration?.sameMusicAs(declaration) == true) return@forEach
-            close(scene.startSeconds)
-            open = SoundPlacement(scene.sceneId, scene.startSeconds, 0.0, declaration)
+            val overlap = if (open != null) crossfadeSeconds(declaration, scene.startSeconds, totalSeconds) else 0.0
+            close(scene.startSeconds + overlap, fadeOutOverride = overlap.takeIf { it > 0.0 })
+            val incoming =
+                if (overlap > 0.0 && declaration.fadeInSeconds == 0.0) {
+                    declaration.copy(fadeInSeconds = overlap)
+                } else {
+                    declaration
+                }
+            open = SoundPlacement(scene.sceneId, scene.startSeconds, 0.0, incoming)
         }
         close(totalSeconds)
 
         return SoundPlan(music = handoffFades(music), sfx = sfx)
+    }
+
+    /** Temporal overlap with the previous cue, bounded by the composition end. */
+    private fun crossfadeSeconds(
+        declaration: MusicDeclaration,
+        boundarySeconds: Double,
+        totalSeconds: Double,
+    ): Double {
+        if (declaration.crossfadeSeconds <= 0.0) return 0.0
+        val available = (totalSeconds - boundarySeconds).coerceAtLeast(0.0)
+        return minOf(declaration.crossfadeSeconds, available)
     }
 
     /**

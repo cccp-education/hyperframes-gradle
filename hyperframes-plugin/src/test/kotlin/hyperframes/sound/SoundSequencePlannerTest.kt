@@ -150,4 +150,86 @@ class SoundSequencePlannerTest {
         assertEquals("b", plan.sfx[0].sceneId)
         assertEquals(0.5, plan.sfx[0].declaration.volume)
     }
+
+    @Test
+    fun `an incoming crossfade extends the outgoing cue past the boundary`() {
+        val plan =
+            SoundSequencePlanner.plan(
+                listOf(
+                    scene("a", 0.0, MusicDeclaration(mood = "calm")),
+                    scene("b", 5.0, MusicDeclaration(mood = "epic", crossfadeSeconds = 1.0)),
+                ),
+                10.0,
+            )
+
+        assertEquals(2, plan.music.size)
+        assertEquals(6.0, plan.music[0].durationSeconds)
+        assertEquals(1.0, plan.music[0].declaration.fadeOutSeconds)
+        assertEquals(5.0, plan.music[1].startSeconds)
+        assertEquals(1.0, plan.music[1].declaration.fadeInSeconds)
+    }
+
+    @Test
+    fun `a crossfade is clamped by the composition end`() {
+        val plan =
+            SoundSequencePlanner.plan(
+                listOf(
+                    scene("a", 0.0, MusicDeclaration(mood = "calm")),
+                    scene("b", 9.5, MusicDeclaration(mood = "epic", crossfadeSeconds = 2.0)),
+                ),
+                10.0,
+            )
+
+        assertEquals(10.0, plan.music[0].durationSeconds)
+        assertEquals(0.5, plan.music[0].declaration.fadeOutSeconds)
+        assertEquals(0.5, plan.music[1].declaration.fadeInSeconds)
+    }
+
+    @Test
+    fun `a crossfade never applies to a stop`() {
+        val plan =
+            SoundSequencePlanner.plan(
+                listOf(
+                    scene("a", 0.0, MusicDeclaration(mood = "calm")),
+                    scene("b", 5.0, MusicDeclaration(stop = true)),
+                ),
+                10.0,
+            )
+
+        assertEquals(2, plan.music.size)
+        assertEquals(5.0, plan.music[0].durationSeconds)
+        assertEquals(0.0, plan.music[0].declaration.fadeOutSeconds)
+    }
+
+    @Test
+    fun `an explicit fade-out is preserved during a crossfade`() {
+        val plan =
+            SoundSequencePlanner.plan(
+                listOf(
+                    scene("a", 0.0, MusicDeclaration(mood = "calm", fadeOutSeconds = 0.2)),
+                    scene("b", 5.0, MusicDeclaration(mood = "epic", crossfadeSeconds = 1.0)),
+                ),
+                10.0,
+            )
+
+        assertEquals(6.0, plan.music[0].durationSeconds)
+        assertEquals(0.2, plan.music[0].declaration.fadeOutSeconds)
+        assertEquals(1.0, plan.music[1].declaration.fadeInSeconds)
+    }
+
+    @Test
+    fun `a continuity no-op ignores the crossfade`() {
+        val plan =
+            SoundSequencePlanner.plan(
+                listOf(
+                    scene("a", 0.0, MusicDeclaration(mood = "calm")),
+                    scene("b", 5.0, MusicDeclaration(mood = "calm", crossfadeSeconds = 1.0)),
+                ),
+                10.0,
+            )
+
+        assertEquals(1, plan.music.size)
+        assertEquals(10.0, plan.music[0].durationSeconds)
+        assertEquals(0.0, plan.music[0].declaration.fadeOutSeconds)
+    }
 }

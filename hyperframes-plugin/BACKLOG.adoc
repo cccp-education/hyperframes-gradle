@@ -5,6 +5,57 @@ _Date création_ : 2026-05-31
 _Version_ : **0.0.14 (Central)** — HEAD S-046 publié ; catalogue/BOM ws **`0.0.115`**.
 
 '''
+== 🟡 EPICs ouverts — traçabilité BACKLOG (synchronisée 2026-11-12)
+
+Les deux EPICs ouverts vivaient uniquement dans `.agents/INDEX.adoc` et les
+CADRAGE : ce BACKLOG les reprend pour que le backlog canonique porte l'état réel
+(leçon : une roadmap sans BACKLOG = EPIC invisible pour la session suivante).
+
+=== 🟡 HF-SPEAKER-NOTES — notes d'orateur lues dans la vidéo
+
+_Cadrage_ : `.agents/CADRAGE_EPIC_HF_SPEAKER_NOTES.adoc` (S-049, 9 US ~20 pts).
+L'AsciiDoc reste la source de vérité (visuel **et** parole) ; `[NOTE.speaker]`
+est lu par TTS par scène puis **muxé** dans le MP4.
+
+|===
+| US | Livrable | Statut
+
+| US-1 | Noyau `video.kernel.notes.SpeakerNoteBlockParser` (+ `SpeakerNoteBlock`) ; `video-kernel 0.9.0` | ✅ S-203 (noyau) · adoption capsule 🟡 bloquée publication
+| US-2 | hyperframes — extraction `hyperframes.notes` (`SpeakerNote`, `SpeakerNotesDocument`, `SpeakerNotesExtractor`), mapping note ↔ section | 🟡
+| US-3 | hyperframes — injection : le processor retire le bloc et émet le marqueur de narration par scène (hints de prononciation, backward compat byte-identique) | 🟡
+| US-4 | hyperframes — TTS par scène (`generateHyperframesNarration` sur les notes, ordre scène = index WAV) | 🟡
+| US-5 | hyperframes — **muxage** `muxHyperframesNarration` (ffmpeg `adelay`/`amix`, offsets de scène, opt-in, dégradé, `strict`) | 🟡
+| US-6 | traçabilité N3 (`speakerNotes` dans `metadata.json`) | 🟡
+| US-7 | BDD `@speaker-notes` (fake TTS) + FT TestKit du graphe + dogfooding réel | 🟡
+| US-8 | docs (`doc/PILOTAGE_HYPERFRAMES.adoc` + README) | 🟡
+|===
+
+=== ✅ HF-MUSIC-LIBRARY — BGM issu du borough newpipe
+
+_Cadrage_ : `.agents/CADRAGE_EPIC_HF_MUSIC_LIBRARY.adoc` (9 US ~21 pts).
+
+|===
+| US | Livrable | Statut
+
+| US-1 | newpipe (Nashville) producteur `music-library.json` (provenance/licence) | ✅ S-004
+| US-2 | N1 `video.kernel.music` (modèle + sélecteur déterministe) — `video-kernel 0.8.0` | ✅ S-201 (JitPack)
+| US-3 | DSL son + séquence documentaire (`hyperframes.sound`) | ✅ S-052
+| US-4 | résolution + copie des assets (`MusicAssetPlanner`, `resolveHyperframesBgm`, DSL `music { }`) | ✅ S-053
+| US-5 | FT TestKit du graphe complet (CLI stub) | ✅ S-054
+| US-6 | **capsule — adoption** : `audioPost { bgmLibraryFile; bgmTrack; bgmMood }` résolus par un sélecteur N2 capsule (copie `sha256`, `bgmFile` explicite toujours prioritaire, dégradation silencieuse) — sans JitPack `0.8.0` dans un POM publié | ✅ S-057 (code capsule, session pilotée hyperframes)
+| US-7 | attribution `cc-by` → description de publication | ✅ S-055
+| US-8 | **crossfade temporel (v2)** : `crossfade:` sur la cue entrante — chevauchement de deux cues entre scènes (la sortante est étendue), fenêtres de fondu sortant/entrant par défaut = chevauchement, garde de durée totale (borné par la fin de composition), courbes linéaires. | ✅ S-056
+| US-9 | docs (`doc/MUSIQUE_ET_SON.adoc` + README) | ✅ S-054
+|===
+
+_Dette N2_ : `hyperframes.sound.MusicModel.kt` est une copie verbatim de
+`video.kernel.music` (0.8.0 = JitPack only ; un POM publié doit rester
+résolvable). À supprimer au reset Central.
+
+_Statut EPIC (2026-11-12)_ : **✅ TERMINÉ 9/9 US** — US-1→US-9 livrées (US-6
+adoption capsule pilotée ici : code capsule).
+
+'''
 == ✅ Release `hyperframes-plugin 0.0.14` — Maven Central (S-046)
 
 DAG MEMPHIS `0.0.115` (`0e74a6a8`, propagation 200) → hyperframes re-pin
