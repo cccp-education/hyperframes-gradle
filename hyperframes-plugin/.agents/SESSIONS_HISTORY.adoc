@@ -867,9 +867,11 @@ lève la gate du noyau.
 **3 bugs corrigés, tous attrapés par le dogfooding** : la note affichée
 (`display:none`), la vidéo tronquée par `-shortest` (`apad`), et la collecte des
 prises qui portait sur le **répertoire** au lieu des `*.wav` (`fileTree`).
-**DAG JitPack** : `workspace-bom 0.0.132` (tag `v0.0.132`, catalogue
-`hyperframes-plugin 0.0.16` + capsule 0.0.21 + conventions 0.0.16) → `ws`
-catalogue lu depuis JitPack → **version build 0.0.16 == publiée**. La plateforme
+**DAG JitPack** : catalogue `workspace-bom 0.0.133` (tag `v0.0.133`, CI verte ;
+le premier `0.0.132` avait deux gardes de test épinglées, réalignées en
+test-only — TOML identique, tag neuf) déclarant `hyperframes-plugin 0.0.16`,
+capsule 0.0.21, conventions 0.0.16 → `ws` catalogue lu depuis JitPack →
+**version build 0.0.16 == publiée**. La plateforme
 BOM reste sur Central `0.0.115` (le POM JitPack perd `dependencyManagement` et
 aucun `.module` n'est servi) ; la garde d'hygiène injecte désormais les deux
 versions. EPIC **`HF-SPEAKER-NOTES` TERMINÉ 9/9**. Rapport

@@ -96,16 +96,24 @@ démonstration, **pas** le corpus FPA (US-7 partielle sur ce point).
 
 == DAG JitPack (versions = artefacts déployés)
 
-. **MEMPHIS** : catalogue `workspace-bom 0.0.132` — `hyperframes-plugin 0.0.16`,
+. **MEMPHIS** : catalogue `workspace-bom 0.0.133` — `hyperframes-plugin 0.0.16`,
   `capsule-plugin 0.0.21`, `conventions-plugin 0.0.16` (versions réellement
-  déployées sur JitPack). Commit `96e0b6b`, tag `v0.0.132`, build JitPack `ok`,
-  catalogue `workspace-catalog:v0.0.132` HTTP 200.
-. **Watts** : `ws` catalogue ← JitPack `v0.0.132` (donc `version = 0.0.16`),
+  déployées sur JitPack). Commit `2c68557` (CI `runAllTests` verte), tag
+  `v0.0.133`, build JitPack `ok`, `workspace-catalog:v0.0.133` HTTP 200.
+  *Correctif* : le premier catalogue `0.0.132` (commit `96e0b6b`) avait une CI
+  rouge sur deux gardes de test **épinglées** (`workspace-bom == 0.0.131`,
+  `conventions-plugin == 0.0.14`) — gardes réalignées (test-only) et catalogue
+  republié en `0.0.133` (contenu TOML identique) : l'artefact publié est couvert
+  par une CI verte, aucun tag déplacé.
+. **Watts** : `ws` catalogue ← JitPack `v0.0.133` (donc `version = 0.0.16`),
   noyau ← `com.github.cccp-education:video-kernel-gradle:v0.9.1`, plateforme BOM
   ← Central `0.0.115` (seul BOM *plateforme* valide). Garde d'hygiène adaptée :
   les deux versions (plugin, BOM) sont injectées par Gradle, le pin est vérifié
   sans dépendre d'un catalogue qui ne peut plus porter le BOM.
-. **Release** : tag `v0.0.16` → JitPack (POM/jar 200, vérifié en clôture).
+. **Release** : tag `v0.0.16` (commit `ee3151f`, CI verte `43349890307`) →
+  JitPack build `ok`, POM/jar **200** (module + repo-level), POM dépend de
+  `video-kernel-gradle:v0.9.1`, jar contient `hyperframes/notes/*` +
+  `MuxHyperframesNarrationTask`.
 
 '''
 

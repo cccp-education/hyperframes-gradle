@@ -24,8 +24,8 @@ copiée, dégradé + `strict`), N3 `speakerNotes`, BDD `@speaker-notes`, FT Test
   2026-12-01). `publishToMavenLocal` = étape locale de la recette JitPack.
 * `hyperframes-plugin` : **0.0.16** (JitPack, tag `v0.0.16`). Version build
   **== version publiée** (catalogue lu depuis JitPack).
-* `ws` catalogue ← `com.github.cccp-education.workspace-bom:workspace-catalog:v0.0.132`
-  (`workspace-bom 0.0.132` publié JitPack).
+* `ws` catalogue ← `com.github.cccp-education.workspace-bom:workspace-catalog:v0.0.133`
+  (`workspace-bom 0.0.133` publié JitPack).
 * Plateforme BOM ← **Central `0.0.115`** : le POM JitPack du BOM est réécrit en
   `<dependencies>` (pas de `dependencyManagement`) et aucun `.module` n'est
   servi → un BOM JitPack n'est **pas** une platform valide. Ne pas « corriger »

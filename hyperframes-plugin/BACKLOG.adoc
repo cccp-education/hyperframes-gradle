@@ -3,7 +3,7 @@
 
 _Date création_ : 2026-05-31
 _Version_ : **0.0.16 (JitPack)** — tag `v0.0.16` ; catalogue ws lu depuis JitPack
-`workspace-catalog:v0.0.132` ; platform BOM Central `0.0.115` (seul BOM
+`workspace-catalog:v0.0.133` ; platform BOM Central `0.0.115` (seul BOM
 plateforme valide — le POM JitPack perd `dependencyManagement`). Central/Portal
 bloqués (reset Sonatype 2026-12-01).
 
@@ -14,7 +14,7 @@ bloqués (reset Sonatype 2026-12-01).
   grammaire N1, masquées du visuel, lues par scène, muxées dans le MP4, exposées
   en N3) + US-8 (docs).
 * Versions alignées sur les artefacts JitPack : noyau
-  `video-kernel-gradle:v0.9.1`, catalogue `workspace-catalog:v0.0.132`
+  `video-kernel-gradle:v0.9.1`, catalogue `workspace-catalog:v0.0.133`
   (`hyperframes-plugin 0.0.16`), donc **version build == version publiée**.
 * Mux **opt-in** hors `hyperframesPipeline` ; aucune note = pipeline historique.
 * Rapport `.agents/sessions/059-hf-speaker-notes-us2-us8.adoc`.
