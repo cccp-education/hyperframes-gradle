@@ -51,12 +51,12 @@ dependencyResolutionManagement {
 
 // ── MEM-CAT-ROLLOUT-4 — Catalog workspace published (MEMPHIS): single pin per borough (D4) ──
 // CNV-16 — the version source is the catalogue **deployed on JitPack** (tag
-// `v0.0.132`): the build version equals the published artifact version, no
+// `v0.0.133`): the build version equals the published artifact version, no
 // relabel mismatch. `com.github.cccp-education.workspace-bom:workspace-catalog`.
 dependencyResolutionManagement {
     versionCatalogs {
         create("ws") {
-            from("com.github.cccp-education.workspace-bom:workspace-catalog:v0.0.132")
+            from("com.github.cccp-education.workspace-bom:workspace-catalog:v0.0.133")
         }
     }
 }
