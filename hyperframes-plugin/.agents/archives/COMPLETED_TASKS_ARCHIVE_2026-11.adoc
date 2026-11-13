@@ -57,3 +57,4 @@
 * Run `43507444973` VERT (commit `62240cc`).
 * Rapport `.agents/sessions/061-gbl-013-wave2.adoc`.
 
+* Session 062 — EAGER : publication JitPack canal unique (AGENT/PROMPT_REPRISE alignés ; Central/Portal retirés) — 2026-11-14.
