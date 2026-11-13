@@ -1,0 +1,53 @@
+= Session 058 — Release `0.0.15` sur JitPack (+ correctif ktlint CI)
+:toc:
+
+:_date_: 2026-11-13
+:_borough_: hyperframes (N2)
+:_session_precedente_: 057
+:_statut_: ✅ `hyperframes-plugin v0.0.15` publié sur JitPack (POM 200)
+
+'''
+
+== Contexte
+
+Central est bloqué par le quota Sonatype de l'organisation `cccp.education`
+(reset 2026-12-01) ; le Portal n'est pas câblé/nécessaire pour hyperframes. Le
+canal retenu est **JitPack**, conformément à la demande pilote.
+
+'''
+
+== Livré
+
+* Tag annoté **`v0.0.15`** (commit `4fc36b1`), contenant :
+  - `HF-MUSIC-LIBRARY` US-8 (crossfade temporel `crossfade:` opt-in) ;
+  - `HF-MUSIC-LIBRARY` US-6 (adoption capsule : code capsule, pilotage ici) ;
+  - correctif ktlint `JdkHttpTransport` (commit `37f1175`) pour la CI verte.
+* JitPack : build **`ok`** ; modules `hyperframes-plugin` +
+  `education.cccp.hyperframes.gradle.plugin`.
+
+.Preuves
+|===
+| Artefact | Statut
+
+| POM `v0.0.15` | **HTTP 200**
+| POM `0.0.15` | **HTTP 200**
+| API build `v0.0.15` | `status: ok`, commit `4fc36b1`
+|===
+
+Coordonnée repo-level : `com.github.cccp-education.hyperframes-gradle:hyperframes-plugin:v0.0.15`
+(shim requis pour un `plugins {}`).
+
+'''
+
+== Gates / hygiène
+
+* Correctif ktlint poussé, CI verte (`37f1175`).
+* Zéro secret ; aucun test local (Local = Build) ; `main` + tag poussés.
+
+'''
+
+== Reste
+
+* **Central `0.0.15`** : bloqué jusqu'au 2026-12-01 (quota).
+* `HF-SPEAKER-NOTES` US-2→8 : bloqué par l'absence de `video-kernel` sur Central
+  (le kernel `0.9.1` est sur JitPack, repo-level).

@@ -1,47 +1,38 @@
-= PROMPT_REPRISE — HyperFrames Gradle (Session 057 TERMINÉE → 058)
-:session: 058
+= PROMPT_REPRISE — HyperFrames Gradle (Session 058 TERMINÉE → 059)
+:session: 059
 :borough: Watts
-:session_precedente: 057 — HF-MUSIC-LIBRARY US-6 (adoption capsule) ✅
+:session_precedente: 058 — release `0.0.15` (JitPack) + correctif ktlint CI ✅
 _note_ : fichier canonique = `.agents/PROMPT_REPRISE.adoc`.
 
-== Session 057 (TERMINÉE) — US-6 adoption capsule
+== Session 058 (TERMINÉE) — release `0.0.15` JitPack
 
-* **Code livré dans capsule** (session pilotée depuis hyperframes) :
-  `audioPost { bgmLibraryFile; bgmTrack; bgmMood }` — capsule résout la piste
-  depuis `music-library.json` avec un **sélecteur N2 déterministe**, copie
-  l'asset dans `build/capsule/assets/audio/` (skip `sha256`), `bgmFile` explicite
-  **toujours prioritaire**, dégradation silencieuse (jamais casser la vidéo).
-* Modèle + loader + sélecteur copiés en N2 (`capsule.audio.music`) : dette
-  assumée (même que hyperframes), à supprimer au reset Central.
-* 3 clés de config 4 sources (ENV/props/YAML/CLI) + `CapsuleExtension` +
-  `CapsuleConventions` + `CapsulePlugin.pushConfigIntoExtension`.
-* Tests capsule : 6 manifest + 6 sélecteur + 6 resolver + merger (défauts + props).
-* **EPIC `HF-MUSIC-LIBRARY` TERMINÉ 9/9.** Compiles + `ktlintCheck` VERTS.
-* Rapport `.agents/sessions/057-hf-music-library-us6-capsule-adoption.adoc`
-  (+ rapport capsule `.agents/sessions/216-…`).
+* Tag annoté **`v0.0.15`** (commit `4fc36b1`), build JitPack **`ok`**.
+* POM **HTTP 200** (`v0.0.15` et `0.0.15`), modules `hyperframes-plugin` +
+  marker `education.cccp.hyperframes.gradle.plugin`.
+* Contenu : `HF-MUSIC-LIBRARY` US-8 (crossfade) + US-6 (adoption capsule) +
+  correctif ktlint `JdkHttpTransport` (CI verte).
+* Central : **non publié** (quota Sonatype `cccp.education`, reset **2026-12-01**).
+* Rapport `.agents/sessions/058-release-0.0.15-jitpack.adoc`.
 
 == État
 
-* `hyperframes-plugin 0.0.14` (Central) ; `video-kernel 0.7.0` (Central).
-* `HF-MUSIC-LIBRARY` ✅ 9/9 ; `HF-DEMO-QUALITY` ✅ 7/7 ; `HF-YOUTUBE-PUBLISH`
-  ⏸️ (upload gelé).
-* `HF-SPEAKER-NOTES` : US-1 noyau ✅ S-203 (`video-kernel 0.9.0` **source**) ;
-  US-2→US-8 🟡 **bloqués** par la publication de `0.9.0`.
+* **JitPack `0.0.15`** ; Central `0.0.14` (quota) ; `video-kernel` consommé
+  `0.7.0` (Central).
+* `HF-MUSIC-LIBRARY` ✅ 9/9 ; `HF-DEMO-QUALITY` ✅ 7/7 ; `HF-YOUTUBE-PUBLISH` ⏸️.
+* `HF-SPEAKER-NOTES` : US-1 noyau ✅ (video-kernel `0.9.1` **JitPack**,
+  repo-level `com.github.cccp-education.video-kernel-gradle:video-kernel-gradle:v0.9.1`)
+  ; US-2→US-8 **bloqués** pour un POM Central (le kernel n'est pas sur Central).
 
-== Mission Session 058 — release + reprise speaker-notes
+== Mission Session 059 — débloquer `HF-SPEAKER-NOTES`
 
-. **Release `hyperframes-plugin 0.0.15`** (DAG MEMPHIS `workspace-bom/catalog`
-   d'abord, puis hyperframes) — contenu : US-8 crossfade + US-6 (docs) + correctifs
-   éventuels. Ordre DAG : MEMPHIS N0 → hyperframes N2 ; propagation vérifiée.
-. Puis **`HF-SPEAKER-NOTES` US-2→US-8** dès que `video-kernel 0.9.0` est publié
-   (ou décision pilote documentée ; **jamais** de shim JitPack dans un POM publié).
-
-== Blocages à connaître
-
-* `HF-SPEAKER-NOTES` consomme `video-kernel 0.9.0` : bloqué (Central, reset
-  Sonatype ≤ 2026-12-01).
-* Dette N1 : `hyperframes.sound.MusicModel.kt` + `capsule.audio.music.*` sont des
-  copies verbatim de `video.kernel.music` — supprimer + ré-importer au reset.
+. **Décision de canal** (pilote) : soit attendre le **reset Central 2026-12-01**
+   (adoption `education.cccp:video-kernel:0.9.1` + publication), soit acter un
+   **shim de build** JitPack documenté (le POM publié ne doit **jamais** en dépendre —
+   un consommateur du POM ne le résoudrait pas). Ne pas réintroduire JitPack dans
+   le POM.
+. Puis `HF-SPEAKER-NOTES` US-2→US-8 : extraction `hyperframes.notes`, injection,
+   TTS par scène, **muxage** `muxHyperframesNarration`, traçabilité N3, BDD, docs.
+. Vérifier `video-kernel v0.9.1` : build JitPack `ok`, POM repo-level 200.
 
 == Points d'attention
 

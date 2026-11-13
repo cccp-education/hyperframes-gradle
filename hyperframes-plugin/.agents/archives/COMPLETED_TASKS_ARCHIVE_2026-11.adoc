@@ -25,3 +25,12 @@
 * [x] **EPIC `HF-MUSIC-LIBRARY` TERMINÉ 9/9** ; compiles + `ktlintCheck` VERTS.
 * [ ] `HF-SPEAKER-NOTES` US-2→US-8 — bloqués par la publication `video-kernel 0.9.0`.
 * [x] Rapports `.agents/sessions/057-…` (hyperframes) + `.agents/sessions/216-…` (capsule).
+
+== Session 058 — Release `0.0.15` sur JitPack ✅
+
+* [x] Tag `v0.0.15` (commit `4fc36b1`) : US-8 crossfade + US-6 adoption capsule
+  + correctif ktlint `JdkHttpTransport` (`37f1175`).
+* [x] JitPack build `ok`, POM 200 (`v0.0.15` + `0.0.15`), modules + marker.
+* [ ] Central `0.0.15` (quota, ≥ 2026-12-01) ; `HF-SPEAKER-NOTES` US-2→8 bloqué
+  (video-kernel absent de Central).
+* [x] Rapport `.agents/sessions/058-release-0.0.15-jitpack.adoc`.

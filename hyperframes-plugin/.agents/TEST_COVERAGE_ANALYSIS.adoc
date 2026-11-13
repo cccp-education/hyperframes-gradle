@@ -1,6 +1,16 @@
 = Test Coverage Analysis — hyperframes-gradle
 
-_Dernière mise à jour_ : 2026-11-12 (Session 057 — HF-MUSIC-LIBRARY US-6, adoption capsule)
+_Dernière mise à jour_ : 2026-11-13 (Session 058 — release JitPack 0.0.15 + correctif ktlint CI)
+
+== Couverture — 13 novembre 2026 (après session 058)
+
+.Aucun test ajouté — release + correctif de style
+|===
+| Élément | Changement | Tests
+
+| `hyperframes/publish/JdkHttpTransport.kt` | correctif ktlint (multiline expression) pour la CI | aucun test modifié
+| release JitPack `0.0.15` | tag + publication | — (preuve : build `ok`, POM 200)
+|===
 
 == Couverture — 12 novembre 2026 (après session 057, US-6 adoption capsule)
 

@@ -1,5 +1,14 @@
 = SESSIONS_HISTORY — hyperframes-gradle
 
+== Session 058 (2026-11-13) — Release `0.0.15` sur JitPack (+ correctif ktlint CI)
+
+Tag annoté `v0.0.15` (commit `4fc36b1`) : `HF-MUSIC-LIBRARY` US-8 (crossfade
+temporel) + US-6 (adoption capsule) + correctif ktlint `JdkHttpTransport`
+(`37f1175`). JitPack build **`ok`**, POM **HTTP 200** (`v0.0.15` et `0.0.15`),
+modules `hyperframes-plugin` + marker. Central non publié (quota Sonatype,
+reset 2026-12-01). Zéro test local (Local = Build). Rapport
+`.agents/sessions/058-release-0.0.15-jitpack.adoc`.
+
 == Session 057 (2026-11-12) — HF-MUSIC-LIBRARY US-6 : adoption capsule (EPIC TERMINÉ 9/9)
 
 Session pilotée depuis hyperframes, code livré dans **capsule**. `audioPost

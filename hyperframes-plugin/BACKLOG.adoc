@@ -2,7 +2,19 @@
 :toc:
 
 _Date création_ : 2026-05-31
-_Version_ : **0.0.14 (Central)** — HEAD S-046 publié ; catalogue/BOM ws **`0.0.115`**.
+_Version_ : **0.0.15 (JitPack)** — `v0.0.15` build `ok` (POM 200) ; Central bloqué par le quota Sonatype (reset 2026-12-01) ; catalogue/BOM ws **`0.0.115`**.
+
+'''
+== ✅ Release `0.0.15` — JitPack (S-058)
+
+* Tag annoté **`v0.0.15`** (commit `4fc36b1`), build JitPack **`ok`**, modules
+  `hyperframes-plugin` + `education.cccp.hyperframes.gradle.plugin`.
+* POM **HTTP 200** (`v0.0.15` et `0.0.15`) ; coordinate repo-level
+  `com.github.cccp-education.hyperframes-gradle:hyperframes-plugin:v0.0.15`.
+* Contenu : `HF-MUSIC-LIBRARY` US-8 (crossfade temporel) + US-6 (adoption capsule)
+  + correctif ktlint `JdkHttpTransport` (CI verte).
+* Central : **non publié** (quota mensuel de l'org `cccp.education`, reset
+  **2026-12-01**) — même blocage que capsule. Portal : câblage non requis ici.
 
 '''
 == 🟡 EPICs ouverts — traçabilité BACKLOG (synchronisée 2026-11-12)
