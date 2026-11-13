@@ -21,25 +21,24 @@ _note_ : fichier canonique = `.agents/PROMPT_REPRISE.adoc`.
   marker `education.cccp.hyperframes.gradle.plugin`.
 * Contenu : `HF-MUSIC-LIBRARY` US-8 (crossfade) + US-6 (adoption capsule) +
   correctif ktlint `JdkHttpTransport` (CI verte).
-* Central : **non publié** (quota Sonatype `cccp.education`, reset **2026-12-01**).
+* Central/Portal : **retirés** — JitPack est le canal unique (CNV-17).
 * Rapport `.agents/sessions/058-release-0.0.15-jitpack.adoc`.
 
 == État
 
-* **JitPack `0.0.15`** ; Central `0.0.14` (quota) ; `video-kernel` consommé
-  `0.7.0` (Central).
+* **JitPack `0.0.15`** (canal unique) ; Central/Portal **retirés** ; `video-kernel`
+  consommé depuis JitPack (`0.7.0` puis `0.9.1`).
 * `HF-MUSIC-LIBRARY` ✅ 9/9 ; `HF-DEMO-QUALITY` ✅ 7/7 ; `HF-YOUTUBE-PUBLISH` ⏸️.
 * `HF-SPEAKER-NOTES` : US-1 noyau ✅ (video-kernel `0.9.1` **JitPack**,
   repo-level `com.github.cccp-education.video-kernel-gradle:video-kernel-gradle:v0.9.1`)
-  ; US-2→US-8 **bloqués** pour un POM Central (le kernel n'est pas sur Central).
+  ; US-2→US-8 **bloqués** par l alignement JitPack du kernel (`video-kernel 0.9.1`).
 
 == Mission Session 059 — débloquer `HF-SPEAKER-NOTES`
 
-. **Décision de canal** (pilote) : soit attendre le **reset Central 2026-12-01**
-   (adoption `education.cccp:video-kernel:0.9.1` + publication), soit acter un
-   **shim de build** JitPack documenté (le POM publié ne doit **jamais** en dépendre —
-   un consommateur du POM ne le résoudrait pas). Ne pas réintroduire JitPack dans
-   le POM.
+. **Canal** : JitPack est le canal unique (CNV-17) — adopter
+   `video-kernel 0.9.1` depuis JitPack (shim `useModule`). Central et Portal
+   sont **retirés** (plus de « reset 2026-12-01 » à attendre). Le POM publié ne
+   doit **jamais** dépendre du shim (un consommateur du POM ne le résoudrait pas).
 . Puis `HF-SPEAKER-NOTES` US-2→US-8 : extraction `hyperframes.notes`, injection,
    TTS par scène, **muxage** `muxHyperframesNarration`, traçabilité N3, BDD, docs.
 . Vérifier `video-kernel v0.9.1` : build JitPack `ok`, POM repo-level 200.
