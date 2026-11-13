@@ -33,7 +33,7 @@ repositories {
 // The literal below is the drift guard's contract (the injected value must equal it).
 
 dependencies {
-    implementation(platform("education.cccp:workspace-bom:0.0.115"))
+    implementation(platform("com.github.cccp-education.workspace-bom:workspace-bom:0.0.136"))
 
     implementation(kotlin("stdlib-jdk8"))
     // N1 shared engine-neutral video kernel (spike — 2nd engine adapter).

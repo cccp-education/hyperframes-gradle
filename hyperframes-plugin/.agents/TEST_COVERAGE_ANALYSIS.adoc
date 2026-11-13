@@ -439,3 +439,12 @@ acceptance + 4 Templates + Pronunciation Control.
 === Recommandations
 - Session 012 : HF-6c Gradle Plugin Portal (tâche de publication, pas de code)
 - Session 013 : HF-7 évolution (câblage extension Gradle)
+== Session 059 — HF-SPEAKER-NOTES (US-2→US-8)
+
+- + `SpeakerNotesExtractorTest` (8 UT), `HyperframesSpeakerNotesInjectionTest`
+  (4 UT), `HyperframesSpeakerNotesContextTest` (3 UT), `NarrationMuxTest`
+  (6 UT), `NarrationTrackExtractorTest` +2.
+- BDD `@speaker-notes` (5 scénarios) + FT TestKit `HyperframesNarrationMuxTest`
+  (5, FFmpeg **stub** : graphe, passthrough, dégradé, strict).
+- Couverture : seuil Kover inchangé ; la mesure de référence est la CI du commit.
+- Dogfooding réel espeak/ffmpeg (MP4 15 s h264+aac) hors couverture unitaire.
