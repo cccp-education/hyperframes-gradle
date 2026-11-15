@@ -50,7 +50,9 @@ dependencyResolutionManagement {
         mavenLocal()
         mavenCentral()
         // CNV-16 — JitPack channel (Central suspended until 2026-12-01).
-        maven("https://jitpack.io")
+        if (publicationChannel == "jitpack") {
+            maven("https://jitpack.io")
+        }
     }
 }
 
