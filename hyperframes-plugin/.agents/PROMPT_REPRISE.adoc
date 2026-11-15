@@ -1,51 +1,58 @@
-= PROMPT_REPRISE — HyperFrames Gradle (Session 061 TERMINÉE → 062)
-:session: 062
+= PROMPT_REPRISE — HyperFrames Gradle (Session 063 TERMINÉE → 064)
+:session: 063
+:date: 2026-11-15
 :borough: Watts
-:session_precedente: 061 — GBL-013 vague 2 (gate hermétique dans l'image) ✅
+:session_precedente: 062 — EAGER : publication JitPack canal unique ✅
+:etat: S-063 — **GBL-014-5 rollout + GBL-014-4 + GBL-013-10** ✅ — settings channel-conditionnels (`-Pchannel`, défaut `jitpack`), hygiène du DRM (`dae63eb`), shim conventions `0.0.19`, actions `node24`-natives + `node-version: 26`, image `cccp-ci-base` Node 26.13.1. CI `Test` (5 commits) + `Real Render` vertes.
 _note_ : fichier canonique = `.agents/PROMPT_REPRISE.adoc`.
 
-== Session 061 (TERMINÉE) — GBL-013 vague 2 : gate hermétique dans l'image
+== Session 063 (TERMINÉE) — rollout du canal + Node 26
 
-* `ci/run.sh` (`fast` = `compileKotlin`, `test` = `check`).
-* `test-hyperframes.yml` épinglé sur
-  `cccpeducation/cccp-ci-base@sha256:4722c1bc…` ; `setup-java` supprimé.
-* `real-render-hyperframes.yml` (Node/Chromium/ffmpeg) reste hôte.
-* Run `43507444973` **VERT** (commit `62240cc`). Rapport
-  `.agents/sessions/061-gbl-013-wave2.adoc`.
+* `0556074` — settings channel-conditionnels (racine + `hyperframes-plugin`) ;
+  JitPack + shim seulement en `jitpack` ; `ci/run.sh` `-Pchannel`
+  (`fast` = `compileKotlin verifyChannel`, `test` = `check`).
+* `dae63eb` — hygiène : `maven("https://jitpack.io")` du DRM conditionnel.
+* `753903b` — shim `conventions-plugin` `0.0.19`.
+* `1e6ed64` / `7b3907f` — actions `node24`-natives, `node-version: '26'` et
+  image `cccp-ci-base@sha256:03ead378…` (Node 26.13.1).
+* **CI verte** : `Test` `43690086672` + `Real Render` `43687486524`. Rapport
+  `.agents/sessions/063-gbl-014-5-channel-rollout.adoc`.
 
+== Session 062 (TERMINÉE) — EAGER : publication JitPack canal unique
 
-== Session 058 (TERMINÉE) — release `0.0.15` JitPack
-
-* Tag annoté **`v0.0.15`** (commit `4fc36b1`), build JitPack **`ok`**.
-* POM **HTTP 200** (`v0.0.15` et `0.0.15`), modules `hyperframes-plugin` +
-  marker `education.cccp.hyperframes.gradle.plugin`.
-* Contenu : `HF-MUSIC-LIBRARY` US-8 (crossfade) + US-6 (adoption capsule) +
-  correctif ktlint `JdkHttpTransport` (CI verte).
-* Central/Portal : **retirés** — JitPack est le canal unique (CNV-17).
-* Rapport `.agents/sessions/058-release-0.0.15-jitpack.adoc`.
+* Alignement EAGER : JitPack canal unique ; Maven Central/Sonatype et
+  Gradle Plugin Portal **retirés**. Aucun code, aucun test.
+* Rapport `.agents/sessions/062-eager-publication-jitpack-only.adoc`.
 
 == État
 
-* **JitPack `0.0.15`** (canal unique) ; Central/Portal **retirés** ; `video-kernel`
-  consommé depuis JitPack (`0.7.0` puis `0.9.1`).
+* **JitPack `0.0.16`** (canal unique) ; `video-kernel` consommé depuis JitPack
+  (`0.7.0` puis `0.9.1`).
 * `HF-MUSIC-LIBRARY` ✅ 9/9 ; `HF-DEMO-QUALITY` ✅ 7/7 ; `HF-YOUTUBE-PUBLISH` ⏸️.
-* `HF-SPEAKER-NOTES` : US-1 noyau ✅ (video-kernel `0.9.1` **JitPack**,
-  repo-level `com.github.cccp-education.video-kernel-gradle:video-kernel-gradle:v0.9.1`)
-  ; US-2→US-8 **bloqués** par l alignement JitPack du kernel (`video-kernel 0.9.1`).
+* `HF-SPEAKER-NOTES` ✅ 9/9 (US-1 noyau `video-kernel 0.9.1` ; US-2→US-8
+  livrées S-059).
+* Canal = propriété `-Pchannel` (`jitpack` défaut, `central` opt-in après le
+  reset du 2026-12-01) ; jamais de branche.
 
-== Mission Session 059 — débloquer `HF-SPEAKER-NOTES`
+== Mission Session 064 — à la demande du pilote
 
-. **Canal** : JitPack est le canal unique (CNV-17) — adopter
-   `video-kernel 0.9.1` depuis JitPack (shim `useModule`). Central et Portal
-   sont **retirés** (plus de « reset 2026-12-01 » à attendre). Le POM publié ne
-   doit **jamais** dépendre du shim (un consommateur du POM ne le résoudrait pas).
-. Puis `HF-SPEAKER-NOTES` US-2→US-8 : extraction `hyperframes.notes`, injection,
-   TTS par scène, **muxage** `muxHyperframesNarration`, traçabilité N3, BDD, docs.
-. Vérifier `video-kernel v0.9.1` : build JitPack `ok`, POM repo-level 200.
+* Aucun EPIC actionnable ouvert (`HF-YOUTUBE-PUBLISH` gelé par décision
+  pilote). Candidats sur accord : reprise YouTube (upload), ou release `0.0.17`
+  si le contenu du canal doit être aligné sur un nouveau commit.
+* Vérifier `video-kernel` : build JitPack `ok`, POM repo-level 200.
 
 == Points d'attention
 
 * **Local = Build, Tests = CI** ; accords pilote/publication/bump/git accordés.
-* **Licence** : aucune piste sans licence déclarée ; audio jamais committé/publié.
+* **Licence** : aucune piste sans licence déclarée ; audio jamais
+  committé/publié.
 * Zéro secret ; zéro Python ; English only code/tests/features.
 * Le son est une **séquence du document** (D12), pas un réglage caché.
+* Dette transverse : `bakery` relabel `0.0.136`, Sonatype 130791, GBL-013 US-7.
+
+== References
+
+* `.agents/sessions/063-gbl-014-5-channel-rollout.adoc` (rapport S-063)
+* `.agents/sessions/062-eager-publication-jitpack-only.adoc`
+* `.agents/sessions/059-hf-speaker-notes-us2-us8.adoc`
+* `.agents/CADRAGE_EPIC_GBL_014_DUAL_CHANNEL.adoc` (racine workspace)

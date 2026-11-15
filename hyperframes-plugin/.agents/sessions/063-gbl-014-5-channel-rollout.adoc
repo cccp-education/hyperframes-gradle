@@ -1,0 +1,75 @@
+= Session 063 — GBL-014-5 / GBL-014-4 / GBL-013-10 : rollout du canal, hygiène JitPack, Node 26 (hyperframes)
+:toc:
+
+:_date_: 2026-11-15
+:_borough_: Watts (hyperframes-gradle, N2)
+:_session_precedente_: 062 (EAGER : publication JitPack canal unique)
+:_statut_: ✅ rollout livré, CI verte
+
+== Contexte
+
+Session globale 229 (2026-11-15). Trois chantiers transverses touchant le
+borough :
+
+. **GBL-014-5** — le canal de publication devient une **propriété du build**
+   (`-Pchannel`, défaut `jitpack`), jamais une branche.
+. **GBL-014-4** — shim `conventions-plugin` `0.0.17|0.0.18 → 0.0.19`, puis
+   hygiène du dépôt JitPack en `dependencyResolutionManagement`.
+. **GBL-013-10** — dernière LTS Node : actions `node24`-natives et image CI
+   `cccp-ci-base` rebâtie sur Node 26.13.1.
+
+Cadrages : `.agents/CADRAGE_EPIC_GBL_014_DUAL_CHANNEL.adoc` et
+`.agents/CADRAGE_EPIC_GBL_013_PORTABILITE_CI.adoc` (racine workspace).
+
+== Changements
+
+* `0556074` — **GBL-014-5** : `settings.gradle.kts` (racine **et**
+  `hyperframes-plugin`) conditionnels sur
+  `providers.gradleProperty("channel").getOrElse("jitpack")` ; dépôt JitPack +
+  shim `useModule(...)` **seulement** en `jitpack` ; `ci/run.sh` passe
+  `-Pchannel` (`fast` = `compileKotlin verifyChannel`, `test` = `check`).
+* `dae63eb` — **GBL-014-4 (hygiène)** : le `maven("https://jitpack.io")`
+  inconditionnel du `dependencyResolutionManagement` (sous-build) est rendu
+  conditionnel au canal.
+* `753903b` — **GBL-014-4** : shim `conventions-plugin` `0.0.18 → 0.0.19`
+  (racine + sous-build).
+* `1e6ed64` — **GBL-013-10** : `actions/checkout@v4 → v7`,
+  `gradle/actions/setup-gradle@v4 → v6`, `actions/setup-node@v4 → v6` et
+  `node-version: '26'` (LTS 26.13.1) dans `real-render-hyperframes.yml` et
+  `test-hyperframes.yml`.
+* `7b3907f` — **GBL-013-10** : image `cccp-ci-base` re-pinée
+  `sha256:03ead3787ed8f09068cc582191e4cd8f5e48e3ce696fe53836ecd826de57ea1f`
+  (Node 26.13.1) dans `test-hyperframes.yml`.
+* Aucun code de production modifié ; aucun test exécuté en local
+  (Local = Build, Tests = CI).
+
+== Preuves CI
+
+| Commit | Workflow | Run | Résultat
+| `0556074` | `Test` | `43660600499` | ✅
+| `dae63eb` | `Test` | `43665863475` | ✅
+| `753903b` | `Test` | `43672570615` | ✅
+| `1e6ed64` | `Test` / `Real Render (HF-CR3)` | `43685732392` / `43687486524` | ✅
+| `7b3907f` | `Test` | `43690086672` | ✅
+
+Zéro secret, zéro publication, zéro bump de version.
+
+== Fichiers touchés
+
+* `settings.gradle.kts`
+* `hyperframes-plugin/settings.gradle.kts`
+* `ci/run.sh`
+* `.github/workflows/test-hyperframes.yml`
+* `.github/workflows/real-render-hyperframes.yml`
+
+== Reste à faire (transverse, hors borough)
+
+* **`bakery`** — dette du catalogue relabellé `0.0.136` (revertée : les tags
+  JitPack de `document`/`codebase`/`graphify`/`plantuml` ne pointent pas les
+  commits Central du même numéro).
+* **`container-provision-plugin`** et racines agrégateurs : aucune gate
+  `verifyChannel`.
+* **Sonatype 130791** — republication `central` après le reset du 2026-12-01
+  (GBL-014 US-6/US-7).
+* **GBL-013 US-7** — workflows `office` bloqués (secrets + image privée).
+* Côté hyperframes : `HF-YOUTUBE-PUBLISH` ⏸️ (gelé par décision pilote).
