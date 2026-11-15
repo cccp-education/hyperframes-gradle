@@ -8,12 +8,14 @@ ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$ROOT/hyperframes-plugin"
 
 job="${1:-}"
+# GBL-014 — publication channel (jitpack default until the Sonatype reset).
+channel="${CHANNEL:-jitpack}"
 case "$job" in
   fast)
-    ./gradlew compileKotlin --no-daemon --console=plain
+    ./gradlew compileKotlin verifyChannel -Pchannel="$channel" --no-daemon --console=plain
     ;;
   test)
-    ./gradlew check --no-daemon --console=plain
+    ./gradlew check -Pchannel="$channel" --no-daemon --console=plain
     ;;
   *)
     printf 'unsupported job for hyperframes-gradle: %s\n' "${job:-<none>}" >&2
