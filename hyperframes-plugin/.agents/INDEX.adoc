@@ -1,6 +1,7 @@
 = INDEX — HyperFrames Gradle
 :toc:
 
+ _Derniere mise a jour_ : 2026-11-18 — Session 064 — **adoption `video-kernel 0.9.2`** ✅ (dette N1 `video.kernel.music`) : `hyperframes.sound.MusicModel.kt` supprimé, imports `video.kernel.music.*` dans 10 fichiers prod + 8 fichiers de test ; `MusicLibraryManifestLoader` (Jackson) et `MusicAssetPlanner` restent N2. `compileKotlin`/`compileTestKotlin`/`compileFunctionalTestKotlin` + `ktlintCheck` VERTS ; CI `Test` verte `44221128987`. Adoption non servie (artefact `0.0.16`) → release `0.0.17`. Rapport `.agents/sessions/064-video-kernel-adoption.adoc`.
 _Derniere mise a jour_ : 2026-11-15 — Session 063 — **GBL-014-5 rollout du canal + GBL-014-4 + GBL-013-10** ✅ : settings channel-conditionnels (`-Pchannel`, défaut `jitpack`), hygiène du DRM (`dae63eb`), shim conventions `0.0.19`, actions `node24`-natives + `node-version: '26'`, image `cccp-ci-base` re-pinée `sha256:03ead378…` (Node 26.13.1). CI `Test` verte sur les 5 commits + `Real Render` `43687486524`. Zéro code métier, zéro bump, zéro secret. Rapport `.agents/sessions/063-gbl-014-5-channel-rollout.adoc`.
 _Derniere mise a jour_ : 2026-11-14 (Session 061 — **GBL-013 vague 2** ✅ — `ci/run.sh` (`fast`/`test` = `check`) ; `test-hyperframes.yml` épinglé sur `cccpeducation/cccp-ci-base@sha256:4722c1bc…` ; `setup-java` supprimé ; `real-render` reste hôte. Run `43507444973` VERT. Rapport `.agents/sessions/061-gbl-013-wave2.adoc`.)
 _Derniere mise a jour_ : 2026-11-13 (Session 060 — **CNV-17 — JitPack canal unique** ✅ — catalogue `ws` ← `workspace-catalog:0.0.136` (sans préfixe `v`, D2), plateforme `com.github.cccp-education.workspace-bom:workspace-bom:0.0.136`, shim conventions `0.0.17` et dépôt `jitpack.io` en résolution ; version BOM de la garde **dérivée du catalogue** (plus de littéral `0.0.115`), `HyperframesPluginPublicationTest` aligné ; correctif ktlint. CI `Test` verte `43474996321`. Rapport `.agents/sessions/060-cnv-17-jitpack-channel.adoc`.)
@@ -24,8 +25,8 @@ _DAG_ : N2 — Plugin Gradle de transformation documentaire AsciiDoc → vidéo 
 _Dépendance N2_ : codex-gradle (compileOnly, AsciidoctorJ partagé)
 _Bridge externe_ : HyperFrames CLI via le noyau `VideoEngine` (`node <cliScript> render <dir> --output <mp4>`)
 
-_Dernière session terminée_ : 060 — **CNV-17 — JitPack canal unique** (catalogue `0.0.136`, plateforme JitPack, shim `0.0.17`). CI `Test` verte `43474996321`. Rapport `.agents/sessions/060-cnv-17-jitpack-channel.adoc`.
-_Prochaine session_ : 061 — maintenance. Ne pas réintroduire de coordonnée `education.cccp:*` dans les pins de consommation ; `HF-YOUTUBE-PUBLISH` **gelé**.
+_Dernière session terminée_ : 064 — adoption `video-kernel 0.9.2` (copie `MusicModel` supprimée).
+_Prochaine session_ : 065 — servir l'adoption : DAG MEMPHIS (catalogue `hyperframes-plugin 0.0.17`) puis tag JitPack ; puis `GBL-002` (distribution). `HF-YOUTUBE-PUBLISH` reste gelé.
 _Version publiée_ : **0.0.16** (JitPack, tag `v0.0.16`). Catalogue `ws` ← JitPack `workspace-catalog:0.0.136` ; plateforme BOM **`0.0.136`** (JitPack) ; noyau **`video-kernel-gradle:v0.9.1`** (JitPack).
 
 '''

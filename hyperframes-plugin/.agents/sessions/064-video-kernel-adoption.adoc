@@ -1,0 +1,42 @@
+= Session 064 — adoption `video-kernel 0.9.2` (dette N1 musique)
+:date: 2026-11-18
+:borough: hyperframes (Watts, N2)
+:statut: ✅ TERMINÉE (adoption source ; release consommateur = S-065)
+
+== Mission
+
+La dette N2 documentée depuis S-053 : `hyperframes.sound.MusicModel.kt` était une
+copie verbatim de `video.kernel.music`, conservée parce que `0.8.0` n'était servi
+que par JitPack et qu'un POM publié doit rester résolvable depuis les dépôts du
+consommateur. Depuis GBL-014/CNV-17, JitPack **est** le canal par défaut, et
+`video-kernel` est déjà consommé depuis JitPack (`v0.9.1`). La copie n'a donc plus
+de raison d'être.
+
+== Ce qui a été fait
+
+* `gradle/libs.versions.toml` : `video-kernel v0.9.1 → 0.9.2` (tag unifié du
+  dépôt noyau, US-3b — sert aussi `youtube-auth-plugin`).
+* `src/main/kotlin/hyperframes/sound/MusicModel.kt` **supprimé**.
+* Réalignement des imports `video.kernel.music.*` :
+  - prod (10 fichiers) : `GenerateHyperframesHtmlTask`, `HyperframesHtmlProcessor`,
+    `sound/MusicAssetPlanner`, `sound/MusicAttribution`,
+    `sound/MusicLibraryManifestLoader`, `sound/SoundCueResolver` (+ fichiers
+    indirectement touchés par la suppression) ;
+  - tests (8 fichiers) : `HyperframesHtmlProcessorSoundTest`, 3 classes de steps
+    `@music`, 4 tests du domaine `sound`.
+* Non migrés (N2 légitime) : `MusicLibraryManifestLoader` (Jackson — adaptateur
+  de fichier), `MusicAssetPlanner` (plan de copie `sha256`), `SoundBlockParser`,
+  `SoundSequencePlanner`, `SoundHtmlRenderer` (DSL/document).
+
+== Gates
+
+* Local = Build : `compileKotlin` + `compileTestKotlin` + `compileFunctionalTestKotlin`
+  VERTS.
+* `ktlintCheck` VERT (import-ordering).
+* CI `Test` : run `44221128987` ✅ (commit `d0a68dd`).
+
+== Reste (dette de release)
+
+L'artefact publié `hyperframes-plugin 0.0.16` précède l'adoption. Servir exige le
+DAG MEMPHIS (catalogue `0.0.17`) puis le tag JitPack `v0.0.17`, avec vérification
+POM/JAR 200.

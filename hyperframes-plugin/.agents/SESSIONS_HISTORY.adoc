@@ -1,5 +1,18 @@
 = SESSIONS_HISTORY — hyperframes-gradle
 
+
+== Session 064 (2026-11-18) — adoption `video-kernel 0.9.2` (copie `MusicModel` supprimée)
+
+`hyperframes-plugin/gradle/libs.versions.toml` : `video-kernel v0.9.1 → 0.9.2`.
+`hyperframes.sound.MusicModel.kt` **supprimé** (copie verbatim de
+`video.kernel.music` maintenue depuis S-053 comme fallback de canal) :
+`MusicLicence`/`MusicTrack`/`MusicLibrary`/`MusicSelection`/`MusicTrackSelector`
+viennent du noyau ; `MusicLibraryManifestLoader` (Jackson) et `MusicAssetPlanner`
+restent N2. `ktlintCheck` + `compileKotlin`/`compileTestKotlin`/
+`compileFunctionalTestKotlin` VERTS ; CI `Test` verte `44221128987`.
+Adoption non servie (artefact publié `0.0.16`) → release `0.0.17` au DAG. Rapport
+`.agents/sessions/064-video-kernel-adoption.adoc`.
+
 == Session 058 (2026-11-13) — Release `0.0.15` sur JitPack (+ correctif ktlint CI)
 
 Tag annoté `v0.0.15` (commit `4fc36b1`) : `HF-MUSIC-LIBRARY` US-8 (crossfade

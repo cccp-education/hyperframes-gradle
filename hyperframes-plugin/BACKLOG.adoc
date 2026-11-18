@@ -89,9 +89,10 @@ _Cadrage_ : `.agents/CADRAGE_EPIC_HF_MUSIC_LIBRARY.adoc` (9 US ~21 pts).
 | US-9 | docs (`doc/MUSIQUE_ET_SON.adoc` + README) | ✅ S-054
 |===
 
-_Dette N2_ : `hyperframes.sound.MusicModel.kt` est une copie verbatim de
-`video.kernel.music` (0.8.0 = JitPack only ; un POM publié doit rester
-résolvable). À supprimer au reset Central.
+_Dette N2 résorbée_ : `hyperframes.sound.MusicModel.kt` (copie verbatim de
+`video.kernel.music`, fallback de canal S-053) a été **supprimé en S-064** ;
+l'adoption réelle du noyau (`video-kernel 0.9.2`) est faite. Servie au prochain
+tag (`0.0.17`).
 
 _Statut EPIC (2026-11-12)_ : **✅ TERMINÉ 9/9 US** — US-1→US-9 livrées (US-6
 adoption capsule pilotée ici : code capsule).
