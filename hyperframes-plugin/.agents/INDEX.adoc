@@ -81,7 +81,7 @@ _Version publiée_ : **0.0.16** (JitPack, tag `v0.0.16`). Catalogue `ws` ← Jit
 | HF-DEMO-QUALITY | **Démo de référence + portage des capacités au DSL** — `demo-video/` (5 scènes, 48 s, transitions CSS, médias PD/CC0, chrome, typographie display) comme cible qualité ; puis porter transitions/médias/chrome/entrées/fond média/parallaxe dans `HyperframesHtmlProcessor` avec tests. | ✅ **TERMINÉ 7/7** — US-1/2/3 S-036, US-2b S-037, US-4 + US-5 S-038, US-6 S-044 (fond média), **US-7 S-046** (parallaxe opt-in, +3 UT +2 UT processeur +1 FT +1 BDD) | P1
 | PUBLISH-ADAPTER-N1 | **Briques pures de publication au noyau** — adoption `video-kernel 0.7.0` (parser chapitres, credentials, commande JSON sans Jackson, seam HTTP) + `youtube-auth-plugin 0.0.2` ; suppression des copies N2. | ✅ **TERMINÉ (S-046)** | P1
 | HF-SPEAKER-NOTES | **Notes d'orateur lues dans la vidéo** — `[NOTE.speaker]` extraites par la grammaire N1 partagée, retirées du visuel, narrées par scène, **muxées** dans le MP4 (`muxHyperframesNarration`, opt-in), exposées en N3 (`speakerNotes`). Cadrage `.agents/CADRAGE_EPIC_HF_SPEAKER_NOTES.adoc`. | ✅ **TERMINÉ 9/9 (S-059)** — US-1 noyau S-203 · US-2→US-8 S-059 | P1
-| HF-MUSIC-LIBRARY | **Bibliothèque musicale (BGM) issue de newpipe** — extraction YouTube→MP3 (Nashville, GPL boundary, outil séparé) → `music-library.json` (provenance/licence) → sélection N1 ; **balises de son dans l'AsciiDoc** (`[.hyperframes-music]`/`[.hyperframes-sfx]`) déclarant la **séquence sonore** par scène ; résolution + injection timeline. Cadrage `.agents/CADRAGE_EPIC_HF_MUSIC_LIBRARY.adoc`. | 🟡 **EN COURS** — US-1 ✅ S-004 (newpipe producteur) + US-2 ✅ S-201 (`video-kernel 0.8.0` sur JitPack) + **US-3 ✅ S-052** (domaine `hyperframes.sound` + processor, 51 unit + BDD `@music`) + **US-4 ✅ S-053** (`MusicAssetPlanner` + `resolveHyperframesBgm` + DSL `music { }`, 8 unit + BDD `@music-assets` + FT TestKit) + **US-5 ✅ S-054** (FT du graphe complet, CLI stub) + **US-9 ✅ S-054** (`doc/MUSIQUE_ET_SON.adoc` + `README.adoc`) + **US-7 ✅ S-055** (`MusicAttribution` : crédits `cc-by` des pistes réellement utilisées → description, 8 unit + BDD `@music-credits` + FT TestKit) + **US-8 ✅ S-056** (crossfade temporel, `crossfade:` opt-in) + **US-6 ✅ S-057** (adoption capsule) | ✅ TERMINÉ 9/9 | P1
+| HF-MUSIC-LIBRARY | **Bibliothèque musicale (BGM) issue de newpipe** — extraction YouTube→MP3 (Nashville, GPL boundary, outil séparé) → `music-library.json` (provenance/licence) → sélection N1 ; **balises de son dans l'AsciiDoc** (`[.hyperframes-music]`/`[.hyperframes-sfx]`) déclarant la **séquence sonore** par scène ; résolution + injection timeline. Cadrage `.agents/CADRAGE_EPIC_HF_MUSIC_LIBRARY.adoc`. | ✅ **TERMINÉ 9/9** — US-1 ✅ S-004 (newpipe producteur) + US-2 ✅ S-201 (`video-kernel 0.8.0` sur JitPack) + **US-3 ✅ S-052** (domaine `hyperframes.sound` + processor, 51 unit + BDD `@music`) + **US-4 ✅ S-053** (`MusicAssetPlanner` + `resolveHyperframesBgm` + DSL `music { }`, 8 unit + BDD `@music-assets` + FT TestKit) + **US-5 ✅ S-054** (FT du graphe complet, CLI stub) + **US-9 ✅ S-054** (`doc/MUSIQUE_ET_SON.adoc` + `README.adoc`) + **US-7 ✅ S-055** (`MusicAttribution` : crédits `cc-by` des pistes réellement utilisées → description, 8 unit + BDD `@music-credits` + FT TestKit) + **US-8 ✅ S-056** (crossfade temporel, `crossfade:` opt-in) + **US-6 ✅ S-057** (adoption capsule) | ✅ TERMINÉ 9/9 | P1
 |===
 
 '''
@@ -279,7 +279,7 @@ sert qu'à la lecture. Guide §2.2 du cadrage.
 '''
 == EPIC HF-SPEAKER-NOTES — Notes d'orateur lues dans la vidéo
 
-_Statut_ : 🟡 **CADRÉ (S-049)**. Cadrage `.agents/CADRAGE_EPIC_HF_SPEAKER_NOTES.adoc`.
+_Statut_ : ✅ **TERMINÉ 9/9 (S-059)**. Cadrage `.agents/CADRAGE_EPIC_HF_SPEAKER_NOTES.adoc`.
 
 _Problème_ : hyperframes sait produire une narration à partir de blocs
 `[hyperframes-track]` (contenu de scène **visible**) et synthétiser des WAV, mais
@@ -304,7 +304,7 @@ US-8 docs.
 '''
 == EPIC HF-MUSIC-LIBRARY — BGM issu du borough newpipe (séquences dans l'AsciiDoc)
 
-_Statut_ : 🟡 **EN COURS** — US-5 + US-9 livrées S-054. Cadrage `.agents/CADRAGE_EPIC_HF_MUSIC_LIBRARY.adoc`.
+_Statut_ : ✅ **TERMINÉ 9/9 (S-057)**. Cadrage `.agents/CADRAGE_EPIC_HF_MUSIC_LIBRARY.adoc`.
 
 _Problème_ : le BGM est un fichier `bgm.mp3` codé en dur (aucune bibliothèque,
 aucune sélection, aucune provenance), et l'auteur **ne peut pas déclarer de

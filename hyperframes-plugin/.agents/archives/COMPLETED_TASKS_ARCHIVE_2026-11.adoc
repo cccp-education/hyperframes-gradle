@@ -68,3 +68,14 @@
   26.13.1 (`sha256:03ead378…`).
 * CI `Test` verte sur les 5 commits + `Real Render` `43687486524`.
 * Rapport `.agents/sessions/063-gbl-014-5-channel-rollout.adoc`.
+
+== S-064 — adoption `video-kernel 0.9.2` (dette N1 musique) ✅
+
+* `video-kernel v0.9.1 → 0.9.2`.
+* `hyperframes/sound/MusicModel.kt` **supprimé** ; imports `video.kernel.music.*`
+  (10 fichiers prod + 8 tests).
+* `MusicLibraryManifestLoader` (Jackson) + `MusicAssetPlanner` restent N2.
+* `compileKotlin`/`compileTestKotlin`/`compileFunctionalTestKotlin` +
+  `ktlintCheck` VERTS ; CI `Test` verte `44221128987`.
+* Adoption non servie (artefact `0.0.16`) → release `0.0.17` au DAG.
+* Rapport `.agents/sessions/064-video-kernel-adoption.adoc`.

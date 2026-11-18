@@ -448,3 +448,13 @@ acceptance + 4 Templates + Pronunciation Control.
   (5, FFmpeg **stub** : graphe, passthrough, dégradé, strict).
 - Couverture : seuil Kover inchangé ; la mesure de référence est la CI du commit.
 - Dogfooding réel espeak/ffmpeg (MP4 15 s h264+aac) hors couverture unitaire.
+
+== Couverture — 18 novembre 2026 (après session 064)
+
+.Aucun test ajouté — suppression d'une copie N2, imports réalignés
+|===
+| Élément | Changement | Tests
+
+| `hyperframes/sound/MusicModel.kt` (supprimé) | types remplacés par `video.kernel.music.*` (`video-kernel 0.9.2`) | aucun test modifié (seuls imports réalignés dans 8 fichiers de test)
+| `hyperframes/sound/MusicLibraryManifestLoader.kt`, `MusicAssetPlanner.kt` | inchangés fonctionnellement | suites existantes préservées
+|===
