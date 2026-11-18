@@ -4,7 +4,7 @@ youtube-auth = "0.0.2"
 # CNV-16 / JitPack channel — the N1 kernel is consumed from its JitPack tag
 # while Maven Central is suspended (pilot decision, reset 2026-12-01). 0.9.1 is
 # a superset of 0.7.0 (adds `video.kernel.music` + `video.kernel.notes`).
-video-kernel = "v0.9.1"
+video-kernel = "0.9.2"
 kotlin = "2.4.10"
 asciidoctorj = "3.0.1"
 plugin-publish = "2.2.1"

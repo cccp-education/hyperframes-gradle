@@ -6,7 +6,6 @@ import hyperframes.entrance.EntranceConfig
 import hyperframes.notes.SpeakerNotesExtractor
 import hyperframes.pronunciation.PronunciationDomainLoader
 import hyperframes.sound.MusicDeclaration
-import hyperframes.sound.MusicLibrary
 import hyperframes.sound.MusicLibraryManifestLoader
 import hyperframes.vendor.GsapLibrary
 import org.asciidoctor.Asciidoctor
@@ -26,6 +25,7 @@ import org.gradle.api.tasks.OutputDirectory
 import org.gradle.api.tasks.PathSensitive
 import org.gradle.api.tasks.PathSensitivity
 import org.gradle.api.tasks.TaskAction
+import video.kernel.music.MusicLibrary
 import java.io.File
 
 /**

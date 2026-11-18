@@ -1,5 +1,9 @@
 package hyperframes.sound
 
+import video.kernel.music.MusicLibrary
+import video.kernel.music.MusicSelection
+import video.kernel.music.MusicTrackSelector
+
 /**
  * Outcome of resolving a placed music cue against the library
  * (HF-MUSIC-LIBRARY US-3).

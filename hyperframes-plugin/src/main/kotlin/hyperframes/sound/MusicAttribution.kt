@@ -1,5 +1,8 @@
 package hyperframes.sound
 
+import video.kernel.music.MusicLibrary
+import video.kernel.music.MusicTrack
+
 /**
  * Music credits of a composition (HF-MUSIC-LIBRARY US-7 / D10).
  *

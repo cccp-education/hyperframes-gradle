@@ -1,12 +1,12 @@
 package hyperframes.scenarios
 
 import hyperframes.sound.MusicAttribution
-import hyperframes.sound.MusicLibrary
-import hyperframes.sound.MusicLicence
-import hyperframes.sound.MusicTrack
 import io.cucumber.java.en.Given
 import io.cucumber.java.en.Then
 import io.cucumber.java.en.When
+import video.kernel.music.MusicLibrary
+import video.kernel.music.MusicLicence
+import video.kernel.music.MusicTrack
 
 /**
  * HF-MUSIC-LIBRARY US-7 — acceptance for the publication music credits.
